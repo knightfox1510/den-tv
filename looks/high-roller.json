@@ -1,0 +1,17 @@
+{
+  "id": "high-roller",
+  "name": "High Roller",
+  "category": "After dark",
+  "for": "everyone",
+  "scene": "casino",
+  "hero": "none",
+  "watcher": "dice",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "board",
+  "icons": "white",
+  "extras": "none",
+  "moment": "none",
+  "accent": "#ffcf5a",
+  "scoreboard_text": "TABLE 7 · LIMIT 500"
+}

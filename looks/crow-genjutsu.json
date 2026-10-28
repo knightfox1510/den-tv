@@ -1,0 +1,16 @@
+{
+  "id": "crow-genjutsu",
+  "name": "Crow Genjutsu",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "crimson",
+  "hero": "itachi",
+  "watcher": "crows",
+  "focus": "aura",
+  "wake": "sharingan",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "crows",
+  "moment": "drop",
+  "accent": "#ff2a2a"
+}

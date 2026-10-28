@@ -1,0 +1,16 @@
+{
+  "id": "copy-ninja",
+  "name": "Copy Ninja",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "leaf",
+  "hero": "kakashi",
+  "watcher": "chidori",
+  "focus": "aura",
+  "wake": "storm",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "leaves",
+  "moment": "drop",
+  "accent": "#7fc8ff"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "room",
+  "name": "ROOM",
+  "category": "One Piece",
+  "for": "owner",
+  "scene": "room",
+  "hero": "law",
+  "watcher": "room",
+  "focus": "ripple",
+  "wake": "room",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "snow",
+  "moment": "drop",
+  "accent": "#8fd0ff"
+}

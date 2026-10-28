@@ -1,0 +1,16 @@
+{
+  "id": "drum-island",
+  "name": "Drum Island",
+  "category": "One Piece",
+  "for": "everyone",
+  "scene": "drum",
+  "hero": "chopper",
+  "watcher": "chopperhat",
+  "focus": "ripple",
+  "wake": "bloom",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "snow",
+  "moment": "drop",
+  "accent": "#ff8fc0"
+}

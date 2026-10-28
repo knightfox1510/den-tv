@@ -6,13 +6,13 @@ can borrow any part, and a new look is usually a new mix rather than new code.
 | Key | What it picks | Values |
 |---|---|---|
 | `id`, `name` | File name and the name shown on the phone | text |
-| `category` | Where it shows in the gallery | Football, Cricket, Heroes, Anime, Outdoors, Night & neon, Seasonal, Together, After dark |
+| `category` | Where it shows in the gallery | Football, Cricket, Heroes, Anime, Outdoors, One Piece, Night & neon, Seasonal, Together, After dark |
 | `for` | Whose gallery it appears in | `owner`, `partner`, `everyone` (guest mode shows only `everyone`) |
-| `scene` | The painted backdrop | `campnou`, `wankhede`, `bluebillion`, `saiyan`, `ui`, `kurama`, `hokage`, `zoro`, `tangerine`, `wisteria`, `lounge`, `crimson`, `domain`, `grandline`, `wave`, `manga`, `dusk`, `dawn`, `monsoon`, `neon`, `seoul`, `diwali`, `marquee`, `floodlights`, `black` |
-| `hero` | Poster over the scene | `none`, `rotate`, `messi`, `kohli`, `rohit`, `goku`, `naruto`, `luffy`, `zoro`, `nami`, `shinobu`, `gojo`, `tanjiro` |
-| `watcher` | What follows the selected app | `none`, `sharingan`, `mangekyo`, `six`, `saiyan`, `ui`, `kurama`, `sage`, `luffy` (straw hat), `zoro` (three swords), `dragonballs`, `pole` (Power Pole), `cloud` (thundercloud), `butterflies` |
+| `scene` | The painted backdrop | `campnou`, `wankhede`, `bluebillion`, `saiyan`, `ui`, `kurama`, `hokage`, `zoro`, `tangerine`, `wisteria`, `lounge`, `leaf`, `firefist`, `room`, `baratie`, `drum`, `hitman`, `noir`, `velvet`, `casino`, `crimson`, `domain`, `grandline`, `wave`, `manga`, `dusk`, `dawn`, `monsoon`, `neon`, `seoul`, `diwali`, `marquee`, `floodlights`, `black` |
+| `hero` | Poster over the scene | `none`, `rotate`, `messi`, `kohli`, `rohit`, `goku`, `naruto`, `luffy`, `zoro`, `nami`, `shinobu`, `kakashi`, `itachi`, `ace`, `law`, `sanji`, `robin`, `chopper`, `gojo`, `tanjiro` |
+| `watcher` | What follows the selected app | `none`, `sharingan`, `mangekyo`, `six`, `saiyan`, `ui`, `kurama`, `sage`, `luffy` (straw hat), `zoro` (three swords), `dragonballs`, `pole` (Power Pole), `cloud` (thundercloud), `butterflies`, `chidori`, `crows`, `room`, `hearts`, `hands`, `chopperhat`, `bat`, `fedora`, `dice` |
 | `focus` | Effect when you move between apps | `spot`, `pass`, `arc`, `ripple`, `aura` |
-| `wake` | Plays once when the TV switches on | `powerup`, `slash`, `storm`, `flutter`, `sharingan`, `tunnel`, `panels`, `ink`, `bloom`, `crt` |
+| `wake` | Plays once when the TV switches on | `room`, `fire`, `powerup`, `slash`, `storm`, `flutter`, `sharingan`, `tunnel`, `panels`, `ink`, `bloom`, `crt` |
 | `clock` | Clock style | `thin`, `roll`, `board`, `over`, `brush`, `crt` |
 | `icons` | App icons | `white` (logo only), `tiles` |
 | `extras` | Small moving things on top | `auto` or `none`, `flashes`, `flags`, `fireworks`, `crows`, `petals`, `embers`, `sparks`, `gold`, `silver`, `leaves`, `wisteria`, `rain`, `snow` |

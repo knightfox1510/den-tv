@@ -1,0 +1,16 @@
+{
+  "id": "velvet",
+  "name": "Velvet Night",
+  "category": "After dark",
+  "for": "everyone",
+  "scene": "velvet",
+  "hero": "none",
+  "watcher": "hearts",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "embers",
+  "moment": "none",
+  "accent": "#ff5a7a"
+}

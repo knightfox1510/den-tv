@@ -88,6 +88,18 @@ canvas.layer { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 .bfly { position: absolute; width: 70px; height: 56px; margin: -28px 0 0 -35px; transition: left 1s cubic-bezier(.4,.1,.3,1), top 1s cubic-bezier(.4,.1,.3,1); }
 .bfly .w { transform-origin: 50% 50%; transform-box: fill-box; animation: flapw .28s ease-in-out infinite alternate; }
 @keyframes flapw { from { transform: scaleX(1); } to { transform: scaleX(.25); } }
+.chid { position: absolute; top: 640px; width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%; background: radial-gradient(circle, #fff 0 14%, #bfefff 26%, rgba(80,170,255,.6) 50%, transparent 70%); transition: left .35s cubic-bezier(.2,.9,.2,1); animation: crack .12s steps(2) infinite; }
+.chid svg { position: absolute; inset: -40px; width: 230px; height: 230px; }
+@keyframes crack { 50% { filter: brightness(1.4) hue-rotate(10deg); transform: scale(1.06); } }
+.crowp { position: absolute; width: 90px; height: 60px; margin: -30px 0 0 -45px; filter: drop-shadow(0 0 8px rgba(255,40,40,.8)) drop-shadow(0 0 2px rgba(255,120,120,.9)); transition: left .9s cubic-bezier(.4,.1,.3,1), top .9s cubic-bezier(.4,.1,.3,1); }
+.crowp .wg { transform-origin: 50% 60%; transform-box: fill-box; animation: flapw .22s ease-in-out infinite alternate; }
+.roomd { position: absolute; top: 860px; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%; border: 3px solid rgba(120,200,255,.8); background: radial-gradient(circle, rgba(120,200,255,.05) 40%, rgba(120,200,255,.22) 70%, transparent 71%); box-shadow: 0 0 40px rgba(120,200,255,.5), inset 0 0 40px rgba(120,200,255,.3); transition: left .5s cubic-bezier(.3,1.2,.5,1); }
+.roomd::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: repeating-linear-gradient(0deg, rgba(160,220,255,.18) 0 1px, transparent 1px 40px), repeating-linear-gradient(90deg, rgba(160,220,255,.18) 0 1px, transparent 1px 40px); }
+.roomd::after { content: ""; position: absolute; inset: -14px; border-radius: 50%; border: 2px dashed rgba(160,220,255,.6); animation: spin 8s linear infinite; }
+.heart { position: absolute; font-size: 54px; line-height: 1; color: #ff4d7a; text-shadow: 0 0 18px rgba(255,80,130,.8); transition: left 1s cubic-bezier(.4,.1,.3,1), top 1s cubic-bezier(.4,.1,.3,1); animation: beat .7s ease-in-out infinite; }
+@keyframes beat { 50% { transform: scale(1.25); } }
+.die { position: absolute; width: 78px; height: 78px; margin: -39px 0 0 -39px; border-radius: 16px; background: linear-gradient(145deg, #fff, #d8d8e0); box-shadow: 0 10px 24px rgba(0,0,0,.6), inset 0 -4px 0 rgba(0,0,0,.12); transition: left .8s cubic-bezier(.3,1.3,.5,1), top .8s cubic-bezier(.3,1.3,.5,1), transform .8s cubic-bezier(.3,1.3,.5,1); display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px; gap: 2px; }
+.die i { width: 13px; height: 13px; border-radius: 50%; background: #c0101e; place-self: center; }
 .swords { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: visible; }
 .sword { transition: transform .6s cubic-bezier(.3,1.35,.5,1); }
 .glint { animation: glint 2.8s linear infinite; }
@@ -276,7 +288,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       <ul>
         <li><b>Scene:</b> a full painted backdrop drawn in code, such as the stadium, the moon or the wave.</li>
         <li><b>Hero:</b> a player or character poster on top of the scene. It can be off, one fixed hero, or a new one every 5 minutes.</li>
-        <li><b>Watcher:</b> something that follows the selected app. Eyes (Sharingan, Mangekyō, Six Eyes, Super Saiyan, Ultra Instinct, Nine-Tails, Sage Mode) blink as they look. The seven Dragon Balls gather over it, the Power Pole extends to it, Nami's thundercloud drifts over it, Shinobu's butterflies fly to it, Luffy's hat turns to it and Zoro's swords point at it.</li>
+        <li><b>Watcher:</b> something that follows the selected app. Eyes (Sharingan, Mangekyō, Six Eyes, Super Saiyan, Ultra Instinct, Nine-Tails, Sage Mode) blink as they look. Kakashi's Chidori zips to it, Itachi's crows fly to it, Law's ROOM wraps it, Robin's hands point at it, Sanji's hearts float to it, Chopper's hat and Rohit's bat turn to it. The seven Dragon Balls gather over it, the Power Pole extends to it, Nami's thundercloud drifts over it, Shinobu's butterflies fly to it, Luffy's hat turns to it and Zoro's swords point at it.</li>
         <li><b>Wake, focus effect and clock</b>, each chosen separately.</li>
         <li><b>Moment:</b> the big event the look reacts to, such as a goal, a six or a new episode. Real scores and episode releases set it off.</li>
       </ul>
@@ -624,6 +636,84 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     [[1100, 860], [1700, 860]].forEach(([x, y]) => { g.strokeStyle = 'rgba(255,200,220,.55)'; g.lineWidth = 3; g.beginPath(); g.moveTo(x - 50, y - 120); g.lineTo(x + 50, y - 120); g.lineTo(x, y - 60); g.closePath(); g.moveTo(x, y - 60); g.lineTo(x, y - 6); g.moveTo(x - 30, y - 4); g.lineTo(x + 30, y - 4); g.stroke(); });
     g.lineCap = 'round'; for (let i = 0; i < 6; i++) for (let w = 70; w > 10; w -= 20) { g.strokeStyle = 'rgba(255,220,235,' + (.012 + (70 - w) * .0006) + ')'; g.lineWidth = w; g.beginPath(); const x = 300 + i * 260; g.moveTo(x, 860); g.bezierCurveTo(x - 80, 700, x + 90, 560, x - 20, 380); g.bezierCurveTo(x - 90, 260, x + 60, 160, x + 10, 60); g.stroke(); }
   }
+  function leafNight(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#02040c'], [.6, '#0c1a30'], [1, '#04070e']]); g.fillRect(0, 0, W, H); stars(g, 200, 600, 33, .7);
+    glow(g, 1500, 260, 280, 'rgba(210,230,255,.25)'); g.fillStyle = '#eef4ff'; g.beginPath(); g.arc(1500, 260, 84, 0, 7); g.fill();
+    g.globalCompositeOperation = 'lighter'; const r = rng(71);
+    for (let b = 0; b < 5; b++) { let x = 300 + r() * 1400, y = 0; g.strokeStyle = 'rgba(170,220,255,.7)'; g.shadowColor = '#7fc8ff'; g.shadowBlur = 24; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y); while (y < 520) { x += (r() - .5) * 110; y += 40 + r() * 50; g.lineTo(x, y); } g.stroke(); }
+    g.shadowBlur = 0; g.globalCompositeOperation = 'source-over';
+    g.fillStyle = '#060a14'; g.beginPath(); g.moveTo(0, 760); g.quadraticCurveTo(500, 640, 900, 720); g.quadraticCurveTo(1300, 800, 1920, 700); g.lineTo(W, H); g.lineTo(0, H); g.fill();
+    g.fillStyle = '#03050a'; let x = 0; const rr = rng(4); while (x < W) { const w = 90 + rr() * 120, h = 60 + rr() * 120; g.beginPath(); g.moveTo(x - 16, H - h + 26); g.quadraticCurveTo(x + w / 2, H - h - 30, x + w + 16, H - h + 26); g.lineTo(x + w, H); g.lineTo(x, H); g.fill(); g.fillRect(x + 8, H - h + 18, w - 16, h); x += w + 8; }
+  }
+  function fireFist(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#080203'], [.55, '#2a0804'], [1, '#0a0303']]); g.fillRect(0, 0, W, H); stars(g, 80, 300, 8, .4);
+    g.fillStyle = lin(g, 700, H, [[0, '#3a1206'], [1, '#050102']]); g.fillRect(0, 700, W, 380);
+    g.globalCompositeOperation = 'lighter'; glow(g, 1400, 560, 700, 'rgba(255,110,20,.4)'); const r = rng(81);
+    for (let i = 0; i < 120; i++) { const cx = 1400 + (r() - .5) * 600, h = 200 + r() * 520, w = 40 + r() * 90, c = r() < .5 ? 'rgba(255,150,30,' : 'rgba(255,70,10,';
+      const gr = g.createLinearGradient(0, 760, 0, 760 - h); gr.addColorStop(0, c + '.26)'); gr.addColorStop(1, c + '0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(cx - w, 760); g.bezierCurveTo(cx - w, 760 - h * .4, cx + (r() - .5) * 140, 760 - h * .7, cx + (r() - .5) * 60, 760 - h); g.bezierCurveTo(cx + w * .3, 760 - h * .6, cx + w, 760 - h * .3, cx + w, 760); g.fill(); }
+    for (let i = 0; i < 120; i++) { const y = 770 + Math.pow(r(), 1.6) * 300; g.fillStyle = 'rgba(255,140,40,' + (.1 + r() * .25) + ')'; g.fillRect(1400 + (r() - .5) * (200 + (y - 760) * 1.4), y, 30 + r() * 60, 3); }
+    g.globalCompositeOperation = 'source-over';
+  }
+  function roomScene(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#02070c'], [.6, '#0b2230'], [1, '#03080c']]); g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(120,200,255,.16)'; g.lineWidth = 2; for (let i = 1; i < 9; i++) { g.beginPath(); g.ellipse(1400, 500, i * 70, i * 70, 0, 0, 7); g.stroke(); g.beginPath(); g.ellipse(1400, 500, 560, i * 70, 0, 0, 7); g.stroke(); g.beginPath(); g.ellipse(1400, 500, i * 70, 560, 0, 0, 7); g.stroke(); }
+    glow(g, 1400, 500, 600, 'rgba(90,180,255,.18)');
+    const r = rng(91); g.fillStyle = 'rgba(255,255,255,.7)'; for (let i = 0; i < 500; i++) { g.beginPath(); g.arc(r() * W, r() * H, .8 + r() * 2.2, 0, 7); g.fill(); }
+    g.fillStyle = '#e8f2fa'; g.beginPath(); g.moveTo(0, H); g.lineTo(0, 900); g.quadraticCurveTo(700, 840, 1300, 910); g.quadraticCurveTo(1700, 950, W, 880); g.lineTo(W, H); g.fill(); g.fillStyle = 'rgba(0,10,20,.55)'; g.fillRect(0, 880, W, 200);
+  }
+  function baratie(g) {
+    g.fillStyle = lin(g, 0, 720, [[0, '#1a1638'], [.5, '#c4566a'], [.85, '#ffa25a'], [1, '#ffd38a']]); g.fillRect(0, 0, W, H);
+    glow(g, 700, 690, 420, 'rgba(255,200,120,.55)'); g.fillStyle = '#fff1c8'; g.beginPath(); g.arc(700, 700, 64, 0, 7); g.fill();
+    g.fillStyle = lin(g, 720, H, [[0, '#c46a5a'], [.25, '#3a2a4a'], [1, '#100a1a']]); g.fillRect(0, 720, W, 360);
+    const r = rng(12); g.globalCompositeOperation = 'lighter'; for (let i = 0; i < 130; i++) { const y = 730 + Math.pow(r(), 1.5) * 320; g.fillStyle = 'rgba(255,210,150,' + (.1 + r() * .3) + ')'; g.fillRect(700 + (r() - .5) * (60 + (y - 720)) - 20, y, 40 + r() * 40, 3); } g.globalCompositeOperation = 'source-over';
+    g.save(); g.translate(1350, 760); g.fillStyle = '#150c14';
+    g.beginPath(); g.moveTo(-320, -10); g.quadraticCurveTo(0, 60, 300, -10); g.quadraticCurveTo(360, -40, 420, -90); g.lineTo(400, -10); g.quadraticCurveTo(300, 50, 0, 70); g.quadraticCurveTo(-260, 60, -360, -60); g.closePath(); g.fill();
+    g.fillRect(-220, -170, 380, 160); g.beginPath(); g.moveTo(-250, -170); g.quadraticCurveTo(-30, -260, 190, -170); g.fill(); g.fillRect(-40, -330, 16, 170); g.fillRect(-40, -330, 110, 60);
+    g.fillStyle = 'rgba(255,200,110,.85)'; for (let i = 0; i < 9; i++) g.fillRect(-200 + i * 40, -120, 20, 26); g.restore();
+  }
+  function drum(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#060816'], [.6, '#1c2040'], [1, '#0a0c1a']]); g.fillRect(0, 0, W, H); stars(g, 220, 700, 51, .7);
+    g.fillStyle = '#dfe6f2'; g.beginPath(); g.moveTo(820, H); g.lineTo(1260, 360); g.lineTo(1340, 300); g.lineTo(1420, 360); g.lineTo(1860, H); g.fill();
+    g.fillStyle = '#9aa6bc'; g.beginPath(); g.moveTo(1340, 300); g.lineTo(1420, 360); g.lineTo(1600, 700); g.lineTo(1340, 520); g.fill();
+    g.fillStyle = '#1a1c2a'; g.fillRect(1300, 230, 80, 80); g.fillRect(1280, 200, 20, 40); g.fillRect(1380, 200, 20, 40); g.fillStyle = 'rgba(255,210,140,.9)'; g.fillRect(1330, 250, 20, 24);
+    g.globalCompositeOperation = 'lighter'; const r = rng(17);
+    for (let i = 0; i < 900; i++) { const x = 1340 + (r() - .5) * 700, y = 80 + r() * 420; if (Math.hypot(x - 1340, (y - 220) * 1.4) > 360) continue; g.fillStyle = 'rgba(255,' + (120 + r() * 80 | 0) + ',' + (170 + r() * 60 | 0) + ',' + (.25 + r() * .35) + ')'; g.beginPath(); g.ellipse(x, y, 5, 3, r() * 3, 0, 7); g.fill(); }
+    glow(g, 1340, 220, 420, 'rgba(255,140,190,.25)'); g.globalCompositeOperation = 'source-over';
+    g.fillStyle = '#eef2f8'; g.beginPath(); g.moveTo(0, H); g.lineTo(0, 860); g.quadraticCurveTo(500, 800, 1000, 880); g.lineTo(1000, H); g.fill();
+  }
+  function hitman(g) {
+    wankhede(g);
+    g.globalCompositeOperation = 'lighter'; const r = rng(264);
+    for (let i = 0; i < 9; i++) { const x0 = 960 + (r() - .5) * 60, x1 = 120 + r() * 1680, top = 60 + r() * 160; g.strokeStyle = i % 3 ? 'rgba(209,171,62,.55)' : 'rgba(120,180,255,.6)'; g.lineWidth = 4; g.shadowColor = g.strokeStyle; g.shadowBlur = 16; g.setLineDash([2, 14]);
+      g.beginPath(); g.moveTo(x0, 840); g.quadraticCurveTo((x0 + x1) / 2, top - 200, x1, 380 + r() * 120); g.stroke(); }
+    g.setLineDash([]); g.shadowBlur = 0; g.globalCompositeOperation = 'source-over';
+    g.save(); g.font = '900 120px Outfit, sans-serif'; g.textAlign = 'left'; g.fillStyle = 'rgba(255,255,255,.08)'; g.fillText('264', 60, 1040); g.restore();
+  }
+  function noir(g) {
+    g.fillStyle = '#0b0b0d'; g.fillRect(0, 0, W, H);
+    g.save(); g.globalCompositeOperation = 'lighter'; g.translate(1400, 0); g.rotate(.22); for (let i = 0; i < 12; i++) { const gr = g.createLinearGradient(0, i * 70, 0, i * 70 + 40); gr.addColorStop(0, 'rgba(220,220,210,.0)'); gr.addColorStop(.5, 'rgba(220,220,210,.16)'); gr.addColorStop(1, 'rgba(220,220,210,0)'); g.fillStyle = gr; g.fillRect(-700, i * 70 + 80, 1100, 40); } g.restore();
+    const r = rng(7); let x = 0; while (x < W) { const w = 80 + r() * 140, h = 300 + r() * 500; g.fillStyle = '#060607'; g.fillRect(x, 900 - h, w, h); for (let wy = 900 - h + 20; wy < 890; wy += 34) for (let wx = x + 10; wx < x + w - 14; wx += 22) if (r() < .12) { g.fillStyle = 'rgba(255,230,170,.55)'; g.fillRect(wx, wy, 10, 14); g.fillStyle = '#060607'; } x += w + 4; }
+    g.fillStyle = '#050506'; g.fillRect(0, 900, W, 180); g.save(); g.globalAlpha = .25; g.fillStyle = '#d8d0c0'; for (let i = 0; i < 40; i++) g.fillRect(r() * W, 910 + r() * 160, 80 + r() * 200, 2); g.restore();
+    g.fillStyle = '#020202'; g.fillRect(380, 560, 10, 340); g.beginPath(); g.ellipse(385, 556, 46, 14, 0, 0, 7); g.fill(); glow(g, 385, 576, 260, 'rgba(255,220,150,.35)');
+    g.fillStyle = 'rgba(255,255,255,.035)'; for (let i = 0; i < 3000; i++) g.fillRect(r() * W, r() * H, 2, 2);
+  }
+  function velvet(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#14030a'], [.6, '#2e0612'], [1, '#0e0206']]); g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 14; i++) { const x = i * 150; const gr = g.createLinearGradient(x, 0, x + 150, 0); gr.addColorStop(0, 'rgba(0,0,0,.35)'); gr.addColorStop(.5, 'rgba(160,20,50,.12)'); gr.addColorStop(1, 'rgba(0,0,0,.35)'); g.fillStyle = gr; g.fillRect(x, 0, 150, 760); }
+    g.fillStyle = '#0a0204'; g.fillRect(0, 760, W, 320);
+    [[1180, 760, 1], [1300, 760, 1.4], [1440, 760, .9], [1560, 760, 1.2]].forEach(([x, y, s]) => { g.globalCompositeOperation = 'lighter'; glow(g, x, y - 170 * s, 160 * s, 'rgba(255,170,80,.45)'); g.globalCompositeOperation = 'source-over';
+      g.fillStyle = '#f2e6d8'; g.fillRect(x - 18 * s, y - 140 * s, 36 * s, 140 * s); g.fillStyle = '#ffd27a'; g.beginPath(); g.moveTo(x, y - 200 * s); g.quadraticCurveTo(x + 12 * s, y - 160 * s, x, y - 145 * s); g.quadraticCurveTo(x - 12 * s, y - 160 * s, x, y - 200 * s); g.fill(); });
+    const r = rng(33); for (let i = 0; i < 24; i++) { const x = 300 + r() * 1500, y = 780 + r() * 240; g.fillStyle = 'rgba(' + (170 + r() * 60 | 0) + ',10,40,.9)'; g.beginPath(); g.ellipse(x, y, 22, 10, r() * 3, 0, 7); g.fill(); }
+    g.fillStyle = '#7a0a22'; [[700, 830], [760, 820]].forEach(([x, y]) => { for (let k = 0; k < 8; k++) { g.beginPath(); g.arc(x + Math.cos(k) * 16, y + Math.sin(k) * 12, 22 - k * 1.8, 0, 7); g.fill(); g.fillStyle = k % 2 ? '#9a1030' : '#7a0a22'; } });
+  }
+  function casino(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#030806'], [.6, '#08261a'], [1, '#020604']]); g.fillRect(0, 0, W, H);
+    const r = rng(77); g.globalCompositeOperation = 'lighter'; for (let i = 0; i < 70; i++) glow(g, r() * W, 60 + r() * 440, 20 + r() * 50, ['rgba(255,200,80,', 'rgba(255,60,90,', 'rgba(80,200,255,'][i % 3] + (.12 + r() * .15) + ')');
+    g.font = '900 150px "Bebas Neue", sans-serif'; g.textAlign = 'center'; g.shadowColor = '#ffcf5a'; g.shadowBlur = 40; g.fillStyle = '#ffe39a'; g.fillText('HIGH ROLLER', 1360, 360); g.shadowBlur = 0; g.globalCompositeOperation = 'source-over';
+    g.fillStyle = '#0c4a2e'; g.beginPath(); g.ellipse(960, 1100, 1300, 360, 0, 0, 7); g.fill(); g.strokeStyle = '#5a3a14'; g.lineWidth = 30; g.stroke();
+    [[1100, 880, -.3], [1170, 870, -.1], [1240, 876, .12]].forEach(([x, y, a], i) => { g.save(); g.translate(x, y); g.rotate(a); g.fillStyle = '#fbfbf6'; g.fillRect(-50, -72, 100, 144); g.strokeStyle = '#ddd'; g.lineWidth = 2; g.strokeRect(-50, -72, 100, 144); g.fillStyle = i === 1 ? '#111' : '#c0101e'; g.font = '700 46px Outfit'; g.textAlign = 'center'; g.fillText(['A', 'K', 'Q'][i], 0, 16); g.restore(); });
+    [[760, 900, '#c0101e'], [800, 880, '#1a4ad0'], [720, 870, '#111']].forEach(([x, y, c]) => { for (let k = 0; k < 6; k++) { g.fillStyle = c; g.beginPath(); g.ellipse(x, y - k * 9, 40, 14, 0, 0, 7); g.fill(); g.strokeStyle = '#fff'; g.setLineDash([8, 10]); g.lineWidth = 3; g.stroke(); g.setLineDash([]); } });
+  }
   function heroBlack(g, o) { g.fillStyle = '#050507'; g.fillRect(0, 0, W, H); const h = HEROES[o.hero] || HEROES.messi; glow(g, 1450, 520, 820, h.c1); glow(g, 1750, 1000, 600, h.c2); }
 
   const SCENES = {
@@ -632,7 +722,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     manga: { n: 'Manga pages', p: manga }, dusk: { n: 'Anime dusk', p: dusk }, dawn: { n: 'Trail dawn', p: dawn }, monsoon: { n: 'Monsoon ridges', p: (g) => dawn(g, { grey: 1 }) },
     neon: { n: 'Neon city', p: neon }, seoul: { n: 'Seoul neon', p: (g) => neon(g, { pink: 1 }) }, diwali: { n: 'Diwali night', p: diwali }, marquee: { n: 'Velvet marquee', p: (g) => diwali(g, { red: 1 }) },
     floodlights: { n: 'Floodlit ground', p: nightField }, black: { n: 'Black with hero glow', p: heroBlack },
-    saiyan: { n: 'Saiyan wasteland', p: saiyan }, ui: { n: 'Silver void', p: (g) => saiyan(g, { ui: 1 }) }, kurama: { n: 'Nine-tails chakra', p: kuramaScene }, hokage: { n: 'Village at sunset', p: hokage }, zoro: { n: 'Moonlit blades', p: zoroScene }, tangerine: { n: 'Tangerine sunset', p: tangerine }, wisteria: { n: 'Wisteria night', p: wisteria }, lounge: { n: 'Midnight lounge', p: lounge },
+    saiyan: { n: 'Saiyan wasteland', p: saiyan }, ui: { n: 'Silver void', p: (g) => saiyan(g, { ui: 1 }) }, kurama: { n: 'Nine-tails chakra', p: kuramaScene }, hokage: { n: 'Village at sunset', p: hokage }, zoro: { n: 'Moonlit blades', p: zoroScene }, tangerine: { n: 'Tangerine sunset', p: tangerine }, wisteria: { n: 'Wisteria night', p: wisteria }, lounge: { n: 'Midnight lounge', p: lounge }, leaf: { n: 'Leaf village storm', p: leafNight }, firefist: { n: 'Sea of fire', p: fireFist }, room: { n: 'Snowfall ROOM', p: roomScene }, baratie: { n: 'Floating restaurant', p: baratie }, drum: { n: 'Cherry-blossom snow', p: drum }, hitman: { n: 'Six after six', p: hitman }, noir: { n: 'Rain-slick noir', p: noir }, velvet: { n: 'Velvet candlelight', p: velvet }, casino: { n: 'Casino floor', p: casino },
   };
 
   /* ===================== HEROES ===================== */
@@ -647,9 +737,16 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     zoro: { n: 'RORONOA ZORO', big: 'ZORO', sub: 'THREE-SWORD STYLE · ONE PIECE', emb: 'swords', ac: '#3ddc84', c1: 'rgba(40,200,110,.4)', c2: 'rgba(20,80,50,.4)' },
     nami: { n: 'NAMI', big: 'NAMI', sub: 'NAVIGATOR · ONE PIECE', emb: 'tangerine', ac: '#ff8c2a', c1: 'rgba(255,140,40,.4)', c2: 'rgba(80,140,255,.3)' },
     shinobu: { n: 'SHINOBU KOCHO', big: 'SHINOBU', sub: 'INSECT HASHIRA · DEMON SLAYER', emb: 'butterfly', ac: '#c9a2ff', c1: 'rgba(170,120,255,.4)', c2: 'rgba(60,200,170,.3)' },
+    kakashi: { n: 'KAKASHI HATAKE', big: 'KAKASHI', sub: 'COPY NINJA · NARUTO', emb: 'bolt', ac: '#7fc8ff', c1: 'rgba(90,160,255,.4)', c2: 'rgba(200,200,220,.25)' },
+    itachi: { n: 'ITACHI UCHIHA', big: 'ITACHI', sub: 'CROW GENJUTSU · NARUTO', emb: 'crow', ac: '#ff2a2a', c1: 'rgba(200,20,20,.45)', c2: 'rgba(40,0,0,.5)' },
+    ace: { n: 'PORTGAS D. ACE', big: 'ACE', sub: 'FIRE FIST · ONE PIECE', emb: 'flame', ac: '#ff7a1a', c1: 'rgba(255,100,20,.45)', c2: 'rgba(120,20,0,.4)' },
+    law: { n: 'TRAFALGAR LAW', big: 'LAW', sub: 'SURGEON OF DEATH · ONE PIECE', emb: 'sphere', ac: '#8fd0ff', c1: 'rgba(80,170,255,.35)', c2: 'rgba(255,220,60,.2)' },
+    sanji: { n: 'VINSMOKE SANJI', big: 'SANJI', sub: 'BLACK LEG · ONE PIECE', emb: 'heart', ac: '#ff5a8a', c1: 'rgba(255,90,140,.35)', c2: 'rgba(255,190,60,.3)' },
+    robin: { n: 'NICO ROBIN', big: 'ROBIN', sub: 'ARCHAEOLOGIST · ONE PIECE', emb: 'flower', ac: '#c49aff', c1: 'rgba(140,90,220,.4)', c2: 'rgba(60,40,120,.4)' },
+    chopper: { n: 'TONY TONY CHOPPER', big: 'CHOPPER', sub: 'DOCTOR · ONE PIECE', emb: 'tophat', ac: '#ff8fc0', c1: 'rgba(255,130,190,.4)', c2: 'rgba(120,160,255,.3)' },
     tanjiro: { n: 'TANJIRO KAMADO', big: 'TANJIRO', sub: 'WATER BREATHING · DEMON SLAYER', emb: 'check', ac: '#8fd0ff', c1: 'rgba(30,120,90,.45)', c2: 'rgba(40,110,220,.35)' },
   };
-  const HERO_ORDER = ['messi', 'kohli', 'goku', 'rohit', 'luffy', 'nami', 'naruto', 'gojo', 'zoro', 'shinobu', 'tanjiro'];
+  const HERO_ORDER = ['messi', 'kohli', 'goku', 'rohit', 'luffy', 'nami', 'naruto', 'kakashi', 'itachi', 'gojo', 'zoro', 'sanji', 'robin', 'ace', 'law', 'chopper', 'shinobu', 'tanjiro'];
   function swordPath(g, hc) {
     g.save(); g.translate(-240, 0);
     g.fillStyle = hc; g.fillRect(0, -9, 120, 18); g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 3; for (let x = 6; x < 118; x += 14) { g.beginPath(); g.moveTo(x, -9); g.lineTo(x + 7, 9); g.moveTo(x + 7, -9); g.lineTo(x, 9); g.stroke(); }
@@ -672,6 +769,16 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       g.fillStyle = wg; [[-1], [1]].forEach(([d]) => { g.beginPath(); g.moveTo(1450, 440); g.bezierCurveTo(1450 + d * 120, 200, 1450 + d * 320, 210, 1450 + d * 270, 400); g.bezierCurveTo(1450 + d * 250, 470, 1450 + d * 120, 470, 1450, 450); g.fill();
         g.beginPath(); g.moveTo(1450, 455); g.bezierCurveTo(1450 + d * 220, 480, 1450 + d * 240, 640, 1450 + d * 120, 640); g.bezierCurveTo(1450 + d * 60, 630, 1450 + d * 20, 560, 1450, 460); g.fill(); });
       g.strokeStyle = 'rgba(20,10,40,.6)'; g.lineWidth = 4; g.stroke(); g.fillStyle = '#1a0f2a'; g.fillRect(1444, 380, 12, 200); }
+    else if (h.emb === 'bolt') { g.globalAlpha = .95; g.fillStyle = '#8a94a6'; g.fillRect(1250, 380, 400, 110); g.strokeStyle = '#2a2f3a'; g.lineWidth = 10; g.strokeRect(1250, 380, 400, 110); g.strokeStyle = '#3a3f4a'; g.lineWidth = 8; g.beginPath(); g.moveTo(1290, 470); g.lineTo(1610, 400); g.stroke();
+      g.globalCompositeOperation = 'lighter'; g.strokeStyle = '#bfefff'; g.shadowColor = '#7fc8ff'; g.shadowBlur = 30; g.lineWidth = 8; g.beginPath(); g.moveTo(1450, 180); g.lineTo(1400, 300); g.lineTo(1480, 300); g.lineTo(1420, 560); g.lineTo(1540, 260); g.lineTo(1460, 260); g.lineTo(1510, 180); g.stroke(); g.globalCompositeOperation = 'source-over'; }
+    else if (h.emb === 'crow') { g.globalAlpha = .95; g.fillStyle = '#c0140c'; g.beginPath(); g.arc(1450, 430, 210, 0, 7); g.fill(); g.fillStyle = '#050102'; g.beginPath(); g.moveTo(1240, 420); g.quadraticCurveTo(1340, 360, 1430, 430); g.quadraticCurveTo(1450, 380, 1490, 380); g.lineTo(1530, 392); g.lineTo(1496, 404); g.quadraticCurveTo(1480, 430, 1470, 440); g.quadraticCurveTo(1560, 360, 1680, 400); g.quadraticCurveTo(1560, 440, 1490, 480); g.lineTo(1520, 560); g.lineTo(1450, 500); g.quadraticCurveTo(1350, 470, 1240, 420); g.fill(); }
+    else if (h.emb === 'flame') { g.globalCompositeOperation = 'lighter'; for (let k = 0; k < 40; k++) { const a = -Math.PI / 2 + (Math.random() - .5) * 1.6, L = 120 + Math.random() * 220; const gr = g.createLinearGradient(1450, 520, 1450 + Math.cos(a) * L, 520 + Math.sin(a) * L); gr.addColorStop(0, 'rgba(255,200,60,.4)'); gr.addColorStop(1, 'rgba(255,60,0,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(1420, 540); g.lineTo(1480, 540); g.lineTo(1450 + Math.cos(a) * L, 520 + Math.sin(a) * L); g.fill(); }
+      glow(g, 1450, 470, 180, 'rgba(255,170,50,.7)'); g.globalCompositeOperation = 'source-over'; g.fillStyle = '#1a0a05'; g.font = '900 120px Outfit'; g.textAlign = 'center'; g.fillText('ACE', 1450, 500); }
+    else if (h.emb === 'sphere') { g.strokeStyle = 'rgba(140,210,255,.85)'; g.lineWidth = 5; g.beginPath(); g.arc(1450, 430, 210, 0, 7); g.stroke(); g.lineWidth = 2; for (let i = 1; i < 6; i++) { g.beginPath(); g.ellipse(1450, 430, 210, i * 36, 0, 0, 7); g.stroke(); g.beginPath(); g.ellipse(1450, 430, i * 36, 210, 0, 0, 7); g.stroke(); } g.fillStyle = '#ffd23c'; g.beginPath(); g.arc(1450, 430, 46, 0, 7); g.fill(); g.fillStyle = '#111'; g.beginPath(); g.arc(1438, 420, 8, 0, 7); g.arc(1462, 420, 8, 0, 7); g.fill(); g.fillRect(1436, 444, 28, 5); }
+    else if (h.emb === 'heart') { g.globalAlpha = .95; g.fillStyle = '#ff4d7a'; g.shadowColor = '#ff4d7a'; g.shadowBlur = 50; g.beginPath(); g.moveTo(1450, 600); g.bezierCurveTo(1200, 450, 1270, 220, 1450, 320); g.bezierCurveTo(1630, 220, 1700, 450, 1450, 600); g.fill(); }
+    else if (h.emb === 'flower') { g.globalAlpha = .95; for (let k = 0; k < 8; k++) { g.save(); g.translate(1450, 430); g.rotate(k * Math.PI / 4); g.fillStyle = k % 2 ? '#b98aff' : '#d8bcff'; g.beginPath(); g.ellipse(0, -110, 52, 110, 0, 0, 7); g.fill(); g.restore(); } g.fillStyle = '#ffd23c'; g.beginPath(); g.arc(1450, 430, 46, 0, 7); g.fill(); }
+    else if (h.emb === 'tophat') { g.globalAlpha = .95; g.fillStyle = '#ff7fb8'; g.beginPath(); g.ellipse(1450, 560, 230, 46, 0, 0, 7); g.fill(); g.fillRect(1320, 300, 260, 260); g.beginPath(); g.ellipse(1450, 300, 130, 30, 0, 0, 7); g.fill(); g.fillStyle = '#fff'; g.fillRect(1320, 480, 260, 40);
+      g.strokeStyle = '#fff'; g.lineWidth = 26; g.beginPath(); g.moveTo(1400, 360); g.lineTo(1500, 440); g.moveTo(1500, 360); g.lineTo(1400, 440); g.stroke(); g.strokeStyle = '#8a5a2a'; g.lineWidth = 14; [[-1], [1]].forEach(([d]) => { g.beginPath(); g.moveTo(1450 + d * 150, 300); g.lineTo(1450 + d * 230, 170); g.moveTo(1450 + d * 200, 220); g.lineTo(1450 + d * 270, 220); g.stroke(); }); }
     else if (h.emb === 'swords') { g.globalAlpha = .95; [[-.6, '#f4f4f4'], [0, '#7a1a1a'], [.6, '#151515']].forEach(([a, hc]) => { g.save(); g.translate(1450, 430); g.rotate(a - Math.PI / 2); swordPath(g, hc); g.restore(); }); }
     g.restore(); g.save(); g.textAlign = 'right'; g.shadowColor = 'rgba(0,0,0,.8)'; g.shadowBlur = 24;
     g.font = '800 96px Outfit, sans-serif'; g.fillStyle = '#fff'; g.letterSpacing = '14px'; g.fillText(h.big, 1830, 735);
@@ -680,13 +787,13 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
 
   /* ===================== LOOKS ===================== */
   const FOCUS = { spot: 'Spotlight beam', pass: 'Football pass', arc: 'Ball-tracking arc', ripple: 'Water ripple', aura: 'Energy aura' };
-  const WAKE = { powerup: 'Power-up aura', slash: 'Three-sword slash', storm: 'Thunderstorm', flutter: 'Butterfly swarm', sharingan: 'Sharingan spin', tunnel: 'Stadium tunnel walk-out', panels: 'Manga panels', ink: 'Ink brush wipe', bloom: 'Light bloom', crt: 'Old TV switch-on' };
+  const WAKE = { room: 'ROOM sphere', fire: 'Fire Fist blaze', powerup: 'Power-up aura', slash: 'Three-sword slash', storm: 'Thunderstorm', flutter: 'Butterfly swarm', sharingan: 'Sharingan spin', tunnel: 'Stadium tunnel walk-out', panels: 'Manga panels', ink: 'Ink brush wipe', bloom: 'Light bloom', crt: 'Old TV switch-on' };
   const CLOCK = { thin: 'Thin', roll: 'Rolling seconds', board: 'Stadium scoreboard', over: 'Cricket over', brush: 'Brush stroke', crt: 'Retro pixel' };
-  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)', dragonballs: 'Dragon Balls (gather over it)', pole: 'Power Pole (extends to it)', cloud: 'Thundercloud (drifts over it)', butterflies: 'Butterflies (fly to it)' };
+  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)', dragonballs: 'Dragon Balls (gather over it)', pole: 'Power Pole (extends to it)', cloud: 'Thundercloud (drifts over it)', butterflies: 'Butterflies (fly to it)', chidori: 'Chidori (zips to it)', crows: 'Crows (fly to it)', room: 'ROOM (wraps it)', hearts: 'Hearts (float to it)', hands: 'Hands (point at it)', chopperhat: 'Chopper\'s hat (turns to it)', bat: 'Cricket bat (points at it)', fedora: 'Fedora (tilts to it)', dice: 'Dice (roll to it)' };
   const EYE_TYPES = ['sharingan', 'mangekyo', 'six', 'saiyan', 'ui', 'kurama', 'sage'];
   const AMB = { auto: 'Matches the scene', none: 'None', flashes: 'Camera flashes', flags: 'Flags and flashes', fireworks: 'Fireworks', crows: 'Crows', petals: 'Petals', embers: 'Embers', sparks: 'Blue sparks', gold: 'Golden sparks', silver: 'Silver sparks', leaves: 'Falling leaves', wisteria: 'Wisteria petals', rain: 'Rain', snow: 'Snow' };
   const MOMENT = { goal: 'Goal!', six: 'Six!', beam: 'Kamehameha', drop: 'New episode', none: 'None' };
-  const HEROOPT = { none: 'None', rotate: 'Rotate my heroes', messi: 'Lionel Messi', kohli: 'Virat Kohli', rohit: 'Rohit Sharma', goku: 'Goku', naruto: 'Naruto', luffy: 'Luffy', zoro: 'Zoro', nami: 'Nami', shinobu: 'Shinobu', gojo: 'Gojo', tanjiro: 'Tanjiro' };
+  const HEROOPT = { none: 'None', rotate: 'Rotate my heroes', messi: 'Lionel Messi', kohli: 'Virat Kohli', rohit: 'Rohit Sharma', goku: 'Goku', naruto: 'Naruto', kakashi: 'Kakashi', itachi: 'Itachi', ace: 'Ace', law: 'Law', sanji: 'Sanji', robin: 'Robin', chopper: 'Chopper', luffy: 'Luffy', zoro: 'Zoro', nami: 'Nami', shinobu: 'Shinobu', gojo: 'Gojo', tanjiro: 'Tanjiro' };
   const ICONS = { white: 'White logos', tiles: 'Colour tiles' };
   const L = (id, name, cat, forr, scene, hero, mascot, focus, wake, clock, amb, moment, acc, board, extra) => Object.assign({ id, name, cat, for: forr, scene, hero, mascot, focus, wake, clock, icons: 'white', amb, moment, acc, board }, extra || {});
   const LOOKS = [
@@ -704,6 +811,14 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     L('three-sword', 'Three-Sword Style', 'Heroes', 'G', 'zoro', 'zoro', 'zoro', 'aura', 'slash', 'brush', 'leaves', 'drop', '#3ddc84', ''),
     L('navigator', 'Navigator', 'Heroes', 'G', 'tangerine', 'nami', 'cloud', 'ripple', 'storm', 'brush', 'none', 'drop', '#ff8c2a', ''),
     L('butterfly-mansion', 'Butterfly Mansion', 'Heroes', 'G', 'wisteria', 'shinobu', 'butterflies', 'spot', 'flutter', 'brush', 'wisteria', 'drop', '#c9a2ff', ''),
+    L('copy-ninja', 'Copy Ninja', 'Heroes', 'G', 'leaf', 'kakashi', 'chidori', 'aura', 'storm', 'brush', 'leaves', 'drop', '#7fc8ff', ''),
+    L('crow-genjutsu', 'Crow Genjutsu', 'Heroes', 'G', 'crimson', 'itachi', 'crows', 'aura', 'sharingan', 'brush', 'crows', 'drop', '#ff2a2a', '', { wakeEye: 'mangekyo' }),
+    L('fire-fist', 'Fire Fist', 'One Piece', 'G', 'firefist', 'ace', 'none', 'aura', 'fire', 'brush', 'embers', 'drop', '#ff7a1a', ''),
+    L('room', 'ROOM', 'One Piece', 'G', 'room', 'law', 'room', 'ripple', 'room', 'thin', 'snow', 'drop', '#8fd0ff', ''),
+    L('black-leg', 'Black Leg', 'One Piece', 'G', 'baratie', 'sanji', 'hearts', 'spot', 'fire', 'brush', 'none', 'drop', '#ff5a8a', ''),
+    L('hana-hana', 'Hana Hana', 'One Piece', 'G', 'grandline', 'robin', 'hands', 'spot', 'ink', 'brush', 'petals', 'drop', '#c49aff', ''),
+    L('drum-island', 'Drum Island', 'One Piece', 'B', 'drum', 'chopper', 'chopperhat', 'ripple', 'bloom', 'thin', 'snow', 'drop', '#ff8fc0', ''),
+    L('hitman', 'Hitman', 'Cricket', 'G', 'hitman', 'rohit', 'bat', 'arc', 'tunnel', 'board', 'fireworks', 'six', '#d1ab3e', 'ROHIT 264 (173) · RECORD'),
     L('crimson-moon', 'Crimson Moon', 'Anime', 'G', 'crimson', 'none', 'mangekyo', 'aura', 'sharingan', 'brush', 'crows', 'drop', '#ff2a2a', ''),
     L('domain', 'Domain Expansion', 'Anime', 'G', 'domain', 'gojo', 'six', 'aura', 'bloom', 'thin', 'sparks', 'drop', '#6fc3ff', ''),
     L('grand-line', 'Grand Line', 'Anime', 'G', 'grandline', 'luffy', 'none', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', ''),
@@ -716,11 +831,14 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     L('diwali', 'Diwali Night', 'Seasonal', 'B', 'diwali', 'none', 'none', 'spot', 'bloom', 'brush', 'fireworks', 'none', '#ffc24a', '', { when: 'Nov' }),
     L('seoul', 'Seoul Nights', 'Together', 'P', 'seoul', 'none', 'none', 'spot', 'bloom', 'thin', 'petals', 'none', '#ff7ac8', ''),
     L('marquee', 'Bollywood Marquee', 'Together', 'P', 'marquee', 'none', 'none', 'spot', 'panels', 'brush', 'embers', 'none', '#ffd36e', ''),
+    L('noir', 'Noir', 'After dark', 'B', 'noir', 'none', 'fedora', 'spot', 'crt', 'thin', 'rain', 'none', '#e8dcc0', ''),
+    L('velvet', 'Velvet Night', 'After dark', 'B', 'velvet', 'none', 'hearts', 'spot', 'bloom', 'brush', 'embers', 'none', '#ff5a7a', ''),
+    L('high-roller', 'High Roller', 'After dark', 'B', 'casino', 'none', 'dice', 'spot', 'bloom', 'board', 'none', 'none', '#ffcf5a', 'TABLE 7 · LIMIT 500'),
     L('midnight-lounge', 'Midnight Lounge', 'After dark', 'G', 'lounge', 'none', 'none', 'spot', 'bloom', 'thin', 'none', 'none', '#ff4d6d', ''),
     L('our-wall', 'Our Wall', 'Together', 'B', 'dusk', 'none', 'none', 'spot', 'bloom', 'brush', 'petals', 'none', '#ffb3c1', ''),
   ];
-  const SCENE_AMB = { campnou: 'flags', floodlights: 'flashes', wankhede: 'fireworks', bluebillion: 'flashes', crimson: 'crows', domain: 'sparks', diwali: 'fireworks', saiyan: 'gold', ui: 'silver', kurama: 'embers', hokage: 'leaves', zoro: 'leaves', wisteria: 'wisteria', monsoon: 'rain', neon: 'rain', seoul: 'petals', marquee: 'embers' };
-  const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'Heroes', 'Anime', 'Outdoors', 'Night & neon', 'Seasonal', 'Together', 'After dark', 'My looks'];
+  const SCENE_AMB = { campnou: 'flags', floodlights: 'flashes', wankhede: 'fireworks', bluebillion: 'flashes', crimson: 'crows', domain: 'sparks', diwali: 'fireworks', saiyan: 'gold', ui: 'silver', kurama: 'embers', hokage: 'leaves', zoro: 'leaves', wisteria: 'wisteria', leaf: 'leaves', firefist: 'embers', room: 'snow', drum: 'snow', hitman: 'fireworks', noir: 'rain', velvet: 'embers', monsoon: 'rain', neon: 'rain', seoul: 'petals', marquee: 'embers' };
+  const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'Heroes', 'One Piece', 'Anime', 'Outdoors', 'Night & neon', 'Seasonal', 'Together', 'After dark', 'My looks'];
 
   const PEOPLE = { G: { name: 'Gaurav', av: '#ffd36e', tags: ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Hiking'] }, P: { name: 'Partner', av: '#ff9ec4' }, X: { name: 'Guest', av: '#9fe6ff' } };
   const PARTNER_OPTS = ['K-drama', 'Bollywood', 'Travel', 'Cooking', 'Plants', 'Music', 'F1', 'Yoga', 'Pets', 'Art', 'Cricket', 'Football', 'Anime'];
@@ -742,7 +860,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   function paint() {
     const e = eff(); const h = heroFor(e); const key = e.scene + '|' + (e.scene === 'black' ? h : '');
     if (painted !== key) { sg.clearRect(0, 0, W, H); SCENES[e.scene].p(sg, { hero: h || 'messi' }); painted = key; }
-    const noEmb = (e.mascot === 'luffy' && h === 'luffy') || (e.mascot === 'zoro' && h === 'zoro');
+    const noEmb = (e.mascot === 'luffy' && h === 'luffy') || (e.mascot === 'zoro' && h === 'zoro') || (e.mascot === 'chopperhat' && h === 'chopper');
     if (curHero !== h + '|' + e.scene + noEmb) { drawHero(hg, h, e.scene !== 'black', noEmb); curHero = h + '|' + e.scene + noEmb; }
     $('hn').innerHTML = h ? '<b>' + HEROES[h].n + '</b><span>' + (e.hero === 'rotate' ? 'Next hero in 5:00' : SCENES[e.scene].n) + '</span>' : '<b>' + SCENES[e.scene].n.toUpperCase() + '</b>';
   }
@@ -860,12 +978,24 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   const cloudHTML = () => '<div class="cloudw" id="cloudw"><svg viewBox="0 0 300 140" width="300" height="140" style="position:absolute;top:0;overflow:visible"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a6688"/><stop offset="1" stop-color="#232a40"/></linearGradient></defs><path d="M40 120 Q0 120 6 88 Q10 58 46 62 Q50 20 98 24 Q130 -6 170 24 Q214 10 228 52 Q290 50 292 92 Q296 124 254 122 Z" fill="url(#cg)" stroke="#9fc4ff" stroke-width="3"/><path class="bolt" d="M150 118 L132 168 L156 166 L138 222 L190 150 L162 152 L178 118 Z" fill="#fff6a8" style="filter:drop-shadow(0 0 12px #fff6a8)"/></svg><div class="rain"></div></div>';
   const BF = '<svg viewBox="0 0 70 56" width="70" height="56"><defs><linearGradient id="bw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2fd0b0"/><stop offset=".5" stop-color="#c9a2ff"/><stop offset="1" stop-color="#2fd0b0"/></linearGradient></defs><g class="w"><path d="M35 28 C 20 2, 2 4, 6 22 C 8 32, 22 34, 35 30 C 22 34, 10 50, 22 52 C 30 52, 34 40, 35 30 C 36 40, 40 52, 48 52 C 60 50, 48 34, 35 30 C 48 34, 62 32, 64 22 C 68 4, 50 2, 35 28 Z" fill="url(#bw)" opacity=".92"/></g><rect x="33.5" y="18" width="3" height="22" rx="1.5" fill="#1a0f2a"/></svg>';
   const bflyHTML = () => [...Array(6)].map((_, i) => '<div class="bfly" id="bf' + i + '" style="transition-delay:' + i * .08 + 's;filter:drop-shadow(0 0 10px #c9a2ff)">' + BF + '</div>').join('');
+  const chidHTML = () => { let d = ''; for (let k = 0; k < 10; k++) { const a = k / 10 * 6.283; let x = 115, y = 115, p = 'M115 115'; for (let s = 0; s < 4; s++) { x += Math.cos(a) * 22 + (Math.random() - .5) * 18; y += Math.sin(a) * 22 + (Math.random() - .5) * 18; p += ' L' + x.toFixed(0) + ' ' + y.toFixed(0); } d += '<path d="' + p + '" stroke="#dff6ff" stroke-width="3" fill="none"/>'; }
+    return '<div class="chid" id="chid"><svg viewBox="0 0 230 230" style="filter:drop-shadow(0 0 10px #7fc8ff)">' + d + '</svg></div>'; };
+  const CROW = '<svg viewBox="0 0 90 60" width="90" height="60"><g class="wg"><path d="M45 34 C 30 10, 10 8, 2 18 C 16 18, 28 26, 40 38 Z M45 34 C 60 10, 80 8, 88 18 C 74 18, 62 26, 50 38 Z" fill="#050203"/></g><ellipse cx="45" cy="38" rx="9" ry="12" fill="#050203"/><circle cx="45" cy="26" r="6" fill="#050203"/><circle cx="47" cy="25" r="1.6" fill="#ff2a2a"/></svg>';
+  const crowsHTML = () => [...Array(7)].map((_, i) => '<div class="crowp" id="cr' + i + '" style="transition-delay:' + i * .07 + 's">' + CROW + '</div>').join('');
+  const heartsHTML = () => [...Array(6)].map((_, i) => '<div class="heart" id="ht' + i + '" style="transition-delay:' + i * .1 + 's;animation-delay:-' + i * .12 + 's;font-size:' + (40 + i * 8) + 'px">♥</div>').join('');
+  const diceHTML = () => [3, 5].map((n, i) => '<div class="die" id="dc' + i + '">' + [...Array(9)].map((_, k) => ({ 3: [0, 4, 8], 5: [0, 2, 4, 6, 8] }[n].includes(k) ? '<i></i>' : '<span></span>')).join('') + '</div>').join('');
+  const ARM = '<rect x="0" y="-16" width="300" height="32" rx="16" fill="#d9a88a"/><rect x="0" y="-18" width="150" height="36" rx="6" fill="#6a3aa8"/><ellipse cx="330" cy="0" rx="50" ry="38" fill="#e0b090"/><rect x="350" y="-12" width="96" height="24" rx="12" fill="#e0b090"/><rect x="320" y="-46" width="40" height="18" rx="9" fill="#d8a888" transform="rotate(-25 340 -37)"/><path d="M300 -22 q 18 -10 30 0" stroke="#c89878" stroke-width="5" fill="none"/>';
+  const handsSVG = () => '<svg class="swords" viewBox="0 0 1920 1080"><g style="filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))">' + [0, 1, 2].map((k) => '<g class="sword" id="sw' + k + '">' + ARM + '</g>').join('') + '</g>' + [0, 1, 2].map((k) => '<g id="pt' + k + '"></g>').join('') + '</svg>';
+  const batSVG = () => '<svg class="swords" viewBox="0 0 1920 1080"><defs><linearGradient id="willow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e2b4"/><stop offset="1" stop-color="#c9a46a"/></linearGradient></defs><g class="sword" id="sw1" style="filter:drop-shadow(0 0 16px rgba(209,171,62,.6))"><rect x="0" y="-11" width="170" height="22" rx="10" fill="#004ba0"/><path d="M' + [...Array(9)].map((_, i) => (8 + i * 18) + ' -11 l9 22').join(' M') + '" stroke="#d1ab3e" stroke-width="4"/><path d="M170 -14 L200 -40 L520 -44 Q540 0 520 44 L200 40 L170 14 Z" fill="url(#willow)"/><path d="M220 -6 L500 -8 L500 8 L220 6 Z" fill="#c9a46a" opacity=".6"/><text x="360" y="12" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="34" fill="#004ba0">45</text></g></svg>';
+  const chopperSVG = () => '<div class="hatwrap"><svg viewBox="-260 -200 520 380" width="520" height="360" style="overflow:visible"><g class="hateyes" id="hatEyes"><ellipse cx="-50" cy="110" rx="22" ry="28" fill="#0b0b0b"/><ellipse cx="50" cy="110" rx="22" ry="28" fill="#0b0b0b"/><circle cx="-42" cy="98" r="8" fill="#fff"/><circle cx="58" cy="98" r="8" fill="#fff"/><ellipse cx="0" cy="150" rx="22" ry="14" fill="#3a7ad8"/></g>' +
+    '<g class="hatg" id="hatG"><path d="M-150 -110 L-230 -190 M-190 -150 L-250 -140 M150 -110 L230 -190 M190 -150 L250 -140" stroke="#8a5a2a" stroke-width="16" stroke-linecap="round"/><ellipse cx="0" cy="40" rx="200" ry="40" fill="#e86aa6"/><rect x="-120" y="-160" width="240" height="200" rx="10" fill="#ff7fb8"/><ellipse cx="0" cy="-160" rx="120" ry="26" fill="#ff9fcc"/><rect x="-120" y="-10" width="240" height="34" fill="#fff"/><path d="M-36 -110 L36 -50 M36 -110 L-36 -50" stroke="#fff" stroke-width="22" stroke-linecap="round"/></g></svg></div>';
+  const fedoraSVG = () => '<div class="hatwrap"><svg viewBox="-260 -180 520 360" width="520" height="360" style="overflow:visible"><g class="hateyes" id="hatEyes"><ellipse cx="-56" cy="96" rx="14" ry="5" fill="#f2e6c8" opacity=".85"/><ellipse cx="56" cy="96" rx="14" ry="5" fill="#f2e6c8" opacity=".85"/></g><g class="hatg" id="hatG" style="filter:drop-shadow(0 10px 20px rgba(0,0,0,.8))"><ellipse cx="0" cy="30" rx="250" ry="48" fill="#1a1a1c"/><path d="M-140 26 Q-150 -120 -40 -130 Q0 -100 40 -130 Q150 -120 140 26 Z" fill="#232326"/><path d="M-142 0 Q0 -16 142 0 L140 26 Q0 12 -140 26 Z" fill="#6a1020"/></g></svg></div>';
   function swordsSVG() {
     const one = (k, hc) => '<g class="sword" id="sw' + k + '"><g transform="translate(0,0)"><rect x="0" y="-9" width="120" height="18" rx="4" fill="' + hc + '"/><path d="' + [...Array(8)].map((_, i) => 'M' + (6 + i * 14) + ' -9 l7 18 M' + (13 + i * 14) + ' -9 l-7 18').join(' ') + '" stroke="rgba(255,255,255,.4)" stroke-width="3"/>' +
       '<ellipse cx="126" cy="0" rx="9" ry="26" fill="#c9a24e"/><path d="M136 -7 Q320 -16 480 -4 L500 2 Q320 2 136 7 Z" fill="url(#bl)"/><path class="glint" d="M140 -3 Q320 -10 490 -1" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="60 400" opacity=".9"/></g></g>';
     return '<svg class="swords" viewBox="0 0 1920 1080"><defs><linearGradient id="bl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#b9c3cf"/><stop offset="1" stop-color="#5f6a78"/></linearGradient><filter id="swg"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#3ddc84" flood-opacity=".6"/></filter></defs><g filter="url(#swg)">' + one(0, '#f4f4f4') + one(1, '#7a1a1a') + one(2, '#151515') + '</g></svg>';
   }
-  function buildEyes() { const m = eff().mascot, e = $('eyes'), tr = $('tracker'); const isEye = EYE_TYPES.includes(m); e.style.display = isEye ? '' : 'none'; tr.innerHTML = m === 'luffy' ? hatSVG() : m === 'zoro' ? swordsSVG() : m === 'dragonballs' ? ballsHTML() : m === 'pole' ? poleSVG() : m === 'cloud' ? cloudHTML() : m === 'butterflies' ? bflyHTML() : '';
+  function buildEyes() { const m = eff().mascot, e = $('eyes'), tr = $('tracker'); const isEye = EYE_TYPES.includes(m); e.style.display = isEye ? '' : 'none'; tr.innerHTML = m === 'luffy' ? hatSVG() : m === 'zoro' ? swordsSVG() : m === 'dragonballs' ? ballsHTML() : m === 'pole' ? poleSVG() : m === 'cloud' ? cloudHTML() : m === 'butterflies' ? bflyHTML() : m === 'chidori' ? chidHTML() : m === 'crows' ? crowsHTML() : m === 'room' ? '<div class="roomd" id="roomd"></div>' : m === 'hearts' ? heartsHTML() : m === 'hands' ? handsSVG() : m === 'chopperhat' ? chopperSVG() : m === 'bat' ? batSVG() : m === 'fedora' ? fedoraSVG() : m === 'dice' ? diceHTML() : '';
     if (isEye) { $('eyeL').innerHTML = eyeSVG('L', m); $('eyeR').innerHTML = eyeSVG('R', m); } look(); }
   function look() {
     const ax = xOf(foc);
@@ -875,8 +1005,15 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     for (let n = 1; n <= 7; n++) { const b = document.getElementById('db' + n); if (!b) break; const a = (n - 4) * .42; b.style.left = (ax + Math.sin(a) * 230) + 'px'; b.style.top = (690 - Math.cos(a) * 130 + (n === 4 ? -20 : 0)) + 'px'; b.style.transitionDelay = Math.abs(n - 4) * .06 + 's'; }
     const pole = $('pole'); if (pole) { const px = 960, py = 60, ang = Math.atan2(760 - py, ax - px), len = Math.hypot(ax - px, 760 - py) - 120; pole.style.transform = 'translate(' + px + 'px,' + py + 'px) rotate(' + ang * 180 / Math.PI + 'deg)'; $('rod').setAttribute('width', len); $('cap').setAttribute('x', 40 + len); }
     const cw = $('cloudw'); if (cw) cw.style.left = ax + 'px';
+    const ch = $('chid'); if (ch) ch.style.left = ax + 'px';
+    const rd = $('roomd'); if (rd) rd.style.left = ax + 'px';
+    for (let k = 0; k < 7; k++) { const c = document.getElementById('cr' + k); if (!c) break; c.style.left = (ax + (k - 3) * 70 + (Math.random() - .5) * 30) + 'px'; c.style.top = (650 - Math.abs(k - 3) * 22 - Math.random() * 40) + 'px'; }
+    for (let k = 0; k < 6; k++) { const h = document.getElementById('ht' + k); if (!h) break; h.style.left = (ax - 30 + (Math.random() - .5) * 220) + 'px'; h.style.top = (560 + Math.random() * 140) + 'px'; }
+    for (let k = 0; k < 2; k++) { const d = document.getElementById('dc' + k); if (!d) break; d.style.left = (ax + (k ? 50 : -50)) + 'px'; d.style.top = (680 + (k ? -20 : 10)) + 'px'; d.style.transform = 'rotate(' + ((Math.random() - .5) * 120) + 'deg)'; }
     for (let k = 0; k < 6; k++) { const bf = document.getElementById('bf' + k); if (!bf) break; const a = k / 6 * 6.283 + Math.random() * .6; bf.style.left = (ax + Math.cos(a) * (70 + Math.random() * 60)) + 'px'; bf.style.top = (660 + Math.sin(a) * 70 - Math.random() * 40) + 'px'; }
-    for (let k = 0; k < 3; k++) { const sw = document.getElementById('sw' + k); if (!sw) continue; const px = 960 + (k - 1) * 70, py = 150; const ang = Math.atan2(860 - py, ax - px) * 180 / Math.PI + (k - 1) * 9; sw.style.transform = 'translate(' + px + 'px,' + py + 'px) rotate(' + ang + 'deg)'; }
+    const mt = eff().mascot; const PIV = mt === 'hands' ? [[-40, 300], [1960, 360], [960, -40]] : mt === 'bat' ? [[0, 0], [960, 110], [0, 0]] : [[890, 150], [960, 150], [1030, 150]];
+    for (let k = 0; k < 3; k++) { const sw = document.getElementById('sw' + k); if (!sw) continue; const [px, py] = PIV[k]; const ty = mt === 'hands' ? 780 : 860; let ang = Math.atan2(ty - py, ax - px) * 180 / Math.PI + (mt === 'zoro' ? (k - 1) * 9 : 0); const dist = Math.hypot(ax - px, ty - py);
+      sw.style.transform = 'translate(' + px + 'px,' + py + 'px) rotate(' + ang + 'deg)' + (mt === 'hands' ? ' scale(' + Math.max(.6, Math.min(2.2, (dist - 180) / 400)) + ',1)' : ''); }
   }
   (function blink() { const e = $('eyes'); e.classList.add('blink'); setTimeout(() => e.classList.remove('blink'), 130); setTimeout(blink, 3000 + Math.random() * 6000); })();
 
@@ -937,6 +1074,21 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       home.animate([{ opacity: 0, transform: 'scale(1.08)' }, { opacity: 0, offset: .8 }, { opacity: 1, transform: 'none' }], { duration: 2200, easing: ease });
       return;
     }
+    if (e.wake === 'room') {
+      const o = overlay(); o.innerHTML = '<div id="rs" style="position:absolute;left:960px;top:540px;width:20px;height:20px;margin:-10px;border-radius:50%;border:4px solid #8fd0ff;background:radial-gradient(circle, rgba(140,210,255,.05) 50%, rgba(140,210,255,.3));box-shadow:0 0 60px #8fd0ff"></div><div class="moment-t" id="rt" style="top:440px;font-size:150px;letter-spacing:.3em;opacity:0;color:#dff2ff;text-shadow:0 0 30px #8fd0ff">ROOM</div>';
+      $('rs').animate([{ transform: 'scale(0)' }, { transform: 'scale(30)', offset: .5 }, { transform: 'scale(120)', opacity: 0 }], { duration: 1800, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'forwards' });
+      $('rt').animate([{ opacity: 0 }, { opacity: 1, offset: .35 }, { opacity: 0 }], { duration: 1600, fill: 'forwards' });
+      home.animate([{ clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(0% at 50% 50%)', offset: .2 }, { clipPath: 'circle(80% at 50% 50%)' }], { duration: 1800, easing: 'cubic-bezier(.5,0,.2,1)' });
+      setTimeout(() => o.remove(), 1900); return;
+    }
+    if (e.wake === 'fire') {
+      const o = overlay(); o.style.background = '#000'; let h = '';
+      for (let i = 0; i < 60; i++) { const x = Math.random() * 1920, w = 120 + Math.random() * 220; h += '<div style="position:absolute;left:' + x + 'px;bottom:-40px;width:' + w + 'px;height:' + (500 + Math.random() * 700) + 'px;margin-left:-' + w / 2 + 'px;border-radius:50% 50% 20% 20%/80% 80% 20% 20%;background:radial-gradient(ellipse at 50% 90%, #fff3b0, #ffb020 25%, #ff5a00 55%, rgba(255,40,0,0) 75%);mix-blend-mode:screen;transform-origin:50% 100%;animation:flm ' + (.25 + Math.random() * .3) + 's ease-in-out infinite alternate"></div>'; }
+      o.innerHTML = h + '<style>@keyframes flm{to{transform:scaleY(1.15) scaleX(.9)}}</style>';
+      o.animate([{ transform: 'translateY(100%)' }, { transform: 'translateY(0)', offset: .4 }, { transform: 'translateY(0)', opacity: 1, offset: .7 }, { transform: 'translateY(-30%)', opacity: 0 }], { duration: 2000, fill: 'forwards' }).onfinish = () => o.remove();
+      home.animate([{ opacity: 0 }, { opacity: 0, offset: .55 }, { opacity: 1, filter: 'brightness(1.6) sepia(.4)', offset: .75 }, { opacity: 1, filter: 'none' }], { duration: 2200 });
+      return;
+    }
     if (e.wake === 'storm') {
       const o = overlay(); o.style.background = '#05070f';
       const bolt = (x) => { let d = 'M' + x + ' 0', y = 0, xx = x; while (y < 1080) { xx += (Math.random() - .5) * 140; y += 60 + Math.random() * 80; d += ' L' + xx.toFixed(0) + ' ' + y.toFixed(0); } return d; };
@@ -966,7 +1118,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       return;
     }
     if (e.wake === 'sharingan') {
-      const o = overlay(); o.style.background = '#000'; const m = EYE_TYPES.includes(e.mascot) ? e.mascot : 'sharingan';
+      const o = overlay(); o.style.background = '#000'; const m = e.wakeEye || (EYE_TYPES.includes(e.mascot) ? e.mascot : 'sharingan');
       o.innerHTML = wakeEyes(m);
       o.animate([{ opacity: 1 }, { opacity: 1, offset: .75 }, { opacity: 0 }], { duration: 2000, fill: 'forwards' }).onfinish = () => o.remove();
       home.animate([{ transform: 'scale(1.1)', opacity: 0 }, { transform: 'scale(1.1)', opacity: 0, offset: .7 }, { transform: 'scale(1)', opacity: 1 }], { duration: 2200, easing: ease });
@@ -979,7 +1131,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       setTimeout(() => o.remove(), 2000); home.animate([{ transform: 'scale(1.1)' }, { transform: 'none' }], { duration: 1500, easing: ease }); return;
     }
     if (e.wake === 'tunnel') {
-      const o = overlay(); const word = e.scene === 'campnou' ? 'MATCHDAY' : (e.scene === 'wankhede' || e.scene === 'bluebillion') ? 'GAME ON' : 'KICK-OFF';
+      const o = overlay(); const word = e.scene === 'campnou' ? 'MATCHDAY' : (e.scene === 'wankhede' || e.scene === 'bluebillion' || e.scene === 'hitman') ? 'GAME ON' : 'KICK-OFF';
       o.innerHTML = '<div class="moment-t" id="tunT" style="top:430px;font-size:130px;letter-spacing:.22em;opacity:0;text-shadow:0 0 40px rgba(255,255,255,.5)">' + word + '</div>';
       home.animate([{ clipPath: 'inset(44% 46% 40% 46% round 30px)', transform: 'scale(1.3)', filter: 'brightness(2.2)' }, { clipPath: 'inset(30% 34% 26% 34% round 30px)', transform: 'scale(1.2)', filter: 'brightness(1.6)', offset: .45 }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', transform: 'scale(1)', filter: 'brightness(1)' }], { duration: 2000, easing: 'cubic-bezier(.5,0,.2,1)' });
       $('tunT').animate([{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'scale(1)', offset: .5 }, { opacity: 0, transform: 'scale(1.4)' }], { duration: 2000 }).onfinish = () => o.remove(); return;
@@ -997,7 +1149,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       $('mf').animate([{ opacity: .9 }, { opacity: 0 }], { duration: 500, fill: 'forwards' });
       home.animate([{ transform: 'none' }, { transform: 'translate(-12px,8px)' }, { transform: 'translate(10px,-6px)' }, { transform: 'translate(-6px,4px)' }, { transform: 'none' }], { duration: 500 });
     } else if (e.moment === 'six') {
-      o.innerHTML = '<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%, rgba(255,210,110,.5), transparent 60%)" id="mf"></div><div class="moment-t" id="mt" style="color:#ffd36e;text-shadow:0 0 50px rgba(255,190,60,.9), 8px 8px 0 #004ba0">SIX!</div><div class="moment-s" id="ms" style="color:#fff">' + (e.scene === 'wankhede' ? 'Rohit Sharma · 104 metres' : 'Virat Kohli · into the second tier') + '</div>';
+      o.innerHTML = '<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%, rgba(255,210,110,.5), transparent 60%)" id="mf"></div><div class="moment-t" id="mt" style="color:#ffd36e;text-shadow:0 0 50px rgba(255,190,60,.9), 8px 8px 0 #004ba0">SIX!</div><div class="moment-s" id="ms" style="color:#fff">' + (e.scene === 'wankhede' || e.scene === 'hitman' ? 'Rohit Sharma · 104 metres' : 'Virat Kohli · into the second tier') + '</div>';
       const cols = ['#ffd36e', '#6fb3ff', '#ff7ad0', '#7fe8a8', '#fff'];
       for (let b = 0; b < 7; b++) { const cx = 200 + R() * 1520, cy = 120 + R() * 380, c = cols[b % 5], d = b * .18; for (let k = 0; k < 36; k++) { const a = k / 36 * 6.283, Ln = 140 + R() * 120;
         o.insertAdjacentHTML('beforeend', '<span class="pt" style="left:' + cx + 'px;top:' + cy + 'px;width:7px;height:7px;background:' + c + ';box-shadow:0 0 12px ' + c + ';opacity:0;--x:' + Math.cos(a) * Ln + 'px;--y:' + (Math.sin(a) * Ln + 40) + 'px;animation:burst 1.8s ' + d + 's ease-out forwards"></span>'); } }
@@ -1010,7 +1162,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       $('mf').animate([{ opacity: 0 }, { opacity: .6, offset: .2 }, { opacity: .6, offset: .8 }, { opacity: 0 }], { duration: 3200, fill: 'forwards' });
       home.animate([{ transform: 'none' }, { transform: 'none', offset: .45 }, { transform: 'translate(-14px,8px)', offset: .5 }, { transform: 'translate(12px,-8px)', offset: .55 }, { transform: 'translate(-10px,6px)', offset: .6 }, { transform: 'none', offset: .7 }, { transform: 'none' }], { duration: 3200 });
     } else {
-      const shows = { 'domain': 'Jujutsu Kaisen · Ep 14', 'grand-line': 'One Piece · Ep 1149', 'straw-hat': 'One Piece · Ep 1149', 'three-sword': 'One Piece · Ep 1149', 'water-breathing': 'Demon Slayer · Ep 9', 'nine-tails': 'Naruto Shippuden · next in your list', 'navigator': 'One Piece · Ep 1149', 'butterfly-mansion': 'Demon Slayer · Ep 9', 'sage-mode': 'Naruto Shippuden · next in your list' };
+      const shows = { 'domain': 'Jujutsu Kaisen · Ep 14', 'grand-line': 'One Piece · Ep 1149', 'straw-hat': 'One Piece · Ep 1149', 'three-sword': 'One Piece · Ep 1149', 'water-breathing': 'Demon Slayer · Ep 9', 'nine-tails': 'Naruto Shippuden · next in your list', 'navigator': 'One Piece · Ep 1149', 'fire-fist': 'One Piece · Ep 1149', 'room': 'One Piece · Ep 1149', 'black-leg': 'One Piece · Ep 1149', 'hana-hana': 'One Piece · Ep 1149', 'drum-island': 'One Piece · Ep 1149', 'copy-ninja': 'Naruto Shippuden · next in your list', 'crow-genjutsu': 'Naruto Shippuden · next in your list', 'butterfly-mansion': 'Demon Slayer · Ep 9', 'sage-mode': 'Naruto Shippuden · next in your list' };
       o.innerHTML = '<div style="position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 45%, rgba(255,255,255,.5) 0 1.5deg, transparent 1.5deg 6deg);-webkit-mask-image:radial-gradient(circle at 50% 45%, transparent 14%, #000 60%);mask-image:radial-gradient(circle at 50% 45%, transparent 14%, #000 60%)" id="mf"></div><div class="moment-t" id="mt" style="font-family:\'Kaushan Script\',cursive;font-size:190px;color:#fff;text-shadow:8px 8px 0 ' + e.acc + '">New episode!</div><div class="moment-s" id="ms" style="color:' + e.acc + '">' + (shows[base().id] || 'Jujutsu Kaisen · Ep 14') + ' · out now on Crunchyroll</div>';
       $('mf').animate([{ opacity: 0, transform: 'scale(1.4)' }, { opacity: 1, transform: 'scale(1)', offset: .2 }, { opacity: .8 }, { opacity: 0 }], { duration: 3000, fill: 'forwards' });
     }

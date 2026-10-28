@@ -1,0 +1,17 @@
+{
+  "id": "hitman",
+  "name": "Hitman",
+  "category": "Cricket",
+  "for": "owner",
+  "scene": "hitman",
+  "hero": "rohit",
+  "watcher": "bat",
+  "focus": "arc",
+  "wake": "tunnel",
+  "clock": "board",
+  "icons": "white",
+  "extras": "fireworks",
+  "moment": "six",
+  "accent": "#d1ab3e",
+  "scoreboard_text": "ROHIT 264 (173) · RECORD"
+}

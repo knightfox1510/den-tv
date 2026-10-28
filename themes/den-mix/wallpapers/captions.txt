@@ -12,26 +12,44 @@
 11-three-sword.jpg	Three-Sword Style
 12-navigator.jpg	Navigator
 13-butterfly-mansion.jpg	Butterfly Mansion
-14-crimson-moon.jpg	Crimson Moon
-15-domain.jpg	Domain Expansion
-16-water-breathing.jpg	Water Breathing
-17-manga.jpg	Manga Panel
-18-anime-dusk.jpg	Anime Dusk
-19-trail-dawn.jpg	Trail Dawn
-20-monsoon.jpg	Sahyadri Monsoon
-21-neon.jpg	Neon Tokyo
-22-diwali.jpg	Diwali Night
-23-seoul.jpg	Seoul Nights
-24-marquee.jpg	Bollywood Marquee
-25-midnight-lounge.jpg	Midnight Lounge
-26-hero-messi.jpg	Hero Wall · Messi
-27-hero-kohli.jpg	Hero Wall · Kohli
-28-hero-rohit.jpg	Hero Wall · Rohit
-29-hero-luffy.jpg	Hero Wall · Luffy
-30-hero-gojo.jpg	Hero Wall · Gojo
-31-hero-goku.jpg	Hero Wall · Goku
-32-hero-naruto.jpg	Hero Wall · Naruto
-33-hero-zoro.jpg	Hero Wall · Zoro
-34-hero-nami.jpg	Hero Wall · Nami
-35-hero-shinobu.jpg	Hero Wall · Shinobu
-36-hero-tanjiro.jpg	Hero Wall · Tanjiro
+14-copy-ninja.jpg	Copy Ninja
+15-crow-genjutsu.jpg	Crow Genjutsu
+16-fire-fist.jpg	Fire Fist
+17-room.jpg	ROOM
+18-black-leg.jpg	Black Leg
+19-hana-hana.jpg	Hana Hana
+20-drum-island.jpg	Drum Island
+21-hitman.jpg	Hitman
+22-crimson-moon.jpg	Crimson Moon
+23-domain.jpg	Domain Expansion
+24-water-breathing.jpg	Water Breathing
+25-manga.jpg	Manga Panel
+26-anime-dusk.jpg	Anime Dusk
+27-trail-dawn.jpg	Trail Dawn
+28-monsoon.jpg	Sahyadri Monsoon
+29-neon.jpg	Neon Tokyo
+30-diwali.jpg	Diwali Night
+31-seoul.jpg	Seoul Nights
+32-marquee.jpg	Bollywood Marquee
+33-noir.jpg	Noir
+34-velvet.jpg	Velvet Night
+35-high-roller.jpg	High Roller
+36-midnight-lounge.jpg	Midnight Lounge
+37-hero-messi.jpg	Hero Wall · Messi
+38-hero-kohli.jpg	Hero Wall · Kohli
+39-hero-rohit.jpg	Hero Wall · Rohit
+40-hero-luffy.jpg	Hero Wall · Luffy
+41-hero-gojo.jpg	Hero Wall · Gojo
+42-hero-goku.jpg	Hero Wall · Goku
+43-hero-naruto.jpg	Hero Wall · Naruto
+44-hero-zoro.jpg	Hero Wall · Zoro
+45-hero-nami.jpg	Hero Wall · Nami
+46-hero-shinobu.jpg	Hero Wall · Shinobu
+47-hero-kakashi.jpg	Hero Wall · Kakashi
+48-hero-itachi.jpg	Hero Wall · Itachi
+49-hero-ace.jpg	Hero Wall · Ace
+50-hero-law.jpg	Hero Wall · Law
+51-hero-sanji.jpg	Hero Wall · Sanji
+52-hero-robin.jpg	Hero Wall · Robin
+53-hero-chopper.jpg	Hero Wall · Chopper
+54-hero-tanjiro.jpg	Hero Wall · Tanjiro

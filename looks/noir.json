@@ -1,0 +1,16 @@
+{
+  "id": "noir",
+  "name": "Noir",
+  "category": "After dark",
+  "for": "everyone",
+  "scene": "noir",
+  "hero": "none",
+  "watcher": "fedora",
+  "focus": "spot",
+  "wake": "crt",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "rain",
+  "moment": "none",
+  "accent": "#e8dcc0"
+}

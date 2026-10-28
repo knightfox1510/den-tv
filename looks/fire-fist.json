@@ -1,0 +1,16 @@
+{
+  "id": "fire-fist",
+  "name": "Fire Fist",
+  "category": "One Piece",
+  "for": "owner",
+  "scene": "firefist",
+  "hero": "ace",
+  "watcher": "none",
+  "focus": "aura",
+  "wake": "fire",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "embers",
+  "moment": "drop",
+  "accent": "#ff7a1a"
+}

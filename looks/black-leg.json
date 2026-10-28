@@ -1,0 +1,16 @@
+{
+  "id": "black-leg",
+  "name": "Black Leg",
+  "category": "One Piece",
+  "for": "owner",
+  "scene": "baratie",
+  "hero": "sanji",
+  "watcher": "hearts",
+  "focus": "spot",
+  "wake": "fire",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#ff5a8a"
+}
