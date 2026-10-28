@@ -17,7 +17,8 @@ A fork of the cleanyourtv launcher (Java, Android 8+), with its safety and insta
 
 ## 3. Phone settings page
 Served by the TV on the home Wi-Fi, opened by scanning a QR code on the TV, with a pairing code.
-- Gallery, Customise, Auto rules, People (owner, partner, guest) and Remote, as in the mockup.
+- Gallery, Customise, Auto rules, People and Remote, as in the mockup. Every profile has a name you
+  can change, and profiles belong to each TV, so a friend's TV has its own people.
 - A PIN-locked Private profile for your own pictures. They stay on the TV and phone and are never
   synced to this repo; guest mode and Surprise me skip them.
 - Upload your own photos as heroes or wallpapers.
@@ -30,5 +31,10 @@ weekend trail weather (Open-Meteo), and a "next 72 hours" list. It sets off mome
 It opens from its dock tile in the current look's colours, and the phone page chooses which cards
 show and which teams, leagues and shows they follow.
 
-## 5. Extras
+## 5. Optional AI
+Connect a Gemini, Claude or other key for describe-a-look, rules in plain words, match previews,
+spoiler-safe recaps and a weekend planner. AI never runs while you move around Home. See
+[ai.md](ai.md).
+
+## 6. Extras
 Room lights that react to goals, festival looks by date, more scenes, heroes and watchers.

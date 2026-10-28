@@ -255,6 +255,11 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
 .tags button, .tags span { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--dim); }
 .tags button { cursor: pointer; }
 .tags .on, .tags span { background: #23232e; color: var(--ink); }
+.namein { font: inherit; font-size: 16px; font-weight: 600; color: var(--ink); background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 3px 6px; width: 150px; min-width: 0; }
+.namein:hover, .namein:focus { border-color: var(--line); background: #14141c; outline: none; }
+.ask { display: grid; gap: 8px; background: linear-gradient(135deg, #1d1530, #14141c); border: 1px solid #3a2c55; border-radius: 16px; padding: 12px; }
+.ask b { font-size: 14px; }
+.ask .row input { flex: 1; min-width: 0; }
 .remote { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .remote .btn { border-radius: 14px; padding: 12px 6px; }
 .note { color: var(--dim); font-size: 12.5px; margin: 0; }
@@ -899,6 +904,8 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'Heroes', 'One Piece', 'Anime', 'Outdoors', 'Night & neon', 'Seasonal', 'Together', 'After dark', 'My looks'];
 
   const PEOPLE = { G: { name: 'Gaurav', av: '#ffd36e', tags: ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Hiking'] }, P: { name: 'Partner', av: '#ff9ec4' }, X: { name: 'Guest', av: '#9fe6ff' } };
+  const NAMES0 = (() => { try { return JSON.parse(localStorage.getItem('den2.names')) || {}; } catch (e) { return {}; } })();
+  Object.keys(NAMES0).forEach((k) => { if (PEOPLE[k] && NAMES0[k]) PEOPLE[k].name = NAMES0[k]; });
   const PARTNER_OPTS = ['K-drama', 'Bollywood', 'Travel', 'Cooking', 'Plants', 'Music', 'F1', 'Yoga', 'Pets', 'Art', 'Cricket', 'Football', 'Anime'];
   const S = {
     tab: 'looks', cat: 'All', q: '', who: store.get('who', 'G'), look: store.get('look', 'camp-nou'), over: store.get('over', {}),
@@ -1319,6 +1326,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   function vLooks() {
     const e = eff(), ls = visible();
     return '<div class="now"><div class="thumb" data-tid="' + base().id + '"></div><div><span>Now on the TV</span><b>' + base().name + (Object.keys(S.over).length ? ' · customised' : '') + '</b><div class="row" style="margin-top:6px"><button class="btn hot" id="surprise">Surprise me</button>' + (e.moment !== 'none' ? '<button class="btn" id="mom">' + MOMENT[e.moment] + '</button>' : '') + '<button class="btn" id="wk">Wake</button></div></div></div>' +
+      '<div class="ask"><b>✨ Describe a look</b><div class="row"><input class="search" id="descIn" placeholder="e.g. rainy Tokyo night with Itachi\'s crows and a neon clock" aria-label="Describe a look"><button class="btn hot" id="descGo">Create</button></div><span class="note">Demo: this matches keywords. With an AI key connected, it would understand any description.</span></div>' +
       '<input class="search" id="q" type="search" placeholder="Search: stadium, Gojo, Sharingan, rain…" value="' + S.q.replace(/"/g, '&quot;') + '" aria-label="Search looks">' +
       '<div class="cats">' + CATS.map((c) => '<button data-cat="' + c + '" aria-pressed="' + (S.cat === c) + '">' + c + '</button>').join('') + '</div>' +
       '<div class="sec"><h3>' + ls.length + ' looks' + (S.who !== 'G' ? ' for ' + PEOPLE[S.who].name : '') + '</h3><div class="cards">' + (ls.map(card).join('') || '<p class="note">No looks match. Try another word or category.</p>') + '</div></div>';
@@ -1348,10 +1356,10 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       '<button class="btn" id="addRule">+ Add a rule</button><p class="note">The first rule that matches wins. A look you pick by hand stays on until the next rule starts.</p>';
   }
   function vPeople() {
-    const c = (k, extra) => { const p = PEOPLE[k]; return '<div class="prof' + (S.who === k ? ' on' : '') + '"><header><span class="av" style="background:' + p.av + '">' + p.name[0] + '</span><b>' + p.name + '</b><button class="btn' + (S.who === k ? ' hot' : '') + '" data-who="' + k + '">' + (S.who === k ? 'Watching' : 'Switch') + '</button></header>' + extra + '</div>'; };
+    const c = (k, extra) => { const p = PEOPLE[k]; return '<div class="prof' + (S.who === k ? ' on' : '') + '"><header><span class="av" style="background:' + p.av + '">' + (p.name[0] || '?').toUpperCase() + '</span><input class="namein" data-name="' + k + '" value="' + p.name.replace(/"/g, '&quot;') + '" maxlength="20" aria-label="Name for this profile"><button class="btn' + (S.who === k ? ' hot' : '') + '" data-who="' + k + '">' + (S.who === k ? 'Watching' : 'Switch') + '</button></header>' + extra + '</div>'; };
     return c('G', '<div class="tags">' + PEOPLE.G.tags.map((t) => '<span>' + t + '</span>').join('') + '</div>') + c('P', '<p class="note">Choose their interests. Looks, Home rows and rules follow them.</p><div class="tags">' + PARTNER_OPTS.map((t) => '<button data-ptag="' + t + '" class="' + (S.partner.includes(t) ? 'on' : '') + '">' + t + '</button>').join('') + '</div>') + c('X', '<p class="note">Hides personal rows and scores, and shows only looks marked Everyone.</p>') +
       '<div class="prof"><header><span class="av" style="background:#ff4d6d">🔒</span><b>Private</b><button class="btn" id="pinBtn">Set a PIN</button></header><p class="note">A PIN-locked profile for your own pictures. They stay on your TV and phone, never go into the den-tv repo, and are hidden in guest mode and from the Surprise me button. The TV returns to your normal profile when it goes to sleep.</p></div>' +
-      '<button class="btn" id="addPerson">+ Add someone</button>';
+      '<button class="btn" id="addPerson">+ Add someone</button><p class="note">Tap a name to rename it. Names and profiles belong to this TV, so a friend\'s TV has its own people, and two TVs at home can each have their own.</p>';
   }
   function vRemote() {
     return '<div class="sec"><h3>Quick buttons</h3><div class="remote">' + ['⏻ Sleep', 'Wake', 'Mute', 'Vol −', 'Vol +', 'Sleep in 30 min', 'PlayStation 5', 'Set-top box', 'Live TV'].map((b) => '<button class="btn" data-rb="' + b + '">' + b + '</button>').join('') + '</div></div>' +
@@ -1365,6 +1373,24 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     body.innerHTML = { looks: vLooks, tweak: vTweak, auto: vAuto, people: vPeople, remote: vRemote }[S.tab](); bind();
     thumbQueue = [...body.querySelectorAll('[data-tid]')]; fillThumbs();
   }
+  function makeLook(text) {
+    const t = ' ' + text.toLowerCase() + ' ', has = (...w) => w.some((x) => t.includes(x));
+    const SC = [[['camp nou', 'barca', 'barça', 'stadium'], 'campnou'], [['world cup', 'argentina'], 'albiceleste'], [['goat', 'ballon'], 'goat'], [['wankhede', 'mumbai', 'ipl'], 'wankhede'], [['india', 'tricolour'], 'bluebillion'], [['tokyo', 'neon', 'city'], 'neon'], [['seoul', 'k-drama'], 'seoul'], [['itachi', 'crimson', 'red moon', 'crow'], 'crimson'], [['gojo', 'void', 'space', 'galaxy'], 'domain'],
+      [['goku', 'saiyan'], 'saiyan'], [['kurama', 'nine-tails', 'fox'], 'kurama'], [['kakashi', 'lightning', 'storm'], 'leaf'], [['naruto', 'village'], 'hokage'], [['wisteria', 'butterfl', 'shinobu'], 'wisteria'], [['nami', 'tangerine'], 'tangerine'], [['ace', 'fire', 'flame'], 'firefist'], [['law', 'room'], 'room'], [['sanji', 'restaurant'], 'baratie'], [['chopper', 'cherry', 'sakura'], 'drum'],
+      [['pirate', 'sea', 'ocean', 'ship', 'luffy'], 'grandline'], [['wave', 'tanjiro'], 'wave'], [['manga', 'comic'], 'manga'], [['jazz', 'lounge', 'cocktail'], 'lounge'], [['noir', 'detective'], 'noir'], [['casino', 'poker'], 'casino'], [['romantic', 'candle', 'date'], 'velvet'], [['diwali', 'festival'], 'diwali'], [['rain', 'monsoon'], 'monsoon'], [['hike', 'trail', 'mountain', 'dawn'], 'dawn'], [['sunset', 'dusk'], 'dusk'], [['zoro', 'sword'], 'zoro']];
+    const HA = { messi: ['messi', 'lionel'], kohli: ['kohli', 'virat'], rohit: ['rohit', 'hitman'], goku: ['goku'], naruto: ['naruto'], kakashi: ['kakashi'], itachi: ['itachi'], luffy: ['luffy'], zoro: ['zoro'], nami: ['nami'], ace: [' ace '], law: [' law '], sanji: ['sanji'], robin: ['robin'], chopper: ['chopper'], gojo: ['gojo'], tanjiro: ['tanjiro'], shinobu: ['shinobu'] };
+    const WA = { sharingan: ['sharingan'], mangekyo: ['mangekyo', 'mangekyō'], six: ['six eyes'], dragonballs: ['dragon ball'], pole: ['power pole'], crows: ['crows'], butterflies: ['butterflies'], hearts: ['heart'], crown: ['crown'], dice: ['dice'], zoro: ['swords'], luffy: ['straw hat'], chidori: ['chidori'], room: ['room sphere'], bat: [' bat '], cloud: ['thundercloud', 'cloud'], ballondor: ['golden ball'], fedora: ['fedora'] };
+    const EX = { rain: ['rain'], snow: ['snow'], petals: ['petal', 'sakura'], fireworks: ['firework'], confetti: ['confetti'], leaves: ['leaves', 'leaf'], embers: ['ember'], crows: ['crows'] };
+    const CK = { analog: ['analog', 'dial'], neon: ['neon clock', 'neon'], words: ['words'], flap: ['flip', 'split-flap', 'flap'], ring: ['ring'], board: ['scoreboard'], brush: ['brush'], roll: ['rolling'] };
+    const pick = (M) => Object.keys(M).find((k) => M[k].some((w) => t.includes(w)));
+    let scene = (SC.find(([w]) => w.some((x) => t.includes(x))) || [0, null])[1];
+    const hero = pick(HA) || 'none'; const watcher = pick(WA) || (hero === 'itachi' ? 'crows' : hero === 'goku' ? 'dragonballs' : hero === 'shinobu' ? 'butterflies' : 'none');
+    if (!scene) scene = hero !== 'none' ? 'black' : 'dusk';
+    const h = HEROES[hero]; const acc = h ? h.ac : ({ neon: '#ff3df2', monsoon: '#7fe8a8', dawn: '#ffb86b', lounge: '#ff4d6d', noir: '#e8dcc0', crimson: '#ff2a2a' }[scene] || '#ff7ab6');
+    const ws = text.trim().split(/\s+/).slice(0, 4); while (ws.length > 1 && /^(with|and|a|an|the|of|in|on)$/i.test(ws[ws.length - 1])) ws.pop(); const words = ws.join(' '); const name = words ? words[0].toUpperCase() + words.slice(1) : 'My look';
+    return { id: 'mine-' + Date.now(), name, cat: 'My looks', for: S.who === 'P' ? 'P' : S.who === 'X' ? 'B' : 'G', mine: true, scene, hero, mascot: watcher, focus: has('calm', 'quiet', 'sleepy') ? 'spot' : (watcher === 'none' ? 'spot' : 'aura'),
+      wake: has('panel') ? 'panels' : has('storm', 'lightning') ? 'storm' : hero === 'itachi' ? 'sharingan' : 'bloom', clock: pick(CK) || 'thin', icons: 'white', amb: pick(EX) || 'auto', moment: has('goal') ? 'goal' : has('six') ? 'six' : 'drop', acc, board: '', motion: has('calm', 'quiet', 'sleepy') ? 'calm' : undefined };
+  }
   function setLook(id) { S.look = id; S.over = {}; save(); openHub(false); applyTV(true); render(); toast(base().name + ' is on'); }
   function bind() {
     body.querySelectorAll('[data-look]').forEach((c) => { const go = (ev) => { if (ev.target.closest('.fav')) return; setLook(c.dataset.look); }; c.addEventListener('click', go); c.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); go(ev); } }); });
@@ -1374,6 +1400,8 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     const on = (id, f) => { const el = $(id); if (el) el.addEventListener('click', f); };
     on('surprise', () => { const pool = visible().filter((l) => l.id !== S.look); const pick = pool.length ? pool : allLooks(); setLook(pick[Math.floor(Math.random() * pick.length)].id); });
     on('mom', moment); on('wk', wake);
+    const dg = () => { const v = $('descIn').value.trim(); if (!v) { toast('Describe a look first'); return; } const l = makeLook(v); S.mine = S.mine.concat([l]); save(); setLook(l.id); };
+    on('descGo', dg); const di = $('descIn'); if (di) di.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') dg(); });
     [['t-scene', 'scene'], ['t-hero', 'hero'], ['t-mascot', 'mascot'], ['t-amb', 'amb'], ['t-focus', 'focus'], ['t-wake', 'wake'], ['t-moment', 'moment'], ['t-clock', 'clock'], ['t-icons', 'icons'], ['t-motion', 'motion'], ['t-acc', 'acc']].forEach(([id, key]) => { const el = $(id); if (!el) return;
       el.addEventListener(id === 't-acc' ? 'input' : 'change', () => { const bv = key === 'motion' ? (base().motion || 'full') : base()[key]; if (el.value === bv) delete S.over[key]; else S.over[key] = el.value; save(); applyTV(key === 'wake');
         if (key === 'moment' && el.value !== 'none') moment(); if (id !== 't-acc') render(); }); });
@@ -1391,6 +1419,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     body.querySelectorAll('[data-ptag]').forEach((b) => b.addEventListener('click', () => { const t = b.dataset.ptag; S.partner = S.partner.includes(t) ? S.partner.filter((x) => x !== t) : S.partner.concat(t); save(); render(); renderChips(); }));
     on('addRule', () => toast('Rules can use time, day, matches, episodes, weather and festivals'));
     on('addPerson', () => toast('Each new person gets a name, interests and a default look'));
+    body.querySelectorAll('[data-name]').forEach((inp) => inp.addEventListener('change', () => { const k = inp.dataset.name, v = inp.value.trim() || { G: 'Me', P: 'Partner', X: 'Guest' }[k]; PEOPLE[k].name = v; NAMES0[k] = v; try { localStorage.setItem('den2.names', JSON.stringify(NAMES0)); } catch (e) {} render(); tick(); renderChips(); toast('Renamed to ' + v); }));
     on('pinBtn', () => toast('Choose a 4-digit PIN on the TV to unlock Private'));
     body.querySelectorAll('[data-rb]').forEach((b) => b.addEventListener('click', () => { const v = b.dataset.rb; if (v === 'Wake') wake(); toast(v.startsWith('Opening') ? v : v === 'Wake' ? 'Waking the TV' : v + ' sent to the TV'); }));
     on('sendType', () => { const v = $('typeBox').value.trim(); toast(v ? '"' + v + '" typed on the TV' : 'Type something first'); });
