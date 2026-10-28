@@ -1,0 +1,16 @@
+{
+  "id": "geek",
+  "name": "Geek HUD",
+  "category": "Geek & code",
+  "for": "everyone",
+  "scene": "grid",
+  "hero": "none",
+  "watcher": "reticle",
+  "focus": "spot",
+  "wake": "hudboot",
+  "clock": "hud",
+  "icons": "white",
+  "extras": "none",
+  "moment": "none",
+  "accent": "#38e1ff"
+}

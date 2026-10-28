@@ -19,7 +19,7 @@ and replaces its ad-filled home screen. den-tv adds the looks on top.
 | Part | Status |
 |---|---|
 | [`themes/den-mix/`](themes/den-mix/) | **Works now.** Every scene as a wallpaper for the cleanyourtv launcher, a new one every 5 minutes |
-| [`looks/`](looks/) | **Done.** 43 looks as small JSON files, the format the launcher will read |
+| [`looks/`](looks/) | **Done.** 45 looks as small JSON files, the format the launcher will read |
 | [`mockups/den-looks.html`](mockups/den-looks.html) | **Works now.** Open it in a browser: the full experience, with the phone settings page driving a TV preview |
 | den-tv launcher (look engine, watchers, wake animations, moments) | Planned, see [docs/roadmap.md](docs/roadmap.md) |
 | Phone settings page served by the TV | Planned |
@@ -44,6 +44,7 @@ OnePlus, Nvidia Shield and most others), not on Samsung, LG or Fire TV.
 | Seasonal | Diwali Night |
 | Together | Our Wall, Seoul Nights, Bollywood Marquee |
 | After dark | Noir, Velvet Night, High Roller, Midnight Lounge |
+| Geek & code | Geek HUD, Coder |
 
 Each look picks a scene, a hero, a watcher, a focus effect, a wake animation, a clock, extras and a
 big moment from one shared library. On top of any look you can switch on widgets: a "Did you know?" facts card or ticker about the heroes in the look, and a next-match countdown. The Fan Hub opens from its dock tile in whichever look is on. [looks/README.md](looks/README.md) lists every option.

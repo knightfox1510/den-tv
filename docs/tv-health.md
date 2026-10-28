@@ -20,6 +20,10 @@ Closing everything all the time isn't free: the next time you open a closed app 
 is slower than resuming it. On a 1 GB TV the gain is real but small, so the automatic switch is off by
 default.
 
+## Also on the TV tab
+
+All of these are in the mockup's TV tab, and each can be switched off:
+
 ## Other things in the same spirit
 
 - **Memory and storage meter** on the phone page and, optionally, a line under the clock
@@ -29,4 +33,5 @@ default.
 - **Kids timer:** an app closes itself after a set time, with a PIN to extend.
 - **Sleep timer, quiet hours and bedtime mode**, from cleanyourtv's add-ons.
 - **Burn-in care:** the idle clock screensaver moves a little every minute.
-- **Network check:** a speed test tile and the Wi-Fi signal on the phone page.
+- **Wi-Fi and network:** signal strength, a speed test, and optional signal bars on the TV (with or
+  without the network name).

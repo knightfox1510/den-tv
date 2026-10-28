@@ -20,7 +20,15 @@ A fork of the cleanyourtv launcher (Java, Android 8+), with its safety and insta
 
 ## 3. Phone settings page
 Served by the TV on the home Wi-Fi, opened by scanning a QR code on the TV, with a pairing code.
-- Gallery, Customise, Auto rules, People and Remote, as in the mockup. Every profile has a name you
+- Five tabs, each grouped into sections you open one at a time:
+  - **Looks:** gallery, search, favourites, Surprise me, describe a look.
+  - **Customise:** Look, Animations and motion, Clock and greeting, Widgets on Home (Wi-Fi
+    strength, system line, HUD panels, scores, episodes, facts, screen time), Fan Hub, Your photos.
+  - **Auto:** rules.
+  - **People:** renamable profiles, Private.
+  - **TV:** Remote, Memory and background apps, Storage, Wi-Fi and network (with a speed test),
+    Screen time, Kids timer, Sleep and quiet hours, Screen care.
+- The rest, as in the mockup. Every profile has a name you
   can change, and profiles belong to each TV, so a friend's TV has its own people.
 - A PIN-locked Private profile for your own pictures. They stay on the TV and phone and are never
   synced to this repo; guest mode and Surprise me skip them.

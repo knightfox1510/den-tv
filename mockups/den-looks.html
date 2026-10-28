@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&family=Bebas+Neue&family=VT323&family=Kaushan+Script&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&family=Bebas+Neue&family=VT323&family=Kaushan+Script&family=JetBrains+Mono:wght@300;400;600;800&display=swap">
 <style>
 /* Layout: a painted 1920x1080 TV stage (sticky on wide screens) beside the phone settings app; stacked on phones. One dark look by choice. */
 :root {
@@ -15,6 +15,7 @@
   --hot: #ff4d6d;
   --ok: #5fe39a;
   --f: "Outfit", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -267,6 +268,56 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
 .tile6 { position: absolute; }
 .meter { height: 12px; border-radius: 999px; background: #262632; overflow: hidden; margin-top: 6px; }
 .meter i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--ok), #ffd36e, var(--hot)); transition: width .8s; }
+details.acc { background: var(--raise); border: 1px solid var(--line); border-radius: 16px; }
+details.acc + details.acc { margin-top: 0; }
+details.acc summary { list-style: none; cursor: pointer; padding: 13px 14px; display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: center; }
+details.acc summary::-webkit-details-marker { display: none; }
+details.acc summary .ic2 { font-size: 18px; }
+details.acc summary b { font-size: 15px; font-weight: 600; display: block; }
+details.acc summary small { color: var(--dim); font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 230px; }
+details.acc summary::after { content: "›"; color: var(--dim); font-size: 20px; transition: transform .2s; }
+details.acc[open] summary::after { transform: rotate(90deg); }
+details.acc .inner { padding: 0 14px 12px; border-top: 1px solid var(--line); }
+details.acc .sub { margin: 12px 0 2px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.bars2 { display: grid; gap: 6px; margin-top: 8px; }
+.bars2 div { display: grid; grid-template-columns: 96px 1fr 58px; gap: 8px; align-items: center; font-size: 12.5px; }
+.bars2 div i { display: block; height: 8px; border-radius: 6px; background: var(--hot); }
+.bars2 div span:last-child { text-align: right; color: var(--dim); font-variant-numeric: tabular-nums; }
+.speed { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; text-align: center; }
+.speed div { background: #111118; border-radius: 12px; padding: 8px 4px; }
+.speed b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+.speed span { font-size: 11px; color: var(--dim); }
+input.tm { font: inherit; font-size: 13px; background: #111118; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; }
+input[type=range] { accent-color: var(--hot); width: 130px; }
+.statl { font-family: var(--mono); font-size: 20px; opacity: .75; margin-top: 10px; letter-spacing: .02em; }
+.wbars { display: inline-flex; gap: 3px; align-items: flex-end; height: 20px; }
+.wbars i { width: 5px; border-radius: 2px; background: rgba(255,255,255,.3); }
+.wbars i.on { background: #5be08f; }
+.hud { position: absolute; inset: 0; pointer-events: none; z-index: 3; font-family: var(--mono); display: none; }
+.hud.on { display: block; }
+.hp { position: absolute; width: 430px; padding: 16px 20px 18px; background: rgba(3,14,24,.55); border: 1px solid color-mix(in srgb, var(--acc) 45%, transparent); }
+.hp::before, .hp::after { content: ""; position: absolute; width: 18px; height: 18px; border: 3px solid var(--acc); }
+.hp::before { left: -3px; top: -3px; border-right: 0; border-bottom: 0; } .hp::after { right: -3px; bottom: -3px; border-left: 0; border-top: 0; }
+.hp h4 { margin: 0 0 8px; font-size: 15px; letter-spacing: .22em; color: var(--acc); font-weight: 600; }
+.hp .r { display: flex; justify-content: space-between; font-size: 19px; padding: 3px 0; color: #dff6ff; }
+.hp .r span:first-child { opacity: .6; }
+.hp .g { height: 6px; background: rgba(255,255,255,.1); margin: 4px 0 6px; } .hp .g i { display: block; height: 100%; background: var(--acc); box-shadow: 0 0 10px var(--acc); transition: width .8s; }
+.k-term { font-family: var(--mono); }
+.k-term .pr { font-size: 26px; color: #8b949e; } .k-term .pr b { color: var(--acc); font-weight: 400; }
+.k-term .tt { font-size: 140px; font-weight: 300; letter-spacing: -.02em; }
+.k-term .cur { display: inline-block; width: 60px; height: 120px; background: var(--acc); margin-left: 10px; vertical-align: -14px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.k-hud { font-family: var(--mono); display: inline-grid; gap: 6px; padding: 14px 22px; border: 1px solid var(--acc); background: rgba(3,14,24,.5); box-shadow: 0 0 30px color-mix(in srgb, var(--acc) 30%, transparent); }
+.k-hud .tt { font-size: 120px; font-weight: 300; color: #e8fbff; text-shadow: 0 0 18px var(--acc); line-height: 1; }
+.k-hud .sb { height: 6px; background: rgba(255,255,255,.1); } .k-hud .sb i { display: block; height: 100%; background: var(--acc); transition: width .9s linear; }
+.k-hud .lb { font-size: 16px; letter-spacing: .3em; color: var(--acc); }
+.reticle { position: absolute; top: 860px; width: 230px; height: 230px; margin: -115px 0 0 -115px; transition: left .45s cubic-bezier(.3,1.3,.5,1); }
+.reticle svg { width: 230px; height: 230px; animation: spin 9s linear infinite; }
+.reticle .lab { position: absolute; left: 150px; top: -40px; font-family: var(--mono); font-size: 18px; color: var(--acc); white-space: nowrap; text-shadow: 0 0 8px var(--acc); }
+.caretw { position: absolute; top: 720px; transition: left .25s steps(6); font-family: var(--mono); }
+.caretw i { display: block; width: 12px; height: 70px; background: var(--acc); animation: blink 1s steps(1) infinite; box-shadow: 0 0 14px var(--acc); }
+.caretw span { position: absolute; left: 22px; top: 10px; white-space: nowrap; font-size: 22px; color: #e6edf3; background: rgba(13,17,23,.85); border: 1px solid #30363d; padding: 4px 10px; border-radius: 6px; }
+.caretw span b { color: #ff7b72; font-weight: 400; } .caretw span em { color: #a5d6ff; font-style: normal; }
 .remote { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .remote .btn { border-radius: 14px; padding: 12px 6px; }
 .note { color: var(--dim); font-size: 12.5px; margin: 0; }
@@ -297,7 +348,8 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
             <div class="vig"></div>
             <div class="fx" id="fx"></div>
             <div class="tracker" id="tracker"></div><div class="eyes" id="eyes"><div class="shadow"></div><div class="eye l" id="eyeL"></div><div class="eye r" id="eyeR"></div></div>
-            <div class="clockbox"><div class="greet" id="greet">Good evening, Gaurav</div><div class="clock" id="clock"></div><div class="date" id="date"></div></div>
+            <div class="clockbox"><div class="greet" id="greet">Good evening, Gaurav</div><div class="clock" id="clock"></div><div class="date" id="date"></div><div class="statl" id="statl"></div></div>
+            <div class="hud" id="hud"></div>
             <div class="cap"><div class="hn" id="hn"></div><div id="chips" style="display:grid;gap:10px;justify-items:end"></div></div>
             <div class="factcard" id="factcard"><small id="factk">Did you know?</small><p id="factp"></p></div>
             <div class="ticker" id="ticker"><div id="tickt"></div></div>
@@ -323,7 +375,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
           <button role="tab" data-tab="tweak" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Customise</button>
           <button role="tab" data-tab="auto" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>Auto</button>
           <button role="tab" data-tab="people" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.2 4.4 1.9 5 4.9"/></svg>People</button>
-          <button role="tab" data-tab="remote" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="7" y="2.5" width="10" height="19" rx="3"/><circle cx="12" cy="8" r="2"/><path d="M10 13h4M10 16h4"/></svg>Remote</button>
+          <button role="tab" data-tab="remote" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="7" y="2.5" width="10" height="19" rx="3"/><circle cx="12" cy="8" r="2"/><path d="M10 13h4M10 16h4"/></svg>TV</button>
         </nav>
       </div>
     </div>
@@ -780,6 +832,28 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     g.globalCompositeOperation = 'source-over';
     for (let row = 0; row < 6; row++) { const y = 800 + row * 48, s = .9 + row * .2; for (let x = -20 + (row % 2) * 20; x < W + 20; x += 44 * s) { g.fillStyle = 'rgb(' + (20 + row * 3) + ',' + (50 + row * 8) + ',' + (140 + row * 10) + ')'; g.beginPath(); g.ellipse(x, y + 30 * s, 20 * s, 16 * s, 0, Math.PI, 0); g.fill(); g.fillStyle = '#070a1a'; g.beginPath(); g.arc(x, y + 6 * s, 10 * s, 0, 7); g.fill(); } }
   }
+  function gridScene(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#010812'], [1, '#02101c']]); g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(56,225,255,.07)'; g.lineWidth = 1; for (let x = 0; x < W; x += 40) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); } for (let y = 0; y < H; y += 40) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+    g.strokeStyle = 'rgba(56,225,255,.16)'; for (let x = 0; x < W; x += 200) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); } for (let y = 0; y < H; y += 200) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+    g.strokeStyle = 'rgba(56,225,255,.25)'; g.lineWidth = 2; for (let i = 1; i < 6; i++) { g.beginPath(); g.arc(960, 470, i * 80, 0, 7); g.stroke(); }
+    g.setLineDash([6, 10]); g.beginPath(); g.moveTo(960, 40); g.lineTo(960, 900); g.moveTo(480, 470); g.lineTo(1440, 470); g.stroke(); g.setLineDash([]);
+    g.globalCompositeOperation = 'lighter'; glow(g, 960, 470, 500, 'rgba(56,225,255,.12)'); const r = rng(3); for (let i = 0; i < 30; i++) { const a = r() * 6.283, d = 60 + r() * 330; glow(g, 960 + Math.cos(a) * d, 470 + Math.sin(a) * d, 10, 'rgba(120,255,200,.8)'); } g.globalCompositeOperation = 'source-over';
+    g.fillStyle = 'rgba(56,225,255,.5)'; g.font = '400 16px "JetBrains Mono", monospace'; for (let i = 0; i < 12; i++) g.fillText('0x' + (0x3fa2 + i * 977).toString(16).toUpperCase() + '  ' + (r() * 100).toFixed(2), 1520, 860 + (i % 6) * 22 - 120 * (i >= 6));
+  }
+  function codeScene(g) {
+    g.fillStyle = '#0d1117'; g.fillRect(0, 0, W, H); g.fillStyle = '#010409'; g.fillRect(0, 0, 90, H); g.fillStyle = '#161b22'; g.fillRect(0, 0, W, 44);
+    ['den-tv', 'launcher', 'Home.java', 'looks.json'].forEach((t, i) => { g.fillStyle = i === 2 ? '#0d1117' : '#161b22'; g.fillRect(90 + i * 220, 0, 218, 44); g.fillStyle = i === 2 ? '#e6edf3' : '#7d8590'; g.font = '400 18px "JetBrains Mono", monospace'; g.fillText(t, 110 + i * 220, 28); });
+    const C = { k: '#ff7b72', s: '#a5d6ff', f: '#d2a8ff', c: '#8b949e', n: '#79c0ff', t: '#e6edf3', y: '#ffa657' };
+    const L2 = [[['c', '// den-tv · Home screen, drawn every frame']], [['k', 'public final class '], ['y', 'Home '], ['k', 'extends '], ['y', 'Activity'], ['t', ' {']], [['t', '  ']], [['k', '  private '], ['y', 'Look '], ['t', 'look = '], ['f', 'Looks.load'], ['t', '('], ['s', '"coder"'], ['t', ');']], [['k', '  private '], ['y', 'Watcher '], ['t', 'watcher;']], [['t', '']],
+      [['t', '  '], ['k', '@Override '], ['k', 'protected void '], ['f', 'onResume'], ['t', '() {']], [['t', '    look.'], ['f', 'paintScene'], ['t', '(canvas);']], [['t', '    watcher = '], ['f', 'Watchers.of'], ['t', '(look.watcher);']], [['t', '    '], ['f', 'focus'], ['t', '(dock.'], ['f', 'last'], ['t', '());']], [['t', '  }']], [['t', '']],
+      [['t', '  '], ['k', 'void '], ['f', 'focus'], ['t', '('], ['y', 'App '], ['t', 'app) {']], [['t', '    watcher.'], ['f', 'lookAt'], ['t', '(app.x, app.y);']], [['t', '    '], ['k', 'if '], ['t', '(look.motion != '], ['y', 'Motion'], ['t', '.OFF) highlight.'], ['f', 'springTo'], ['t', '(app);']], [['t', '  }']], [['t', '']],
+      [['t', '  '], ['k', 'void '], ['f', 'onWake'], ['t', '() { look.wake.'], ['f', 'play'], ['t', '(); }']], [['t', '  '], ['k', 'void '], ['f', 'onGoal'], ['t', '('], ['y', 'Team '], ['t', 't) { '], ['k', 'if '], ['t', '(t.is('], ['s', '"FC Barcelona"'], ['t', ')) moment.'], ['f', 'play'], ['t', '(); }']], [['t', '}']]];
+    g.font = '400 22px "JetBrains Mono", monospace';
+    L2.forEach((line, i) => { const y = 92 + i * 38; g.fillStyle = '#6e7681'; g.textAlign = 'right'; g.fillText(String(i + 1), 70, y); g.textAlign = 'left'; let x = 120; line.forEach(([c, t]) => { g.fillStyle = C[c]; g.globalAlpha = .55; g.fillText(t, x, y); x += g.measureText(t).width; }); g.globalAlpha = 1; });
+    g.fillStyle = '#161b22'; g.fillRect(1800, 44, 120, H - 44); const r = rng(6); for (let i = 0; i < 160; i++) { g.fillStyle = ['#ff7b72', '#a5d6ff', '#d2a8ff', '#8b949e', '#e6edf3'][i % 5]; g.globalAlpha = .35; g.fillRect(1812, 60 + i * 6, 20 + r() * 80, 3); } g.globalAlpha = 1;
+    g.fillStyle = '#1f6feb'; g.fillRect(0, H - 34, W, 34); g.fillStyle = '#fff'; g.font = '400 17px "JetBrains Mono", monospace'; g.fillText('  main ✓   0 errors  0 warnings      Ln 14, Col 32      UTF-8      Java      den-tv build passing', 10, H - 11);
+  }
   function heroBlack(g, o) { g.fillStyle = '#050507'; g.fillRect(0, 0, W, H); const h = HEROES[o.hero] || HEROES.messi; glow(g, 1450, 520, 820, h.c1); glow(g, 1750, 1000, 600, h.c2); }
 
   const SCENES = {
@@ -788,7 +862,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     manga: { n: 'Manga pages', p: manga }, dusk: { n: 'Anime dusk', p: dusk }, dawn: { n: 'Trail dawn', p: dawn }, monsoon: { n: 'Monsoon ridges', p: (g) => dawn(g, { grey: 1 }) },
     neon: { n: 'Neon city', p: neon }, seoul: { n: 'Seoul neon', p: (g) => neon(g, { pink: 1 }) }, diwali: { n: 'Diwali night', p: diwali }, marquee: { n: 'Velvet marquee', p: (g) => diwali(g, { red: 1 }) },
     floodlights: { n: 'Floodlit ground', p: nightField }, black: { n: 'Black with hero glow', p: heroBlack },
-    saiyan: { n: 'Saiyan wasteland', p: saiyan }, ui: { n: 'Silver void', p: (g) => saiyan(g, { ui: 1 }) }, kurama: { n: 'Nine-tails chakra', p: kuramaScene }, hokage: { n: 'Village at sunset', p: hokage }, zoro: { n: 'Moonlit blades', p: zoroScene }, tangerine: { n: 'Tangerine sunset', p: tangerine }, wisteria: { n: 'Wisteria night', p: wisteria }, lounge: { n: 'Midnight lounge', p: lounge }, leaf: { n: 'Leaf village storm', p: leafNight }, firefist: { n: 'Sea of fire', p: fireFist }, room: { n: 'Snowfall ROOM', p: roomScene }, baratie: { n: 'Floating restaurant', p: baratie }, drum: { n: 'Cherry-blossom snow', p: drum }, hitman: { n: 'Six after six', p: hitman }, noir: { n: 'Rain-slick noir', p: noir }, velvet: { n: 'Velvet candlelight', p: velvet }, casino: { n: 'Casino floor', p: casino }, goat: { n: 'Hall of eight', p: goat }, albiceleste: { n: 'World Cup night', p: (g) => campNou(g, { c1: '#75aadb', c2: '#ffffff', tifo: 'CAMPEONES ★★★', tc: '#e8c35a' }) }, king: { n: 'Royal gold', p: king },
+    saiyan: { n: 'Saiyan wasteland', p: saiyan }, ui: { n: 'Silver void', p: (g) => saiyan(g, { ui: 1 }) }, kurama: { n: 'Nine-tails chakra', p: kuramaScene }, hokage: { n: 'Village at sunset', p: hokage }, zoro: { n: 'Moonlit blades', p: zoroScene }, tangerine: { n: 'Tangerine sunset', p: tangerine }, wisteria: { n: 'Wisteria night', p: wisteria }, lounge: { n: 'Midnight lounge', p: lounge }, leaf: { n: 'Leaf village storm', p: leafNight }, firefist: { n: 'Sea of fire', p: fireFist }, room: { n: 'Snowfall ROOM', p: roomScene }, baratie: { n: 'Floating restaurant', p: baratie }, drum: { n: 'Cherry-blossom snow', p: drum }, hitman: { n: 'Six after six', p: hitman }, noir: { n: 'Rain-slick noir', p: noir }, velvet: { n: 'Velvet candlelight', p: velvet }, casino: { n: 'Casino floor', p: casino }, goat: { n: 'Hall of eight', p: goat }, albiceleste: { n: 'World Cup night', p: (g) => campNou(g, { c1: '#75aadb', c2: '#ffffff', tifo: 'CAMPEONES ★★★', tc: '#e8c35a' }) }, king: { n: 'Royal gold', p: king }, grid: { n: 'Blueprint HUD', p: gridScene }, code: { n: 'Code editor', p: codeScene },
   };
 
   /* ===================== HEROES ===================== */
@@ -853,9 +927,9 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
 
   /* ===================== LOOKS ===================== */
   const FOCUS = { spot: 'Spotlight beam', pass: 'Football pass', arc: 'Ball-tracking arc', ripple: 'Water ripple', aura: 'Energy aura' };
-  const WAKE = { room: 'ROOM sphere', fire: 'Fire Fist blaze', powerup: 'Power-up aura', slash: 'Three-sword slash', storm: 'Thunderstorm', flutter: 'Butterfly swarm', sharingan: 'Sharingan spin', tunnel: 'Stadium tunnel walk-out', panels: 'Manga panels', ink: 'Ink brush wipe', bloom: 'Light bloom', crt: 'Old TV switch-on' };
-  const CLOCK = { analog: 'Analog dial', words: 'In words', neon: 'Neon tube', flap: 'Split-flap board', ring: 'Seconds ring', thin: 'Thin', roll: 'Rolling seconds', board: 'Stadium scoreboard', over: 'Cricket over', brush: 'Brush stroke', crt: 'Retro pixel' };
-  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)', dragonballs: 'Dragon Balls (gather over it)', pole: 'Power Pole (extends to it)', cloud: 'Thundercloud (drifts over it)', butterflies: 'Butterflies (fly to it)', chidori: 'Chidori (zips to it)', crows: 'Crows (fly to it)', room: 'ROOM (wraps it)', hearts: 'Hearts (float to it)', hands: 'Hands (point at it)', chopperhat: 'Chopper\'s hat (turns to it)', bat: 'Cricket bat (points at it)', fedora: 'Fedora (tilts to it)', dice: 'Dice (roll to it)', ballondor: 'Golden ball (floats over it)', dribble: 'Dribbling ball (weaves to it)', crown: 'Crown (hovers over it)' };
+  const WAKE = { hudboot: 'HUD boot-up', termboot: 'Terminal boot', room: 'ROOM sphere', fire: 'Fire Fist blaze', powerup: 'Power-up aura', slash: 'Three-sword slash', storm: 'Thunderstorm', flutter: 'Butterfly swarm', sharingan: 'Sharingan spin', tunnel: 'Stadium tunnel walk-out', panels: 'Manga panels', ink: 'Ink brush wipe', bloom: 'Light bloom', crt: 'Old TV switch-on' };
+  const CLOCK = { term: 'Terminal', hud: 'HUD readout', analog: 'Analog dial', words: 'In words', neon: 'Neon tube', flap: 'Split-flap board', ring: 'Seconds ring', thin: 'Thin', roll: 'Rolling seconds', board: 'Stadium scoreboard', over: 'Cricket over', brush: 'Brush stroke', crt: 'Retro pixel' };
+  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)', dragonballs: 'Dragon Balls (gather over it)', pole: 'Power Pole (extends to it)', cloud: 'Thundercloud (drifts over it)', butterflies: 'Butterflies (fly to it)', chidori: 'Chidori (zips to it)', crows: 'Crows (fly to it)', room: 'ROOM (wraps it)', hearts: 'Hearts (float to it)', hands: 'Hands (point at it)', chopperhat: 'Chopper\'s hat (turns to it)', bat: 'Cricket bat (points at it)', fedora: 'Fedora (tilts to it)', dice: 'Dice (roll to it)', ballondor: 'Golden ball (floats over it)', dribble: 'Dribbling ball (weaves to it)', crown: 'Crown (hovers over it)', reticle: 'Targeting reticle (locks on)', caret: 'Text cursor (types its name)' };
   const EYE_TYPES = ['sharingan', 'mangekyo', 'six', 'saiyan', 'ui', 'kurama', 'sage'];
   const AMB = { auto: 'Matches the scene', none: 'None', flashes: 'Camera flashes', flags: 'Flags and flashes', fireworks: 'Fireworks', crows: 'Crows', petals: 'Petals', embers: 'Embers', confetti: 'Confetti', sparks: 'Blue sparks', gold: 'Golden sparks', silver: 'Silver sparks', leaves: 'Falling leaves', wisteria: 'Wisteria petals', rain: 'Rain', snow: 'Snow' };
   const MOMENT = { goal: 'Goal!', six: 'Six!', beam: 'Kamehameha', drop: 'New episode', none: 'None' };
@@ -889,6 +963,8 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     L('hana-hana', 'Hana Hana', 'One Piece', 'G', 'grandline', 'robin', 'hands', 'spot', 'ink', 'brush', 'petals', 'drop', '#c49aff', ''),
     L('drum-island', 'Drum Island', 'One Piece', 'B', 'drum', 'chopper', 'chopperhat', 'ripple', 'bloom', 'thin', 'snow', 'drop', '#ff8fc0', ''),
     L('hitman', 'Hitman', 'Cricket', 'G', 'hitman', 'rohit', 'bat', 'arc', 'tunnel', 'board', 'fireworks', 'six', '#d1ab3e', 'ROHIT 264 (173) · RECORD'),
+    L('geek', 'Geek HUD', 'Geek & code', 'B', 'grid', 'none', 'reticle', 'spot', 'hudboot', 'hud', 'none', 'none', '#38e1ff', '', { hud: true }),
+    L('coder', 'Coder', 'Geek & code', 'B', 'code', 'none', 'caret', 'spot', 'termboot', 'term', 'none', 'none', '#7ee787', ''),
     L('crimson-moon', 'Crimson Moon', 'Anime', 'G', 'crimson', 'none', 'mangekyo', 'aura', 'sharingan', 'brush', 'crows', 'drop', '#ff2a2a', ''),
     L('domain', 'Domain Expansion', 'Anime', 'G', 'domain', 'gojo', 'six', 'aura', 'bloom', 'thin', 'sparks', 'drop', '#6fc3ff', ''),
     L('grand-line', 'Grand Line', 'Anime', 'G', 'grandline', 'luffy', 'none', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', ''),
@@ -908,7 +984,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     L('our-wall', 'Our Wall', 'Together', 'B', 'dusk', 'none', 'none', 'spot', 'bloom', 'brush', 'petals', 'none', '#ffb3c1', ''),
   ];
   const SCENE_AMB = { campnou: 'flags', floodlights: 'flashes', wankhede: 'fireworks', bluebillion: 'flashes', crimson: 'crows', domain: 'sparks', diwali: 'fireworks', saiyan: 'gold', ui: 'silver', kurama: 'embers', hokage: 'leaves', zoro: 'leaves', wisteria: 'wisteria', leaf: 'leaves', firefist: 'embers', room: 'snow', drum: 'snow', hitman: 'fireworks', noir: 'rain', velvet: 'embers', monsoon: 'rain', neon: 'rain', seoul: 'petals', marquee: 'embers' };
-  const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'Heroes', 'One Piece', 'Anime', 'Outdoors', 'Night & neon', 'Seasonal', 'Together', 'After dark', 'My looks'];
+  const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'Heroes', 'One Piece', 'Anime', 'Outdoors', 'Night & neon', 'Seasonal', 'Together', 'After dark', 'Geek & code', 'My looks'];
 
   const PEOPLE = { G: { name: 'Gaurav', av: '#ffd36e', tags: ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Hiking'] }, P: { name: 'Partner', av: '#ff9ec4' }, X: { name: 'Guest', av: '#9fe6ff' } };
   const NAMES0 = (() => { try { return JSON.parse(localStorage.getItem('den2.names')) || {}; } catch (e) { return {}; } })();
@@ -922,9 +998,11 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     hub: store.get('hub', { cricket: true, football: true, anime: true, trails: true, next: true, facts: true, teams: ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL'], shows: ['One Piece', 'Jujutsu Kaisen', 'Demon Slayer'] }),
     anim: store.get('anim', { on: true, open: 'look', close: 'look', random: false }),
     health: store.get('health', { auto: false, keep: ['Spotify', 'Bluetooth audio', 'Keyboard'] }),
+    sys: Object.assign({ wifi: true, wifiName: true, stats: false, hud: false, stChip: false, burn: true, idle: '10', kids: false, kidsMin: '30', kidsApps: ['YouTube', 'Netflix'], sleep: 'off', quiet: true, qFrom: '22:30', qTo: '07:00', qCap: 30, track: true }, store.get('sys', {})),
+    open: store.get('open', ['look']),
     rules: store.get('rules', { match: true, india: true, ipl: true, episode: true, weekend: true, late: true, fest: true, surprise: false }),
   };
-  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules', 'wid', 'hub', 'anim', 'health'].forEach((k) => store.set(k, S[k]));
+  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules', 'wid', 'hub', 'anim', 'health', 'sys', 'open'].forEach((k) => store.set(k, S[k]));
   const allLooks = () => LOOKS.concat(S.mine);
   const base = () => allLooks().find((l) => l.id === S.look) || LOOKS[0];
   const eff = () => Object.assign({}, base(), S.over);
@@ -1073,7 +1151,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       '<ellipse cx="126" cy="0" rx="9" ry="26" fill="#c9a24e"/><path d="M136 -7 Q320 -16 480 -4 L500 2 Q320 2 136 7 Z" fill="url(#bl)"/><path class="glint" d="M140 -3 Q320 -10 490 -1" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="60 400" opacity=".9"/></g></g>';
     return '<svg class="swords" viewBox="0 0 1920 1080"><defs><linearGradient id="bl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#b9c3cf"/><stop offset="1" stop-color="#5f6a78"/></linearGradient><filter id="swg"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#3ddc84" flood-opacity=".6"/></filter></defs><g filter="url(#swg)">' + one(0, '#f4f4f4') + one(1, '#7a1a1a') + one(2, '#151515') + '</g></svg>';
   }
-  function buildEyes() { const m = eff().mascot, e = $('eyes'), tr = $('tracker'); const isEye = EYE_TYPES.includes(m); e.style.display = isEye ? '' : 'none'; tr.innerHTML = m === 'luffy' ? hatSVG() : m === 'zoro' ? swordsSVG() : m === 'dragonballs' ? ballsHTML() : m === 'pole' ? poleSVG() : m === 'cloud' ? cloudHTML() : m === 'butterflies' ? bflyHTML() : m === 'chidori' ? chidHTML() : m === 'crows' ? crowsHTML() : m === 'room' ? '<div class="roomd" id="roomd"></div>' : m === 'hearts' ? heartsHTML() : m === 'hands' ? handsSVG() : m === 'chopperhat' ? chopperSVG() : m === 'bat' ? batSVG() : m === 'fedora' ? fedoraSVG() : m === 'dice' ? diceHTML() : m === 'ballondor' ? '<div class="dball lead" id="gold" style="background:radial-gradient(circle at 35% 30%, #fff8d8 0 10%, #f2cf62 35%, #a87a1a 80%);box-shadow:0 0 60px rgba(255,210,100,.9);width:110px;height:110px;margin:-55px 0 0 -55px"><i></i><b style="font:900 46px Outfit;color:#6a4a10">8</b></div>' : m === 'dribble' ? '<div class="ball" id="drib" style="top:0;width:46px;height:46px;box-shadow:0 0 20px rgba(117,170,219,.8)"></div>' : m === 'crown' ? crownHTML() : '';
+  function buildEyes() { const m = eff().mascot, e = $('eyes'), tr = $('tracker'); const isEye = EYE_TYPES.includes(m); e.style.display = isEye ? '' : 'none'; tr.innerHTML = m === 'luffy' ? hatSVG() : m === 'zoro' ? swordsSVG() : m === 'dragonballs' ? ballsHTML() : m === 'pole' ? poleSVG() : m === 'cloud' ? cloudHTML() : m === 'butterflies' ? bflyHTML() : m === 'chidori' ? chidHTML() : m === 'crows' ? crowsHTML() : m === 'room' ? '<div class="roomd" id="roomd"></div>' : m === 'hearts' ? heartsHTML() : m === 'hands' ? handsSVG() : m === 'chopperhat' ? chopperSVG() : m === 'bat' ? batSVG() : m === 'fedora' ? fedoraSVG() : m === 'dice' ? diceHTML() : m === 'ballondor' ? '<div class="dball lead" id="gold" style="background:radial-gradient(circle at 35% 30%, #fff8d8 0 10%, #f2cf62 35%, #a87a1a 80%);box-shadow:0 0 60px rgba(255,210,100,.9);width:110px;height:110px;margin:-55px 0 0 -55px"><i></i><b style="font:900 46px Outfit;color:#6a4a10">8</b></div>' : m === 'dribble' ? '<div class="ball" id="drib" style="top:0;width:46px;height:46px;box-shadow:0 0 20px rgba(117,170,219,.8)"></div>' : m === 'crown' ? crownHTML() : m === 'reticle' ? '<div class="reticle" id="ret"><svg viewBox="0 0 230 230"><circle cx="115" cy="115" r="100" fill="none" stroke="var(--acc)" stroke-width="3" stroke-dasharray="40 22"/><circle cx="115" cy="115" r="78" fill="none" stroke="var(--acc)" stroke-width="1.5" opacity=".6"/><path d="M115 0v34M115 196v34M0 115h34M196 115h34" stroke="var(--acc)" stroke-width="3"/></svg><div class="lab" id="retl"></div></div>' : m === 'caret' ? '<div class="caretw" id="car"><i></i><span id="carl"></span></div>' : '';
     if (isEye) { $('eyeL').innerHTML = eyeSVG('L', m); $('eyeR').innerHTML = eyeSVG('R', m); } look(); }
   function look() {
     const ax = xOf(foc);
@@ -1084,6 +1162,8 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     const pole = $('pole'); if (pole) { const px = 960, py = 60, ang = Math.atan2(760 - py, ax - px), len = Math.hypot(ax - px, 760 - py) - 120; pole.style.transform = 'translate(' + px + 'px,' + py + 'px) rotate(' + ang * 180 / Math.PI + 'deg)'; $('rod').setAttribute('width', len); $('cap').setAttribute('x', 40 + len); }
     const cw = $('cloudw'); if (cw) cw.style.left = ax + 'px';
     const ch = $('chid'); if (ch) ch.style.left = ax + 'px';
+    const rt = $('ret'); if (rt) { rt.style.left = ax + 'px'; $('retl').textContent = 'LOCK › ' + APPS[foc][0].toUpperCase() + '  [' + ax.toFixed(0) + ', 860]'; }
+    const ca = $('car'); if (ca) { ca.style.left = (ax - 6) + 'px'; $('carl').innerHTML = '<b>open</b>(<em>"' + APPS[foc][0] + '"</em>)'; }
     const gd = $('gold'); if (gd) { gd.style.left = ax + 'px'; gd.style.top = '650px'; }
     const cr = $('crown'); if (cr) { cr.style.left = ax + 'px'; cr.style.top = '660px'; }
     const db = $('drib'); if (db) { const from = db._x == null ? ax : db._x; db._x = ax; const kf = []; for (let t = 0; t <= 1.0001; t += .1) kf.push({ transform: 'translate(' + (from + (ax - from) * t - 23) + 'px,' + (690 + Math.sin(t * Math.PI * 4) * 36 * (from === ax ? 0 : 1)) + 'px) rotate(' + t * 900 + 'deg)' }); db.animate(kf, { duration: 700, easing: 'ease-in-out', fill: 'forwards' }); }
@@ -1107,6 +1187,8 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     else if (e.clock === 'over') c.innerHTML = '<span id="hm"></span><div class="balls" id="balls"></div>';
     else if (e.clock === 'analog') { let t = ''; for (let i = 0; i < 60; i++) { const a = i * 6 * Math.PI / 180, r0 = i % 5 ? 100 : 88; t += '<line x1="' + (115 + Math.sin(a) * r0).toFixed(1) + '" y1="' + (115 - Math.cos(a) * r0).toFixed(1) + '" x2="' + (115 + Math.sin(a) * 108).toFixed(1) + '" y2="' + (115 - Math.cos(a) * 108).toFixed(1) + '" stroke="' + (i % 5 ? 'rgba(255,255,255,.4)' : '#fff') + '" stroke-width="' + (i % 5 ? 2 : 5) + '"/>'; }
       c.innerHTML = '<span id="hm" style="display:none"></span><svg viewBox="0 0 230 230"><circle cx="115" cy="115" r="112" fill="rgba(0,0,0,.45)" stroke="var(--acc)" stroke-width="3"/>' + t + '<line id="ah" x1="115" y1="115" x2="115" y2="58" stroke="#fff" stroke-width="9" stroke-linecap="round"/><line id="am" x1="115" y1="115" x2="115" y2="30" stroke="#fff" stroke-width="5" stroke-linecap="round"/><line id="as" x1="115" y1="132" x2="115" y2="20" stroke="var(--acc)" stroke-width="2.5"/><circle cx="115" cy="115" r="7" fill="var(--acc)"/></svg>'; }
+    else if (e.clock === 'term') c.innerHTML = '<div class="pr">gaurav@den-tv:~$ <b>date +%H:%M</b></div><span class="tt" id="hm"></span><span class="cur"></span>';
+    else if (e.clock === 'hud') c.innerHTML = '<div class="lb">LOCAL TIME · IST</div><div class="tt" id="hm"></div><div class="sb"><i id="hsb"></i></div>';
     else if (e.clock === 'flap') c.innerHTML = '<span id="hm" style="display:none"></span><span id="f0"></span><span id="f1"></span><i>:</i><span id="f2"></span><span id="f3"></span>';
     else if (e.clock === 'ring') c.innerHTML = '<svg viewBox="0 0 300 300"><circle cx="150" cy="150" r="140" fill="rgba(0,0,0,.35)" stroke="rgba(255,255,255,.15)" stroke-width="6"/><circle id="rg" cx="150" cy="150" r="140" fill="none" stroke="var(--acc)" stroke-width="6" stroke-linecap="round" stroke-dasharray="880" stroke-dashoffset="880" style="transition:stroke-dashoffset .9s linear"/></svg><b id="hm"></b>';
     else c.innerHTML = '<span id="hm"></span>';
@@ -1120,6 +1202,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     if (e.clock === 'roll') { const s = n.getSeconds(), t = Math.floor(s / 10), o = s % 10; if (o !== last.o) { roll($('s1'), o, last.o, 9); last.o = o; } if (t !== last.t) { roll($('s10'), t, last.t, 5); last.t = t; } }
     if (e.clock === 'board') $('bs').textContent = e.board || 'KICK-OFF 20:45';
     if (e.clock === 'analog') { const hh = n.getHours() % 12 + n.getMinutes() / 60, mm = n.getMinutes() + n.getSeconds() / 60; $('ah').setAttribute('transform', 'rotate(' + hh * 30 + ' 115 115)'); $('am').setAttribute('transform', 'rotate(' + mm * 6 + ' 115 115)'); $('as').setAttribute('transform', 'rotate(' + n.getSeconds() * 6 + ' 115 115)'); }
+    if (e.clock === 'hud') { $('hsb').style.width = (n.getSeconds() / 59 * 100) + '%'; }
     if (e.clock === 'flap') { const str = pad(n.getHours()) + pad(n.getMinutes()); for (let k = 0; k < 4; k++) { const el = $('f' + k); if (el.textContent !== str[k]) { el.textContent = str[k]; el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip'); } } }
     if (e.clock === 'ring') { const sc = n.getSeconds(); $('rg').style.transition = sc === 0 ? 'none' : ''; $('rg').style.strokeDashoffset = 880 - 880 * sc / 59; }
     if (e.clock === 'words') { const W1 = ['twelve', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven']; const mm = Math.round(n.getMinutes() / 5) * 5; let h = n.getHours() + (mm > 30 ? 1 : 0); const hw = W1[h % 12];
@@ -1141,15 +1224,17 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     dbz: ['Dragon Ball began in 1984, created by Akira Toriyama.', 'The Kamehameha is named after Kamehameha I, the king who united Hawaii.'],
     jjk: ['Jujutsu Kaisen began in Weekly Shōnen Jump in 2018.'],
     ds: ['Demon Slayer: Mugen Train became the highest-grossing film ever in Japan in 2020.', 'Shinobu Kocho fights with poison, because she is not strong enough to behead demons.'],
+    tech: ['The first computer "bug" was a real moth, found in a Harvard computer in 1947.', 'JavaScript was written in about ten days in 1995.', 'Android is built on the Linux kernel, so this TV runs Linux.', 'Every one of the world\'s 500 fastest supercomputers runs Linux.'],
     hiking: ['The Western Ghats, home of the Sahyadris, became a UNESCO World Heritage Site in 2012.'],
   };
   const TOPIC = { messi: ['messi', 'barca'], kohli: ['kohli'], rohit: ['rohit'], goku: ['dbz'], naruto: ['naruto'], kakashi: ['naruto'], itachi: ['naruto'], luffy: ['onepiece'], zoro: ['onepiece'], nami: ['onepiece'], ace: ['onepiece'], law: ['onepiece'], sanji: ['onepiece'], robin: ['onepiece'], chopper: ['onepiece'], gojo: ['jjk'], tanjiro: ['ds'], shinobu: ['ds'] };
-  const SCENE_TOPIC = { campnou: ['barca'], albiceleste: ['messi'], goat: ['messi'], wankhede: ['rohit'], hitman: ['rohit'], bluebillion: ['kohli'], king: ['kohli'], dawn: ['hiking'], monsoon: ['hiking'], grandline: ['onepiece'], crimson: ['naruto'] };
+  const SCENE_TOPIC = { campnou: ['barca'], albiceleste: ['messi'], goat: ['messi'], wankhede: ['rohit'], hitman: ['rohit'], bluebillion: ['kohli'], king: ['kohli'], dawn: ['hiking'], monsoon: ['hiking'], grid: ['tech'], code: ['tech'], grandline: ['onepiece'], crimson: ['naruto'] };
   let factI = 0;
   function factPool() { const e = eff(); let t = S.wid.topics === 'all' ? Object.keys(FACTS) : (TOPIC[e.hero] || SCENE_TOPIC[e.scene] || Object.keys(FACTS)); if (e.hero === 'rotate') t = Object.keys(FACTS); return t.flatMap((k) => FACTS[k]); }
   function renderFacts(next) {
     const e = eff(), w = S.wid, card = $('factcard'), tk = $('ticker'); const on = w.facts && S.who !== 'X';
     card.style.display = on && w.style === 'card' ? '' : 'none'; tk.style.display = on && w.style === 'ticker' ? '' : 'none';
+    if ((e.hud || S.sys.hud) && w.style === 'card') card.style.display = 'none';
     const pool = factPool(); if (!pool.length) return;
     if (next) factI++;
     if (w.style === 'card') { card.style.opacity = 0; setTimeout(() => { $('factp').textContent = pool[factI % pool.length]; card.style.opacity = 1; }, next ? 450 : 0); }
@@ -1157,8 +1242,21 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     card.style.top = (e.clock === 'analog' || e.clock === 'ring' ? 470 : e.clock === 'words' ? 430 : 390) + 'px';
   }
   setInterval(() => { if (S.wid.facts && S.wid.style === 'card') renderFacts(true); }, 15000);
+  let cpu = 23, net = { d: 86, u: 21, p: 18 };
+  function renderSys() {
+    const y = S.sys, e = eff(); $('statl').style.display = y.stats ? '' : 'none'; $('statl').textContent = 'CPU ' + cpu + '% · RAM 930 MB free · 12.4 GB free';
+    const hudOn = (e.hud || y.hud) && S.who !== 'X'; const hd = $('hud'); hd.classList.toggle('on', hudOn);
+    if (hudOn) { const mem = 62 + Math.round(Math.sin(Date.now() / 4000) * 4);
+      hd.innerHTML = '<div class="hp" style="left:110px;top:390px"><h4>SYSTEM</h4><div class="r"><span>CPU</span><span>' + cpu + '%  · 48°C</span></div><div class="g"><i style="width:' + cpu + '%"></i></div><div class="r"><span>MEMORY</span><span>930 MB / 1.5 GB</span></div><div class="g"><i style="width:' + mem + '%"></i></div><div class="r"><span>STORAGE</span><span>5.1 / 8 GB</span></div><div class="g"><i style="width:64%"></i></div><div class="r"><span>UPTIME</span><span>3d 04:12</span></div></div>' +
+        '<div class="hp" style="right:110px;top:300px"><h4>NETWORK</h4><div class="r"><span>WI-FI</span><span>Den_5G · -52 dBm</span></div><div class="r"><span>DOWN / UP</span><span>' + net.d + ' / ' + net.u + ' Mbps</span></div><div class="r"><span>PING</span><span>' + net.p + ' ms</span></div><div class="r"><span>IP</span><span>192.168.1.50</span></div></div>' +
+        '<div class="hp" style="right:110px;top:530px"><h4>FEED</h4><div class="r"><span>BARÇA v SEV</span><span>T-2d 23h</span></div><div class="r"><span>IND v AUS</span><span>T-2h 18m</span></div><div class="r"><span>JJK EP 14</span><span>OUT NOW</span></div><div class="r"><span>RAJMACHI</span><span>27° CLEAR</span></div><div class="r"><span>SCREEN TIME</span><span>2h 14m</span></div></div>'; }
+  }
+  setInterval(() => { cpu = Math.max(6, Math.min(78, cpu + Math.round((Math.random() - .5) * 10))); if (S.sys.stats || S.sys.hud || eff().hud) renderSys(); }, 2000);
   function renderChips() {
-    const t = S.toggles, out = [];
+    const t = S.toggles, out = []; const y = S.sys;
+    if (y.wifi) out.push('<div class="chip"><span class="wbars">' + [8, 12, 16, 20].map((h, i) => '<i class="' + (i < 3 ? 'on' : '') + '" style="height:' + h + 'px"></i>').join('') + '</span>' + (y.wifiName ? 'Den_5G' : '') + '</div>');
+    if (y.sleep !== 'off') out.push('<div class="chip"><i style="background:#9c8cff"></i>Sleeping in ' + y.sleep + ' min</div>');
+    if (y.stChip && S.who !== 'X') out.push('<div class="chip"><i style="background:#ffd36e"></i>Screen time today · 2h 14m</div>');
     if (S.who === 'G' && S.wid.countdown) out.push('<div class="chip"><i style="background:#edbb00"></i>Barça v Sevilla · Sat 20:45 · in 2d 23h</div>');
     if (S.who === 'G') { if (t.scores) out.push('<div class="chip"><i style="background:#ff4d5e"></i>Barça 2–1 Real · 67\'</div>'); if (t.anime) out.push('<div class="chip"><i style="background:#ff9ec4"></i>New: Jujutsu Kaisen Ep 14</div>'); if (t.trail) out.push('<div class="chip"><i style="background:#7fe8a8"></i>Sunday hike: clear, 27°</div>'); }
     if (S.who === 'P' && S.partner.length) out.push('<div class="chip"><i style="background:#ff9ec4"></i>For you: ' + S.partner.slice(0, 2).join(' · ') + '</div>');
@@ -1166,7 +1264,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   }
   function applyTV(withWake) {
     const e = eff(); stage.style.setProperty('--acc', e.acc);
-    paint(); ambient(); setupFx(); buildEyes(); buildClock(); renderChips(); renderFacts(false); if ($('hub').classList.contains('on')) renderHub();
+    paint(); ambient(); setupFx(); buildEyes(); buildClock(); renderChips(); renderSys(); renderFacts(false); if ($('hub').classList.contains('on')) renderHub();
     dock.className = 'dock' + (e.icons === 'tiles' ? ' tiles' : '');
     $('greet').style.display = S.toggles.greeting ? '' : 'none'; $('date').style.display = S.toggles.date ? '' : 'none';
     renderFocus(true);
@@ -1188,10 +1286,10 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   }
   function openHub(on) { const hb = $('hub'); if (on === undefined) on = !hb.classList.contains('on'); if (on) renderHub(); hb.classList.toggle('on', on); }
   $('hub').addEventListener('click', () => openHub(false));
-  const OPENA = { zoom: 'Icon zoom', portal: 'Portal', warp: 'Warp speed', slash: 'Sword slash', panels: 'Manga panels', shatter: 'Shatter', ink: 'Ink wipe', flash: 'Camera flash' };
+  const OPENA = { glitch: 'Glitch', zoom: 'Icon zoom', portal: 'Portal', warp: 'Warp speed', slash: 'Sword slash', panels: 'Manga panels', shatter: 'Shatter', ink: 'Ink wipe', flash: 'Camera flash' };
   const CLOSEA = { shrink: 'Shrink to icon', iris: 'Iris close', slide: 'Slide down', shatter: 'Shatter out', fade: 'Fade' };
-  const LOOK_OPEN = { tunnel: 'portal', room: 'portal', slash: 'slash', panels: 'panels', powerup: 'warp', ink: 'ink', storm: 'flash', fire: 'warp', sharingan: 'portal', flutter: 'ink', bloom: 'zoom', crt: 'flash' };
-  const LOOK_CLOSE = { tunnel: 'iris', room: 'iris', slash: 'shatter', panels: 'shatter', powerup: 'shrink', ink: 'slide', storm: 'fade', fire: 'fade', sharingan: 'iris', flutter: 'slide', bloom: 'shrink', crt: 'iris' };
+  const LOOK_OPEN = { hudboot: 'glitch', termboot: 'glitch', tunnel: 'portal', room: 'portal', slash: 'slash', panels: 'panels', powerup: 'warp', ink: 'ink', storm: 'flash', fire: 'warp', sharingan: 'portal', flutter: 'ink', bloom: 'zoom', crt: 'flash' };
+  const LOOK_CLOSE = { hudboot: 'iris', termboot: 'slide', tunnel: 'iris', room: 'iris', slash: 'shatter', panels: 'shatter', powerup: 'shrink', ink: 'slide', storm: 'fade', fire: 'fade', sharingan: 'iris', flutter: 'slide', bloom: 'shrink', crt: 'iris' };
   let appBusy = false;
   function openApp(i) {
     if (appBusy) return; const e = eff(), a = S.anim, [n, k, c, t] = APPS[i]; const x = xOf(i), y = 860;
@@ -1213,6 +1311,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
           d.animate([{ transform: 'translate(' + (x - q * 320 - 160) + 'px,' + (y - r * 270 - 135) + 'px) scale(.05) rotate(' + (Math.random() * 360) + 'deg)' }, { transform: 'none' }], { duration: D, delay: Math.random() * 150, easing: ez, fill: 'backwards' }); }
         stage.appendChild(g); setTimeout(() => { scr.style.opacity = 1; g.remove(); }, D + 180); return { finished: Promise.resolve() }; },
       ink: () => scr.animate([{ clipPath: 'polygon(0 0, 0 0, -20% 100%, -20% 100%)' }, { clipPath: 'polygon(0 0, 120% 0, 100% 100%, -20% 100%)' }], { duration: D, easing: ez }),
+      glitch: () => { home.animate([{ filter: 'none', transform: 'none' }, { filter: 'hue-rotate(90deg) saturate(3)', transform: 'translate(12px,-4px) skewX(6deg)', offset: .3 }, { filter: 'hue-rotate(-90deg)', transform: 'translate(-14px,6px)', offset: .5 }, { filter: 'none', transform: 'none' }], { duration: 450, easing: 'steps(6)' }); return scr.animate([{ opacity: 0, clipPath: 'inset(45% 0 45% 0)' }, { opacity: 1, clipPath: 'inset(45% 0 45% 0)', offset: .5 }, { opacity: 1, clipPath: 'inset(0 0 0 0)' }], { duration: D, easing: 'steps(8)' }); },
       flash: () => { const f = document.createElement('div'); f.className = 'over'; f.style.background = '#fff'; stage.appendChild(f); f.animate([{ opacity: 1 }, { opacity: 0 }], { duration: D }).onfinish = () => f.remove(); return scr.animate([{ opacity: 0 }, { opacity: 1, offset: .2 }], { duration: D }); },
       none: () => ({}) };
     const cx = { shrink: () => scr.animate([{ clipPath: 'inset(0 0 0 0 round 0)' }, { clipPath: 'inset(' + (y - 60) + 'px ' + (1920 - x - 60) + 'px ' + (1080 - y - 60) + 'px ' + (x - 60) + 'px round 30px)' }], { duration: D, easing: ez, fill: 'forwards' }),
@@ -1224,6 +1323,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       fade: () => scr.animate([{ opacity: 1 }, { opacity: 0 }], { duration: D, fill: 'forwards' }), none: () => { scr.style.display = 'none'; return {}; } };
     fx[op]();
     setTimeout(() => { cx[cl](); if (op === 'warp') home.animate([{ transform: 'scale(1.3)', opacity: .4 }, { transform: 'none', opacity: 1 }], { duration: D, easing: 'ease-out' }); setTimeout(() => { scr.remove(); appBusy = false; if (S.health.auto) toast('Back Home · closed 4 background apps'); }, D + 450); }, 1900);
+    if (S.sys.kids && S.sys.kidsApps.includes(n)) { setTimeout(() => toast('Kids timer · ' + n + ' closes in ' + S.sys.kidsMin + ' min'), 700); return; }
     toast((op === 'none' ? 'No animation' : OPENA[op]) + ' → ' + (cl === 'none' ? 'no animation' : CLOSEA[cl]));
   }
   const home = $('home'), ease = 'cubic-bezier(.6,0,.2,1)';
@@ -1242,6 +1342,14 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       o.animate([{ opacity: 1 }, { opacity: 1, offset: .85 }, { opacity: 0 }], { duration: 2100, fill: 'forwards' }).onfinish = () => o.remove();
       home.animate([{ opacity: 0, transform: 'scale(1.08)' }, { opacity: 0, offset: .8 }, { opacity: 1, transform: 'none' }], { duration: 2200, easing: ease });
       return;
+    }
+    if (e.wake === 'termboot' || e.wake === 'hudboot') {
+      const o = overlay(); const hud = e.wake === 'hudboot'; o.style.background = hud ? '#010812' : '#0d1117';
+      const lines = hud ? ['INITIALISING HUD ………………… OK', 'SENSORS: CPU · RAM · NET · WIFI ……… OK', 'LINK: FAN HUB ………………… ONLINE', 'TARGETING ………………… ARMED', '> WELCOME BACK, ' + PEOPLE[S.who].name.toUpperCase()]
+        : ['[  OK  ] Started den-tv launcher', '[  OK  ] Loaded look "coder"', '[  OK  ] Reached target Home', '$ git pull --rebase', 'Already up to date.', '$ ./home --user ' + PEOPLE[S.who].name.toLowerCase()];
+      o.innerHTML = '<pre id="bootp" style="position:absolute;left:120px;top:200px;margin:0;font:400 34px/1.6 \'JetBrains Mono\',monospace;color:' + (hud ? '#38e1ff' : '#7ee787') + ';text-shadow:0 0 10px currentColor"></pre>';
+      let i = 0; const pre = $('bootp'); const iv = setInterval(() => { if (i < lines.length) pre.textContent += lines[i++] + '\n'; else { clearInterval(iv); o.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' }).onfinish = () => o.remove(); home.animate([{ opacity: 0, filter: 'brightness(2)' }, { opacity: 1, filter: 'none' }], { duration: 500 }); } }, 230);
+      home.animate([{ opacity: 0 }, { opacity: 0 }], { duration: lines.length * 230 + 60 }); return;
     }
     if (e.wake === 'room') {
       const o = overlay(); o.innerHTML = '<div id="rs" style="position:absolute;left:960px;top:540px;width:20px;height:20px;margin:-10px;border-radius:50%;border:4px solid #8fd0ff;background:radial-gradient(circle, rgba(140,210,255,.05) 50%, rgba(140,210,255,.3));box-shadow:0 0 60px #8fd0ff"></div><div class="moment-t" id="rt" style="top:440px;font-size:150px;letter-spacing:.3em;opacity:0;color:#dff2ff;text-shadow:0 0 30px #8fd0ff">ROOM</div>';
@@ -1356,7 +1464,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   function fillThumbs() { const el = thumbQueue.shift(); if (!el) return; const l = allLooks().find((x) => x.id === el.dataset.tid); if (l && el.isConnected) el.style.backgroundImage = 'url(' + thumbOf(l) + ')'; setTimeout(fillThumbs, 20); }
 
   const body = $('body');
-  const TITLES = { looks: ['Looks', 'Tap a look to put it on the TV'], tweak: ['Customise', 'Mix any scene, hero, eyes and effect'], auto: ['Auto', 'Let the TV switch looks by itself'], people: ['People', 'A profile for everyone at home'], remote: ['Remote', 'The handy buttons, from your phone'] };
+  const TITLES = { looks: ['Looks', 'Tap a look to put it on the TV'], tweak: ['Customise', 'Everything on the Home screen, grouped'], auto: ['Auto', 'Let the TV switch looks by itself'], people: ['People', 'A profile for everyone at home'], remote: ['TV', 'Remote, health, network and family controls'] };
   const forLabel = { G: 'Gaurav', P: 'Partner', B: 'Everyone' };
   function visible() {
     let ls = allLooks();
@@ -1381,22 +1489,34 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   const sel = (id, opts, val) => '<select id="' + id + '">' + Object.entries(opts).map(([k, v]) => '<option value="' + k + '"' + (k === val ? ' selected' : '') + '>' + v + '</option>').join('') + '</select>';
   const sw = (id, on) => '<span class="sw"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + '><span></span></span>';
   const SCN = Object.fromEntries(Object.entries(SCENES).map(([k, v]) => [k, v.n]));
+  const Fd = (id, label, sub, ctl) => '<div class="field"><label for="' + id + '">' + label + (sub ? '<small>' + sub + '</small>' : '') + '</label>' + ctl + '</div>';
+  const bsw = (path) => { const v = path.split('.').reduce((o, k) => o[k], S); return '<span class="sw"><input type="checkbox" id="b-' + path.replace('.', '-') + '" data-b="' + path + '"' + (v ? ' checked' : '') + '><span></span></span>'; };
+  const bsel = (path, opts) => { const v = path.split('.').reduce((o, k) => o[k], S); return '<select id="b-' + path.replace('.', '-') + '" data-b="' + path + '">' + Object.entries(opts).map(([k, l]) => '<option value="' + k + '"' + (String(k) === String(v) ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>'; };
+  const acc = (id, icon, title, summary, inner) => '<details class="acc" data-acc="' + id + '"' + (S.open.includes(id) ? ' open' : '') + '><summary><span class="ic2">' + icon + '</span><span><b>' + title + '</b><small>' + summary + '</small></span></summary><div class="inner">' + inner + '</div></details>';
   function vTweak() {
-    const e = eff(), t = S.toggles, mod = Object.keys(S.over).length;
-    const F = (id, label, sub, ctl) => '<div class="field"><label for="' + id + '">' + label + (sub ? '<small>' + sub + '</small>' : '') + '</label>' + ctl + '</div>';
+    const e = eff(), t = S.toggles, mod = Object.keys(S.over).length, F = Fd, y = S.sys;
+    const on = (b) => b ? 'on' : 'off';
     return '<div class="modbar"><span>Based on <b style="color:var(--ink)">' + base().name + '</b>' + (mod ? ' · ' + mod + ' change' + (mod > 1 ? 's' : '') : '') + '</span><span class="row"><button class="btn" id="reset"' + (mod ? '' : ' disabled') + '>Reset</button><button class="btn hot" id="saveMine">Save as my look</button></span></div>' +
-      '<div class="sec"><h3>The scene</h3><div class="box">' + F('t-scene', 'Scene', 'The painted backdrop', sel('t-scene', SCN, e.scene)) + F('t-hero', 'Hero', 'A poster on top of the scene', sel('t-hero', HEROOPT, e.hero)) + F('t-mascot', 'Watcher', 'Follows the selected app', sel('t-mascot', MASCOT, e.mascot)) + F('t-amb', 'Moving extras', '', sel('t-amb', AMB, e.amb)) + '</div></div>' +
-      '<div class="sec"><h3>Effects</h3><div class="box">' + F('t-focus', 'When you move', '', sel('t-focus', FOCUS, e.focus)) + F('t-wake', 'When the TV wakes', '', sel('t-wake', WAKE, e.wake)) + F('t-moment', 'Big moment', 'Played by real goals, sixes and new episodes', sel('t-moment', MOMENT, e.moment)) + F('t-clock', 'Clock', '', sel('t-clock', CLOCK, e.clock)) + F('t-icons', 'App icons', '', sel('t-icons', ICONS, e.icons)) +
-      F('t-motion', 'Motion', 'Calm suits a 1 GB TV or a sleepy evening', sel('t-motion', { full: 'Full', calm: 'Calm', off: 'Off' }, e.motion || 'full')) + F('t-acc', 'Accent colour', '', '<input type="color" id="t-acc" value="' + e.acc + '" style="width:44px;height:30px;border:0;background:none;padding:0">') + '</div></div>' +
-      '<div class="sec"><h3>On the Home screen</h3><div class="box">' + F('g-greeting', 'Greeting with your name', '', sw('g-greeting', t.greeting)) + F('g-date', 'Date', '', sw('g-date', t.date)) + F('g-scores', 'Live scores', 'Barça, India and Mumbai Indians', sw('g-scores', t.scores)) + F('g-anime', 'New episodes', 'One Piece, Jujutsu Kaisen, Demon Slayer', sw('g-anime', t.anime)) + F('g-trail', 'Weekend hike forecast', '', sw('g-trail', t.trail)) + F('g-photos', 'My own photos as heroes', 'From an album on your phone', sw('g-photos', t.photos)) + F('g-sounds', 'Soft click sounds', '', sw('g-sounds', t.sounds)) + '</div></div>' +
-      '<div class="sec"><h3>Opening and closing apps</h3><div class="box">' + F('a-on', 'Animate apps opening and closing', '', sw('a-on', S.anim.on)) + F('a-random', 'Surprise me', 'A different animation every time', sw('a-random', S.anim.random)) +
-      F('a-open', 'When an app opens', '', sel('a-open', Object.assign({ look: 'Match the look' }, OPENA), S.anim.open)) + F('a-close', 'When you come back Home', '', sel('a-close', Object.assign({ look: 'Match the look' }, CLOSEA), S.anim.close)) + '</div><div class="row" style="margin-top:10px"><button class="btn" id="tryOpen">Try it: open YouTube</button></div></div>' +
-      '<div class="sec"><h3>Widgets</h3><div class="box">' + F('w-facts', 'Did you know?', 'Facts about the heroes and teams in this look', sw('w-facts', S.wid.facts)) + F('w-style', 'Facts shown as', '', sel('w-style', { card: 'A card under the clock', ticker: 'A ticker along the bottom' }, S.wid.style)) +
-      F('w-topics', 'Facts about', '', sel('w-topics', { look: 'This look', all: 'All my interests' }, S.wid.topics)) + F('w-countdown', 'Next match countdown', 'A chip under the top-right buttons', sw('w-countdown', S.wid.countdown)) + '</div></div>' +
-      '<div class="sec"><h3>Fan Hub</h3><div class="box">' + [['cricket', 'Cricket card'], ['football', 'Football card'], ['anime', 'Anime schedule'], ['trails', 'Weekend trail forecast'], ['next', 'Your next 72 hours'], ['facts', 'Did you know?']].map(([k, l]) => F('h-' + k, l, '', sw('h-' + k, S.hub[k]))).join('') + '</div>' +
-      '<p class="note" style="margin-top:10px">Teams and leagues</p><div class="tags" style="margin-top:6px">' + ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'Real Madrid', 'Argentina', 'RCB'].map((x) => '<button data-hteam="' + x + '" class="' + (S.hub.teams.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>' +
-      '<p class="note" style="margin-top:10px">Shows</p><div class="tags" style="margin-top:6px">' + ['One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Naruto', 'Dragon Ball', 'Solo Leveling'].map((x) => '<button data-hshow="' + x + '" class="' + (S.hub.shows.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>' +
-      '<div class="row" style="margin-top:10px"><button class="btn hot" id="openHub">Open Fan Hub on the TV</button></div></div>';
+      acc('look', '🎨', 'Look', SCENES[e.scene].n + ' · ' + HEROOPT[e.hero] + ' · ' + MASCOT[e.mascot].split(' (')[0],
+        F('t-scene', 'Scene', 'The painted backdrop', sel('t-scene', SCN, e.scene)) + F('t-hero', 'Hero', 'A poster on top of the scene', sel('t-hero', HEROOPT, e.hero)) + F('t-mascot', 'Watcher', 'Follows the selected app', sel('t-mascot', MASCOT, e.mascot)) + F('t-amb', 'Moving extras', '', sel('t-amb', AMB, e.amb)) + F('t-icons', 'App icons', '', sel('t-icons', ICONS, e.icons)) + F('t-acc', 'Accent colour', '', '<input type="color" id="t-acc" value="' + e.acc + '" style="width:44px;height:30px;border:0;background:none;padding:0">')) +
+      acc('fx', '✨', 'Animations and motion', WAKE[e.wake] + ' · apps ' + (S.anim.on ? (S.anim.random ? 'random' : 'on') : 'off') + ' · motion ' + (e.motion || 'full'),
+        '<div class="sub">On the Home screen</div>' + F('t-focus', 'When you move', '', sel('t-focus', FOCUS, e.focus)) + F('t-wake', 'When the TV wakes', '', sel('t-wake', WAKE, e.wake)) + F('t-moment', 'Big moment', 'Played by real goals, sixes and new episodes', sel('t-moment', MOMENT, e.moment)) +
+        '<div class="sub">Opening and closing apps</div>' + F('a-on', 'Animate apps', '', sw('a-on', S.anim.on)) + F('a-random', 'Surprise me', 'A different pair every time', sw('a-random', S.anim.random)) + F('a-open', 'When an app opens', '', sel('a-open', Object.assign({ look: 'Match the look' }, OPENA), S.anim.open)) + F('a-close', 'When you come back Home', '', sel('a-close', Object.assign({ look: 'Match the look' }, CLOSEA), S.anim.close)) +
+        '<div class="row" style="margin:8px 0 4px"><button class="btn" id="tryOpen">Try it: open YouTube</button></div>' +
+        '<div class="sub">Overall</div>' + F('t-motion', 'Motion', 'Calm suits a 1 GB TV or a sleepy evening', sel('t-motion', { full: 'Full', calm: 'Calm', off: 'Off' }, e.motion || 'full')) + F('g-sounds', 'Soft click sounds', '', sw('g-sounds', t.sounds))) +
+      acc('clock', '🕒', 'Clock and greeting', CLOCK[e.clock] + ' · greeting ' + on(t.greeting),
+        F('t-clock', 'Clock style', '', sel('t-clock', CLOCK, e.clock)) + F('g-greeting', 'Greeting with your name', '', sw('g-greeting', t.greeting)) + F('g-date', 'Date', '', sw('g-date', t.date))) +
+      acc('widgets', '🧩', 'Widgets on Home', ['Wi-Fi ' + on(y.wifi), 'facts ' + on(S.wid.facts), 'HUD ' + on(y.hud || e.hud)].join(' · '),
+        '<div class="sub">Status</div>' + F('b-sys-wifi', 'Wi-Fi strength', 'Signal bars in the top-right corner', bsw('sys.wifi')) + F('b-sys-wifiName', 'Show the network name', '', bsw('sys.wifiName')) + F('b-sys-stats', 'System line under the clock', 'CPU, free memory and free storage', bsw('sys.stats')) + F('b-sys-hud', 'Detailed HUD panels', 'System, network and feed panels, like the Geek look', bsw('sys.hud')) +
+        '<div class="sub">Sports and shows</div>' + F('w-countdown', 'Next match countdown', '', sw('w-countdown', S.wid.countdown)) + F('g-scores', 'Live scores', 'Barça, India and Mumbai Indians', sw('g-scores', t.scores)) + F('g-anime', 'New episodes', '', sw('g-anime', t.anime)) + F('g-trail', 'Weekend hike forecast', '', sw('g-trail', t.trail)) +
+        '<div class="sub">Did you know?</div>' + F('w-facts', 'Facts', 'About the heroes and teams in this look', sw('w-facts', S.wid.facts)) + F('w-style', 'Shown as', '', sel('w-style', { card: 'A card under the clock', ticker: 'A ticker along the bottom' }, S.wid.style)) + F('w-topics', 'Facts about', '', sel('w-topics', { look: 'This look', all: 'All my interests' }, S.wid.topics)) +
+        '<div class="sub">Family</div>' + F('b-sys-stChip', 'Screen time today', 'A chip in the top-right corner', bsw('sys.stChip'))) +
+      acc('fanhub', '🏟️', 'Fan Hub', ['cricket', 'football', 'anime', 'trails', 'next', 'facts'].filter((k) => S.hub[k]).length + ' cards · ' + S.hub.teams.length + ' teams',
+        [['cricket', 'Cricket card'], ['football', 'Football card'], ['anime', 'Anime schedule'], ['trails', 'Weekend trail forecast'], ['next', 'Your next 72 hours'], ['facts', 'Did you know?']].map(([k, l]) => F('h-' + k, l, '', sw('h-' + k, S.hub[k]))).join('') +
+        '<div class="sub">Teams and leagues</div><div class="tags">' + ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'Real Madrid', 'Argentina', 'RCB'].map((x) => '<button data-hteam="' + x + '" class="' + (S.hub.teams.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>' +
+        '<div class="sub">Shows</div><div class="tags">' + ['One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Naruto', 'Dragon Ball', 'Solo Leveling'].map((x) => '<button data-hshow="' + x + '" class="' + (S.hub.shows.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>' +
+        '<div class="row" style="margin-top:10px"><button class="btn hot" id="openHub">Open Fan Hub on the TV</button></div>') +
+      acc('photos', '🖼️', 'Your photos', t.photos ? 'Your album is on' : 'Drawn heroes', F('g-photos', 'Use my photos as heroes', 'From an album on your phone, a new one every 5 minutes', sw('g-photos', t.photos)));
   }
   const RULES = [['match', 'Barça match day', '2 hours before kickoff → Camp Nou Nights, goals play the moment'], ['india', 'India playing', 'From the toss → Blue Billion, sixes play the moment'], ['ipl', 'IPL season', 'March to May → Wankhede Roar in Mumbai Indians blue and gold'], ['episode', 'New episode out', 'One Piece → Grand Line, Jujutsu Kaisen → Domain Expansion, Demon Slayer → Water Breathing'], ['weekend', 'Weekend mornings', 'Saturday and Sunday before 10:00 → Trail Dawn with the hike forecast'], ['late', 'Late night', 'After 23:00 → calm motion, no moments'], ['fest', 'Festivals', 'Diwali and other festival looks switch on and off by date'], ['surprise', 'Surprise me every morning', 'A different favourite each day at 06:00']];
   function vAuto() {
@@ -1411,14 +1531,39 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       '<button class="btn" id="addPerson">+ Add someone</button><p class="note">Tap a name to rename it. Names and profiles belong to this TV, so a friend\'s TV has its own people, and two TVs at home can each have their own.</p>';
   }
   function vRemote() {
-    const F = (id, label, sub, ctl) => '<div class="field"><label for="' + id + '">' + label + (sub ? '<small>' + sub + '</small>' : '') + '</label>' + ctl + '</div>';
-    return '<div class="sec"><h3>TV health</h3><div class="box" style="padding:12px 14px"><b style="font-size:14px">Memory</b><div class="meter"><i id="memi" style="width:62%"></i></div><p class="note" id="memt" style="margin-top:6px">930 MB used of 1.5 GB · 11 apps in the background</p>' +
-      '<div class="row" style="margin-top:10px"><button class="btn hot" id="cleanNow">Close background apps</button></div></div>' +
-      '<div class="box" style="margin-top:10px">' + F('h-auto', 'Close them when I come back Home', 'Skips the apps below', sw('h-auto', S.health.auto)) + '</div>' +
-      '<p class="note" style="margin-top:8px">Always keep running</p><div class="tags" style="margin-top:6px">' + ['Spotify', 'Bluetooth audio', 'Keyboard', 'Chromecast', 'Fan Hub', 'Sleep timer'].map((x) => '<button data-keep="' + x + '" class="' + (S.health.keep.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div></div>' +
-      '<div class="sec"><h3>Quick buttons</h3><div class="remote">' + ['⏻ Sleep', 'Wake', 'Mute', 'Vol −', 'Vol +', 'Sleep in 30 min', 'PlayStation 5', 'Set-top box', 'Live TV'].map((b) => '<button class="btn" data-rb="' + b + '">' + b + '</button>').join('') + '</div></div>' +
-      '<div class="sec"><h3>Watch now</h3><div class="box"><div class="field"><label>Barça vs Real Madrid<small>Live · opens your streaming app</small></label><button class="btn" data-rb="Opening the match">Open</button></div><div class="field"><label>Jujutsu Kaisen · Ep 14<small>New today · Crunchyroll</small></label><button class="btn" data-rb="Opening Jujutsu Kaisen">Open</button></div></div></div>' +
-      '<div class="sec"><h3>Type on the TV</h3><div class="row"><input class="search" id="typeBox" placeholder="Search text goes to the TV" style="flex:1;min-width:0"><button class="btn hot" id="sendType">Send</button></div></div><p class="note">For the arrow keys inside apps, use the Google TV or Google Home app on your phone.</p>';
+    const F = Fd, y = S.sys;
+    const apps = [['YouTube', 52], ['Crunchyroll', 41], ['JioHotstar', 28], ['Netflix', 13]], who = [[PEOPLE.G.name, 94], [PEOPLE.P.name, 40]];
+    const store2 = [['YouTube', '1.2 GB'], ['JioHotstar', '860 MB'], ['Netflix', '640 MB'], ['Crunchyroll', '410 MB'], ['den-tv wallpapers', '14 MB']];
+    const mins = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' : '') + (m % 60) + 'm';
+    return acc('remote', '🎮', 'Remote', 'Sleep, volume, inputs, watch now, type',
+        '<div class="remote" style="margin-top:12px">' + ['⏻ Sleep', 'Wake', 'Mute', 'Vol −', 'Vol +', 'Bedtime', 'PlayStation 5', 'Set-top box', 'Live TV'].map((b) => '<button class="btn" data-rb="' + b + '">' + b + '</button>').join('') + '</div>' +
+        '<div class="sub">Watch now</div>' + F('', 'Barça vs Real Madrid', 'Live · opens your streaming app', '<button class="btn" data-rb="Opening the match">Open</button>') + F('', 'Jujutsu Kaisen · Ep 14', 'New today · Crunchyroll', '<button class="btn" data-rb="Opening Jujutsu Kaisen">Open</button>') +
+        '<div class="sub">Type on the TV</div><div class="row" style="margin-top:6px"><input class="search" id="typeBox" placeholder="Search text goes to the TV" style="flex:1;min-width:0"><button class="btn hot" id="sendType">Send</button></div><p class="note" style="margin-top:8px">For the arrow keys inside apps, use the Google TV or Google Home app.</p>') +
+      acc('health', '🩺', 'Memory and background apps', '930 MB used · 11 apps in the background',
+        '<div class="meter" style="margin-top:12px"><i id="memi" style="width:62%"></i></div><p class="note" id="memt" style="margin-top:6px">930 MB used of 1.5 GB · 11 apps in the background</p><div class="row" style="margin:10px 0"><button class="btn hot" id="cleanNow">Close background apps</button></div>' +
+        F('h-auto', 'Close them when I come back Home', 'Off by default: closed apps start slower next time', sw('h-auto', S.health.auto)) +
+        '<div class="sub">Always keep running</div><div class="tags">' + ['Spotify', 'Bluetooth audio', 'Keyboard', 'Chromecast', 'Fan Hub', 'Sleep timer'].map((x) => '<button data-keep="' + x + '" class="' + (S.health.keep.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>') +
+      acc('storage', '💾', 'Storage', '5.1 GB used of 8 GB',
+        '<div class="meter" style="margin-top:12px"><i style="width:64%"></i></div><div class="bars2">' + store2.map(([n, sz]) => '<div><span>' + n + '</span><i style="width:' + Math.max(4, parseFloat(sz) * (sz.includes('GB') ? 60 : .06)) + '%;background:#7aa2ff"></i><span>' + sz + '</span></div>').join('') + '</div>' +
+        '<p class="note" style="margin-top:8px">A launcher can\'t clear other apps\' caches. Each button opens that app\'s page in Settings, where you can.</p><div class="row" style="margin-top:8px">' + store2.slice(0, 3).map(([n]) => '<button class="btn" data-rb="Opening ' + n + ' in Settings">' + n + '</button>').join('') + '</div>') +
+      acc('network', '📶', 'Wi-Fi and network', 'Den_5G · -52 dBm · strong · on TV ' + (y.wifi ? 'shown' : 'hidden'),
+        '<div class="row" style="margin-top:12px;align-items:center"><span class="wbars" style="height:24px">' + [8, 13, 18, 24].map((h, i) => '<i class="' + (i < 3 ? 'on' : '') + '" style="height:' + h + 'px;width:7px"></i>').join('') + '</span><span><b>Den_5G</b> · 5 GHz · -52 dBm · strong</span></div>' +
+        '<div class="speed"><div><b id="spd">' + net.d + '</b><span>Mbps down</span></div><div><b id="spu">' + net.u + '</b><span>Mbps up</span></div><div><b id="spp">' + net.p + '</b><span>ms ping</span></div></div><div class="row" style="margin:10px 0"><button class="btn hot" id="speedGo">Run a speed test</button></div>' +
+        F('b-sys-wifi', 'Show Wi-Fi strength on the TV', '', bsw('sys.wifi')) + F('b-sys-wifiName', 'With the network name', '', bsw('sys.wifiName'))) +
+      acc('screentime', '⏱️', 'Screen time', 'Today 2h 14m',
+        '<div class="sub">By person</div><div class="bars2">' + who.map(([n, m]) => '<div><span>' + n + '</span><i style="width:' + m / 1.4 + '%;background:#ffd36e"></i><span>' + mins(m) + '</span></div>').join('') + '</div>' +
+        '<div class="sub">By app</div><div class="bars2">' + apps.map(([n, m]) => '<div><span>' + n + '</span><i style="width:' + m * 1.6 + '%"></i><span>' + mins(m) + '</span></div>').join('') + '</div>' +
+        F('b-sys-track', 'Track screen time', 'Needs usage access, granted once during setup', bsw('sys.track')) + F('b-sys-stChip', 'Show today\'s total on the TV', '', bsw('sys.stChip'))) +
+      acc('kids', '🧒', 'Kids timer', y.kids ? 'On · ' + y.kidsMin + ' min for ' + y.kidsApps.join(', ') : 'Off',
+        F('b-sys-kids', 'Kids timer', 'An app closes itself after the time runs out', bsw('sys.kids')) + F('b-sys-kidsMin', 'Time allowed', '', bsel('sys.kidsMin', { 15: '15 minutes', 30: '30 minutes', 45: '45 minutes', 60: '1 hour', 90: '1 hour 30' })) +
+        '<div class="sub">For these apps</div><div class="tags">' + ['YouTube', 'Netflix', 'Crunchyroll', 'Prime Video', 'JioHotstar', 'Spotify'].map((x) => '<button data-kapp="' + x + '" class="' + (y.kidsApps.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>' +
+        '<div class="row" style="margin-top:10px"><button class="btn" data-rb="Choose a 4-digit PIN on the TV to extend the timer">Set a PIN to extend</button></div>') +
+      acc('sleep', '🌙', 'Sleep and quiet hours', (y.sleep === 'off' ? 'No sleep timer' : 'Sleeping in ' + y.sleep + ' min') + ' · quiet ' + (y.quiet ? y.qFrom + '–' + y.qTo : 'off'),
+        F('b-sys-sleep', 'Sleep timer', 'The TV goes to standby', bsel('sys.sleep', { off: 'Off', 15: '15 minutes', 30: '30 minutes', 60: '1 hour', 90: '1 hour 30', 120: '2 hours' })) +
+        F('b-sys-quiet', 'Quiet hours', 'A volume cap at night', bsw('sys.quiet')) + F('', 'From', '', '<input class="tm" type="time" data-b="sys.qFrom" value="' + y.qFrom + '">') + F('', 'To', '', '<input class="tm" type="time" data-b="sys.qTo" value="' + y.qTo + '">') +
+        F('', 'Volume cap', y.qCap + '%', '<input type="range" min="10" max="80" step="5" data-b="sys.qCap" value="' + y.qCap + '">') + '<div class="row" style="margin-top:8px"><button class="btn" data-rb="Bedtime">Bedtime now: 30-minute timer and night mode</button></div>') +
+      acc('screen', '🖥️', 'Screen care', y.burn ? 'Burn-in care on · clock after ' + y.idle + ' min' : 'Burn-in care off',
+        F('b-sys-burn', 'Burn-in care', 'The idle clock moves a little every minute', bsw('sys.burn')) + F('b-sys-idle', 'Show the idle clock after', '', bsel('sys.idle', { 5: '5 minutes', 10: '10 minutes', 20: '20 minutes', 30: '30 minutes', 0: 'Never' })));
   }
   function render() {
     const [t, s] = TITLES[S.tab]; $('tabTitle').textContent = t; $('tabSub').textContent = s;
@@ -1460,6 +1605,11 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       el.addEventListener(id === 't-acc' ? 'input' : 'change', () => { const bv = key === 'motion' ? (base().motion || 'full') : base()[key]; if (el.value === bv) delete S.over[key]; else S.over[key] = el.value; save(); applyTV(key === 'wake');
         if (key === 'moment' && el.value !== 'none') moment(); if (id !== 't-acc') render(); }); });
     ['greeting', 'date', 'scores', 'anime', 'trail', 'photos', 'sounds', 'askwho'].forEach((k) => { const el = $('g-' + k); if (el) el.addEventListener('change', () => { S.toggles[k] = el.checked; save(); applyTV(false); if (k === 'photos' && el.checked) toast('Your album would replace the drawn heroes'); }); });
+    body.querySelectorAll('[data-b]').forEach((el) => { const ev = el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input'; el.addEventListener(ev, () => { const [a, k] = el.dataset.b.split('.'); S[a][k] = el.type === 'checkbox' ? el.checked : el.type === 'range' ? +el.value : el.value; save(); renderChips(); renderSys(); renderFacts(false);
+      if (el.type !== 'range') { const keep = body.scrollTop; render(); body.scrollTop = keep; } else { const lab = el.closest('.field').querySelector('small'); if (lab) lab.textContent = el.value + '%'; } }); });
+    body.querySelectorAll('details.acc').forEach((d) => d.addEventListener('toggle', () => { const id = d.dataset.acc; S.open = d.open ? [...new Set(S.open.concat(id))] : S.open.filter((x) => x !== id); save(); }));
+    on('speedGo', () => { let k = 0; const iv = setInterval(() => { k++; $('spd').textContent = Math.round(Math.random() * 90 + 10); $('spu').textContent = Math.round(Math.random() * 25 + 5); $('spp').textContent = Math.round(Math.random() * 30 + 10); if (k > 14) { clearInterval(iv); net = { d: 92, u: 23, p: 16 }; $('spd').textContent = 92; $('spu').textContent = 23; $('spp').textContent = 16; toast('Speed test: 92 down, 23 up, 16 ms'); renderSys(); } }, 120); });
+    body.querySelectorAll('[data-kapp]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.kapp; S.sys.kidsApps = S.sys.kidsApps.includes(x) ? S.sys.kidsApps.filter((z) => z !== x) : S.sys.kidsApps.concat(x); save(); const keep = body.scrollTop; render(); body.scrollTop = keep; }));
     ['on', 'random'].forEach((k) => { const el = $('a-' + k); if (el) el.addEventListener('change', () => { S.anim[k] = el.checked; save(); }); });
     ['open', 'close'].forEach((k) => { const el = $('a-' + k); if (el) el.addEventListener('change', () => { S.anim[k] = el.value; save(); }); });
     on('tryOpen', () => { foc = 3; renderFocus(true); openApp(3); });

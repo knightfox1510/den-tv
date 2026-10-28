@@ -1,0 +1,16 @@
+{
+  "id": "coder",
+  "name": "Coder",
+  "category": "Geek & code",
+  "for": "everyone",
+  "scene": "code",
+  "hero": "none",
+  "watcher": "caret",
+  "focus": "spot",
+  "wake": "termboot",
+  "clock": "term",
+  "icons": "white",
+  "extras": "none",
+  "moment": "none",
+  "accent": "#7ee787"
+}
