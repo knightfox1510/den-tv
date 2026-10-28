@@ -88,6 +88,20 @@ Plain white background.
 - detailed pixel-art sprite, crisp pixels, limited palette
 - loose watercolour illustration with clean edges around the figure
 
+## How the pictures are layered
+
+The AI's edits redraw small details across the whole picture, so swapping whole pictures would make
+the character jitter. den-tv keeps one main picture and takes only the **eye area** from the others:
+
+- the background is removed by filling inward from the edges, so whites inside the outline (eyes,
+  teeth, fur trim) stay;
+- the pupils are the dark pixels inside each eye that differ between the normal and no-pupils
+  pictures;
+- the blink is the eye band from the eyes-closed picture, softened at the edges.
+
+The mockup expects personal character pictures in `mockups/chars/`, which git ignores. Without them,
+the Wanted and Straw Hat looks fall back to the code-drawn Luffy.
+
 ## Good to know
 
 - Most image tools won't draw named anime characters or real sports stars. Describe the look
