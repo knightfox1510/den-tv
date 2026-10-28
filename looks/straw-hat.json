@@ -4,13 +4,14 @@
   "category": "Heroes",
   "for": "owner",
   "scene": "grandline",
-  "hero": "luffy",
-  "watcher": "luffy",
+  "hero": "none",
+  "watcher": "walkluffy",
   "focus": "pass",
   "wake": "ink",
   "clock": "brush",
   "icons": "white",
   "extras": "none",
   "moment": "drop",
-  "accent": "#e8c16a"
+  "accent": "#e8c16a",
+  "figure": "luffy"
 }

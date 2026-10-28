@@ -965,7 +965,90 @@ input[type=range] { accent-color: var(--hot); width: 130px; }
     const glowS = c.glow ? ' style="filter:drop-shadow(0 0 28px rgba(230,210,255,.95))"' : '';
     return '<svg viewBox="0 0 240 400" preserveAspectRatio="xMidYMax meet"' + glowS + '>' + defs + shadow + legs + shorts + arm(-1) + torso + sash + swords + arm(1) + '<g class="hdhead" id="hd' + U + '">' + head + hair + eyes + mouth + scar + hat + '</g></svg>';
   }
-  const charSVG = (id, small) => (S.art === 'detailed' ? chibiHD(id, small) : chibiSVG(id, small));
+  // Anime-proportion Luffy, viewBox 0 0 300 600
+  function luffySVG(U) {
+    U = U || 'a';
+    const O = '#121010', SK = '#f5cba3', SKS = '#e0a882', RED = '#d4252b', REDS = '#a51b20', BLU = '#2f6fd1', BLUS = '#2354a8', YEL = '#f2c230', YELS = '#c99a1a';
+    const st = 'stroke="' + O + '" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"';
+    return `<svg viewBox="0 0 300 600" preserveAspectRatio="xMidYMax meet">
+    <ellipse cx="150" cy="590" rx="78" ry="9" fill="rgba(0,0,0,.35)"/>
+    <!-- legs -->
+    <g class="lgL"><path d="M126 396 L120 470 Q118 520 122 560 L140 560 Q142 520 142 470 L146 398 Z" fill="${SK}" ${st}/><path d="M124 470 Q128 520 126 556" stroke="${SKS}" stroke-width="5" fill="none"/>
+      <path d="M118 556 Q108 560 108 572 L148 572 Q148 560 142 556 Z" fill="${SK}" ${st}/><path d="M112 566 v6 M120 566 v6 M128 566 v6" stroke="${O}" stroke-width="1.6"/>
+      <path d="M102 572 L152 572 L152 582 L102 582 Z" fill="#b8874a" ${st}/><path d="M116 558 L134 566 L142 556" stroke="#7a5428" stroke-width="5" fill="none"/></g>
+    <g class="lgR"><path d="M158 398 L162 470 Q164 520 162 560 L180 560 Q184 520 182 470 L176 396 Z" fill="${SK}" ${st}/>
+      <path d="M162 556 Q154 560 154 572 L194 572 Q194 560 182 556 Z" fill="${SK}" ${st}/><path d="M180 566 v6 M188 566 v6" stroke="${O}" stroke-width="1.6"/>
+      <path d="M150 572 L200 572 L200 582 L150 582 Z" fill="#b8874a" ${st}/><path d="M160 556 L168 566 L186 558" stroke="#7a5428" stroke-width="5" fill="none"/></g>
+    <!-- shorts with fluffy cuffs -->
+    <path d="M116 300 L186 300 L196 396 L156 402 L151 352 L146 402 L106 396 Z" fill="${BLU}" ${st}/>
+    <path d="M170 306 L186 300 L196 396 L180 398 Z" fill="${BLUS}"/>
+    <path d="M146 312 L150 350 M126 330 q-6 30 -10 56 M176 330 q6 30 8 56" stroke="${BLUS}" stroke-width="3" fill="none"/>
+    <path d="M104 390 L148 398 L148 410 Q142 404 136 410 Q130 404 124 410 Q118 404 112 410 Q106 404 102 408 Z" fill="#f4f1ea" ${st}/>
+    <path d="M154 398 L198 390 L200 408 Q194 404 188 410 Q182 404 176 410 Q170 404 164 410 Q158 404 154 410 Z" fill="#f4f1ea" ${st}/>
+    <!-- right arm (viewer left) hand on hip -->
+    <g class="armL"><path d="M112 198 Q86 214 82 250 Q80 276 108 296" fill="none" stroke="${O}" stroke-width="22" stroke-linecap="round"/><path d="M112 198 Q86 214 82 250 Q80 276 108 296" fill="none" stroke="${SK}" stroke-width="15" stroke-linecap="round"/>
+      <path d="M92 234 Q86 250 90 266" stroke="${SKS}" stroke-width="4" fill="none"/>
+      <path d="M100 286 Q112 284 120 296 Q118 312 104 310 Q94 304 100 286 Z" fill="${SK}" ${st}/></g>
+    <!-- torso: open red shirt -->
+    <path d="M112 190 Q130 180 150 182 Q170 180 188 190 L196 222 L186 304 L114 304 L104 222 Z" fill="${SK}" ${st}/>
+    <path d="M150 196 Q140 220 138 250 M150 196 Q160 220 162 250" stroke="${SKS}" stroke-width="3" fill="none"/>
+    <path d="M128 214 L172 256 M172 214 L128 256" stroke="#9c3b30" stroke-width="5" stroke-linecap="round"/>
+    <path d="M128 214 L172 256 M172 214 L128 256" stroke="#d9837a" stroke-width="2" stroke-linecap="round"/>
+    <path d="M112 190 Q124 184 140 186 L130 240 L124 304 L114 304 L104 222 Z" fill="${RED}" ${st}/>
+    <path d="M188 190 Q176 184 160 186 L170 240 L176 304 L186 304 L196 222 Z" fill="${RED}" ${st}/>
+    <path d="M182 196 L192 224 L184 300 L178 300 Z" fill="${REDS}"/>
+    <path d="M112 190 Q96 196 92 214 L104 230 L112 214 Z" fill="${RED}" ${st}/><path d="M188 190 Q204 196 208 214 L196 230 L188 214 Z" fill="${RED}" ${st}/>
+    <!-- sash -->
+    <path d="M112 290 Q150 298 188 290 L190 312 Q150 320 110 312 Z" fill="${YEL}" ${st}/>
+    <path d="M112 304 Q150 312 188 304" stroke="${YELS}" stroke-width="3" fill="none"/>
+    <path d="M120 306 q-10 16 -6 40 l12 2 q-2 -22 6 -38 Z" fill="${YEL}" ${st}/><path d="M128 308 q2 20 10 34 l10 -6 q-8 -12 -10 -28 Z" fill="${YELS}" ${st}/>
+    <!-- left arm (viewer right) raised fist -->
+    <g class="armR"><path d="M190 198 Q226 186 236 150 Q244 120 244 96" fill="none" stroke="${O}" stroke-width="22" stroke-linecap="round"/><path d="M190 198 Q226 186 236 150 Q244 120 244 96" fill="none" stroke="${SK}" stroke-width="15" stroke-linecap="round"/>
+      <path d="M232 168 Q240 140 240 116" stroke="${SKS}" stroke-width="4" fill="none"/>
+      <path d="M226 92 Q226 66 246 64 Q266 66 266 88 Q266 104 248 106 Q228 106 226 92 Z" fill="${SK}" ${st}/>
+      <path d="M232 76 h28 M231 86 h32 M236 96 h22" stroke="${O}" stroke-width="2.4"/><path d="M230 80 q-8 4 -4 14" stroke="${O}" stroke-width="2.4" fill="none"/></g>
+    <!-- neck -->
+    <path d="M140 160 L142 188 Q150 194 158 188 L160 160 Z" fill="${SKS}" ${st}/>
+    <!-- head -->
+    <g class="hdhead" id="hd${U}" style="transform-origin:150px 150px">
+    <path d="M104 104 C104 74 126 58 150 58 C174 58 196 74 196 104 C196 138 184 158 166 168 C158 172 142 172 134 168 C116 158 104 138 104 104 Z" fill="${SK}" ${st}/>
+    <path d="M178 80 C192 94 196 116 186 146 C182 156 176 162 168 166 C180 150 188 120 178 80 Z" fill="${SKS}"/>
+    <ellipse cx="102" cy="118" rx="8" ry="13" fill="${SK}" ${st}/><ellipse cx="198" cy="118" rx="8" ry="13" fill="${SKS}" ${st}/>
+    <!-- hair -->
+    <path d="M106 116 L88 110 L104 102 L86 92 L106 88 Q116 66 150 64 Q184 66 194 88 L214 92 L196 102 L212 110 L194 116 L192 104 L186 118 L180 100 L174 110 L168 96 L160 108 L154 94 L148 104 L142 94 L136 108 L128 96 L124 112 L118 100 L112 118 L108 104 Z" fill="#141416" ${st}/><path d="M86 92 L72 96 L90 100 Z M214 92 L228 98 L210 102 Z" fill="#141416" ${st}/>
+    <path d="M130 70 Q142 66 154 68" stroke="#4a4a56" stroke-width="3" fill="none"/>
+    <!-- eyes -->
+    <g class="ceyes" id="ce${U}">
+      <ellipse cx="131" cy="119" rx="11.5" ry="14" fill="#fff" stroke="${O}" stroke-width="2.6"/><ellipse cx="169" cy="119" rx="11.5" ry="14" fill="#fff" stroke="${O}" stroke-width="2.6"/>
+      <ellipse cx="132" cy="120" rx="5.5" ry="6.5" fill="#141010"/><ellipse cx="168" cy="120" rx="5.5" ry="6.5" fill="#141010"/><circle cx="134" cy="117" r="2" fill="#fff"/><circle cx="170" cy="117" r="2" fill="#fff"/>
+      <path d="M118 112 Q130 100 145 110" stroke="${O}" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M155 110 Q170 100 182 112" stroke="${O}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    </g>
+    <g class="lids" style="transform-box:fill-box;transform-origin:50% 50%;transform:scaleY(0)"><ellipse cx="131" cy="119" rx="13" ry="15" fill="${SK}"/><ellipse cx="169" cy="119" rx="13" ry="15" fill="${SK}"/><path d="M118 120 Q131 126 144 120 M156 120 Q169 126 182 120" stroke="${O}" stroke-width="3.5" fill="none"/></g>
+    <path d="M119 98 Q131 92 143 97 M157 97 Q169 92 181 98" stroke="${O}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    <!-- scar under his left eye (viewer right) -->
+    <path d="M164 134 Q170 140 178 136" stroke="#8c3a30" stroke-width="2.6" fill="none"/><path d="M167 131 l-1 8 M172 132 l0 8 M176 131 l1 7" stroke="#8c3a30" stroke-width="2"/>
+    <path d="M148 128 q2 4 -1 6" stroke="${SKS}" stroke-width="2.4" fill="none"/>
+    <!-- huge grin -->
+    <path d="M114 138 Q150 182 186 138 Q150 150 114 138 Z" fill="#fff" ${st}/>
+    <path d="M120 142 Q150 152 180 142" stroke="#d8cfc6" stroke-width="1.6" fill="none"/>
+    <path d="M126 150 Q150 172 174 150 Q150 158 126 150 Z" fill="#7a1a1a"/><path d="M136 158 Q150 168 164 158 Q150 162 136 158 Z" fill="#e0607a"/>
+    <path d="M130 145 v6 M140 147 v7 M150 148 v7 M160 147 v7 M170 145 v6" stroke="#d8cfc6" stroke-width="1.2"/>
+    <!-- straw hat -->
+    <g transform="translate(0,-6) rotate(-7 150 70)">
+      <ellipse cx="150" cy="74" rx="96" ry="20" fill="#e2b85a" ${st}/>
+      <path d="M60 76 Q150 98 240 76 Q150 88 60 76 Z" fill="#c4973e"/>
+      ${[...Array(22)].map((_, i) => `<path d="M${64 + i * 8} 70 q3 6 0 12" stroke="rgba(150,105,40,.5)" stroke-width="1.5" fill="none"/>`).join('')}
+      <path d="M106 72 Q104 24 150 22 Q196 24 194 72 Z" fill="#ecc66a" ${st}/>
+      <path d="M178 30 Q194 44 194 72 L180 72 Q182 46 170 28 Z" fill="#d4a94e"/>
+      <path d="M106 58 Q150 50 194 58 L194 72 Q150 66 106 72 Z" fill="${RED}" ${st}/>
+      <path d="M108 60 Q150 53 192 60" stroke="#f06a6e" stroke-width="2" fill="none"/>
+      <path d="M124 34 Q150 26 176 34" stroke="rgba(255,255,255,.5)" stroke-width="3" fill="none"/>
+      ${[...Array(9)].map((_, i) => `<path d="M${116 + i * 9} 30 q2 12 0 24" stroke="rgba(150,105,40,.4)" stroke-width="1.4" fill="none"/>`).join('')}
+    </g>
+    </g>
+  </svg>`;
+  }
+  const charSVG = (id, small) => (S.art === 'classic' ? chibiSVG(id, small) : id === 'luffy' ? luffySVG('luffy' + (small ? 's' : 'f')) : chibiHD(id, small));
   (function charBlink() { document.querySelectorAll('.figure svg, .walker svg').forEach((sv) => { sv.classList.add('blinking'); setTimeout(() => sv.classList.remove('blinking'), 170); }); setTimeout(charBlink, 2500 + Math.random() * 4000); })();
 
   /* --- more scenes --- */
@@ -1141,7 +1224,7 @@ input[type=range] { accent-color: var(--hot); width: 130px; }
     L('ultra-instinct', 'Ultra Instinct', 'Heroes', 'G', 'ui', 'goku', 'pole', 'aura', 'powerup', 'thin', 'silver', 'beam', '#cfe0ff', ''),
     L('nine-tails', 'Nine-Tails', 'Heroes', 'G', 'kurama', 'naruto', 'kurama', 'aura', 'powerup', 'brush', 'embers', 'drop', '#ff6a00', ''),
     L('sage-mode', 'Sage Mode', 'Heroes', 'G', 'hokage', 'naruto', 'sage', 'ripple', 'bloom', 'brush', 'leaves', 'drop', '#ffb020', ''),
-    L('straw-hat', 'Straw Hat', 'Heroes', 'G', 'grandline', 'luffy', 'luffy', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', ''),
+    L('straw-hat', 'Straw Hat', 'Heroes', 'G', 'grandline', 'none', 'walkluffy', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', '', { figure: 'luffy' }),
     L('three-sword', 'Three-Sword Style', 'Heroes', 'G', 'zoro', 'zoro', 'zoro', 'aura', 'slash', 'brush', 'leaves', 'drop', '#3ddc84', ''),
     L('navigator', 'Navigator', 'Heroes', 'G', 'tangerine', 'nami', 'cloud', 'ripple', 'storm', 'brush', 'none', 'drop', '#ff8c2a', ''),
     L('butterfly-mansion', 'Butterfly Mansion', 'Heroes', 'G', 'wisteria', 'shinobu', 'butterflies', 'spot', 'flutter', 'brush', 'wisteria', 'drop', '#c9a2ff', ''),
@@ -1156,7 +1239,7 @@ input[type=range] { accent-color: var(--hot); width: 130px; }
     L('geek', 'Geek HUD', 'Geek & code', 'B', 'grid', 'none', 'reticle', 'spot', 'hudboot', 'hud', 'none', 'none', '#38e1ff', '', { hud: true }),
     L('coder', 'Coder', 'Geek & code', 'B', 'code', 'none', 'caret', 'spot', 'termboot', 'term', 'none', 'none', '#7ee787', ''),
     L('gear5', 'Gear 5', 'One Piece', 'G', 'clouds', 'none', 'walkg5', 'spot', 'boing', 'brush', 'none', 'gear5', '#c9b6ff', '', { figure: 'g5' }),
-    L('wanted', 'Wanted', 'One Piece', 'G', 'wanted', 'none', 'walkluffy', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', ''),
+    L('wanted', 'Wanted', 'One Piece', 'G', 'wanted', 'none', 'walkluffy', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', '', { figure: 'luffy' }),
     L('king-of-hell', 'King of Hell', 'One Piece', 'G', 'asura', 'none', 'walkzoro', 'aura', 'slash', 'brush', 'embers', 'drop', '#ff3a3a', '', { figure: 'zoro' }),
     L('lost-again', 'Lost Again', 'One Piece', 'G', 'lost', 'none', 'compass', 'spot', 'slash', 'brush', 'leaves', 'drop', '#3ddc84', '', { figure: 'zoro' }),
     L('prince', 'Prince of Saiyans', 'Heroes', 'G', 'vegeta', 'vegeta', 'scouter', 'aura', 'powerup', 'hud', 'sparks', 'beam', '#b48aff', ''),
@@ -1736,7 +1819,7 @@ input[type=range] { accent-color: var(--hot); width: 130px; }
     const on = (b) => b ? 'on' : 'off';
     return '<div class="modbar"><span>Based on <b style="color:var(--ink)">' + base().name + '</b>' + (mod ? ' · ' + mod + ' change' + (mod > 1 ? 's' : '') : '') + '</span><span class="row"><button class="btn" id="reset"' + (mod ? '' : ' disabled') + '>Reset</button><button class="btn hot" id="saveMine">Save as my look</button></span></div>' +
       acc('look', '🎨', 'Look', SCENES[e.scene].n + ' · ' + HEROOPT[e.hero] + ' · ' + MASCOT[e.mascot].split(' (')[0],
-        F('t-scene', 'Scene', 'The painted backdrop', sel('t-scene', SCN, e.scene)) + F('t-hero', 'Hero', 'A poster on top of the scene', sel('t-hero', HEROOPT, e.hero)) + F('t-mascot', 'Watcher', 'Follows the selected app', sel('t-mascot', MASCOT, e.mascot)) + F('t-figure', 'Full character', 'A big cartoon figure whose eyes follow the app', sel('t-figure', { none: 'None', luffy: 'Luffy', g5: 'Gear 5 Luffy', zoro: 'Zoro' }, e.figure || 'none')) + F('b-art', 'Character art', 'Detailed adds shading, faces and blinking', '<select id="b-art">' + [['detailed', 'Detailed'], ['classic', 'Classic']].map(([k, l]) => '<option value="' + k + '"' + (S.art === k ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>') + F('t-amb', 'Moving extras', '', sel('t-amb', AMB, e.amb)) + F('t-icons', 'App icons', '', sel('t-icons', ICONS, e.icons)) + F('t-acc', 'Accent colour', '', '<input type="color" id="t-acc" value="' + e.acc + '" style="width:44px;height:30px;border:0;background:none;padding:0">')) +
+        F('t-scene', 'Scene', 'The painted backdrop', sel('t-scene', SCN, e.scene)) + F('t-hero', 'Hero', 'A poster on top of the scene', sel('t-hero', HEROOPT, e.hero)) + F('t-mascot', 'Watcher', 'Follows the selected app', sel('t-mascot', MASCOT, e.mascot)) + F('t-figure', 'Full character', 'A big cartoon figure whose eyes follow the app', sel('t-figure', { none: 'None', luffy: 'Luffy', g5: 'Gear 5 Luffy', zoro: 'Zoro' }, e.figure || 'none')) + F('b-art', 'Character art', 'Detailed: anime-style Luffy, shaded Gear 5 and Zoro', '<select id="b-art">' + [['detailed', 'Detailed'], ['classic', 'Classic']].map(([k, l]) => '<option value="' + k + '"' + (S.art === k ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>') + F('t-amb', 'Moving extras', '', sel('t-amb', AMB, e.amb)) + F('t-icons', 'App icons', '', sel('t-icons', ICONS, e.icons)) + F('t-acc', 'Accent colour', '', '<input type="color" id="t-acc" value="' + e.acc + '" style="width:44px;height:30px;border:0;background:none;padding:0">')) +
       acc('fx', '✨', 'Animations and motion', WAKE[e.wake] + ' · apps ' + (S.anim.on ? (S.anim.random ? 'random' : 'on') : 'off') + ' · motion ' + (e.motion || 'full'),
         '<div class="sub">On the Home screen</div>' + F('t-focus', 'When you move', '', sel('t-focus', FOCUS, e.focus)) + F('t-wake', 'When the TV wakes', '', sel('t-wake', WAKE, e.wake)) + F('t-moment', 'Big moment', 'Played by real goals, sixes and new episodes', sel('t-moment', MOMENT, e.moment)) +
         '<div class="sub">Opening and closing apps</div>' + F('a-on', 'Animate apps', '', sw('a-on', S.anim.on)) + F('a-random', 'Surprise me', 'A different pair every time', sw('a-random', S.anim.random)) + F('a-open', 'When an app opens', '', sel('a-open', Object.assign({ look: 'Match the look' }, OPENA), S.anim.open)) + F('a-close', 'When you come back Home', '', sel('a-close', Object.assign({ look: 'Match the look' }, CLOSEA), S.anim.close)) +

@@ -1,5 +1,12 @@
 # Making the art better
 
+![Anime-style Luffy](luffy-anime.png)
+
+Luffy is now drawn in anime proportions: the ear-to-ear grin, round eyes, the stitched scar under his
+left eye, the X scar on his chest, red open shirt, yellow sash, blue shorts with white cuffs and straw
+sandals, with a fist raised. It is still code-drawn vector art, so it blinks, tilts its head toward the
+selected app and walks along the dock.
+
 ![Classic Luffy, then detailed Luffy, Gear 5 and Zoro](characters-classic-vs-detailed.png)
 
 The scenes, posters and characters in this repo are drawn in code. That keeps them tiny, free to
