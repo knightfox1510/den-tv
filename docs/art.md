@@ -21,6 +21,10 @@ These are the ways past it, from cheapest to best.
 | 4. Painted wallpapers | High-resolution art for the scenes and posters, from an artist or an image model | Best stills | No (the watchers still move on top) | Per picture | Original art only |
 | 5. Your own pictures | Official wallpapers from the studios, clubs and leagues, on your own TV | Official | No | Free | No, never committed |
 
+## Your own characters (works in the mockup now)
+
+Upload layered pictures and den-tv animates them. See [make-a-character.md](make-a-character.md).
+
 ## Recommendation
 
 - Keep tier 1 as the default, so every look works out of the box.

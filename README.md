@@ -49,6 +49,11 @@ OnePlus, Nvidia Shield and most others), not on Samsung, LG or Fire TV.
 Each look picks a scene, a hero, a watcher, a focus effect, a wake animation, a clock, extras and a
 big moment from one shared library. On top of any look you can switch on widgets: a "Did you know?" facts card or ticker about the heroes in the look, and a next-match countdown. The Fan Hub opens from its dock tile in whichever look is on. [looks/README.md](looks/README.md) lists every option.
 
+## Your own characters
+
+Make a character with an AI image tool and upload it on the phone page: den-tv makes its eyes follow
+the selected app, blink, tilt and walk. See [docs/make-a-character.md](docs/make-a-character.md).
+
 ## Your pictures
 
 Everything in this repo is drawn in code, so it can be shared. Player photos and official artwork
