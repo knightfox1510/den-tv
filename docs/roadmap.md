@@ -11,6 +11,9 @@ A fork of the cleanyourtv launcher (Java, Android 8+), with its safety and insta
   swords. Each is a small vector view, with no images or video.
 - **Wake animations** when the screen turns on, and **focus effects** when you move between apps.
 - **Moments:** goal, six, Kamehameha and new episode, played on demand or set off by Fan Hub.
+- **Opening and closing apps:** eight opening animations (icon zoom, portal, warp speed, sword slash,
+  manga panels, shatter, ink wipe, camera flash) and five for coming back Home (shrink to icon, iris,
+  slide down, shatter out, fade). Each can match the look, be chosen by hand, be randomised or be off.
 - **Widgets:** a "Did you know?" facts card or ticker that follows the look's heroes, and a next-match
   countdown chip. More widgets slot in the same way.
 - **Motion levels:** Full, Calm and Off, with Calm the default on 1 GB TVs.
@@ -24,6 +27,7 @@ Served by the TV on the home Wi-Fi, opened by scanning a QR code on the TV, with
 - Upload your own photos as heroes or wallpapers.
 - Share a look with a friend as a file or a QR code.
 - No network debugging needed after setup.
+- TV health: memory meter, close background apps, keep-running list. See [tv-health.md](tv-health.md).
 
 ## 4. Fan Hub add-on
 Live scores (Barça, India, Mumbai Indians, La Liga, EPL), the anime airing schedule (AniList),

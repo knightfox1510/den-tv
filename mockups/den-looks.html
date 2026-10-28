@@ -260,6 +260,13 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
 .ask { display: grid; gap: 8px; background: linear-gradient(135deg, #1d1530, #14141c); border: 1px solid #3a2c55; border-radius: 16px; padding: 12px; }
 .ask b { font-size: 14px; }
 .ask .row input { flex: 1; min-width: 0; }
+.appscr { position: absolute; inset: 0; z-index: 15; display: grid; place-items: center; align-content: center; gap: 20px; color: #fff; }
+.appscr svg { width: 240px; height: 240px; filter: drop-shadow(0 20px 40px rgba(0,0,0,.4)); }
+.appscr b { font-size: 64px; font-weight: 700; }
+.appscr span { font-size: 26px; opacity: .7; }
+.tile6 { position: absolute; }
+.meter { height: 12px; border-radius: 999px; background: #262632; overflow: hidden; margin-top: 6px; }
+.meter i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--ok), #ffd36e, var(--hot)); transition: width .8s; }
 .remote { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .remote .btn { border-radius: 14px; padding: 12px 6px; }
 .note { color: var(--dim); font-size: 12.5px; margin: 0; }
@@ -913,9 +920,11 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     toggles: store.get('toggles', { greeting: true, date: true, scores: true, anime: true, trail: false, photos: false, sounds: false, askwho: true }),
     wid: store.get('wid', { facts: true, style: 'card', topics: 'look', countdown: false }),
     hub: store.get('hub', { cricket: true, football: true, anime: true, trails: true, next: true, facts: true, teams: ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL'], shows: ['One Piece', 'Jujutsu Kaisen', 'Demon Slayer'] }),
+    anim: store.get('anim', { on: true, open: 'look', close: 'look', random: false }),
+    health: store.get('health', { auto: false, keep: ['Spotify', 'Bluetooth audio', 'Keyboard'] }),
     rules: store.get('rules', { match: true, india: true, ipl: true, episode: true, weekend: true, late: true, fest: true, surprise: false }),
   };
-  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules', 'wid', 'hub'].forEach((k) => store.set(k, S[k]));
+  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules', 'wid', 'hub', 'anim', 'health'].forEach((k) => store.set(k, S[k]));
   const allLooks = () => LOOKS.concat(S.mine);
   const base = () => allLooks().find((l) => l.id === S.look) || LOOKS[0];
   const eff = () => Object.assign({}, base(), S.over);
@@ -969,7 +978,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   const APPS = [['Fan Hub', 'hub', '#c39bff', '#3a1d6e'], ['Crunchyroll', 'crunchy', '#f47521', '#f47521'], ['JioHotstar', 'hotstar', '#6f7dff', '#2a2aa0'], ['YouTube', 'yt', '#ff2b2b', '#c4161c'], ['Netflix', 'nf', '#e50914', '#7a0008'], ['Spotify', 'spotify', '#1ed760', '#128a3e'], ['Prime Video', 'prime', '#00a8e1', '#0a6f96'], ['FanCode', 'fancode', '#ff6a13', '#9a3a08'], ['Settings', 'gear', '#ffffff', '#3a3a44']];
   const SP = 200, X0 = (W - (APPS.length - 1) * SP) / 2, dock = $('dock');
   const appEls = APPS.map(([n, k, c, t], i) => { const d = document.createElement('div'); d.className = 'app'; d.style.left = (X0 + i * SP - 60) + 'px'; d.style.setProperty('--tile', t);
-    d.innerHTML = '<div class="ic"><svg viewBox="0 0 100 100">' + ICON[k] + '</svg></div><div class="nm">' + n + '</div>'; d.addEventListener('click', () => { if (foc === i && i === 0) openHub(true); else focusTo(i); }); dock.appendChild(d); return d; });
+    d.innerHTML = '<div class="ic"><svg viewBox="0 0 100 100">' + ICON[k] + '</svg></div><div class="nm">' + n + '</div>'; d.addEventListener('click', () => { if (foc === i) { if (i === 0) openHub(true); else openApp(i); } else focusTo(i); }); dock.appendChild(d); return d; });
   let foc = 0, prev = 0;
   const xOf = (i) => X0 + i * SP;
   function setupFx() {
@@ -1179,6 +1188,44 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   }
   function openHub(on) { const hb = $('hub'); if (on === undefined) on = !hb.classList.contains('on'); if (on) renderHub(); hb.classList.toggle('on', on); }
   $('hub').addEventListener('click', () => openHub(false));
+  const OPENA = { zoom: 'Icon zoom', portal: 'Portal', warp: 'Warp speed', slash: 'Sword slash', panels: 'Manga panels', shatter: 'Shatter', ink: 'Ink wipe', flash: 'Camera flash' };
+  const CLOSEA = { shrink: 'Shrink to icon', iris: 'Iris close', slide: 'Slide down', shatter: 'Shatter out', fade: 'Fade' };
+  const LOOK_OPEN = { tunnel: 'portal', room: 'portal', slash: 'slash', panels: 'panels', powerup: 'warp', ink: 'ink', storm: 'flash', fire: 'warp', sharingan: 'portal', flutter: 'ink', bloom: 'zoom', crt: 'flash' };
+  const LOOK_CLOSE = { tunnel: 'iris', room: 'iris', slash: 'shatter', panels: 'shatter', powerup: 'shrink', ink: 'slide', storm: 'fade', fire: 'fade', sharingan: 'iris', flutter: 'slide', bloom: 'shrink', crt: 'iris' };
+  let appBusy = false;
+  function openApp(i) {
+    if (appBusy) return; const e = eff(), a = S.anim, [n, k, c, t] = APPS[i]; const x = xOf(i), y = 860;
+    const rnd = (o) => { const ks = Object.keys(o); return ks[Math.floor(Math.random() * ks.length)]; };
+    const op = !a.on || (e.motion || 'full') === 'off' ? 'none' : a.random ? rnd(OPENA) : a.open === 'look' ? (LOOK_OPEN[e.wake] || 'zoom') : a.open;
+    const cl = !a.on || (e.motion || 'full') === 'off' ? 'none' : a.random ? rnd(CLOSEA) : a.close === 'look' ? (LOOK_CLOSE[e.wake] || 'shrink') : a.close;
+    appBusy = true; stage.querySelectorAll('.appscr').forEach((z) => z.remove());
+    const scr = document.createElement('div'); scr.className = 'appscr'; scr.style.background = 'radial-gradient(circle at 50% 40%, ' + t + ', #050508 120%)';
+    scr.innerHTML = '<svg viewBox="0 0 100 100">' + ICON[k] + '</svg><b>' + n + '</b><span>' + n + ' would open here · closing in a moment</span>'; stage.appendChild(scr);
+    const D = 650, ez = 'cubic-bezier(.6,0,.2,1)';
+    const fx = { zoom: () => scr.animate([{ clipPath: 'inset(' + (y - 60) + 'px ' + (1920 - x - 60) + 'px ' + (1080 - y - 60) + 'px ' + (x - 60) + 'px round 30px)' }, { clipPath: 'inset(0 0 0 0 round 0)' }], { duration: D, easing: ez }),
+      portal: () => scr.animate([{ clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(2300px at ' + x + 'px ' + y + 'px)' }], { duration: D + 150, easing: 'cubic-bezier(.5,0,.3,1)' }),
+      warp: () => { const w = document.createElement('div'); w.className = 'over'; w.style.background = 'repeating-conic-gradient(from 0deg at ' + x + 'px ' + y + 'px, rgba(255,255,255,.6) 0 1deg, transparent 1deg 5deg)'; stage.appendChild(w); w.animate([{ opacity: 0 }, { opacity: 1, offset: .4 }, { opacity: 0 }], { duration: D + 200 }).onfinish = () => w.remove(); home.animate([{ transform: 'scale(1)' }, { transform: 'scale(2.4)', offset: 1 }], { duration: D, easing: 'ease-in' }); return scr.animate([{ opacity: 0 }, { opacity: 0, offset: .55 }, { opacity: 1 }], { duration: D + 150 }); },
+      slash: () => scr.animate([{ clipPath: 'polygon(0 0, 0 0, 0 0)' }, { clipPath: 'polygon(0 0, 140% 0, 0 140%)', offset: .5 }, { clipPath: 'polygon(0 0, 200% 0, 0 200%)' }], { duration: D, easing: ez }),
+      panels: () => { scr.style.clipPath = 'none'; const parts = [[0, 0, 960, 540], [960, 0, 960, 540], [0, 540, 960, 540], [960, 540, 960, 540]]; scr.style.opacity = 0; const pg = document.createElement('div'); pg.className = 'over';
+        parts.forEach(([px, py, w, h], j) => { const p2 = document.createElement('div'); p2.className = 'panel'; Object.assign(p2.style, { left: px + 'px', top: py + 'px', width: w + 'px', height: h + 'px', background: t }); pg.appendChild(p2); p2.animate([{ transform: 'translate(' + (j % 2 ? 1 : -1) * 1200 + 'px,' + (j < 2 ? -1 : 1) * 800 + 'px)' }, { transform: 'none' }], { duration: D, delay: j * 60, easing: ez, fill: 'backwards' }); });
+        stage.appendChild(pg); setTimeout(() => { scr.style.opacity = 1; pg.remove(); }, D + 200); return { finished: Promise.resolve() }; },
+      shatter: () => { scr.style.opacity = 0; const g = document.createElement('div'); g.className = 'over'; for (let r = 0; r < 4; r++) for (let q = 0; q < 6; q++) { const d = document.createElement('div'); d.className = 'tile6'; Object.assign(d.style, { left: q * 320 + 'px', top: r * 270 + 'px', width: '321px', height: '271px', background: t }); g.appendChild(d);
+          d.animate([{ transform: 'translate(' + (x - q * 320 - 160) + 'px,' + (y - r * 270 - 135) + 'px) scale(.05) rotate(' + (Math.random() * 360) + 'deg)' }, { transform: 'none' }], { duration: D, delay: Math.random() * 150, easing: ez, fill: 'backwards' }); }
+        stage.appendChild(g); setTimeout(() => { scr.style.opacity = 1; g.remove(); }, D + 180); return { finished: Promise.resolve() }; },
+      ink: () => scr.animate([{ clipPath: 'polygon(0 0, 0 0, -20% 100%, -20% 100%)' }, { clipPath: 'polygon(0 0, 120% 0, 100% 100%, -20% 100%)' }], { duration: D, easing: ez }),
+      flash: () => { const f = document.createElement('div'); f.className = 'over'; f.style.background = '#fff'; stage.appendChild(f); f.animate([{ opacity: 1 }, { opacity: 0 }], { duration: D }).onfinish = () => f.remove(); return scr.animate([{ opacity: 0 }, { opacity: 1, offset: .2 }], { duration: D }); },
+      none: () => ({}) };
+    const cx = { shrink: () => scr.animate([{ clipPath: 'inset(0 0 0 0 round 0)' }, { clipPath: 'inset(' + (y - 60) + 'px ' + (1920 - x - 60) + 'px ' + (1080 - y - 60) + 'px ' + (x - 60) + 'px round 30px)' }], { duration: D, easing: ez, fill: 'forwards' }),
+      iris: () => scr.animate([{ clipPath: 'circle(2300px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }], { duration: D + 100, easing: 'cubic-bezier(.6,0,.4,1)', fill: 'forwards' }),
+      slide: () => scr.animate([{ transform: 'none' }, { transform: 'translateY(110%)' }], { duration: D, easing: 'cubic-bezier(.6,0,.3,1)', fill: 'forwards' }),
+      shatter: () => { scr.style.opacity = 0; const g = document.createElement('div'); g.className = 'over'; for (let r = 0; r < 4; r++) for (let q = 0; q < 6; q++) { const d = document.createElement('div'); d.className = 'tile6'; Object.assign(d.style, { left: q * 320 + 'px', top: r * 270 + 'px', width: '321px', height: '271px', background: t }); g.appendChild(d);
+          d.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(' + ((Math.random() - .5) * 2400) + 'px,' + (900 + Math.random() * 600) + 'px) rotate(' + ((Math.random() - .5) * 720) + 'deg)', opacity: 0 }], { duration: D + 300, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'forwards' }); }
+        stage.appendChild(g); setTimeout(() => g.remove(), D + 400); return { finished: Promise.resolve() }; },
+      fade: () => scr.animate([{ opacity: 1 }, { opacity: 0 }], { duration: D, fill: 'forwards' }), none: () => { scr.style.display = 'none'; return {}; } };
+    fx[op]();
+    setTimeout(() => { cx[cl](); if (op === 'warp') home.animate([{ transform: 'scale(1.3)', opacity: .4 }, { transform: 'none', opacity: 1 }], { duration: D, easing: 'ease-out' }); setTimeout(() => { scr.remove(); appBusy = false; if (S.health.auto) toast('Back Home · closed 4 background apps'); }, D + 450); }, 1900);
+    toast((op === 'none' ? 'No animation' : OPENA[op]) + ' → ' + (cl === 'none' ? 'no animation' : CLOSEA[cl]));
+  }
   const home = $('home'), ease = 'cubic-bezier(.6,0,.2,1)';
   function overlay() { stage.querySelectorAll('.over').forEach((o) => o.remove()); const o = document.createElement('div'); o.className = 'over'; stage.appendChild(o); return o; }
   const wakeEyes = (m) => '<div class="wakeeyes"><div style="position:absolute;left:0;width:200px;height:90px">' + eyeSVG('WL', m) + '</div><div class="wr" style="position:absolute;left:300px;width:200px;height:90px">' + eyeSVG('WR', m) + '</div></div>';
@@ -1342,6 +1389,8 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       '<div class="sec"><h3>Effects</h3><div class="box">' + F('t-focus', 'When you move', '', sel('t-focus', FOCUS, e.focus)) + F('t-wake', 'When the TV wakes', '', sel('t-wake', WAKE, e.wake)) + F('t-moment', 'Big moment', 'Played by real goals, sixes and new episodes', sel('t-moment', MOMENT, e.moment)) + F('t-clock', 'Clock', '', sel('t-clock', CLOCK, e.clock)) + F('t-icons', 'App icons', '', sel('t-icons', ICONS, e.icons)) +
       F('t-motion', 'Motion', 'Calm suits a 1 GB TV or a sleepy evening', sel('t-motion', { full: 'Full', calm: 'Calm', off: 'Off' }, e.motion || 'full')) + F('t-acc', 'Accent colour', '', '<input type="color" id="t-acc" value="' + e.acc + '" style="width:44px;height:30px;border:0;background:none;padding:0">') + '</div></div>' +
       '<div class="sec"><h3>On the Home screen</h3><div class="box">' + F('g-greeting', 'Greeting with your name', '', sw('g-greeting', t.greeting)) + F('g-date', 'Date', '', sw('g-date', t.date)) + F('g-scores', 'Live scores', 'Barça, India and Mumbai Indians', sw('g-scores', t.scores)) + F('g-anime', 'New episodes', 'One Piece, Jujutsu Kaisen, Demon Slayer', sw('g-anime', t.anime)) + F('g-trail', 'Weekend hike forecast', '', sw('g-trail', t.trail)) + F('g-photos', 'My own photos as heroes', 'From an album on your phone', sw('g-photos', t.photos)) + F('g-sounds', 'Soft click sounds', '', sw('g-sounds', t.sounds)) + '</div></div>' +
+      '<div class="sec"><h3>Opening and closing apps</h3><div class="box">' + F('a-on', 'Animate apps opening and closing', '', sw('a-on', S.anim.on)) + F('a-random', 'Surprise me', 'A different animation every time', sw('a-random', S.anim.random)) +
+      F('a-open', 'When an app opens', '', sel('a-open', Object.assign({ look: 'Match the look' }, OPENA), S.anim.open)) + F('a-close', 'When you come back Home', '', sel('a-close', Object.assign({ look: 'Match the look' }, CLOSEA), S.anim.close)) + '</div><div class="row" style="margin-top:10px"><button class="btn" id="tryOpen">Try it: open YouTube</button></div></div>' +
       '<div class="sec"><h3>Widgets</h3><div class="box">' + F('w-facts', 'Did you know?', 'Facts about the heroes and teams in this look', sw('w-facts', S.wid.facts)) + F('w-style', 'Facts shown as', '', sel('w-style', { card: 'A card under the clock', ticker: 'A ticker along the bottom' }, S.wid.style)) +
       F('w-topics', 'Facts about', '', sel('w-topics', { look: 'This look', all: 'All my interests' }, S.wid.topics)) + F('w-countdown', 'Next match countdown', 'A chip under the top-right buttons', sw('w-countdown', S.wid.countdown)) + '</div></div>' +
       '<div class="sec"><h3>Fan Hub</h3><div class="box">' + [['cricket', 'Cricket card'], ['football', 'Football card'], ['anime', 'Anime schedule'], ['trails', 'Weekend trail forecast'], ['next', 'Your next 72 hours'], ['facts', 'Did you know?']].map(([k, l]) => F('h-' + k, l, '', sw('h-' + k, S.hub[k]))).join('') + '</div>' +
@@ -1362,7 +1411,12 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       '<button class="btn" id="addPerson">+ Add someone</button><p class="note">Tap a name to rename it. Names and profiles belong to this TV, so a friend\'s TV has its own people, and two TVs at home can each have their own.</p>';
   }
   function vRemote() {
-    return '<div class="sec"><h3>Quick buttons</h3><div class="remote">' + ['⏻ Sleep', 'Wake', 'Mute', 'Vol −', 'Vol +', 'Sleep in 30 min', 'PlayStation 5', 'Set-top box', 'Live TV'].map((b) => '<button class="btn" data-rb="' + b + '">' + b + '</button>').join('') + '</div></div>' +
+    const F = (id, label, sub, ctl) => '<div class="field"><label for="' + id + '">' + label + (sub ? '<small>' + sub + '</small>' : '') + '</label>' + ctl + '</div>';
+    return '<div class="sec"><h3>TV health</h3><div class="box" style="padding:12px 14px"><b style="font-size:14px">Memory</b><div class="meter"><i id="memi" style="width:62%"></i></div><p class="note" id="memt" style="margin-top:6px">930 MB used of 1.5 GB · 11 apps in the background</p>' +
+      '<div class="row" style="margin-top:10px"><button class="btn hot" id="cleanNow">Close background apps</button></div></div>' +
+      '<div class="box" style="margin-top:10px">' + F('h-auto', 'Close them when I come back Home', 'Skips the apps below', sw('h-auto', S.health.auto)) + '</div>' +
+      '<p class="note" style="margin-top:8px">Always keep running</p><div class="tags" style="margin-top:6px">' + ['Spotify', 'Bluetooth audio', 'Keyboard', 'Chromecast', 'Fan Hub', 'Sleep timer'].map((x) => '<button data-keep="' + x + '" class="' + (S.health.keep.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div></div>' +
+      '<div class="sec"><h3>Quick buttons</h3><div class="remote">' + ['⏻ Sleep', 'Wake', 'Mute', 'Vol −', 'Vol +', 'Sleep in 30 min', 'PlayStation 5', 'Set-top box', 'Live TV'].map((b) => '<button class="btn" data-rb="' + b + '">' + b + '</button>').join('') + '</div></div>' +
       '<div class="sec"><h3>Watch now</h3><div class="box"><div class="field"><label>Barça vs Real Madrid<small>Live · opens your streaming app</small></label><button class="btn" data-rb="Opening the match">Open</button></div><div class="field"><label>Jujutsu Kaisen · Ep 14<small>New today · Crunchyroll</small></label><button class="btn" data-rb="Opening Jujutsu Kaisen">Open</button></div></div></div>' +
       '<div class="sec"><h3>Type on the TV</h3><div class="row"><input class="search" id="typeBox" placeholder="Search text goes to the TV" style="flex:1;min-width:0"><button class="btn hot" id="sendType">Send</button></div></div><p class="note">For the arrow keys inside apps, use the Google TV or Google Home app on your phone.</p>';
   }
@@ -1406,6 +1460,12 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       el.addEventListener(id === 't-acc' ? 'input' : 'change', () => { const bv = key === 'motion' ? (base().motion || 'full') : base()[key]; if (el.value === bv) delete S.over[key]; else S.over[key] = el.value; save(); applyTV(key === 'wake');
         if (key === 'moment' && el.value !== 'none') moment(); if (id !== 't-acc') render(); }); });
     ['greeting', 'date', 'scores', 'anime', 'trail', 'photos', 'sounds', 'askwho'].forEach((k) => { const el = $('g-' + k); if (el) el.addEventListener('change', () => { S.toggles[k] = el.checked; save(); applyTV(false); if (k === 'photos' && el.checked) toast('Your album would replace the drawn heroes'); }); });
+    ['on', 'random'].forEach((k) => { const el = $('a-' + k); if (el) el.addEventListener('change', () => { S.anim[k] = el.checked; save(); }); });
+    ['open', 'close'].forEach((k) => { const el = $('a-' + k); if (el) el.addEventListener('change', () => { S.anim[k] = el.value; save(); }); });
+    on('tryOpen', () => { foc = 3; renderFocus(true); openApp(3); });
+    on('cleanNow', () => { const m = $('memi'); if (m) m.style.width = '41%'; $('memt').textContent = '612 MB used of 1.5 GB · 7 apps closed, 318 MB freed'; toast('Closed 7 background apps · 318 MB freed'); });
+    const ha = $('h-auto'); if (ha) ha.addEventListener('change', () => { S.health.auto = ha.checked; save(); });
+    body.querySelectorAll('[data-keep]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.keep; S.health.keep = S.health.keep.includes(x) ? S.health.keep.filter((y) => y !== x) : S.health.keep.concat(x); save(); render(); }));
     ['facts', 'countdown'].forEach((k) => { const el = $('w-' + k); if (el) el.addEventListener('change', () => { S.wid[k] = el.checked; save(); renderFacts(false); renderChips(); }); });
     ['style', 'topics'].forEach((k) => { const el = $('w-' + k); if (el) el.addEventListener('change', () => { S.wid[k] = el.value; save(); renderFacts(false); }); });
     ['cricket', 'football', 'anime', 'trails', 'next', 'facts'].forEach((k) => { const el = $('h-' + k); if (el) el.addEventListener('change', () => { S.hub[k] = el.checked; save(); openHub(true); }); });
