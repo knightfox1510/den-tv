@@ -1,0 +1,17 @@
+{
+  "id": "king-of-hell",
+  "name": "King of Hell",
+  "category": "One Piece",
+  "for": "owner",
+  "scene": "asura",
+  "hero": "none",
+  "watcher": "walkzoro",
+  "focus": "aura",
+  "wake": "slash",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "embers",
+  "moment": "drop",
+  "accent": "#ff3a3a",
+  "figure": "zoro"
+}

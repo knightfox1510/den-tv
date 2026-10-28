@@ -1,0 +1,17 @@
+{
+  "id": "avenger",
+  "name": "Avenger",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "leaf",
+  "hero": "sasuke",
+  "watcher": "rinnegan",
+  "focus": "aura",
+  "wake": "sharingan",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#a78bff",
+  "wake_eye": "rinnegan"
+}

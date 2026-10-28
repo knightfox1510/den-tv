@@ -1,0 +1,16 @@
+{
+  "id": "one-punch",
+  "name": "One Punch",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "crater",
+  "hero": "saitama",
+  "watcher": "fist",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "none",
+  "moment": "punch",
+  "accent": "#ffd23c"
+}

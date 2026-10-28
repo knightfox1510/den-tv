@@ -1,0 +1,16 @@
+{
+  "id": "wanted",
+  "name": "Wanted",
+  "category": "One Piece",
+  "for": "owner",
+  "scene": "wanted",
+  "hero": "none",
+  "watcher": "walkluffy",
+  "focus": "pass",
+  "wake": "ink",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#e8c16a"
+}

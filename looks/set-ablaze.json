@@ -1,0 +1,16 @@
+{
+  "id": "set-ablaze",
+  "name": "Set Your Heart Ablaze",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "firefist",
+  "hero": "rengoku",
+  "watcher": "nichirin",
+  "focus": "aura",
+  "wake": "fire",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "embers",
+  "moment": "drop",
+  "accent": "#ff8a1a"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "prince",
+  "name": "Prince of Saiyans",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "vegeta",
+  "hero": "vegeta",
+  "watcher": "scouter",
+  "focus": "aura",
+  "wake": "powerup",
+  "clock": "hud",
+  "icons": "white",
+  "extras": "sparks",
+  "moment": "beam",
+  "accent": "#b48aff"
+}

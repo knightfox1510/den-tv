@@ -1,0 +1,16 @@
+{
+  "id": "arise",
+  "name": "Arise",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "gate",
+  "hero": "jinwoo",
+  "watcher": "shadows",
+  "focus": "aura",
+  "wake": "bloom",
+  "clock": "hud",
+  "icons": "white",
+  "extras": "sparks",
+  "moment": "arise",
+  "accent": "#8a7aff"
+}

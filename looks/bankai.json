@@ -1,0 +1,16 @@
+{
+  "id": "bankai",
+  "name": "Bankai",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "soul",
+  "hero": "ichigo",
+  "watcher": "getsuga",
+  "focus": "aura",
+  "wake": "slash",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#ff6a3a"
+}

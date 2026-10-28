@@ -1,0 +1,17 @@
+{
+  "id": "gear5",
+  "name": "Gear 5",
+  "category": "One Piece",
+  "for": "owner",
+  "scene": "clouds",
+  "hero": "none",
+  "watcher": "walkg5",
+  "focus": "spot",
+  "wake": "boing",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "gear5",
+  "accent": "#c9b6ff",
+  "figure": "g5"
+}

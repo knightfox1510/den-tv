@@ -25,36 +25,56 @@
 24-hitman.jpg	Hitman
 25-geek.jpg	Geek HUD
 26-coder.jpg	Coder
-27-crimson-moon.jpg	Crimson Moon
-28-domain.jpg	Domain Expansion
-29-water-breathing.jpg	Water Breathing
-30-manga.jpg	Manga Panel
-31-anime-dusk.jpg	Anime Dusk
-32-trail-dawn.jpg	Trail Dawn
-33-monsoon.jpg	Sahyadri Monsoon
-34-neon.jpg	Neon Tokyo
-35-diwali.jpg	Diwali Night
-36-seoul.jpg	Seoul Nights
-37-marquee.jpg	Bollywood Marquee
-38-noir.jpg	Noir
-39-velvet.jpg	Velvet Night
-40-high-roller.jpg	High Roller
-41-midnight-lounge.jpg	Midnight Lounge
-42-hero-messi.jpg	Hero Wall · Messi
-43-hero-kohli.jpg	Hero Wall · Kohli
-44-hero-rohit.jpg	Hero Wall · Rohit
-45-hero-luffy.jpg	Hero Wall · Luffy
-46-hero-gojo.jpg	Hero Wall · Gojo
-47-hero-goku.jpg	Hero Wall · Goku
-48-hero-naruto.jpg	Hero Wall · Naruto
-49-hero-zoro.jpg	Hero Wall · Zoro
-50-hero-nami.jpg	Hero Wall · Nami
-51-hero-shinobu.jpg	Hero Wall · Shinobu
-52-hero-kakashi.jpg	Hero Wall · Kakashi
-53-hero-itachi.jpg	Hero Wall · Itachi
-54-hero-ace.jpg	Hero Wall · Ace
-55-hero-law.jpg	Hero Wall · Law
-56-hero-sanji.jpg	Hero Wall · Sanji
-57-hero-robin.jpg	Hero Wall · Robin
-58-hero-chopper.jpg	Hero Wall · Chopper
-59-hero-tanjiro.jpg	Hero Wall · Tanjiro
+27-gear5.jpg	Gear 5
+28-wanted.jpg	Wanted
+29-king-of-hell.jpg	King of Hell
+30-lost-again.jpg	Lost Again
+31-prince.jpg	Prince of Saiyans
+32-avenger.jpg	Avenger
+33-strongest.jpg	Humanity's Strongest
+34-bankai.jpg	Bankai
+35-arise.jpg	Arise
+36-one-punch.jpg	One Punch
+37-set-ablaze.jpg	Set Your Heart Ablaze
+38-king-of-curses.jpg	King of Curses
+39-crimson-moon.jpg	Crimson Moon
+40-domain.jpg	Domain Expansion
+41-water-breathing.jpg	Water Breathing
+42-manga.jpg	Manga Panel
+43-anime-dusk.jpg	Anime Dusk
+44-trail-dawn.jpg	Trail Dawn
+45-monsoon.jpg	Sahyadri Monsoon
+46-neon.jpg	Neon Tokyo
+47-diwali.jpg	Diwali Night
+48-seoul.jpg	Seoul Nights
+49-marquee.jpg	Bollywood Marquee
+50-noir.jpg	Noir
+51-velvet.jpg	Velvet Night
+52-high-roller.jpg	High Roller
+53-midnight-lounge.jpg	Midnight Lounge
+54-hero-messi.jpg	Hero Wall · Messi
+55-hero-kohli.jpg	Hero Wall · Kohli
+56-hero-rohit.jpg	Hero Wall · Rohit
+57-hero-luffy.jpg	Hero Wall · Luffy
+58-hero-gojo.jpg	Hero Wall · Gojo
+59-hero-goku.jpg	Hero Wall · Goku
+60-hero-naruto.jpg	Hero Wall · Naruto
+61-hero-zoro.jpg	Hero Wall · Zoro
+62-hero-nami.jpg	Hero Wall · Nami
+63-hero-shinobu.jpg	Hero Wall · Shinobu
+64-hero-kakashi.jpg	Hero Wall · Kakashi
+65-hero-itachi.jpg	Hero Wall · Itachi
+66-hero-ace.jpg	Hero Wall · Ace
+67-hero-law.jpg	Hero Wall · Law
+68-hero-sanji.jpg	Hero Wall · Sanji
+69-hero-robin.jpg	Hero Wall · Robin
+70-hero-chopper.jpg	Hero Wall · Chopper
+71-hero-vegeta.jpg	Hero Wall · Vegeta
+72-hero-sasuke.jpg	Hero Wall · Sasuke
+73-hero-levi.jpg	Hero Wall · Levi
+74-hero-ichigo.jpg	Hero Wall · Ichigo
+75-hero-jinwoo.jpg	Hero Wall · Jinwoo
+76-hero-saitama.jpg	Hero Wall · Saitama
+77-hero-rengoku.jpg	Hero Wall · Rengoku
+78-hero-sukuna.jpg	Hero Wall · Sukuna
+79-hero-tanjiro.jpg	Hero Wall · Tanjiro

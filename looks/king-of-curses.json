@@ -1,0 +1,16 @@
+{
+  "id": "king-of-curses",
+  "name": "King of Curses",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "shrine",
+  "hero": "sukuna",
+  "watcher": "cleave",
+  "focus": "aura",
+  "wake": "bloom",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "embers",
+  "moment": "drop",
+  "accent": "#ff2a2a"
+}

@@ -8,15 +8,16 @@ can borrow any part, and a new look is usually a new mix rather than new code.
 | `id`, `name` | File name and the name shown on the phone | text |
 | `category` | Where it shows in the gallery | Football, Cricket, Heroes, Anime, Outdoors, One Piece, Night & neon, Seasonal, Together, After dark, Geek & code |
 | `for` | Whose gallery it appears in | `owner`, `partner`, `everyone` (guest mode shows only `everyone`) |
-| `scene` | The painted backdrop | `campnou`, `wankhede`, `bluebillion`, `saiyan`, `ui`, `kurama`, `hokage`, `zoro`, `tangerine`, `wisteria`, `lounge`, `leaf`, `firefist`, `room`, `baratie`, `drum`, `hitman`, `noir`, `velvet`, `casino`, `goat`, `albiceleste`, `king`, `grid`, `code`, `crimson`, `domain`, `grandline`, `wave`, `manga`, `dusk`, `dawn`, `monsoon`, `neon`, `seoul`, `diwali`, `marquee`, `floodlights`, `black` |
-| `hero` | Poster over the scene | `none`, `rotate`, `messi`, `kohli`, `rohit`, `goku`, `naruto`, `luffy`, `zoro`, `nami`, `shinobu`, `kakashi`, `itachi`, `ace`, `law`, `sanji`, `robin`, `chopper`, `gojo`, `tanjiro` |
-| `watcher` | What follows the selected app | `none`, `sharingan`, `mangekyo`, `six`, `saiyan`, `ui`, `kurama`, `sage`, `luffy` (straw hat), `zoro` (three swords), `dragonballs`, `pole` (Power Pole), `cloud` (thundercloud), `butterflies`, `chidori`, `crows`, `room`, `hearts`, `hands`, `chopperhat`, `bat`, `fedora`, `dice`, `ballondor`, `dribble`, `crown`, `reticle`, `caret` |
+| `scene` | The painted backdrop | `campnou`, `wankhede`, `bluebillion`, `saiyan`, `ui`, `kurama`, `hokage`, `zoro`, `tangerine`, `wisteria`, `lounge`, `leaf`, `firefist`, `room`, `baratie`, `drum`, `hitman`, `noir`, `velvet`, `casino`, `goat`, `albiceleste`, `king`, `grid`, `code`, `clouds`, `wanted`, `asura`, `lost`, `walls`, `soul`, `gate`, `crater`, `shrine`, `vegeta`, `crimson`, `domain`, `grandline`, `wave`, `manga`, `dusk`, `dawn`, `monsoon`, `neon`, `seoul`, `diwali`, `marquee`, `floodlights`, `black` |
+| `hero` | Poster over the scene | `none`, `rotate`, `messi`, `kohli`, `rohit`, `goku`, `naruto`, `luffy`, `zoro`, `nami`, `shinobu`, `kakashi`, `itachi`, `vegeta`, `sasuke`, `levi`, `ichigo`, `jinwoo`, `saitama`, `rengoku`, `sukuna`, `ace`, `law`, `sanji`, `robin`, `chopper`, `gojo`, `tanjiro` |
+| `watcher` | What follows the selected app | `none`, `sharingan`, `mangekyo`, `six`, `saiyan`, `ui`, `kurama`, `sage`, `luffy` (straw hat), `zoro` (three swords), `dragonballs`, `pole` (Power Pole), `cloud` (thundercloud), `butterflies`, `chidori`, `crows`, `room`, `hearts`, `hands`, `chopperhat`, `bat`, `fedora`, `dice`, `ballondor`, `dribble`, `crown`, `reticle`, `caret`, `rinnegan`, `walkluffy`, `walkg5`, `walkzoro`, `compass`, `scouter`, `odm`, `getsuga`, `shadows`, `fist`, `nichirin`, `cleave` |
 | `focus` | Effect when you move between apps | `spot`, `pass`, `arc`, `ripple`, `aura` |
-| `wake` | Plays once when the TV switches on | `hudboot`, `termboot`, `room`, `fire`, `powerup`, `slash`, `storm`, `flutter`, `sharingan`, `tunnel`, `panels`, `ink`, `bloom`, `crt` |
+| `wake` | Plays once when the TV switches on | `boing`, `hudboot`, `termboot`, `room`, `fire`, `powerup`, `slash`, `storm`, `flutter`, `sharingan`, `tunnel`, `panels`, `ink`, `bloom`, `crt` |
 | `clock` | Clock style | `term`, `hud`, `analog`, `words`, `neon`, `flap` (split-flap), `ring` (seconds ring), `thin`, `roll`, `board`, `over`, `brush`, `crt` |
 | `icons` | App icons | `white` (logo only), `tiles` |
 | `extras` | Small moving things on top | `auto` or `none`, `flashes`, `flags`, `fireworks`, `crows`, `petals`, `embers`, `confetti`, `sparks`, `gold`, `silver`, `leaves`, `wisteria`, `rain`, `snow` |
-| `moment` | The big event the look reacts to | `goal`, `six`, `beam`, `drop` (new episode), `none` |
+| `moment` | The big event the look reacts to | `goal`, `six`, `beam`, `arise`, `punch`, `gear5`, `drop` (new episode), `none` |
+| `figure` | Optional full cartoon character on the right, eyes following the app | `luffy`, `g5`, `zoro` |
 | `hud` | Optional: `true` shows the detailed system, network and feed panels | `true` / `false` |
 | `accent` | Highlight colour | `#RRGGBB` |
 | `goal_text` | Optional line shown with the goal moment | text |

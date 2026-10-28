@@ -19,7 +19,7 @@ and replaces its ad-filled home screen. den-tv adds the looks on top.
 | Part | Status |
 |---|---|
 | [`themes/den-mix/`](themes/den-mix/) | **Works now.** Every scene as a wallpaper for the cleanyourtv launcher, a new one every 5 minutes |
-| [`looks/`](looks/) | **Done.** 45 looks as small JSON files, the format the launcher will read |
+| [`looks/`](looks/) | **Done.** 57 looks as small JSON files, the format the launcher will read |
 | [`mockups/den-looks.html`](mockups/den-looks.html) | **Works now.** Open it in a browser: the full experience, with the phone settings page driving a TV preview |
 | den-tv launcher (look engine, watchers, wake animations, moments) | Planned, see [docs/roadmap.md](docs/roadmap.md) |
 | Phone settings page served by the TV | Planned |
@@ -36,8 +36,8 @@ OnePlus, Nvidia Shield and most others), not on Samsung, LG or Fire TV.
 |---|---|
 | Football | Camp Nou Nights, GOAT, Albiceleste, El Clásico Eve, Floodlights |
 | Cricket | Wankhede Roar, Hitman, King Kohli, Chase Master, Blue Billion |
-| Heroes | Hero Wall, Super Saiyan, Ultra Instinct, Nine-Tails, Sage Mode, Copy Ninja, Crow Genjutsu, Straw Hat, Three-Sword Style, Navigator, Butterfly Mansion |
-| One Piece | Fire Fist, ROOM, Black Leg, Hana Hana, Drum Island |
+| Heroes | Hero Wall, Super Saiyan, Ultra Instinct, Prince of Saiyans, Nine-Tails, Sage Mode, Copy Ninja, Crow Genjutsu, Avenger, Humanity's Strongest, Bankai, Arise, One Punch, Set Your Heart Ablaze, King of Curses, Straw Hat, Three-Sword Style, Navigator, Butterfly Mansion |
+| One Piece | Gear 5, Wanted, King of Hell, Lost Again, Fire Fist, ROOM, Black Leg, Hana Hana, Drum Island |
 | Anime | Crimson Moon, Domain Expansion, Grand Line, Water Breathing, Manga Panel, Anime Dusk |
 | Outdoors | Trail Dawn, Sahyadri Monsoon |
 | Night & neon | Neon Tokyo |
