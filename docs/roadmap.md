@@ -43,10 +43,14 @@ weekend trail weather (Open-Meteo), and a "next 72 hours" list. It sets off mome
 It opens from its dock tile in the current look's colours, and the phone page chooses which cards
 show and which teams, leagues and shows they follow.
 
-## 5. Optional AI
+## 5. Better art
+Detailed code-drawn characters now, then Rive characters whose eyes and heads follow the focused app,
+and imported wallpapers and posters per TV. See [art.md](art.md).
+
+## 6. Optional AI
 Connect a Gemini, Claude or other key for describe-a-look, rules in plain words, match previews,
 spoiler-safe recaps and a weekend planner. AI never runs while you move around Home. See
 [ai.md](ai.md).
 
-## 6. Extras
+## 7. Extras
 Room lights that react to goals, festival looks by date, more scenes, heroes and watchers.
