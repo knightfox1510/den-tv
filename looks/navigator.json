@@ -1,0 +1,16 @@
+{
+  "id": "navigator",
+  "name": "Navigator",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "tangerine",
+  "hero": "nami",
+  "watcher": "cloud",
+  "focus": "ripple",
+  "wake": "storm",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#ff8c2a"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "butterfly-mansion",
+  "name": "Butterfly Mansion",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "wisteria",
+  "hero": "shinobu",
+  "watcher": "butterflies",
+  "focus": "spot",
+  "wake": "flutter",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "wisteria",
+  "moment": "drop",
+  "accent": "#c9a2ff"
+}

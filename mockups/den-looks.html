@@ -75,6 +75,19 @@ canvas.layer { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 .hatwrap { position: absolute; left: 700px; top: 70px; width: 520px; height: 360px; animation: bob 3s ease-in-out infinite; }
 @keyframes bob { 50% { transform: translateY(-8px); } }
 .hatg, .hateyes { transition: transform .55s cubic-bezier(.3,1.4,.5,1); transform-box: view-box; transform-origin: 50% 50%; }
+.dball { position: absolute; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff6c8 0 10%, #ffb21f 32%, #e66a00 75%, #8a3a00); box-shadow: 0 0 24px rgba(255,170,40,.75); transition: left .7s cubic-bezier(.3,1.3,.5,1), top .7s cubic-bezier(.3,1.3,.5,1); display: grid; place-items: center; }
+.dball svg { width: 40px; height: 40px; }
+.dball.lead { width: 80px; height: 80px; margin: -40px 0 0 -40px; box-shadow: 0 0 50px rgba(255,190,60,.95); }
+.dball i { position: absolute; inset: 0; animation: bob 2.4s ease-in-out infinite; }
+.pole { transition: transform .6s cubic-bezier(.3,1.3,.5,1); }
+.pole rect.rod { transition: width .6s cubic-bezier(.3,1.3,.5,1); }
+.cloudw { position: absolute; top: 560px; width: 300px; height: 230px; margin-left: -150px; transition: left .7s cubic-bezier(.3,1.2,.5,1); }
+.cloudw .rain { position: absolute; left: 50px; top: 110px; width: 200px; height: 110px; background: repeating-linear-gradient(100deg, rgba(160,200,255,.6) 0 2px, transparent 2px 14px); background-size: 120px 120px; animation: rainf .4s linear infinite; -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
+.cloudw .bolt { opacity: 0; animation: boltf 4.2s infinite; }
+@keyframes boltf { 0%, 86%, 92%, 100% { opacity: 0; } 88%, 90% { opacity: 1; } }
+.bfly { position: absolute; width: 70px; height: 56px; margin: -28px 0 0 -35px; transition: left 1s cubic-bezier(.4,.1,.3,1), top 1s cubic-bezier(.4,.1,.3,1); }
+.bfly .w { transform-origin: 50% 50%; transform-box: fill-box; animation: flapw .28s ease-in-out infinite alternate; }
+@keyframes flapw { from { transform: scaleX(1); } to { transform: scaleX(.25); } }
 .swords { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: visible; }
 .sword { transition: transform .6s cubic-bezier(.3,1.35,.5,1); }
 .glint { animation: glint 2.8s linear infinite; }
@@ -263,7 +276,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       <ul>
         <li><b>Scene:</b> a full painted backdrop drawn in code, such as the stadium, the moon or the wave.</li>
         <li><b>Hero:</b> a player or character poster on top of the scene. It can be off, one fixed hero, or a new one every 5 minutes.</li>
-        <li><b>Watcher:</b> something that follows the selected app. Eyes (Sharingan, Mangekyō, Six Eyes, Super Saiyan, Ultra Instinct, Nine-Tails, Sage Mode) blink as they look. Luffy's straw hat turns and tilts, and Zoro's three swords swing to point at it.</li>
+        <li><b>Watcher:</b> something that follows the selected app. Eyes (Sharingan, Mangekyō, Six Eyes, Super Saiyan, Ultra Instinct, Nine-Tails, Sage Mode) blink as they look. The seven Dragon Balls gather over it, the Power Pole extends to it, Nami's thundercloud drifts over it, Shinobu's butterflies fly to it, Luffy's hat turns to it and Zoro's swords point at it.</li>
         <li><b>Wake, focus effect and clock</b>, each chosen separately.</li>
         <li><b>Moment:</b> the big event the look reacts to, such as a goal, a six or a new episode. Real scores and episode releases set it off.</li>
       </ul>
@@ -582,6 +595,35 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     g.fillStyle = 'rgba(160,220,180,.08)'; g.fillRect(0, 760, W, 120);
     const r = rng(31); g.strokeStyle = '#020a05'; g.lineWidth = 4; for (let i = 0; i < 900; i++) { const x = r() * W, h = 40 + r() * 140; g.beginPath(); g.moveTo(x, H); g.quadraticCurveTo(x + (r() - .5) * 30, H - h * .6, x + (r() - .5) * 50, H - h); g.stroke(); }
   }
+  function tangerine(g) {
+    g.fillStyle = lin(g, 0, 760, [[0, '#2a1a4a'], [.4, '#a3467a'], [.75, '#ff8a4a'], [1, '#ffcf7a']]); g.fillRect(0, 0, W, H);
+    glow(g, 1180, 700, 520, 'rgba(255,200,120,.5)'); g.fillStyle = '#fff0c8'; g.beginPath(); g.arc(1180, 720, 70, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(255,240,230,.35)'; g.lineWidth = 14; g.lineCap = 'round'; for (let k = 0; k < 2; k++) { g.beginPath(); for (let t = 0; t < 14; t += .05) { const rad = 10 + t * 16, x = 1500 + k * 230 + Math.cos(t) * rad, y = 280 - k * 60 + Math.sin(t) * rad * .6; t ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
+    g.fillStyle = lin(g, 740, H, [[0, '#d96a4a'], [.2, '#5a3a6a'], [1, '#1a1030']]); g.fillRect(0, 740, W, 340);
+    const r = rng(8); g.globalCompositeOperation = 'lighter'; for (let i = 0; i < 140; i++) { const y = 750 + Math.pow(r(), 1.5) * 320, w = 20 + (y - 740) * .4 * r(); g.fillStyle = 'rgba(255,210,150,' + (.12 + r() * .3) + ')'; g.fillRect(1180 + (r() - .5) * (60 + (y - 740) * .8) - w / 2, y, w, 3); } g.globalCompositeOperation = 'source-over';
+    [[180, 760, 1], [430, 800, .8]].forEach(([x, y, s]) => { g.fillStyle = '#1a0f12'; g.fillRect(x - 12 * s, y - 220 * s, 24 * s, 230 * s);
+      for (let i = 0; i < 26; i++) { g.fillStyle = i % 4 ? '#24301a' : '#2e3d20'; g.beginPath(); g.ellipse(x + (r() - .5) * 300 * s, y - 220 * s + (r() - .5) * 160 * s, 70 * s, 46 * s, r() * 3, 0, 7); g.fill(); }
+      for (let i = 0; i < 18; i++) { const fx = x + (r() - .5) * 260 * s, fy = y - 220 * s + (r() - .5) * 140 * s; glow(g, fx, fy, 30 * s, 'rgba(255,150,40,.4)'); g.fillStyle = '#ff8c1a'; g.beginPath(); g.arc(fx, fy, 14 * s, 0, 7); g.fill(); } });
+  }
+  function wisteria(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#0a0620'], [.6, '#1c1040'], [1, '#08051a']]); g.fillRect(0, 0, W, H); stars(g, 160, 600, 27, .6);
+    glow(g, 1450, 300, 320, 'rgba(220,200,255,.25)'); g.fillStyle = '#f2ecff'; g.beginPath(); g.arc(1450, 300, 100, 0, 7); g.fill();
+    const r = rng(41); g.strokeStyle = '#1a0f12'; g.lineWidth = 10; g.beginPath(); g.moveTo(0, 40); g.bezierCurveTo(500, 120, 1300, 0, W, 70); g.stroke();
+    for (let c = 0; c < 34; c++) { const x = 20 + c * 58 + (r() - .5) * 30, top = 60 + Math.sin(c * .6) * 30, L = 160 + r() * 260;
+      for (let k = 0; k < 26; k++) { const t = k / 26, y = top + t * L, w = 22 * (1 - t * .7); g.fillStyle = 'hsla(' + (262 + r() * 30) + ',70%,' + (62 + t * 18 - r() * 10) + '%,' + (.85 - t * .4) + ')'; g.beginPath(); g.ellipse(x + (r() - .5) * w, y, 9 * (1 - t * .5), 7, 0, 0, 7); g.fill(); } }
+    g.fillStyle = lin(g, 820, H, [[0, 'rgba(180,150,255,0)'], [1, 'rgba(180,150,255,.18)']]); g.fillRect(0, 820, W, 260);
+    g.fillStyle = '#060312'; g.beginPath(); g.moveTo(0, H); g.lineTo(0, 960); g.quadraticCurveTo(960, 900, W, 970); g.lineTo(W, H); g.fill();
+  }
+  function lounge(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#0a0308'], [.7, '#1e0612'], [1, '#08020a']]); g.fillRect(0, 0, W, H);
+    const r = rng(52); g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 60; i++) { const c = ['rgba(255,80,120,', 'rgba(255,170,90,', 'rgba(120,120,255,'][i % 3]; glow(g, r() * W, 120 + r() * 600, 20 + r() * 60, c + (.12 + r() * .18) + ')'); }
+    g.font = '400 160px "Kaushan Script", cursive'; g.textAlign = 'center'; g.shadowColor = '#ff4d6d'; g.shadowBlur = 50; g.fillStyle = '#ff9db0'; g.fillText('After Dark', 1380, 420); g.shadowBlur = 0;
+    g.globalCompositeOperation = 'source-over';
+    g.fillStyle = '#05010a'; g.fillRect(0, 860, W, 220); g.fillStyle = '#2a0a16'; g.fillRect(0, 852, W, 10);
+    [[1100, 860], [1700, 860]].forEach(([x, y]) => { g.strokeStyle = 'rgba(255,200,220,.55)'; g.lineWidth = 3; g.beginPath(); g.moveTo(x - 50, y - 120); g.lineTo(x + 50, y - 120); g.lineTo(x, y - 60); g.closePath(); g.moveTo(x, y - 60); g.lineTo(x, y - 6); g.moveTo(x - 30, y - 4); g.lineTo(x + 30, y - 4); g.stroke(); });
+    g.lineCap = 'round'; for (let i = 0; i < 6; i++) for (let w = 70; w > 10; w -= 20) { g.strokeStyle = 'rgba(255,220,235,' + (.012 + (70 - w) * .0006) + ')'; g.lineWidth = w; g.beginPath(); const x = 300 + i * 260; g.moveTo(x, 860); g.bezierCurveTo(x - 80, 700, x + 90, 560, x - 20, 380); g.bezierCurveTo(x - 90, 260, x + 60, 160, x + 10, 60); g.stroke(); }
+  }
   function heroBlack(g, o) { g.fillStyle = '#050507'; g.fillRect(0, 0, W, H); const h = HEROES[o.hero] || HEROES.messi; glow(g, 1450, 520, 820, h.c1); glow(g, 1750, 1000, 600, h.c2); }
 
   const SCENES = {
@@ -590,7 +632,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     manga: { n: 'Manga pages', p: manga }, dusk: { n: 'Anime dusk', p: dusk }, dawn: { n: 'Trail dawn', p: dawn }, monsoon: { n: 'Monsoon ridges', p: (g) => dawn(g, { grey: 1 }) },
     neon: { n: 'Neon city', p: neon }, seoul: { n: 'Seoul neon', p: (g) => neon(g, { pink: 1 }) }, diwali: { n: 'Diwali night', p: diwali }, marquee: { n: 'Velvet marquee', p: (g) => diwali(g, { red: 1 }) },
     floodlights: { n: 'Floodlit ground', p: nightField }, black: { n: 'Black with hero glow', p: heroBlack },
-    saiyan: { n: 'Saiyan wasteland', p: saiyan }, ui: { n: 'Silver void', p: (g) => saiyan(g, { ui: 1 }) }, kurama: { n: 'Nine-tails chakra', p: kuramaScene }, hokage: { n: 'Village at sunset', p: hokage }, zoro: { n: 'Moonlit blades', p: zoroScene },
+    saiyan: { n: 'Saiyan wasteland', p: saiyan }, ui: { n: 'Silver void', p: (g) => saiyan(g, { ui: 1 }) }, kurama: { n: 'Nine-tails chakra', p: kuramaScene }, hokage: { n: 'Village at sunset', p: hokage }, zoro: { n: 'Moonlit blades', p: zoroScene }, tangerine: { n: 'Tangerine sunset', p: tangerine }, wisteria: { n: 'Wisteria night', p: wisteria }, lounge: { n: 'Midnight lounge', p: lounge },
   };
 
   /* ===================== HEROES ===================== */
@@ -603,9 +645,11 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     goku: { n: 'SON GOKU', big: 'GOKU', sub: 'SUPER SAIYAN · DRAGON BALL', emb: 'kanji', ac: '#ffd23c', c1: 'rgba(255,190,40,.45)', c2: 'rgba(255,120,20,.35)' },
     naruto: { n: 'NARUTO UZUMAKI', big: 'NARUTO', sub: 'NINE-TAILS · NARUTO', emb: 'spiral', ac: '#ff8a1a', c1: 'rgba(255,110,10,.45)', c2: 'rgba(40,60,160,.35)' },
     zoro: { n: 'RORONOA ZORO', big: 'ZORO', sub: 'THREE-SWORD STYLE · ONE PIECE', emb: 'swords', ac: '#3ddc84', c1: 'rgba(40,200,110,.4)', c2: 'rgba(20,80,50,.4)' },
+    nami: { n: 'NAMI', big: 'NAMI', sub: 'NAVIGATOR · ONE PIECE', emb: 'tangerine', ac: '#ff8c2a', c1: 'rgba(255,140,40,.4)', c2: 'rgba(80,140,255,.3)' },
+    shinobu: { n: 'SHINOBU KOCHO', big: 'SHINOBU', sub: 'INSECT HASHIRA · DEMON SLAYER', emb: 'butterfly', ac: '#c9a2ff', c1: 'rgba(170,120,255,.4)', c2: 'rgba(60,200,170,.3)' },
     tanjiro: { n: 'TANJIRO KAMADO', big: 'TANJIRO', sub: 'WATER BREATHING · DEMON SLAYER', emb: 'check', ac: '#8fd0ff', c1: 'rgba(30,120,90,.45)', c2: 'rgba(40,110,220,.35)' },
   };
-  const HERO_ORDER = ['messi', 'kohli', 'goku', 'rohit', 'luffy', 'naruto', 'gojo', 'zoro', 'tanjiro'];
+  const HERO_ORDER = ['messi', 'kohli', 'goku', 'rohit', 'luffy', 'nami', 'naruto', 'gojo', 'zoro', 'shinobu', 'tanjiro'];
   function swordPath(g, hc) {
     g.save(); g.translate(-240, 0);
     g.fillStyle = hc; g.fillRect(0, -9, 120, 18); g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 3; for (let x = 6; x < 118; x += 14) { g.beginPath(); g.moveTo(x, -9); g.lineTo(x + 7, 9); g.moveTo(x + 7, -9); g.lineTo(x, 9); g.stroke(); }
@@ -622,6 +666,12 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     else if (h.emb === 'check') { const s = 44; g.save(); g.beginPath(); g.arc(1450, 430, 210, 0, 7); g.clip(); for (let y = 200; y < 660; y += s) for (let x = 1220; x < 1680; x += s) { g.fillStyle = (((x - 1220) / s + (y - 200) / s) & 1) ? '#1d6b52' : '#0b0b0b'; g.fillRect(x, y, s, s); } g.restore(); g.strokeStyle = '#8fd0ff'; g.lineWidth = 5; g.beginPath(); g.arc(1450, 430, 214, 0, 7); g.stroke(); g.strokeStyle = 'rgba(140,200,255,.8)'; g.lineWidth = 8; g.beginPath(); for (let t = 0; t <= 1; t += .01) { const x = 1120 + t * 660, y = 470 + Math.sin(t * 9) * 80; t ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
     else if (h.emb === 'kanji') { g.globalAlpha = soft ? .8 : .95; g.fillStyle = '#ff8c1a'; g.beginPath(); g.arc(1450, 430, 200, 0, 7); g.fill(); g.lineWidth = 14; g.strokeStyle = '#fff'; g.stroke(); g.fillStyle = '#141414'; g.font = '900 250px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('悟', 1450, 440); }
     else if (h.emb === 'spiral') { g.globalAlpha = soft ? .8 : .95; g.strokeStyle = '#ff7a00'; g.lineWidth = 22; g.lineCap = 'round'; g.beginPath(); for (let t = 0; t < 19; t += .05) { const rad = 6 + t * 10.5, x = 1450 + Math.cos(t) * rad, y = 430 + Math.sin(t) * rad; t ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
+    else if (h.emb === 'tangerine') { g.globalAlpha = .95; glow(g, 1450, 450, 260, 'rgba(255,150,40,.35)'); g.fillStyle = '#ff8c1a'; g.beginPath(); g.arc(1450, 460, 170, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.25)'; g.beginPath(); g.arc(1400, 410, 50, 0, 7); g.fill();
+      g.fillStyle = '#3f7a2a'; g.beginPath(); g.ellipse(1490, 290, 70, 28, -.5, 0, 7); g.fill(); g.beginPath(); g.ellipse(1400, 295, 55, 22, .6, 0, 7); g.fill(); g.fillStyle = '#5a3a1a'; g.fillRect(1444, 270, 12, 30); }
+    else if (h.emb === 'butterfly') { g.globalAlpha = .95; const wg = g.createLinearGradient(1180, 0, 1720, 0); wg.addColorStop(0, '#2fd0b0'); wg.addColorStop(.45, '#b388ff'); wg.addColorStop(.55, '#b388ff'); wg.addColorStop(1, '#2fd0b0');
+      g.fillStyle = wg; [[-1], [1]].forEach(([d]) => { g.beginPath(); g.moveTo(1450, 440); g.bezierCurveTo(1450 + d * 120, 200, 1450 + d * 320, 210, 1450 + d * 270, 400); g.bezierCurveTo(1450 + d * 250, 470, 1450 + d * 120, 470, 1450, 450); g.fill();
+        g.beginPath(); g.moveTo(1450, 455); g.bezierCurveTo(1450 + d * 220, 480, 1450 + d * 240, 640, 1450 + d * 120, 640); g.bezierCurveTo(1450 + d * 60, 630, 1450 + d * 20, 560, 1450, 460); g.fill(); });
+      g.strokeStyle = 'rgba(20,10,40,.6)'; g.lineWidth = 4; g.stroke(); g.fillStyle = '#1a0f2a'; g.fillRect(1444, 380, 12, 200); }
     else if (h.emb === 'swords') { g.globalAlpha = .95; [[-.6, '#f4f4f4'], [0, '#7a1a1a'], [.6, '#151515']].forEach(([a, hc]) => { g.save(); g.translate(1450, 430); g.rotate(a - Math.PI / 2); swordPath(g, hc); g.restore(); }); }
     g.restore(); g.save(); g.textAlign = 'right'; g.shadowColor = 'rgba(0,0,0,.8)'; g.shadowBlur = 24;
     g.font = '800 96px Outfit, sans-serif'; g.fillStyle = '#fff'; g.letterSpacing = '14px'; g.fillText(h.big, 1830, 735);
@@ -630,13 +680,13 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
 
   /* ===================== LOOKS ===================== */
   const FOCUS = { spot: 'Spotlight beam', pass: 'Football pass', arc: 'Ball-tracking arc', ripple: 'Water ripple', aura: 'Energy aura' };
-  const WAKE = { powerup: 'Power-up aura', slash: 'Three-sword slash', sharingan: 'Sharingan spin', tunnel: 'Stadium tunnel walk-out', panels: 'Manga panels', ink: 'Ink brush wipe', bloom: 'Light bloom', crt: 'Old TV switch-on' };
+  const WAKE = { powerup: 'Power-up aura', slash: 'Three-sword slash', storm: 'Thunderstorm', flutter: 'Butterfly swarm', sharingan: 'Sharingan spin', tunnel: 'Stadium tunnel walk-out', panels: 'Manga panels', ink: 'Ink brush wipe', bloom: 'Light bloom', crt: 'Old TV switch-on' };
   const CLOCK = { thin: 'Thin', roll: 'Rolling seconds', board: 'Stadium scoreboard', over: 'Cricket over', brush: 'Brush stroke', crt: 'Retro pixel' };
-  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)' };
+  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)', dragonballs: 'Dragon Balls (gather over it)', pole: 'Power Pole (extends to it)', cloud: 'Thundercloud (drifts over it)', butterflies: 'Butterflies (fly to it)' };
   const EYE_TYPES = ['sharingan', 'mangekyo', 'six', 'saiyan', 'ui', 'kurama', 'sage'];
-  const AMB = { auto: 'Matches the scene', none: 'None', flashes: 'Camera flashes', flags: 'Flags and flashes', fireworks: 'Fireworks', crows: 'Crows', petals: 'Petals', embers: 'Embers', sparks: 'Blue sparks', gold: 'Golden sparks', silver: 'Silver sparks', leaves: 'Falling leaves', rain: 'Rain', snow: 'Snow' };
+  const AMB = { auto: 'Matches the scene', none: 'None', flashes: 'Camera flashes', flags: 'Flags and flashes', fireworks: 'Fireworks', crows: 'Crows', petals: 'Petals', embers: 'Embers', sparks: 'Blue sparks', gold: 'Golden sparks', silver: 'Silver sparks', leaves: 'Falling leaves', wisteria: 'Wisteria petals', rain: 'Rain', snow: 'Snow' };
   const MOMENT = { goal: 'Goal!', six: 'Six!', beam: 'Kamehameha', drop: 'New episode', none: 'None' };
-  const HEROOPT = { none: 'None', rotate: 'Rotate my heroes', messi: 'Lionel Messi', kohli: 'Virat Kohli', rohit: 'Rohit Sharma', goku: 'Goku', naruto: 'Naruto', luffy: 'Luffy', zoro: 'Zoro', gojo: 'Gojo', tanjiro: 'Tanjiro' };
+  const HEROOPT = { none: 'None', rotate: 'Rotate my heroes', messi: 'Lionel Messi', kohli: 'Virat Kohli', rohit: 'Rohit Sharma', goku: 'Goku', naruto: 'Naruto', luffy: 'Luffy', zoro: 'Zoro', nami: 'Nami', shinobu: 'Shinobu', gojo: 'Gojo', tanjiro: 'Tanjiro' };
   const ICONS = { white: 'White logos', tiles: 'Colour tiles' };
   const L = (id, name, cat, forr, scene, hero, mascot, focus, wake, clock, amb, moment, acc, board, extra) => Object.assign({ id, name, cat, for: forr, scene, hero, mascot, focus, wake, clock, icons: 'white', amb, moment, acc, board }, extra || {});
   const LOOKS = [
@@ -646,12 +696,14 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     L('wankhede', 'Wankhede Roar', 'Cricket', 'G', 'wankhede', 'rohit', 'none', 'arc', 'tunnel', 'over', 'fireworks', 'six', '#d1ab3e', ''),
     L('blue-billion', 'Blue Billion', 'Cricket', 'G', 'bluebillion', 'kohli', 'none', 'arc', 'bloom', 'board', 'flashes', 'six', '#ff9933', 'IND 287/4 · 47.2 OV'),
     L('hero-wall', 'Hero Wall', 'Heroes', 'G', 'black', 'rotate', 'sharingan', 'spot', 'sharingan', 'roll', 'none', 'drop', '#e5303a', ''),
-    L('super-saiyan', 'Super Saiyan', 'Heroes', 'G', 'saiyan', 'goku', 'saiyan', 'aura', 'powerup', 'roll', 'gold', 'beam', '#ffd23c', ''),
-    L('ultra-instinct', 'Ultra Instinct', 'Heroes', 'G', 'ui', 'goku', 'ui', 'aura', 'powerup', 'thin', 'silver', 'beam', '#cfe0ff', ''),
+    L('super-saiyan', 'Super Saiyan', 'Heroes', 'G', 'saiyan', 'goku', 'dragonballs', 'aura', 'powerup', 'roll', 'gold', 'beam', '#ffd23c', ''),
+    L('ultra-instinct', 'Ultra Instinct', 'Heroes', 'G', 'ui', 'goku', 'pole', 'aura', 'powerup', 'thin', 'silver', 'beam', '#cfe0ff', ''),
     L('nine-tails', 'Nine-Tails', 'Heroes', 'G', 'kurama', 'naruto', 'kurama', 'aura', 'powerup', 'brush', 'embers', 'drop', '#ff6a00', ''),
     L('sage-mode', 'Sage Mode', 'Heroes', 'G', 'hokage', 'naruto', 'sage', 'ripple', 'bloom', 'brush', 'leaves', 'drop', '#ffb020', ''),
     L('straw-hat', 'Straw Hat', 'Heroes', 'G', 'grandline', 'luffy', 'luffy', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', ''),
     L('three-sword', 'Three-Sword Style', 'Heroes', 'G', 'zoro', 'zoro', 'zoro', 'aura', 'slash', 'brush', 'leaves', 'drop', '#3ddc84', ''),
+    L('navigator', 'Navigator', 'Heroes', 'G', 'tangerine', 'nami', 'cloud', 'ripple', 'storm', 'brush', 'none', 'drop', '#ff8c2a', ''),
+    L('butterfly-mansion', 'Butterfly Mansion', 'Heroes', 'G', 'wisteria', 'shinobu', 'butterflies', 'spot', 'flutter', 'brush', 'wisteria', 'drop', '#c9a2ff', ''),
     L('crimson-moon', 'Crimson Moon', 'Anime', 'G', 'crimson', 'none', 'mangekyo', 'aura', 'sharingan', 'brush', 'crows', 'drop', '#ff2a2a', ''),
     L('domain', 'Domain Expansion', 'Anime', 'G', 'domain', 'gojo', 'six', 'aura', 'bloom', 'thin', 'sparks', 'drop', '#6fc3ff', ''),
     L('grand-line', 'Grand Line', 'Anime', 'G', 'grandline', 'luffy', 'none', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', ''),
@@ -664,10 +716,11 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     L('diwali', 'Diwali Night', 'Seasonal', 'B', 'diwali', 'none', 'none', 'spot', 'bloom', 'brush', 'fireworks', 'none', '#ffc24a', '', { when: 'Nov' }),
     L('seoul', 'Seoul Nights', 'Together', 'P', 'seoul', 'none', 'none', 'spot', 'bloom', 'thin', 'petals', 'none', '#ff7ac8', ''),
     L('marquee', 'Bollywood Marquee', 'Together', 'P', 'marquee', 'none', 'none', 'spot', 'panels', 'brush', 'embers', 'none', '#ffd36e', ''),
+    L('midnight-lounge', 'Midnight Lounge', 'After dark', 'G', 'lounge', 'none', 'none', 'spot', 'bloom', 'thin', 'none', 'none', '#ff4d6d', ''),
     L('our-wall', 'Our Wall', 'Together', 'B', 'dusk', 'none', 'none', 'spot', 'bloom', 'brush', 'petals', 'none', '#ffb3c1', ''),
   ];
-  const SCENE_AMB = { campnou: 'flags', floodlights: 'flashes', wankhede: 'fireworks', bluebillion: 'flashes', crimson: 'crows', domain: 'sparks', diwali: 'fireworks', saiyan: 'gold', ui: 'silver', kurama: 'embers', hokage: 'leaves', zoro: 'leaves', monsoon: 'rain', neon: 'rain', seoul: 'petals', marquee: 'embers' };
-  const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'Heroes', 'Anime', 'Outdoors', 'Night & neon', 'Seasonal', 'Together', 'My looks'];
+  const SCENE_AMB = { campnou: 'flags', floodlights: 'flashes', wankhede: 'fireworks', bluebillion: 'flashes', crimson: 'crows', domain: 'sparks', diwali: 'fireworks', saiyan: 'gold', ui: 'silver', kurama: 'embers', hokage: 'leaves', zoro: 'leaves', wisteria: 'wisteria', monsoon: 'rain', neon: 'rain', seoul: 'petals', marquee: 'embers' };
+  const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'Heroes', 'Anime', 'Outdoors', 'Night & neon', 'Seasonal', 'Together', 'After dark', 'My looks'];
 
   const PEOPLE = { G: { name: 'Gaurav', av: '#ffd36e', tags: ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Hiking'] }, P: { name: 'Partner', av: '#ff9ec4' }, X: { name: 'Guest', av: '#9fe6ff' } };
   const PARTNER_OPTS = ['K-drama', 'Bollywood', 'Travel', 'Cooking', 'Plants', 'Music', 'F1', 'Yoga', 'Pets', 'Art', 'Cricket', 'Football', 'Anime'];
@@ -711,6 +764,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     if (a === 'sparks') fall(40, '#9fd8ff', 5, true, 6);
     if (a === 'gold') fall(46, '#ffd23c', 6, true, 5);
     if (a === 'silver') fall(46, '#e6eeff', 5, true, 6);
+    if (a === 'wisteria') { fall(30, '#c9a2ff', 12, false, 12); }
     if (a === 'leaves') { fall(26, '#4fae5a', 16, false, 13); amb.querySelectorAll('.pt').forEach((p) => { p.style.borderRadius = '0 70% 0 70%'; }); }
     if (a === 'rain') add('<div class="rainov"></div>');
   }
@@ -798,18 +852,30 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       [...Array(14)].map((_, i) => '<path d="M' + (-236 + i * 34) + ' -8 q 10 20 0 30" stroke="#b9913e" stroke-width="3" fill="none"/>').join('') +
       '<path d="M-130 -4 Q-140 -150 0 -158 Q140 -150 130 -4 Z" fill="#e6c068"/><path d="M-132 -34 Q0 -50 132 -34 L130 -4 Q0 -20 -130 -4 Z" fill="#c0262c"/><path d="M-90 -120 Q0 -150 90 -120" stroke="#f2d488" stroke-width="5" fill="none" opacity=".7"/></g></svg></div>';
   }
+  function starsSVG(n) { const pts = (cx, cy, r) => [...Array(10)].map((_, i) => { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; return (cx + Math.cos(a) * rr).toFixed(1) + ',' + (cy + Math.sin(a) * rr).toFixed(1); }).join(' ');
+    const P = { 1: [[20, 20]], 2: [[13, 20], [27, 20]], 3: [[20, 12], [12, 26], [28, 26]], 4: [[13, 13], [27, 13], [13, 27], [27, 27]], 5: [[20, 9], [10, 18], [30, 18], [14, 30], [26, 30]], 6: [[12, 11], [28, 11], [12, 20], [28, 20], [12, 29], [28, 29]], 7: [[20, 7], [11, 15], [29, 15], [20, 20], [11, 27], [29, 27], [20, 33]] }[n];
+    return '<svg viewBox="0 0 40 40">' + P.map(([x, y]) => '<polygon points="' + pts(x, y, n > 4 ? 5 : 7) + '" fill="#d0140c"/>').join('') + '</svg>'; }
+  const ballsHTML = () => [1, 2, 3, 4, 5, 6, 7].map((n) => '<div class="dball' + (n === 4 ? ' lead' : '') + '" id="db' + n + '"><i style="animation-delay:-' + n * .3 + 's"></i>' + starsSVG(n) + '</div>').join('');
+  const poleSVG = () => '<svg class="swords" viewBox="0 0 1920 1080"><defs><linearGradient id="rod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6a5a"/><stop offset=".5" stop-color="#c0180e"/><stop offset="1" stop-color="#6a0804"/></linearGradient><filter id="pg"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#dfe8ff" flood-opacity=".7"/></filter></defs><g class="pole" id="pole" filter="url(#pg)"><rect x="0" y="-10" width="40" height="20" rx="4" fill="#e0b040"/><rect class="rod" id="rod" x="40" y="-9" width="500" height="18" fill="url(#rod)"/><rect id="cap" x="540" y="-10" width="40" height="20" rx="4" fill="#e0b040"/></g></svg>';
+  const cloudHTML = () => '<div class="cloudw" id="cloudw"><svg viewBox="0 0 300 140" width="300" height="140" style="position:absolute;top:0;overflow:visible"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a6688"/><stop offset="1" stop-color="#232a40"/></linearGradient></defs><path d="M40 120 Q0 120 6 88 Q10 58 46 62 Q50 20 98 24 Q130 -6 170 24 Q214 10 228 52 Q290 50 292 92 Q296 124 254 122 Z" fill="url(#cg)" stroke="#9fc4ff" stroke-width="3"/><path class="bolt" d="M150 118 L132 168 L156 166 L138 222 L190 150 L162 152 L178 118 Z" fill="#fff6a8" style="filter:drop-shadow(0 0 12px #fff6a8)"/></svg><div class="rain"></div></div>';
+  const BF = '<svg viewBox="0 0 70 56" width="70" height="56"><defs><linearGradient id="bw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2fd0b0"/><stop offset=".5" stop-color="#c9a2ff"/><stop offset="1" stop-color="#2fd0b0"/></linearGradient></defs><g class="w"><path d="M35 28 C 20 2, 2 4, 6 22 C 8 32, 22 34, 35 30 C 22 34, 10 50, 22 52 C 30 52, 34 40, 35 30 C 36 40, 40 52, 48 52 C 60 50, 48 34, 35 30 C 48 34, 62 32, 64 22 C 68 4, 50 2, 35 28 Z" fill="url(#bw)" opacity=".92"/></g><rect x="33.5" y="18" width="3" height="22" rx="1.5" fill="#1a0f2a"/></svg>';
+  const bflyHTML = () => [...Array(6)].map((_, i) => '<div class="bfly" id="bf' + i + '" style="transition-delay:' + i * .08 + 's;filter:drop-shadow(0 0 10px #c9a2ff)">' + BF + '</div>').join('');
   function swordsSVG() {
     const one = (k, hc) => '<g class="sword" id="sw' + k + '"><g transform="translate(0,0)"><rect x="0" y="-9" width="120" height="18" rx="4" fill="' + hc + '"/><path d="' + [...Array(8)].map((_, i) => 'M' + (6 + i * 14) + ' -9 l7 18 M' + (13 + i * 14) + ' -9 l-7 18').join(' ') + '" stroke="rgba(255,255,255,.4)" stroke-width="3"/>' +
       '<ellipse cx="126" cy="0" rx="9" ry="26" fill="#c9a24e"/><path d="M136 -7 Q320 -16 480 -4 L500 2 Q320 2 136 7 Z" fill="url(#bl)"/><path class="glint" d="M140 -3 Q320 -10 490 -1" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="60 400" opacity=".9"/></g></g>';
     return '<svg class="swords" viewBox="0 0 1920 1080"><defs><linearGradient id="bl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#b9c3cf"/><stop offset="1" stop-color="#5f6a78"/></linearGradient><filter id="swg"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#3ddc84" flood-opacity=".6"/></filter></defs><g filter="url(#swg)">' + one(0, '#f4f4f4') + one(1, '#7a1a1a') + one(2, '#151515') + '</g></svg>';
   }
-  function buildEyes() { const m = eff().mascot, e = $('eyes'), tr = $('tracker'); const isEye = EYE_TYPES.includes(m); e.style.display = isEye ? '' : 'none'; tr.innerHTML = m === 'luffy' ? hatSVG() : m === 'zoro' ? swordsSVG() : '';
+  function buildEyes() { const m = eff().mascot, e = $('eyes'), tr = $('tracker'); const isEye = EYE_TYPES.includes(m); e.style.display = isEye ? '' : 'none'; tr.innerHTML = m === 'luffy' ? hatSVG() : m === 'zoro' ? swordsSVG() : m === 'dragonballs' ? ballsHTML() : m === 'pole' ? poleSVG() : m === 'cloud' ? cloudHTML() : m === 'butterflies' ? bflyHTML() : '';
     if (isEye) { $('eyeL').innerHTML = eyeSVG('L', m); $('eyeR').innerHTML = eyeSVG('R', m); } look(); }
   function look() {
     const ax = xOf(foc);
     ['L', 'R'].forEach((s) => { const el = document.getElementById('iris' + s); if (!el) return; const ex = 960 + (s === 'L' ? -150 : 150); let dx = Math.max(-1, Math.min(1, (ax - ex) / 800)) * 30; if (s === 'R') dx = -dx; el.style.transform = 'translate(' + (100 + dx) + 'px,' + el.dataset.cy + 'px)'; });
     const n = Math.max(-1, Math.min(1, (ax - 960) / 800));
     const hg2 = $('hatG'), he = $('hatEyes'); if (hg2) { hg2.style.transform = 'translateX(' + n * 30 + 'px) rotate(' + n * 9 + 'deg)'; he.style.transform = 'translateX(' + n * 26 + 'px)'; }
+    for (let n = 1; n <= 7; n++) { const b = document.getElementById('db' + n); if (!b) break; const a = (n - 4) * .42; b.style.left = (ax + Math.sin(a) * 230) + 'px'; b.style.top = (690 - Math.cos(a) * 130 + (n === 4 ? -20 : 0)) + 'px'; b.style.transitionDelay = Math.abs(n - 4) * .06 + 's'; }
+    const pole = $('pole'); if (pole) { const px = 960, py = 60, ang = Math.atan2(760 - py, ax - px), len = Math.hypot(ax - px, 760 - py) - 120; pole.style.transform = 'translate(' + px + 'px,' + py + 'px) rotate(' + ang * 180 / Math.PI + 'deg)'; $('rod').setAttribute('width', len); $('cap').setAttribute('x', 40 + len); }
+    const cw = $('cloudw'); if (cw) cw.style.left = ax + 'px';
+    for (let k = 0; k < 6; k++) { const bf = document.getElementById('bf' + k); if (!bf) break; const a = k / 6 * 6.283 + Math.random() * .6; bf.style.left = (ax + Math.cos(a) * (70 + Math.random() * 60)) + 'px'; bf.style.top = (660 + Math.sin(a) * 70 - Math.random() * 40) + 'px'; }
     for (let k = 0; k < 3; k++) { const sw = document.getElementById('sw' + k); if (!sw) continue; const px = 960 + (k - 1) * 70, py = 150; const ang = Math.atan2(860 - py, ax - px) * 180 / Math.PI + (k - 1) * 9; sw.style.transform = 'translate(' + px + 'px,' + py + 'px) rotate(' + ang + 'deg)'; }
   }
   (function blink() { const e = $('eyes'); e.classList.add('blink'); setTimeout(() => e.classList.remove('blink'), 130); setTimeout(blink, 3000 + Math.random() * 6000); })();
@@ -857,7 +923,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   const home = $('home'), ease = 'cubic-bezier(.6,0,.2,1)';
   function overlay() { stage.querySelectorAll('.over').forEach((o) => o.remove()); const o = document.createElement('div'); o.className = 'over'; stage.appendChild(o); return o; }
   const wakeEyes = (m) => '<div class="wakeeyes"><div style="position:absolute;left:0;width:200px;height:90px">' + eyeSVG('WL', m) + '</div><div class="wr" style="position:absolute;left:300px;width:200px;height:90px">' + eyeSVG('WR', m) + '</div></div>';
-  const AURA_C = { saiyan: '#ffd23c', ui: '#dfe8ff', kurama: '#ff6a00', sage: '#ffb020' };
+  const AURA_C = { saiyan: '#ffd23c', dragonballs: '#ffd23c', ui: '#dfe8ff', pole: '#dfe8ff', kurama: '#ff6a00', sage: '#ffb020' };
   function wake() {
     const e = eff(); if ((e.motion || 'full') === 'off') return;
     if (e.wake === 'powerup') {
@@ -869,6 +935,25 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       $('af').animate([{ opacity: 0 }, { opacity: 0, offset: .8 }, { opacity: 1, offset: .9 }, { opacity: 0 }], { duration: 2000, fill: 'forwards' });
       o.animate([{ opacity: 1 }, { opacity: 1, offset: .85 }, { opacity: 0 }], { duration: 2100, fill: 'forwards' }).onfinish = () => o.remove();
       home.animate([{ opacity: 0, transform: 'scale(1.08)' }, { opacity: 0, offset: .8 }, { opacity: 1, transform: 'none' }], { duration: 2200, easing: ease });
+      return;
+    }
+    if (e.wake === 'storm') {
+      const o = overlay(); o.style.background = '#05070f';
+      const bolt = (x) => { let d = 'M' + x + ' 0', y = 0, xx = x; while (y < 1080) { xx += (Math.random() - .5) * 140; y += 60 + Math.random() * 80; d += ' L' + xx.toFixed(0) + ' ' + y.toFixed(0); } return d; };
+      o.innerHTML = '<svg viewBox="0 0 1920 1080" style="position:absolute;inset:0;width:1920px;height:1080px">' + [420, 980, 1500].map((x, i) => '<path id="bo' + i + '" d="' + bolt(x) + '" stroke="#fff8c0" stroke-width="7" fill="none" opacity="0" style="filter:drop-shadow(0 0 20px #9fc4ff)"/>').join('') + '</svg><div id="sf" style="position:absolute;inset:0;background:#dfe8ff;opacity:0"></div>';
+      [0, 1, 2].forEach((i) => $('bo' + i).animate([{ opacity: 0 }, { opacity: 1, offset: .05 }, { opacity: 0, offset: .15 }, { opacity: 1, offset: .2 }, { opacity: 0, offset: .4 }, { opacity: 0 }], { duration: 1400, delay: 200 + i * 260, fill: 'forwards' }));
+      $('sf').animate([{ opacity: 0 }, { opacity: .7, offset: .1 }, { opacity: 0, offset: .2 }, { opacity: 0, offset: .55 }, { opacity: .8, offset: .62 }, { opacity: 0 }], { duration: 1800, fill: 'forwards' });
+      o.animate([{ opacity: 1 }, { opacity: 1, offset: .7 }, { opacity: 0 }], { duration: 2100, fill: 'forwards' }).onfinish = () => o.remove();
+      home.animate([{ opacity: 0 }, { opacity: 0, offset: .6 }, { opacity: 1 }], { duration: 2100 });
+      return;
+    }
+    if (e.wake === 'flutter') {
+      const o = overlay(); o.style.background = '#06031a'; let h = '';
+      for (let i = 0; i < 46; i++) h += '<div class="bfly" style="left:-120px;top:' + (Math.random() * 1000) + 'px;transform:scale(' + (.6 + Math.random() * 1.6) + ');--d:' + (Math.random() * .7) + 's">' + BF + '</div>';
+      o.innerHTML = h;
+      o.querySelectorAll('.bfly').forEach((b) => { b.style.transition = 'none'; b.animate([{ translate: '0 0' }, { translate: (2100 + Math.random() * 300) + 'px ' + ((Math.random() - .5) * 500) + 'px' }], { duration: 1500 + Math.random() * 600, delay: parseFloat(b.style.getPropertyValue('--d')) * 1000, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' }); });
+      o.animate([{ background: '#06031a' }, { background: 'rgba(6,3,26,0)', offset: .6 }, { background: 'rgba(6,3,26,0)' }], { duration: 2600, fill: 'forwards' }).onfinish = () => o.remove();
+      home.animate([{ opacity: 0 }, { opacity: 1, offset: .6 }, { opacity: 1 }], { duration: 2600 });
       return;
     }
     if (e.wake === 'slash') {
@@ -925,7 +1010,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       $('mf').animate([{ opacity: 0 }, { opacity: .6, offset: .2 }, { opacity: .6, offset: .8 }, { opacity: 0 }], { duration: 3200, fill: 'forwards' });
       home.animate([{ transform: 'none' }, { transform: 'none', offset: .45 }, { transform: 'translate(-14px,8px)', offset: .5 }, { transform: 'translate(12px,-8px)', offset: .55 }, { transform: 'translate(-10px,6px)', offset: .6 }, { transform: 'none', offset: .7 }, { transform: 'none' }], { duration: 3200 });
     } else {
-      const shows = { 'domain': 'Jujutsu Kaisen · Ep 14', 'grand-line': 'One Piece · Ep 1149', 'straw-hat': 'One Piece · Ep 1149', 'three-sword': 'One Piece · Ep 1149', 'water-breathing': 'Demon Slayer · Ep 9', 'nine-tails': 'Naruto Shippuden · next in your list', 'sage-mode': 'Naruto Shippuden · next in your list' };
+      const shows = { 'domain': 'Jujutsu Kaisen · Ep 14', 'grand-line': 'One Piece · Ep 1149', 'straw-hat': 'One Piece · Ep 1149', 'three-sword': 'One Piece · Ep 1149', 'water-breathing': 'Demon Slayer · Ep 9', 'nine-tails': 'Naruto Shippuden · next in your list', 'navigator': 'One Piece · Ep 1149', 'butterfly-mansion': 'Demon Slayer · Ep 9', 'sage-mode': 'Naruto Shippuden · next in your list' };
       o.innerHTML = '<div style="position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 45%, rgba(255,255,255,.5) 0 1.5deg, transparent 1.5deg 6deg);-webkit-mask-image:radial-gradient(circle at 50% 45%, transparent 14%, #000 60%);mask-image:radial-gradient(circle at 50% 45%, transparent 14%, #000 60%)" id="mf"></div><div class="moment-t" id="mt" style="font-family:\'Kaushan Script\',cursive;font-size:190px;color:#fff;text-shadow:8px 8px 0 ' + e.acc + '">New episode!</div><div class="moment-s" id="ms" style="color:' + e.acc + '">' + (shows[base().id] || 'Jujutsu Kaisen · Ep 14') + ' · out now on Crunchyroll</div>';
       $('mf').animate([{ opacity: 0, transform: 'scale(1.4)' }, { opacity: 1, transform: 'scale(1)', offset: .2 }, { opacity: .8 }, { opacity: 0 }], { duration: 3000, fill: 'forwards' });
     }
@@ -990,7 +1075,9 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   }
   function vPeople() {
     const c = (k, extra) => { const p = PEOPLE[k]; return '<div class="prof' + (S.who === k ? ' on' : '') + '"><header><span class="av" style="background:' + p.av + '">' + p.name[0] + '</span><b>' + p.name + '</b><button class="btn' + (S.who === k ? ' hot' : '') + '" data-who="' + k + '">' + (S.who === k ? 'Watching' : 'Switch') + '</button></header>' + extra + '</div>'; };
-    return c('G', '<div class="tags">' + PEOPLE.G.tags.map((t) => '<span>' + t + '</span>').join('') + '</div>') + c('P', '<p class="note">Choose their interests. Looks, Home rows and rules follow them.</p><div class="tags">' + PARTNER_OPTS.map((t) => '<button data-ptag="' + t + '" class="' + (S.partner.includes(t) ? 'on' : '') + '">' + t + '</button>').join('') + '</div>') + c('X', '<p class="note">Hides personal rows and scores, and shows only looks marked Everyone.</p>') + '<button class="btn" id="addPerson">+ Add someone</button>';
+    return c('G', '<div class="tags">' + PEOPLE.G.tags.map((t) => '<span>' + t + '</span>').join('') + '</div>') + c('P', '<p class="note">Choose their interests. Looks, Home rows and rules follow them.</p><div class="tags">' + PARTNER_OPTS.map((t) => '<button data-ptag="' + t + '" class="' + (S.partner.includes(t) ? 'on' : '') + '">' + t + '</button>').join('') + '</div>') + c('X', '<p class="note">Hides personal rows and scores, and shows only looks marked Everyone.</p>') +
+      '<div class="prof"><header><span class="av" style="background:#ff4d6d">🔒</span><b>Private</b><button class="btn" id="pinBtn">Set a PIN</button></header><p class="note">A PIN-locked profile for your own pictures. They stay on your TV and phone, never go into the den-tv repo, and are hidden in guest mode and from the Surprise me button. The TV returns to your normal profile when it goes to sleep.</p></div>' +
+      '<button class="btn" id="addPerson">+ Add someone</button>';
   }
   function vRemote() {
     return '<div class="sec"><h3>Quick buttons</h3><div class="remote">' + ['⏻ Sleep', 'Wake', 'Mute', 'Vol −', 'Vol +', 'Sleep in 30 min', 'PlayStation 5', 'Set-top box', 'Live TV'].map((b) => '<button class="btn" data-rb="' + b + '">' + b + '</button>').join('') + '</div></div>' +
@@ -1024,6 +1111,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     body.querySelectorAll('[data-ptag]').forEach((b) => b.addEventListener('click', () => { const t = b.dataset.ptag; S.partner = S.partner.includes(t) ? S.partner.filter((x) => x !== t) : S.partner.concat(t); save(); render(); renderChips(); }));
     on('addRule', () => toast('Rules can use time, day, matches, episodes, weather and festivals'));
     on('addPerson', () => toast('Each new person gets a name, interests and a default look'));
+    on('pinBtn', () => toast('Choose a 4-digit PIN on the TV to unlock Private'));
     body.querySelectorAll('[data-rb]').forEach((b) => b.addEventListener('click', () => { const v = b.dataset.rb; if (v === 'Wake') wake(); toast(v.startsWith('Opening') ? v : v === 'Wake' ? 'Waking the TV' : v + ' sent to the TV'); }));
     on('sendType', () => { const v = $('typeBox').value.trim(); toast(v ? '"' + v + '" typed on the TV' : 'Type something first'); });
   }

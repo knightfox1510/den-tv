@@ -1,0 +1,16 @@
+{
+  "id": "midnight-lounge",
+  "name": "Midnight Lounge",
+  "category": "After dark",
+  "for": "owner",
+  "scene": "lounge",
+  "hero": "none",
+  "watcher": "none",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "none",
+  "moment": "none",
+  "accent": "#ff4d6d"
+}

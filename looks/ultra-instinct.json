@@ -5,7 +5,7 @@
   "for": "owner",
   "scene": "ui",
   "hero": "goku",
-  "watcher": "ui",
+  "watcher": "pole",
   "focus": "aura",
   "wake": "powerup",
   "clock": "thin",
