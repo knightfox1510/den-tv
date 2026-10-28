@@ -1,0 +1,16 @@
+{
+  "id": "king-kohli",
+  "name": "King Kohli",
+  "category": "Cricket",
+  "for": "owner",
+  "scene": "king",
+  "hero": "kohli",
+  "watcher": "crown",
+  "focus": "aura",
+  "wake": "bloom",
+  "clock": "neon",
+  "icons": "white",
+  "extras": "gold",
+  "moment": "six",
+  "accent": "#ffcc33"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "chase-master",
+  "name": "Chase Master",
+  "category": "Cricket",
+  "for": "owner",
+  "scene": "bluebillion",
+  "hero": "kohli",
+  "watcher": "bat",
+  "focus": "arc",
+  "wake": "tunnel",
+  "clock": "board",
+  "icons": "white",
+  "extras": "flashes",
+  "moment": "six",
+  "accent": "#ff9933",
+  "scoreboard_text": "IND 248/3 · NEED 42 OFF 30"
+}

@@ -100,6 +100,38 @@ canvas.layer { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 @keyframes beat { 50% { transform: scale(1.25); } }
 .die { position: absolute; width: 78px; height: 78px; margin: -39px 0 0 -39px; border-radius: 16px; background: linear-gradient(145deg, #fff, #d8d8e0); box-shadow: 0 10px 24px rgba(0,0,0,.6), inset 0 -4px 0 rgba(0,0,0,.12); transition: left .8s cubic-bezier(.3,1.3,.5,1), top .8s cubic-bezier(.3,1.3,.5,1), transform .8s cubic-bezier(.3,1.3,.5,1); display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px; gap: 2px; }
 .die i { width: 13px; height: 13px; border-radius: 50%; background: #c0101e; place-self: center; }
+.k-analog svg { width: 230px; height: 230px; display: block; filter: drop-shadow(0 8px 24px rgba(0,0,0,.6)); }
+.k-words { font-weight: 300; font-size: 66px; line-height: 1.02; text-transform: uppercase; letter-spacing: .02em; max-width: 760px; text-shadow: 0 4px 24px rgba(0,0,0,.6); }
+.k-words b { font-weight: 700; color: var(--acc); }
+.k-neon { font-weight: 300; font-size: 150px; color: #fff; text-shadow: 0 0 6px #fff, 0 0 18px var(--acc), 0 0 40px var(--acc), 0 0 80px var(--acc); animation: neonf 6s infinite; letter-spacing: .02em; }
+@keyframes neonf { 0%, 91%, 95%, 100% { opacity: 1; } 92%, 94% { opacity: .55; } }
+.k-flap { display: flex; gap: 8px; align-items: center; }
+.k-flap span { position: relative; display: grid; place-items: center; width: 92px; height: 132px; border-radius: 10px; background: linear-gradient(#26262c 0 49.5%, #0c0c0f 49.5% 50.5%, #1c1c21 50.5%); font-family: "Bebas Neue", var(--f); font-size: 120px; color: #f4f1e6; box-shadow: 0 10px 24px rgba(0,0,0,.6); }
+.k-flap span.flip { animation: flapf .45s ease-in; }
+@keyframes flapf { 0% { transform: perspective(400px) rotateX(0); } 50% { transform: perspective(400px) rotateX(-90deg); } 100% { transform: perspective(400px) rotateX(0); } }
+.k-flap i { font-style: normal; font-size: 90px; color: var(--acc); }
+.k-ring { position: relative; width: 300px; height: 300px; display: grid; place-items: center; }
+.k-ring svg { position: absolute; inset: 0; width: 300px; height: 300px; transform: rotate(-90deg); }
+.k-ring b { font-weight: 200; font-size: 92px; letter-spacing: -.02em; }
+.factcard { position: absolute; left: 110px; top: 400px; width: 640px; z-index: 3; padding: 22px 28px; border-radius: 24px; background: rgba(6,6,12,.55); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 20px 40px rgba(0,0,0,.4); transition: opacity .5s; }
+.factcard small { display: block; font-size: 17px; letter-spacing: .2em; text-transform: uppercase; color: var(--acc); font-weight: 600; margin-bottom: 8px; }
+.factcard p { margin: 0; font-size: 27px; line-height: 1.35; font-weight: 300; }
+.ticker { position: absolute; left: 0; right: 0; bottom: 0; height: 52px; z-index: 4; background: rgba(0,0,0,.55); border-top: 1px solid rgba(255,255,255,.12); overflow: hidden; white-space: nowrap; font-size: 24px; line-height: 52px; }
+.ticker div { display: inline-block; padding-left: 30%; animation: tick 90s linear infinite; }
+.ticker b { color: var(--acc); margin: 0 18px; }
+@keyframes tick { to { transform: translateX(-100%); } }
+.hub { position: absolute; inset: 0; z-index: 10; background: rgba(4,4,10,.78); padding: 60px 90px; opacity: 0; pointer-events: none; transition: opacity .4s; }
+.hub.on { opacity: 1; pointer-events: auto; }
+.hub h2 { margin: 0; font-size: 56px; font-weight: 700; display: flex; align-items: center; gap: 18px; }
+.hub h2 i { width: 18px; height: 56px; border-radius: 8px; background: var(--acc); }
+.hub h2 small { font-size: 22px; font-weight: 300; opacity: .6; margin-left: auto; }
+.hubgrid { margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.hc { border-radius: 26px; padding: 26px 30px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); min-height: 250px; }
+.hc small { font-size: 16px; letter-spacing: .2em; text-transform: uppercase; opacity: .7; display: flex; align-items: center; gap: 10px; }
+.hc small i { width: 10px; height: 10px; border-radius: 50%; background: var(--acc); }
+.hc .big { font-family: "Bebas Neue", var(--f); font-size: 96px; line-height: 1; margin-top: 14px; }
+.hc p { margin: 10px 0 0; font-size: 22px; opacity: .85; line-height: 1.35; }
+.hc .rowt { display: flex; justify-content: space-between; font-size: 21px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.08); }
 .swords { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: visible; }
 .sword { transition: transform .6s cubic-bezier(.3,1.35,.5,1); }
 .glint { animation: glint 2.8s linear infinite; }
@@ -255,13 +287,16 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
             <div class="tracker" id="tracker"></div><div class="eyes" id="eyes"><div class="shadow"></div><div class="eye l" id="eyeL"></div><div class="eye r" id="eyeR"></div></div>
             <div class="clockbox"><div class="greet" id="greet">Good evening, Gaurav</div><div class="clock" id="clock"></div><div class="date" id="date"></div></div>
             <div class="cap"><div class="hn" id="hn"></div><div id="chips" style="display:grid;gap:10px;justify-items:end"></div></div>
+            <div class="factcard" id="factcard"><small id="factk">Did you know?</small><p id="factp"></p></div>
+            <div class="ticker" id="ticker"><div id="tickt"></div></div>
             <div class="dock" id="dock"></div>
+            <div class="hub" id="hub"></div>
           </div>
           <div class="toast" id="toast"></div>
         </div>
       </div>
       <div class="tvfoot" aria-hidden="true"></div>
-      <div class="tvbar"><span>On the TV: <b id="tvLook">Camp Nou Nights</b></span><span class="row"><button class="btn hot" id="momentTv">Play the moment</button><button class="btn" id="wakeTv">Preview wake</button></span></div>
+      <div class="tvbar"><span>On the TV: <b id="tvLook">Camp Nou Nights</b></span><span class="row"><button class="btn" id="hubTv">Fan Hub</button><button class="btn hot" id="momentTv">Play the moment</button><button class="btn" id="wakeTv">Preview wake</button></span></div>
     </div>
 
     <div class="phone">
@@ -326,14 +361,15 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   }
 
   /* ===================== SCENES ===================== */
-  function campNou(g) {
+  function campNou(g, o) {
+    o = o || {}; const C1 = o.c1 || '#a50044', C2 = o.c2 || '#004d98', TIFO = o.tifo || 'MÉS QUE UN CLUB', TC = o.tc || '#edbb00';
     g.fillStyle = lin(g, 0, 600, [[0, '#01030a'], [1, '#0b1634']]); g.fillRect(0, 0, W, H);
     stars(g, 50, 160, 3, .25);
     const S = (x) => Math.sin(Math.PI * Math.max(0, Math.min(1, x / W)));
     const top = (x) => 270 - 175 * S(x), bot = (x) => 650 - 105 * S(x);
     const M = document.createElement('canvas'); M.width = W; M.height = 300; const m = M.getContext('2d');
-    for (let i = 0; i < 21; i++) { m.fillStyle = i % 2 ? '#a50044' : '#004d98'; m.fillRect(i * 96, 0, 96, 300); }
-    m.fillStyle = '#edbb00'; m.font = '900 168px Outfit, sans-serif'; m.textAlign = 'center'; m.textBaseline = 'middle'; m.fillText('MÉS QUE UN CLUB', 960, 158);
+    for (let i = 0; i < 21; i++) { m.fillStyle = i % 2 ? C1 : C2; m.fillRect(i * 96, 0, 96, 300); }
+    m.fillStyle = TC; m.font = '900 168px Outfit, sans-serif'; m.textAlign = 'center'; m.textBaseline = 'middle'; m.fillText(TIFO, 960, 158);
     const md = m.getImageData(0, 0, W, 300).data;
     const r = rng(11); const crowd = ['#262c48', '#3a2232', '#1b2440', '#3d3328', '#2c3446', '#402a40'];
     for (let x = -10; x < W + 10; x += 6) {
@@ -366,8 +402,8 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     const rr = rng(5);
     for (let i = 0; i < 22; i++) { const home = i < 11; const f = .1 + rr() * .62; const x = home ? 120 + rr() * 820 : 980 + rr() * 820; const y = pf(x, f); const s = .8 + f * 1.6;
       g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(x, y + 2, 9 * s, 3 * s, 0, 0, 7); g.fill();
-      g.fillStyle = home ? '#a50044' : '#f2f2f2'; g.fillRect(x - 4 * s, y - 20 * s, 8 * s, 11 * s);
-      if (home) { g.fillStyle = '#004d98'; g.fillRect(x - 1.3 * s, y - 20 * s, 2.6 * s, 11 * s); }
+      g.fillStyle = home ? C1 : '#f2f2f2'; g.fillRect(x - 4 * s, y - 20 * s, 8 * s, 11 * s);
+      if (home) { g.fillStyle = C2; g.fillRect(x - 1.3 * s, y - 20 * s, 2.6 * s, 11 * s); }
       g.fillStyle = home ? '#004d98' : '#dcdcdc'; g.fillRect(x - 4 * s, y - 9 * s, 8 * s, 4 * s);
       g.fillStyle = '#1a1a1a'; g.fillRect(x - 3.5 * s, y - 5 * s, 2.6 * s, 5 * s); g.fillRect(x + .9 * s, y - 5 * s, 2.6 * s, 5 * s);
       g.fillStyle = '#e8c4a0'; g.beginPath(); g.arc(x, y - 24 * s, 3.4 * s, 0, 7); g.fill(); }
@@ -714,6 +750,24 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     [[1100, 880, -.3], [1170, 870, -.1], [1240, 876, .12]].forEach(([x, y, a], i) => { g.save(); g.translate(x, y); g.rotate(a); g.fillStyle = '#fbfbf6'; g.fillRect(-50, -72, 100, 144); g.strokeStyle = '#ddd'; g.lineWidth = 2; g.strokeRect(-50, -72, 100, 144); g.fillStyle = i === 1 ? '#111' : '#c0101e'; g.font = '700 46px Outfit'; g.textAlign = 'center'; g.fillText(['A', 'K', 'Q'][i], 0, 16); g.restore(); });
     [[760, 900, '#c0101e'], [800, 880, '#1a4ad0'], [720, 870, '#111']].forEach(([x, y, c]) => { for (let k = 0; k < 6; k++) { g.fillStyle = c; g.beginPath(); g.ellipse(x, y - k * 9, 40, 14, 0, 0, 7); g.fill(); g.strokeStyle = '#fff'; g.setLineDash([8, 10]); g.lineWidth = 3; g.stroke(); g.setLineDash([]); } });
   }
+  function goat(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#050403'], [.6, '#16110a'], [1, '#060504']]); g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = 'lighter'; glow(g, 1450, 300, 760, 'rgba(255,200,90,.22)');
+    for (let k = 0; k < 18; k++) { const a = -Math.PI / 2 + (k - 8.5) * .12; const gr = g.createLinearGradient(1450, 0, 1450 + Math.cos(a) * 1200, Math.sin(a) * -1200 + 0); gr.addColorStop(0, 'rgba(255,215,120,.10)'); gr.addColorStop(1, 'rgba(255,215,120,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(1440, -10); g.lineTo(1460, -10); g.lineTo(1450 + Math.cos(a + 1.57) * 0 + (k - 8.5) * 120, 1080); g.lineTo(1450 + (k - 8.5) * 120 - 50, 1080); g.fill(); }
+    g.globalCompositeOperation = 'source-over';
+    g.fillStyle = '#0d0a06'; g.fillRect(0, 780, W, 300); g.fillStyle = '#2a1f10'; g.fillRect(0, 772, W, 10);
+    for (let i = 0; i < 8; i++) { const x = 160 + i * 110, y = 720; const gr = g.createRadialGradient(x - 14, y - 16, 4, x, y, 44); gr.addColorStop(0, '#fff5c8'); gr.addColorStop(.4, '#e8c35a'); gr.addColorStop(1, '#6a4a10'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, 42, 0, 7); g.fill();
+      g.fillStyle = '#3a2a10'; g.fillRect(x - 30, y + 40, 60, 14); g.globalCompositeOperation = 'lighter'; glow(g, x, y, 90, 'rgba(255,210,100,.18)'); g.globalCompositeOperation = 'source-over'; }
+    g.save(); g.font = '900 90px Outfit, sans-serif'; g.fillStyle = 'rgba(232,195,90,.14)'; g.fillText('× 8', 160, 640); g.restore();
+  }
+  function king(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#04061a'], [.6, '#0f1a4a'], [1, '#04061a']]); g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = 'lighter'; glow(g, 1450, 430, 700, 'rgba(255,200,60,.25)');
+    for (let k = 0; k < 36; k++) { const a = k / 36 * 6.283; g.strokeStyle = 'rgba(255,210,90,.08)'; g.lineWidth = 30; g.beginPath(); g.moveTo(1450, 430); g.lineTo(1450 + Math.cos(a) * 1400, 430 + Math.sin(a) * 1400); g.stroke(); }
+    g.strokeStyle = 'rgba(255,210,90,.18)'; g.lineWidth = 2; for (let ring = 1; ring < 7; ring++) { const n = ring * 8; for (let i = 0; i < n; i++) { const a = i / n * 6.283; g.beginPath(); g.ellipse(1450 + Math.cos(a) * ring * 60, 430 + Math.sin(a) * ring * 60, 24, 10, a, 0, 7); g.stroke(); } }
+    g.globalCompositeOperation = 'source-over';
+    for (let row = 0; row < 6; row++) { const y = 800 + row * 48, s = .9 + row * .2; for (let x = -20 + (row % 2) * 20; x < W + 20; x += 44 * s) { g.fillStyle = 'rgb(' + (20 + row * 3) + ',' + (50 + row * 8) + ',' + (140 + row * 10) + ')'; g.beginPath(); g.ellipse(x, y + 30 * s, 20 * s, 16 * s, 0, Math.PI, 0); g.fill(); g.fillStyle = '#070a1a'; g.beginPath(); g.arc(x, y + 6 * s, 10 * s, 0, 7); g.fill(); } }
+  }
   function heroBlack(g, o) { g.fillStyle = '#050507'; g.fillRect(0, 0, W, H); const h = HEROES[o.hero] || HEROES.messi; glow(g, 1450, 520, 820, h.c1); glow(g, 1750, 1000, 600, h.c2); }
 
   const SCENES = {
@@ -722,7 +776,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     manga: { n: 'Manga pages', p: manga }, dusk: { n: 'Anime dusk', p: dusk }, dawn: { n: 'Trail dawn', p: dawn }, monsoon: { n: 'Monsoon ridges', p: (g) => dawn(g, { grey: 1 }) },
     neon: { n: 'Neon city', p: neon }, seoul: { n: 'Seoul neon', p: (g) => neon(g, { pink: 1 }) }, diwali: { n: 'Diwali night', p: diwali }, marquee: { n: 'Velvet marquee', p: (g) => diwali(g, { red: 1 }) },
     floodlights: { n: 'Floodlit ground', p: nightField }, black: { n: 'Black with hero glow', p: heroBlack },
-    saiyan: { n: 'Saiyan wasteland', p: saiyan }, ui: { n: 'Silver void', p: (g) => saiyan(g, { ui: 1 }) }, kurama: { n: 'Nine-tails chakra', p: kuramaScene }, hokage: { n: 'Village at sunset', p: hokage }, zoro: { n: 'Moonlit blades', p: zoroScene }, tangerine: { n: 'Tangerine sunset', p: tangerine }, wisteria: { n: 'Wisteria night', p: wisteria }, lounge: { n: 'Midnight lounge', p: lounge }, leaf: { n: 'Leaf village storm', p: leafNight }, firefist: { n: 'Sea of fire', p: fireFist }, room: { n: 'Snowfall ROOM', p: roomScene }, baratie: { n: 'Floating restaurant', p: baratie }, drum: { n: 'Cherry-blossom snow', p: drum }, hitman: { n: 'Six after six', p: hitman }, noir: { n: 'Rain-slick noir', p: noir }, velvet: { n: 'Velvet candlelight', p: velvet }, casino: { n: 'Casino floor', p: casino },
+    saiyan: { n: 'Saiyan wasteland', p: saiyan }, ui: { n: 'Silver void', p: (g) => saiyan(g, { ui: 1 }) }, kurama: { n: 'Nine-tails chakra', p: kuramaScene }, hokage: { n: 'Village at sunset', p: hokage }, zoro: { n: 'Moonlit blades', p: zoroScene }, tangerine: { n: 'Tangerine sunset', p: tangerine }, wisteria: { n: 'Wisteria night', p: wisteria }, lounge: { n: 'Midnight lounge', p: lounge }, leaf: { n: 'Leaf village storm', p: leafNight }, firefist: { n: 'Sea of fire', p: fireFist }, room: { n: 'Snowfall ROOM', p: roomScene }, baratie: { n: 'Floating restaurant', p: baratie }, drum: { n: 'Cherry-blossom snow', p: drum }, hitman: { n: 'Six after six', p: hitman }, noir: { n: 'Rain-slick noir', p: noir }, velvet: { n: 'Velvet candlelight', p: velvet }, casino: { n: 'Casino floor', p: casino }, goat: { n: 'Hall of eight', p: goat }, albiceleste: { n: 'World Cup night', p: (g) => campNou(g, { c1: '#75aadb', c2: '#ffffff', tifo: 'CAMPEONES ★★★', tc: '#e8c35a' }) }, king: { n: 'Royal gold', p: king },
   };
 
   /* ===================== HEROES ===================== */
@@ -788,10 +842,10 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   /* ===================== LOOKS ===================== */
   const FOCUS = { spot: 'Spotlight beam', pass: 'Football pass', arc: 'Ball-tracking arc', ripple: 'Water ripple', aura: 'Energy aura' };
   const WAKE = { room: 'ROOM sphere', fire: 'Fire Fist blaze', powerup: 'Power-up aura', slash: 'Three-sword slash', storm: 'Thunderstorm', flutter: 'Butterfly swarm', sharingan: 'Sharingan spin', tunnel: 'Stadium tunnel walk-out', panels: 'Manga panels', ink: 'Ink brush wipe', bloom: 'Light bloom', crt: 'Old TV switch-on' };
-  const CLOCK = { thin: 'Thin', roll: 'Rolling seconds', board: 'Stadium scoreboard', over: 'Cricket over', brush: 'Brush stroke', crt: 'Retro pixel' };
-  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)', dragonballs: 'Dragon Balls (gather over it)', pole: 'Power Pole (extends to it)', cloud: 'Thundercloud (drifts over it)', butterflies: 'Butterflies (fly to it)', chidori: 'Chidori (zips to it)', crows: 'Crows (fly to it)', room: 'ROOM (wraps it)', hearts: 'Hearts (float to it)', hands: 'Hands (point at it)', chopperhat: 'Chopper\'s hat (turns to it)', bat: 'Cricket bat (points at it)', fedora: 'Fedora (tilts to it)', dice: 'Dice (roll to it)' };
+  const CLOCK = { analog: 'Analog dial', words: 'In words', neon: 'Neon tube', flap: 'Split-flap board', ring: 'Seconds ring', thin: 'Thin', roll: 'Rolling seconds', board: 'Stadium scoreboard', over: 'Cricket over', brush: 'Brush stroke', crt: 'Retro pixel' };
+  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)', dragonballs: 'Dragon Balls (gather over it)', pole: 'Power Pole (extends to it)', cloud: 'Thundercloud (drifts over it)', butterflies: 'Butterflies (fly to it)', chidori: 'Chidori (zips to it)', crows: 'Crows (fly to it)', room: 'ROOM (wraps it)', hearts: 'Hearts (float to it)', hands: 'Hands (point at it)', chopperhat: 'Chopper\'s hat (turns to it)', bat: 'Cricket bat (points at it)', fedora: 'Fedora (tilts to it)', dice: 'Dice (roll to it)', ballondor: 'Golden ball (floats over it)', dribble: 'Dribbling ball (weaves to it)', crown: 'Crown (hovers over it)' };
   const EYE_TYPES = ['sharingan', 'mangekyo', 'six', 'saiyan', 'ui', 'kurama', 'sage'];
-  const AMB = { auto: 'Matches the scene', none: 'None', flashes: 'Camera flashes', flags: 'Flags and flashes', fireworks: 'Fireworks', crows: 'Crows', petals: 'Petals', embers: 'Embers', sparks: 'Blue sparks', gold: 'Golden sparks', silver: 'Silver sparks', leaves: 'Falling leaves', wisteria: 'Wisteria petals', rain: 'Rain', snow: 'Snow' };
+  const AMB = { auto: 'Matches the scene', none: 'None', flashes: 'Camera flashes', flags: 'Flags and flashes', fireworks: 'Fireworks', crows: 'Crows', petals: 'Petals', embers: 'Embers', confetti: 'Confetti', sparks: 'Blue sparks', gold: 'Golden sparks', silver: 'Silver sparks', leaves: 'Falling leaves', wisteria: 'Wisteria petals', rain: 'Rain', snow: 'Snow' };
   const MOMENT = { goal: 'Goal!', six: 'Six!', beam: 'Kamehameha', drop: 'New episode', none: 'None' };
   const HEROOPT = { none: 'None', rotate: 'Rotate my heroes', messi: 'Lionel Messi', kohli: 'Virat Kohli', rohit: 'Rohit Sharma', goku: 'Goku', naruto: 'Naruto', kakashi: 'Kakashi', itachi: 'Itachi', ace: 'Ace', law: 'Law', sanji: 'Sanji', robin: 'Robin', chopper: 'Chopper', luffy: 'Luffy', zoro: 'Zoro', nami: 'Nami', shinobu: 'Shinobu', gojo: 'Gojo', tanjiro: 'Tanjiro' };
   const ICONS = { white: 'White logos', tiles: 'Colour tiles' };
@@ -800,7 +854,11 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     L('camp-nou', 'Camp Nou Nights', 'Football', 'G', 'campnou', 'messi', 'none', 'pass', 'tunnel', 'board', 'flags', 'goal', '#edbb00', 'BARÇA 2 – 1 R. MADRID · 67\''),
     L('clasico', 'El Clásico Eve', 'Football', 'G', 'campnou', 'none', 'none', 'spot', 'tunnel', 'board', 'flashes', 'goal', '#a50044', 'EL CLÁSICO · KICK-OFF 20:45'),
     L('floodlights', 'Floodlights', 'Football', 'B', 'floodlights', 'none', 'none', 'pass', 'tunnel', 'thin', 'flashes', 'goal', '#9fd8ff', ''),
+    L('goat', 'GOAT', 'Football', 'G', 'goat', 'messi', 'ballondor', 'spot', 'bloom', 'analog', 'gold', 'goal', '#e8c35a', '', { goalText: 'Messi · top corner, again' }),
+    L('albiceleste', 'Albiceleste', 'Football', 'G', 'albiceleste', 'messi', 'dribble', 'pass', 'tunnel', 'flap', 'confetti', 'goal', '#75aadb', '', { goalText: 'Messi · World champion' }),
     L('wankhede', 'Wankhede Roar', 'Cricket', 'G', 'wankhede', 'rohit', 'none', 'arc', 'tunnel', 'over', 'fireworks', 'six', '#d1ab3e', ''),
+    L('king-kohli', 'King Kohli', 'Cricket', 'G', 'king', 'kohli', 'crown', 'aura', 'bloom', 'neon', 'gold', 'six', '#ffcc33', ''),
+    L('chase-master', 'Chase Master', 'Cricket', 'G', 'bluebillion', 'kohli', 'bat', 'arc', 'tunnel', 'board', 'flashes', 'six', '#ff9933', 'IND 248/3 · NEED 42 OFF 30'),
     L('blue-billion', 'Blue Billion', 'Cricket', 'G', 'bluebillion', 'kohli', 'none', 'arc', 'bloom', 'board', 'flashes', 'six', '#ff9933', 'IND 287/4 · 47.2 OV'),
     L('hero-wall', 'Hero Wall', 'Heroes', 'G', 'black', 'rotate', 'sharingan', 'spot', 'sharingan', 'roll', 'none', 'drop', '#e5303a', ''),
     L('super-saiyan', 'Super Saiyan', 'Heroes', 'G', 'saiyan', 'goku', 'dragonballs', 'aura', 'powerup', 'roll', 'gold', 'beam', '#ffd23c', ''),
@@ -846,9 +904,11 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     tab: 'looks', cat: 'All', q: '', who: store.get('who', 'G'), look: store.get('look', 'camp-nou'), over: store.get('over', {}),
     favs: store.get('favs', ['camp-nou', 'hero-wall', 'super-saiyan', 'three-sword', 'crimson-moon', 'wankhede']), mine: store.get('mine', []), partner: store.get('partner', ['K-drama', 'Travel', 'Plants']),
     toggles: store.get('toggles', { greeting: true, date: true, scores: true, anime: true, trail: false, photos: false, sounds: false, askwho: true }),
+    wid: store.get('wid', { facts: true, style: 'card', topics: 'look', countdown: false }),
+    hub: store.get('hub', { cricket: true, football: true, anime: true, trails: true, next: true, facts: true, teams: ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL'], shows: ['One Piece', 'Jujutsu Kaisen', 'Demon Slayer'] }),
     rules: store.get('rules', { match: true, india: true, ipl: true, episode: true, weekend: true, late: true, fest: true, surprise: false }),
   };
-  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules'].forEach((k) => store.set(k, S[k]));
+  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules', 'wid', 'hub'].forEach((k) => store.set(k, S[k]));
   const allLooks = () => LOOKS.concat(S.mine);
   const base = () => allLooks().find((l) => l.id === S.look) || LOOKS[0];
   const eff = () => Object.assign({}, base(), S.over);
@@ -877,6 +937,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     if (a === 'crows') for (let i = 0; i < 7; i++) add('<div class="crow" style="top:' + (120 + R() * 420) + 'px;--s:' + (.6 + R() * 1.2) + ';--dy:' + ((R() - .5) * 200) + 'px;animation-duration:' + (14 + R() * 14) + 's;animation-delay:' + (-R() * 20) + 's"><i style="animation-delay:' + (-R()) + 's"></i></div>');
     const fall = (n, col, size, up, dur) => { for (let i = 0; i < n; i++) { const s = size * (.6 + R() * .8); add('<span class="pt" style="left:' + (R() * 1920) + 'px;top:' + (up ? 1080 : -20) + 'px;width:' + s + 'px;height:' + s + 'px;background:' + col + ';opacity:.85;--dx:' + ((R() - .5) * 240) + 'px;animation:' + (up ? 'rise' : 'fall') + ' ' + dur * (.7 + R() * .8) + 's ' + (-R() * dur) + 's linear infinite"></span>'); } };
     if (a === 'petals') fall(36, '#ffb7d0', 14, false, 12);
+    if (a === 'confetti') { ['#75aadb', '#ffffff', '#e8c35a'].forEach((c) => fall(18, c, 12, false, 8)); amb.querySelectorAll('.pt').forEach((p) => { p.style.borderRadius = '2px'; }); }
     if (a === 'snow') fall(60, '#fff', 8, false, 10);
     if (a === 'embers') fall(36, '#ffa040', 6, true, 7);
     if (a === 'sparks') fall(40, '#9fd8ff', 5, true, 6);
@@ -901,7 +962,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   const APPS = [['Fan Hub', 'hub', '#c39bff', '#3a1d6e'], ['Crunchyroll', 'crunchy', '#f47521', '#f47521'], ['JioHotstar', 'hotstar', '#6f7dff', '#2a2aa0'], ['YouTube', 'yt', '#ff2b2b', '#c4161c'], ['Netflix', 'nf', '#e50914', '#7a0008'], ['Spotify', 'spotify', '#1ed760', '#128a3e'], ['Prime Video', 'prime', '#00a8e1', '#0a6f96'], ['FanCode', 'fancode', '#ff6a13', '#9a3a08'], ['Settings', 'gear', '#ffffff', '#3a3a44']];
   const SP = 200, X0 = (W - (APPS.length - 1) * SP) / 2, dock = $('dock');
   const appEls = APPS.map(([n, k, c, t], i) => { const d = document.createElement('div'); d.className = 'app'; d.style.left = (X0 + i * SP - 60) + 'px'; d.style.setProperty('--tile', t);
-    d.innerHTML = '<div class="ic"><svg viewBox="0 0 100 100">' + ICON[k] + '</svg></div><div class="nm">' + n + '</div>'; d.addEventListener('click', () => focusTo(i)); dock.appendChild(d); return d; });
+    d.innerHTML = '<div class="ic"><svg viewBox="0 0 100 100">' + ICON[k] + '</svg></div><div class="nm">' + n + '</div>'; d.addEventListener('click', () => { if (foc === i && i === 0) openHub(true); else focusTo(i); }); dock.appendChild(d); return d; });
   let foc = 0, prev = 0;
   const xOf = (i) => X0 + i * SP;
   function setupFx() {
@@ -978,6 +1039,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   const cloudHTML = () => '<div class="cloudw" id="cloudw"><svg viewBox="0 0 300 140" width="300" height="140" style="position:absolute;top:0;overflow:visible"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a6688"/><stop offset="1" stop-color="#232a40"/></linearGradient></defs><path d="M40 120 Q0 120 6 88 Q10 58 46 62 Q50 20 98 24 Q130 -6 170 24 Q214 10 228 52 Q290 50 292 92 Q296 124 254 122 Z" fill="url(#cg)" stroke="#9fc4ff" stroke-width="3"/><path class="bolt" d="M150 118 L132 168 L156 166 L138 222 L190 150 L162 152 L178 118 Z" fill="#fff6a8" style="filter:drop-shadow(0 0 12px #fff6a8)"/></svg><div class="rain"></div></div>';
   const BF = '<svg viewBox="0 0 70 56" width="70" height="56"><defs><linearGradient id="bw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2fd0b0"/><stop offset=".5" stop-color="#c9a2ff"/><stop offset="1" stop-color="#2fd0b0"/></linearGradient></defs><g class="w"><path d="M35 28 C 20 2, 2 4, 6 22 C 8 32, 22 34, 35 30 C 22 34, 10 50, 22 52 C 30 52, 34 40, 35 30 C 36 40, 40 52, 48 52 C 60 50, 48 34, 35 30 C 48 34, 62 32, 64 22 C 68 4, 50 2, 35 28 Z" fill="url(#bw)" opacity=".92"/></g><rect x="33.5" y="18" width="3" height="22" rx="1.5" fill="#1a0f2a"/></svg>';
   const bflyHTML = () => [...Array(6)].map((_, i) => '<div class="bfly" id="bf' + i + '" style="transition-delay:' + i * .08 + 's;filter:drop-shadow(0 0 10px #c9a2ff)">' + BF + '</div>').join('');
+  const crownHTML = () => '<div class="dball" id="crown" style="background:none;box-shadow:none;width:180px;height:130px;margin:-65px 0 0 -90px"><i></i><svg viewBox="0 0 180 130" style="width:180px;height:130px;filter:drop-shadow(0 0 24px rgba(255,200,60,.9))"><path d="M14 110 L24 30 L62 72 L90 14 L118 72 L156 30 L166 110 Z" fill="#ffcc33" stroke="#a87a1a" stroke-width="5"/><rect x="14" y="100" width="152" height="20" rx="6" fill="#e8b020"/><circle cx="90" cy="84" r="11" fill="#1f5fd1"/><circle cx="52" cy="90" r="8" fill="#ff9933"/><circle cx="128" cy="90" r="8" fill="#138808"/><circle cx="24" cy="30" r="7" fill="#fff6c8"/><circle cx="90" cy="14" r="7" fill="#fff6c8"/><circle cx="156" cy="30" r="7" fill="#fff6c8"/></svg></div>';
   const chidHTML = () => { let d = ''; for (let k = 0; k < 10; k++) { const a = k / 10 * 6.283; let x = 115, y = 115, p = 'M115 115'; for (let s = 0; s < 4; s++) { x += Math.cos(a) * 22 + (Math.random() - .5) * 18; y += Math.sin(a) * 22 + (Math.random() - .5) * 18; p += ' L' + x.toFixed(0) + ' ' + y.toFixed(0); } d += '<path d="' + p + '" stroke="#dff6ff" stroke-width="3" fill="none"/>'; }
     return '<div class="chid" id="chid"><svg viewBox="0 0 230 230" style="filter:drop-shadow(0 0 10px #7fc8ff)">' + d + '</svg></div>'; };
   const CROW = '<svg viewBox="0 0 90 60" width="90" height="60"><g class="wg"><path d="M45 34 C 30 10, 10 8, 2 18 C 16 18, 28 26, 40 38 Z M45 34 C 60 10, 80 8, 88 18 C 74 18, 62 26, 50 38 Z" fill="#050203"/></g><ellipse cx="45" cy="38" rx="9" ry="12" fill="#050203"/><circle cx="45" cy="26" r="6" fill="#050203"/><circle cx="47" cy="25" r="1.6" fill="#ff2a2a"/></svg>';
@@ -986,7 +1048,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   const diceHTML = () => [3, 5].map((n, i) => '<div class="die" id="dc' + i + '">' + [...Array(9)].map((_, k) => ({ 3: [0, 4, 8], 5: [0, 2, 4, 6, 8] }[n].includes(k) ? '<i></i>' : '<span></span>')).join('') + '</div>').join('');
   const ARM = '<rect x="0" y="-16" width="300" height="32" rx="16" fill="#d9a88a"/><rect x="0" y="-18" width="150" height="36" rx="6" fill="#6a3aa8"/><ellipse cx="330" cy="0" rx="50" ry="38" fill="#e0b090"/><rect x="350" y="-12" width="96" height="24" rx="12" fill="#e0b090"/><rect x="320" y="-46" width="40" height="18" rx="9" fill="#d8a888" transform="rotate(-25 340 -37)"/><path d="M300 -22 q 18 -10 30 0" stroke="#c89878" stroke-width="5" fill="none"/>';
   const handsSVG = () => '<svg class="swords" viewBox="0 0 1920 1080"><g style="filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))">' + [0, 1, 2].map((k) => '<g class="sword" id="sw' + k + '">' + ARM + '</g>').join('') + '</g>' + [0, 1, 2].map((k) => '<g id="pt' + k + '"></g>').join('') + '</svg>';
-  const batSVG = () => '<svg class="swords" viewBox="0 0 1920 1080"><defs><linearGradient id="willow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e2b4"/><stop offset="1" stop-color="#c9a46a"/></linearGradient></defs><g class="sword" id="sw1" style="filter:drop-shadow(0 0 16px rgba(209,171,62,.6))"><rect x="0" y="-11" width="170" height="22" rx="10" fill="#004ba0"/><path d="M' + [...Array(9)].map((_, i) => (8 + i * 18) + ' -11 l9 22').join(' M') + '" stroke="#d1ab3e" stroke-width="4"/><path d="M170 -14 L200 -40 L520 -44 Q540 0 520 44 L200 40 L170 14 Z" fill="url(#willow)"/><path d="M220 -6 L500 -8 L500 8 L220 6 Z" fill="#c9a46a" opacity=".6"/><text x="360" y="12" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="34" fill="#004ba0">45</text></g></svg>';
+  const batSVG = () => '<svg class="swords" viewBox="0 0 1920 1080"><defs><linearGradient id="willow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e2b4"/><stop offset="1" stop-color="#c9a46a"/></linearGradient></defs><g class="sword" id="sw1" style="filter:drop-shadow(0 0 16px rgba(209,171,62,.6))"><rect x="0" y="-11" width="170" height="22" rx="10" fill="#004ba0"/><path d="M' + [...Array(9)].map((_, i) => (8 + i * 18) + ' -11 l9 22').join(' M') + '" stroke="#d1ab3e" stroke-width="4"/><path d="M170 -14 L200 -40 L520 -44 Q540 0 520 44 L200 40 L170 14 Z" fill="url(#willow)"/><path d="M220 -6 L500 -8 L500 8 L220 6 Z" fill="#c9a46a" opacity=".6"/><text x="360" y="12" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="34" fill="#004ba0">' + ((HEROES[eff().hero] || {}).num || '45') + '</text></g></svg>';
   const chopperSVG = () => '<div class="hatwrap"><svg viewBox="-260 -200 520 380" width="520" height="360" style="overflow:visible"><g class="hateyes" id="hatEyes"><ellipse cx="-50" cy="110" rx="22" ry="28" fill="#0b0b0b"/><ellipse cx="50" cy="110" rx="22" ry="28" fill="#0b0b0b"/><circle cx="-42" cy="98" r="8" fill="#fff"/><circle cx="58" cy="98" r="8" fill="#fff"/><ellipse cx="0" cy="150" rx="22" ry="14" fill="#3a7ad8"/></g>' +
     '<g class="hatg" id="hatG"><path d="M-150 -110 L-230 -190 M-190 -150 L-250 -140 M150 -110 L230 -190 M190 -150 L250 -140" stroke="#8a5a2a" stroke-width="16" stroke-linecap="round"/><ellipse cx="0" cy="40" rx="200" ry="40" fill="#e86aa6"/><rect x="-120" y="-160" width="240" height="200" rx="10" fill="#ff7fb8"/><ellipse cx="0" cy="-160" rx="120" ry="26" fill="#ff9fcc"/><rect x="-120" y="-10" width="240" height="34" fill="#fff"/><path d="M-36 -110 L36 -50 M36 -110 L-36 -50" stroke="#fff" stroke-width="22" stroke-linecap="round"/></g></svg></div>';
   const fedoraSVG = () => '<div class="hatwrap"><svg viewBox="-260 -180 520 360" width="520" height="360" style="overflow:visible"><g class="hateyes" id="hatEyes"><ellipse cx="-56" cy="96" rx="14" ry="5" fill="#f2e6c8" opacity=".85"/><ellipse cx="56" cy="96" rx="14" ry="5" fill="#f2e6c8" opacity=".85"/></g><g class="hatg" id="hatG" style="filter:drop-shadow(0 10px 20px rgba(0,0,0,.8))"><ellipse cx="0" cy="30" rx="250" ry="48" fill="#1a1a1c"/><path d="M-140 26 Q-150 -120 -40 -130 Q0 -100 40 -130 Q150 -120 140 26 Z" fill="#232326"/><path d="M-142 0 Q0 -16 142 0 L140 26 Q0 12 -140 26 Z" fill="#6a1020"/></g></svg></div>';
@@ -995,7 +1057,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       '<ellipse cx="126" cy="0" rx="9" ry="26" fill="#c9a24e"/><path d="M136 -7 Q320 -16 480 -4 L500 2 Q320 2 136 7 Z" fill="url(#bl)"/><path class="glint" d="M140 -3 Q320 -10 490 -1" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="60 400" opacity=".9"/></g></g>';
     return '<svg class="swords" viewBox="0 0 1920 1080"><defs><linearGradient id="bl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#b9c3cf"/><stop offset="1" stop-color="#5f6a78"/></linearGradient><filter id="swg"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#3ddc84" flood-opacity=".6"/></filter></defs><g filter="url(#swg)">' + one(0, '#f4f4f4') + one(1, '#7a1a1a') + one(2, '#151515') + '</g></svg>';
   }
-  function buildEyes() { const m = eff().mascot, e = $('eyes'), tr = $('tracker'); const isEye = EYE_TYPES.includes(m); e.style.display = isEye ? '' : 'none'; tr.innerHTML = m === 'luffy' ? hatSVG() : m === 'zoro' ? swordsSVG() : m === 'dragonballs' ? ballsHTML() : m === 'pole' ? poleSVG() : m === 'cloud' ? cloudHTML() : m === 'butterflies' ? bflyHTML() : m === 'chidori' ? chidHTML() : m === 'crows' ? crowsHTML() : m === 'room' ? '<div class="roomd" id="roomd"></div>' : m === 'hearts' ? heartsHTML() : m === 'hands' ? handsSVG() : m === 'chopperhat' ? chopperSVG() : m === 'bat' ? batSVG() : m === 'fedora' ? fedoraSVG() : m === 'dice' ? diceHTML() : '';
+  function buildEyes() { const m = eff().mascot, e = $('eyes'), tr = $('tracker'); const isEye = EYE_TYPES.includes(m); e.style.display = isEye ? '' : 'none'; tr.innerHTML = m === 'luffy' ? hatSVG() : m === 'zoro' ? swordsSVG() : m === 'dragonballs' ? ballsHTML() : m === 'pole' ? poleSVG() : m === 'cloud' ? cloudHTML() : m === 'butterflies' ? bflyHTML() : m === 'chidori' ? chidHTML() : m === 'crows' ? crowsHTML() : m === 'room' ? '<div class="roomd" id="roomd"></div>' : m === 'hearts' ? heartsHTML() : m === 'hands' ? handsSVG() : m === 'chopperhat' ? chopperSVG() : m === 'bat' ? batSVG() : m === 'fedora' ? fedoraSVG() : m === 'dice' ? diceHTML() : m === 'ballondor' ? '<div class="dball lead" id="gold" style="background:radial-gradient(circle at 35% 30%, #fff8d8 0 10%, #f2cf62 35%, #a87a1a 80%);box-shadow:0 0 60px rgba(255,210,100,.9);width:110px;height:110px;margin:-55px 0 0 -55px"><i></i><b style="font:900 46px Outfit;color:#6a4a10">8</b></div>' : m === 'dribble' ? '<div class="ball" id="drib" style="top:0;width:46px;height:46px;box-shadow:0 0 20px rgba(117,170,219,.8)"></div>' : m === 'crown' ? crownHTML() : '';
     if (isEye) { $('eyeL').innerHTML = eyeSVG('L', m); $('eyeR').innerHTML = eyeSVG('R', m); } look(); }
   function look() {
     const ax = xOf(foc);
@@ -1006,6 +1068,9 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     const pole = $('pole'); if (pole) { const px = 960, py = 60, ang = Math.atan2(760 - py, ax - px), len = Math.hypot(ax - px, 760 - py) - 120; pole.style.transform = 'translate(' + px + 'px,' + py + 'px) rotate(' + ang * 180 / Math.PI + 'deg)'; $('rod').setAttribute('width', len); $('cap').setAttribute('x', 40 + len); }
     const cw = $('cloudw'); if (cw) cw.style.left = ax + 'px';
     const ch = $('chid'); if (ch) ch.style.left = ax + 'px';
+    const gd = $('gold'); if (gd) { gd.style.left = ax + 'px'; gd.style.top = '650px'; }
+    const cr = $('crown'); if (cr) { cr.style.left = ax + 'px'; cr.style.top = '660px'; }
+    const db = $('drib'); if (db) { const from = db._x == null ? ax : db._x; db._x = ax; const kf = []; for (let t = 0; t <= 1.0001; t += .1) kf.push({ transform: 'translate(' + (from + (ax - from) * t - 23) + 'px,' + (690 + Math.sin(t * Math.PI * 4) * 36 * (from === ax ? 0 : 1)) + 'px) rotate(' + t * 900 + 'deg)' }); db.animate(kf, { duration: 700, easing: 'ease-in-out', fill: 'forwards' }); }
     const rd = $('roomd'); if (rd) rd.style.left = ax + 'px';
     for (let k = 0; k < 7; k++) { const c = document.getElementById('cr' + k); if (!c) break; c.style.left = (ax + (k - 3) * 70 + (Math.random() - .5) * 30) + 'px'; c.style.top = (650 - Math.abs(k - 3) * 22 - Math.random() * 40) + 'px'; }
     for (let k = 0; k < 6; k++) { const h = document.getElementById('ht' + k); if (!h) break; h.style.left = (ax - 30 + (Math.random() - .5) * 220) + 'px'; h.style.top = (560 + Math.random() * 140) + 'px'; }
@@ -1024,6 +1089,10 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     if (e.clock === 'roll') c.innerHTML = '<div class="hm" id="hm"></div><div class="drum"><div class="col"><div class="strip" id="s10">' + [0, 1, 2, 3, 4, 5, 0].map((d) => '<div>' + d + '</div>').join('') + '</div></div><div class="col"><div class="strip" id="s1">' + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((d) => '<div>' + d + '</div>').join('') + '</div></div></div>';
     else if (e.clock === 'board') c.innerHTML = '<div class="t" id="hm"></div><div class="s" id="bs"></div>';
     else if (e.clock === 'over') c.innerHTML = '<span id="hm"></span><div class="balls" id="balls"></div>';
+    else if (e.clock === 'analog') { let t = ''; for (let i = 0; i < 60; i++) { const a = i * 6 * Math.PI / 180, r0 = i % 5 ? 100 : 88; t += '<line x1="' + (115 + Math.sin(a) * r0).toFixed(1) + '" y1="' + (115 - Math.cos(a) * r0).toFixed(1) + '" x2="' + (115 + Math.sin(a) * 108).toFixed(1) + '" y2="' + (115 - Math.cos(a) * 108).toFixed(1) + '" stroke="' + (i % 5 ? 'rgba(255,255,255,.4)' : '#fff') + '" stroke-width="' + (i % 5 ? 2 : 5) + '"/>'; }
+      c.innerHTML = '<span id="hm" style="display:none"></span><svg viewBox="0 0 230 230"><circle cx="115" cy="115" r="112" fill="rgba(0,0,0,.45)" stroke="var(--acc)" stroke-width="3"/>' + t + '<line id="ah" x1="115" y1="115" x2="115" y2="58" stroke="#fff" stroke-width="9" stroke-linecap="round"/><line id="am" x1="115" y1="115" x2="115" y2="30" stroke="#fff" stroke-width="5" stroke-linecap="round"/><line id="as" x1="115" y1="132" x2="115" y2="20" stroke="var(--acc)" stroke-width="2.5"/><circle cx="115" cy="115" r="7" fill="var(--acc)"/></svg>'; }
+    else if (e.clock === 'flap') c.innerHTML = '<span id="hm" style="display:none"></span><span id="f0"></span><span id="f1"></span><i>:</i><span id="f2"></span><span id="f3"></span>';
+    else if (e.clock === 'ring') c.innerHTML = '<svg viewBox="0 0 300 300"><circle cx="150" cy="150" r="140" fill="rgba(0,0,0,.35)" stroke="rgba(255,255,255,.15)" stroke-width="6"/><circle id="rg" cx="150" cy="150" r="140" fill="none" stroke="var(--acc)" stroke-width="6" stroke-linecap="round" stroke-dasharray="880" stroke-dashoffset="880" style="transition:stroke-dashoffset .9s linear"/></svg><b id="hm"></b>';
     else c.innerHTML = '<span id="hm"></span>';
     last.t = last.o = -1; tick();
   }
@@ -1034,21 +1103,54 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     hm.textContent = pad(n.getHours()) + ':' + pad(n.getMinutes());
     if (e.clock === 'roll') { const s = n.getSeconds(), t = Math.floor(s / 10), o = s % 10; if (o !== last.o) { roll($('s1'), o, last.o, 9); last.o = o; } if (t !== last.t) { roll($('s10'), t, last.t, 5); last.t = t; } }
     if (e.clock === 'board') $('bs').textContent = e.board || 'KICK-OFF 20:45';
+    if (e.clock === 'analog') { const hh = n.getHours() % 12 + n.getMinutes() / 60, mm = n.getMinutes() + n.getSeconds() / 60; $('ah').setAttribute('transform', 'rotate(' + hh * 30 + ' 115 115)'); $('am').setAttribute('transform', 'rotate(' + mm * 6 + ' 115 115)'); $('as').setAttribute('transform', 'rotate(' + n.getSeconds() * 6 + ' 115 115)'); }
+    if (e.clock === 'flap') { const str = pad(n.getHours()) + pad(n.getMinutes()); for (let k = 0; k < 4; k++) { const el = $('f' + k); if (el.textContent !== str[k]) { el.textContent = str[k]; el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip'); } } }
+    if (e.clock === 'ring') { const sc = n.getSeconds(); $('rg').style.transition = sc === 0 ? 'none' : ''; $('rg').style.strokeDashoffset = 880 - 880 * sc / 59; }
+    if (e.clock === 'words') { const W1 = ['twelve', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven']; const mm = Math.round(n.getMinutes() / 5) * 5; let h = n.getHours() + (mm > 30 ? 1 : 0); const hw = W1[h % 12];
+      const M = { 0: '', 5: 'five past', 10: 'ten past', 15: 'quarter past', 20: 'twenty past', 25: 'twenty-five past', 30: 'half past', 35: 'twenty-five to', 40: 'twenty to', 45: 'quarter to', 50: 'ten to', 55: 'five to', 60: '' }[mm];
+      hm.innerHTML = (M ? M + ' <b>' + hw + '</b>' : 'It\'s <b>' + hw + '</b> o\'clock'); }
     if (e.clock === 'over') { const b = Math.floor(n.getSeconds() / 10); $('balls').innerHTML = [0, 1, 2, 3, 4, 5].map((i) => '<i class="' + (i <= b ? 'on' : '') + '"></i>').join(''); }
     $('date').textContent = D[n.getDay()] + ' ' + n.getDate() + ' ' + MO[n.getMonth()];
     const h = n.getHours(); $('greet').textContent = S.who === 'X' ? 'Welcome' : (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ', ' + PEOPLE[S.who].name;
     if (e.hero === 'rotate') { heroTimer++; const left = 300 - (heroTimer % 300); const sp = $('hn').querySelector('span'); if (sp) sp.textContent = 'Next hero in ' + Math.floor(left / 60) + ':' + pad(left % 60); if (left === 300) { heroIdx++; paint(); } }
   }
   setInterval(tick, 1000);
+  const FACTS = {
+    messi: ['Lionel Messi has won the Ballon d\'Or eight times, more than any other player.', 'Messi scored 91 goals in 2012, the most ever in a calendar year.', 'Messi captained Argentina to the 2022 World Cup and won the Golden Ball.', 'Messi is Barcelona\'s all-time top scorer, with 672 goals.'],
+    barca: ['Camp Nou opened in 1957 and held about 99,000 fans before its rebuild.', 'Barça\'s motto, "Més que un club", means "more than a club".', 'In 2009 Barcelona won six trophies in one calendar year, the first sextuple.'],
+    kohli: ['Virat Kohli was the first batter to score 50 ODI centuries, in the 2023 World Cup semi-final.', 'Kohli scored 765 runs at the 2023 World Cup, the most by anyone at a single World Cup.', 'Kohli captained India to the Under-19 World Cup title in 2008.'],
+    rohit: ['Rohit Sharma\'s 264 against Sri Lanka in 2014 is the highest score in ODI cricket.', 'Rohit is the only batter with three ODI double centuries.', 'Rohit captained India to the 2024 T20 World Cup title.', 'Rohit has led Mumbai Indians to five IPL titles.'],
+    onepiece: ['One Piece has sold over 500 million copies worldwide.', 'One Piece began in Weekly Shōnen Jump in 1997.', 'Luffy\'s dream is to become King of the Pirates.'],
+    naruto: ['Naruto ran in Weekly Shōnen Jump from 1999 to 2014, for 700 chapters.', 'Kakashi Hatake went on to become the Sixth Hokage.'],
+    dbz: ['Dragon Ball began in 1984, created by Akira Toriyama.', 'The Kamehameha is named after Kamehameha I, the king who united Hawaii.'],
+    jjk: ['Jujutsu Kaisen began in Weekly Shōnen Jump in 2018.'],
+    ds: ['Demon Slayer: Mugen Train became the highest-grossing film ever in Japan in 2020.', 'Shinobu Kocho fights with poison, because she is not strong enough to behead demons.'],
+    hiking: ['The Western Ghats, home of the Sahyadris, became a UNESCO World Heritage Site in 2012.'],
+  };
+  const TOPIC = { messi: ['messi', 'barca'], kohli: ['kohli'], rohit: ['rohit'], goku: ['dbz'], naruto: ['naruto'], kakashi: ['naruto'], itachi: ['naruto'], luffy: ['onepiece'], zoro: ['onepiece'], nami: ['onepiece'], ace: ['onepiece'], law: ['onepiece'], sanji: ['onepiece'], robin: ['onepiece'], chopper: ['onepiece'], gojo: ['jjk'], tanjiro: ['ds'], shinobu: ['ds'] };
+  const SCENE_TOPIC = { campnou: ['barca'], albiceleste: ['messi'], goat: ['messi'], wankhede: ['rohit'], hitman: ['rohit'], bluebillion: ['kohli'], king: ['kohli'], dawn: ['hiking'], monsoon: ['hiking'], grandline: ['onepiece'], crimson: ['naruto'] };
+  let factI = 0;
+  function factPool() { const e = eff(); let t = S.wid.topics === 'all' ? Object.keys(FACTS) : (TOPIC[e.hero] || SCENE_TOPIC[e.scene] || Object.keys(FACTS)); if (e.hero === 'rotate') t = Object.keys(FACTS); return t.flatMap((k) => FACTS[k]); }
+  function renderFacts(next) {
+    const e = eff(), w = S.wid, card = $('factcard'), tk = $('ticker'); const on = w.facts && S.who !== 'X';
+    card.style.display = on && w.style === 'card' ? '' : 'none'; tk.style.display = on && w.style === 'ticker' ? '' : 'none';
+    const pool = factPool(); if (!pool.length) return;
+    if (next) factI++;
+    if (w.style === 'card') { card.style.opacity = 0; setTimeout(() => { $('factp').textContent = pool[factI % pool.length]; card.style.opacity = 1; }, next ? 450 : 0); }
+    else $('tickt').innerHTML = pool.map((f) => '<b>●</b>' + f).join('');
+    card.style.top = (e.clock === 'analog' || e.clock === 'ring' ? 470 : e.clock === 'words' ? 430 : 390) + 'px';
+  }
+  setInterval(() => { if (S.wid.facts && S.wid.style === 'card') renderFacts(true); }, 15000);
   function renderChips() {
     const t = S.toggles, out = [];
+    if (S.who === 'G' && S.wid.countdown) out.push('<div class="chip"><i style="background:#edbb00"></i>Barça v Sevilla · Sat 20:45 · in 2d 23h</div>');
     if (S.who === 'G') { if (t.scores) out.push('<div class="chip"><i style="background:#ff4d5e"></i>Barça 2–1 Real · 67\'</div>'); if (t.anime) out.push('<div class="chip"><i style="background:#ff9ec4"></i>New: Jujutsu Kaisen Ep 14</div>'); if (t.trail) out.push('<div class="chip"><i style="background:#7fe8a8"></i>Sunday hike: clear, 27°</div>'); }
     if (S.who === 'P' && S.partner.length) out.push('<div class="chip"><i style="background:#ff9ec4"></i>For you: ' + S.partner.slice(0, 2).join(' · ') + '</div>');
     $('chips').innerHTML = out.join('');
   }
   function applyTV(withWake) {
     const e = eff(); stage.style.setProperty('--acc', e.acc);
-    paint(); ambient(); setupFx(); buildEyes(); buildClock(); renderChips();
+    paint(); ambient(); setupFx(); buildEyes(); buildClock(); renderChips(); renderFacts(false); if ($('hub').classList.contains('on')) renderHub();
     dock.className = 'dock' + (e.icons === 'tiles' ? ' tiles' : '');
     $('greet').style.display = S.toggles.greeting ? '' : 'none'; $('date').style.display = S.toggles.date ? '' : 'none';
     renderFocus(true);
@@ -1057,6 +1159,19 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     if (withWake) wake();
   }
 
+  function renderHub() {
+    const h = S.hub, cards = [];
+    const team = (n) => h.teams.includes(n);
+    if (h.cricket && (team('India') || team('Mumbai Indians'))) cards.push('<div class="hc"><small><i></i>Cricket · next up</small><div class="big">' + (team('India') ? 'IND v AUS' : 'MI v CSK') + '</div><p>' + (team('India') ? '3rd T20I · Wankhede · toss in 2h 18m' : 'IPL returns in March') + '</p>' + (team('Mumbai Indians') && team('India') ? '<p style="opacity:.6">Mumbai Indians: IPL returns in March</p>' : '') + '</div>');
+    if (h.football && (team('FC Barcelona') || team('La Liga') || team('EPL'))) cards.push('<div class="hc"><small><i style="background:#ff4d5e"></i>Football · live</small><div class="big">BAR 2–1 RMA</div><p>67\' · Lewandowski, Yamal · Mbappé</p>' + (team('EPL') ? '<div class="rowt"><span>EPL · Liverpool v Man City</span><span>Sun 21:00</span></div>' : '') + (team('La Liga') ? '<div class="rowt"><span>La Liga · 1 Barcelona</span><span>25 pts</span></div>' : '') + '</div>');
+    if (h.anime && h.shows.length) cards.push('<div class="hc"><small><i style="background:#ff9ec4"></i>Anime · this week</small>' + h.shows.map((sh, i) => '<div class="rowt"><span>' + sh + '</span><span>' + ['Sun 21:30', 'Thu 22:00', 'Fri 23:00', 'Sat 20:00'][i % 4] + '</span></div>').join('') + '</div>');
+    if (h.trails) cards.push('<div class="hc"><small><i style="background:#7fe8a8"></i>Trails · this weekend</small><div class="big">GO SUNDAY</div><p>Rajmachi Fort · clear, 27° · leave by 06:00</p></div>');
+    if (h.next) cards.push('<div class="hc"><small><i style="background:#9c8cff"></i>Your next 72 hours</small><div class="rowt"><span>Toss · IND v AUS</span><span>Today</span></div><div class="rowt"><span>' + (h.shows[0] || 'One Piece') + ' new episode</span><span>Sun</span></div><div class="rowt"><span>Barça v Sevilla</span><span>Sat</span></div><div class="rowt"><span>Rajmachi hike</span><span>Sun 06:00</span></div></div>');
+    if (h.facts) { const pool = factPool(); cards.push('<div class="hc"><small><i></i>Did you know?</small><p style="font-size:25px">' + pool[(factI + 1) % pool.length] + '</p></div>'); }
+    $('hub').innerHTML = '<h2><i></i>Fan Hub<small>In the ' + base().name + ' look · Back returns Home</small></h2><div class="hubgrid">' + (cards.join('') || '<p style="font-size:26px;opacity:.7">Every card is switched off. Turn some on in Customise → Fan Hub on your phone.</p>') + '</div>';
+  }
+  function openHub(on) { const hb = $('hub'); if (on === undefined) on = !hb.classList.contains('on'); if (on) renderHub(); hb.classList.toggle('on', on); }
+  $('hub').addEventListener('click', () => openHub(false));
   const home = $('home'), ease = 'cubic-bezier(.6,0,.2,1)';
   function overlay() { stage.querySelectorAll('.over').forEach((o) => o.remove()); const o = document.createElement('div'); o.className = 'over'; stage.appendChild(o); return o; }
   const wakeEyes = (m) => '<div class="wakeeyes"><div style="position:absolute;left:0;width:200px;height:90px">' + eyeSVG('WL', m) + '</div><div class="wr" style="position:absolute;left:300px;width:200px;height:90px">' + eyeSVG('WR', m) + '</div></div>';
@@ -1143,7 +1258,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     const e = eff(); if (e.moment === 'none') return;
     const o = overlay(), R = Math.random;
     if (e.moment === 'goal') {
-      o.innerHTML = '<div style="position:absolute;inset:0;background:#fff" id="mf"></div><div class="moment-t" id="mt" style="color:#fff;text-shadow:10px 10px 0 #a50044,-10px -10px 0 #004d98,0 0 60px rgba(237,187,0,.6)">GOOOOOL!</div><div class="moment-s" id="ms" style="color:#edbb00">Lewandowski 67\' · Barça 3–1 Real</div>';
+      o.innerHTML = '<div style="position:absolute;inset:0;background:#fff" id="mf"></div><div class="moment-t" id="mt" style="color:#fff;text-shadow:10px 10px 0 #a50044,-10px -10px 0 #004d98,0 0 60px rgba(237,187,0,.6)">GOOOOOL!</div><div class="moment-s" id="ms" style="color:#edbb00">' + (e.goalText || 'Lewandowski 67\' · Barça 3–1 Real') + '</div>';
       for (let i = 0; i < 160; i++) { const c = ['#a50044', '#004d98', '#edbb00', '#fff'][i % 4]; o.insertAdjacentHTML('beforeend', '<span class="pt" style="left:' + R() * 1920 + 'px;top:-30px;width:' + (10 + R() * 12) + 'px;height:' + (6 + R() * 6) + 'px;border-radius:2px;background:' + c + ';--dx:' + (R() - .5) * 300 + 'px;animation:fall ' + (2.4 + R() * 2) + 's ' + R() * 1.2 + 's linear forwards"></span>'); }
       $('amb').classList.add('frenzy');
       $('mf').animate([{ opacity: .9 }, { opacity: 0 }], { duration: 500, fill: 'forwards' });
@@ -1172,6 +1287,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
   }
   $('momentTv').addEventListener('click', moment);
   $('wakeTv').addEventListener('click', wake);
+  $('hubTv').addEventListener('click', () => openHub());
   let toastT; function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1700); }
 
   const thumbs = {}; const tc = document.createElement('canvas'); tc.width = W; tc.height = H; const tg = tc.getContext('2d'); const th = document.createElement('canvas'); th.width = 384; th.height = 216; const thg = th.getContext('2d');
@@ -1217,7 +1333,13 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       '<div class="sec"><h3>The scene</h3><div class="box">' + F('t-scene', 'Scene', 'The painted backdrop', sel('t-scene', SCN, e.scene)) + F('t-hero', 'Hero', 'A poster on top of the scene', sel('t-hero', HEROOPT, e.hero)) + F('t-mascot', 'Watcher', 'Follows the selected app', sel('t-mascot', MASCOT, e.mascot)) + F('t-amb', 'Moving extras', '', sel('t-amb', AMB, e.amb)) + '</div></div>' +
       '<div class="sec"><h3>Effects</h3><div class="box">' + F('t-focus', 'When you move', '', sel('t-focus', FOCUS, e.focus)) + F('t-wake', 'When the TV wakes', '', sel('t-wake', WAKE, e.wake)) + F('t-moment', 'Big moment', 'Played by real goals, sixes and new episodes', sel('t-moment', MOMENT, e.moment)) + F('t-clock', 'Clock', '', sel('t-clock', CLOCK, e.clock)) + F('t-icons', 'App icons', '', sel('t-icons', ICONS, e.icons)) +
       F('t-motion', 'Motion', 'Calm suits a 1 GB TV or a sleepy evening', sel('t-motion', { full: 'Full', calm: 'Calm', off: 'Off' }, e.motion || 'full')) + F('t-acc', 'Accent colour', '', '<input type="color" id="t-acc" value="' + e.acc + '" style="width:44px;height:30px;border:0;background:none;padding:0">') + '</div></div>' +
-      '<div class="sec"><h3>On the Home screen</h3><div class="box">' + F('g-greeting', 'Greeting with your name', '', sw('g-greeting', t.greeting)) + F('g-date', 'Date', '', sw('g-date', t.date)) + F('g-scores', 'Live scores', 'Barça, India and Mumbai Indians', sw('g-scores', t.scores)) + F('g-anime', 'New episodes', 'One Piece, Jujutsu Kaisen, Demon Slayer', sw('g-anime', t.anime)) + F('g-trail', 'Weekend hike forecast', '', sw('g-trail', t.trail)) + F('g-photos', 'My own photos as heroes', 'From an album on your phone', sw('g-photos', t.photos)) + F('g-sounds', 'Soft click sounds', '', sw('g-sounds', t.sounds)) + '</div></div>';
+      '<div class="sec"><h3>On the Home screen</h3><div class="box">' + F('g-greeting', 'Greeting with your name', '', sw('g-greeting', t.greeting)) + F('g-date', 'Date', '', sw('g-date', t.date)) + F('g-scores', 'Live scores', 'Barça, India and Mumbai Indians', sw('g-scores', t.scores)) + F('g-anime', 'New episodes', 'One Piece, Jujutsu Kaisen, Demon Slayer', sw('g-anime', t.anime)) + F('g-trail', 'Weekend hike forecast', '', sw('g-trail', t.trail)) + F('g-photos', 'My own photos as heroes', 'From an album on your phone', sw('g-photos', t.photos)) + F('g-sounds', 'Soft click sounds', '', sw('g-sounds', t.sounds)) + '</div></div>' +
+      '<div class="sec"><h3>Widgets</h3><div class="box">' + F('w-facts', 'Did you know?', 'Facts about the heroes and teams in this look', sw('w-facts', S.wid.facts)) + F('w-style', 'Facts shown as', '', sel('w-style', { card: 'A card under the clock', ticker: 'A ticker along the bottom' }, S.wid.style)) +
+      F('w-topics', 'Facts about', '', sel('w-topics', { look: 'This look', all: 'All my interests' }, S.wid.topics)) + F('w-countdown', 'Next match countdown', 'A chip under the top-right buttons', sw('w-countdown', S.wid.countdown)) + '</div></div>' +
+      '<div class="sec"><h3>Fan Hub</h3><div class="box">' + [['cricket', 'Cricket card'], ['football', 'Football card'], ['anime', 'Anime schedule'], ['trails', 'Weekend trail forecast'], ['next', 'Your next 72 hours'], ['facts', 'Did you know?']].map(([k, l]) => F('h-' + k, l, '', sw('h-' + k, S.hub[k]))).join('') + '</div>' +
+      '<p class="note" style="margin-top:10px">Teams and leagues</p><div class="tags" style="margin-top:6px">' + ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'Real Madrid', 'Argentina', 'RCB'].map((x) => '<button data-hteam="' + x + '" class="' + (S.hub.teams.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>' +
+      '<p class="note" style="margin-top:10px">Shows</p><div class="tags" style="margin-top:6px">' + ['One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Naruto', 'Dragon Ball', 'Solo Leveling'].map((x) => '<button data-hshow="' + x + '" class="' + (S.hub.shows.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>' +
+      '<div class="row" style="margin-top:10px"><button class="btn hot" id="openHub">Open Fan Hub on the TV</button></div></div>';
   }
   const RULES = [['match', 'Barça match day', '2 hours before kickoff → Camp Nou Nights, goals play the moment'], ['india', 'India playing', 'From the toss → Blue Billion, sixes play the moment'], ['ipl', 'IPL season', 'March to May → Wankhede Roar in Mumbai Indians blue and gold'], ['episode', 'New episode out', 'One Piece → Grand Line, Jujutsu Kaisen → Domain Expansion, Demon Slayer → Water Breathing'], ['weekend', 'Weekend mornings', 'Saturday and Sunday before 10:00 → Trail Dawn with the hike forecast'], ['late', 'Late night', 'After 23:00 → calm motion, no moments'], ['fest', 'Festivals', 'Diwali and other festival looks switch on and off by date'], ['surprise', 'Surprise me every morning', 'A different favourite each day at 06:00']];
   function vAuto() {
@@ -1243,7 +1365,7 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
     body.innerHTML = { looks: vLooks, tweak: vTweak, auto: vAuto, people: vPeople, remote: vRemote }[S.tab](); bind();
     thumbQueue = [...body.querySelectorAll('[data-tid]')]; fillThumbs();
   }
-  function setLook(id) { S.look = id; S.over = {}; save(); applyTV(true); render(); toast(base().name + ' is on'); }
+  function setLook(id) { S.look = id; S.over = {}; save(); openHub(false); applyTV(true); render(); toast(base().name + ' is on'); }
   function bind() {
     body.querySelectorAll('[data-look]').forEach((c) => { const go = (ev) => { if (ev.target.closest('.fav')) return; setLook(c.dataset.look); }; c.addEventListener('click', go); c.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); go(ev); } }); });
     body.querySelectorAll('[data-fav]').forEach((b) => b.addEventListener('click', () => { const id = b.dataset.fav; S.favs = S.favs.includes(id) ? S.favs.filter((x) => x !== id) : S.favs.concat(id); save(); render(); }));
@@ -1256,6 +1378,12 @@ select { font: inherit; font-size: 13.5px; background: var(--raise); color: var(
       el.addEventListener(id === 't-acc' ? 'input' : 'change', () => { const bv = key === 'motion' ? (base().motion || 'full') : base()[key]; if (el.value === bv) delete S.over[key]; else S.over[key] = el.value; save(); applyTV(key === 'wake');
         if (key === 'moment' && el.value !== 'none') moment(); if (id !== 't-acc') render(); }); });
     ['greeting', 'date', 'scores', 'anime', 'trail', 'photos', 'sounds', 'askwho'].forEach((k) => { const el = $('g-' + k); if (el) el.addEventListener('change', () => { S.toggles[k] = el.checked; save(); applyTV(false); if (k === 'photos' && el.checked) toast('Your album would replace the drawn heroes'); }); });
+    ['facts', 'countdown'].forEach((k) => { const el = $('w-' + k); if (el) el.addEventListener('change', () => { S.wid[k] = el.checked; save(); renderFacts(false); renderChips(); }); });
+    ['style', 'topics'].forEach((k) => { const el = $('w-' + k); if (el) el.addEventListener('change', () => { S.wid[k] = el.value; save(); renderFacts(false); }); });
+    ['cricket', 'football', 'anime', 'trails', 'next', 'facts'].forEach((k) => { const el = $('h-' + k); if (el) el.addEventListener('change', () => { S.hub[k] = el.checked; save(); openHub(true); }); });
+    body.querySelectorAll('[data-hteam]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.hteam; S.hub.teams = S.hub.teams.includes(x) ? S.hub.teams.filter((y) => y !== x) : S.hub.teams.concat(x); save(); render(); openHub(true); }));
+    body.querySelectorAll('[data-hshow]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.hshow; S.hub.shows = S.hub.shows.includes(x) ? S.hub.shows.filter((y) => y !== x) : S.hub.shows.concat(x); save(); render(); openHub(true); }));
+    on('openHub', () => openHub(true));
     RULES.forEach(([k]) => { const el = $('r-' + k); if (el) el.addEventListener('change', () => { S.rules[k] = el.checked; save(); }); });
     on('reset', () => { S.over = {}; save(); applyTV(false); render(); toast('Back to ' + base().name); });
     on('saveMine', () => { const e = eff(), id = 'mine-' + Date.now(), name = 'My ' + base().name.replace(/^My /, ''); S.mine = S.mine.concat([Object.assign({}, e, { id, name, mine: true, cat: 'My looks', for: S.who === 'P' ? 'P' : S.who === 'X' ? 'B' : 'G' })]); S.look = id; S.over = {}; save(); applyTV(false); render(); toast('Saved as ' + name); });

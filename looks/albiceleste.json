@@ -1,0 +1,16 @@
+{
+  "id": "albiceleste",
+  "name": "Albiceleste",
+  "category": "Football",
+  "for": "owner",
+  "scene": "albiceleste",
+  "hero": "messi",
+  "watcher": "dribble",
+  "focus": "pass",
+  "wake": "tunnel",
+  "clock": "flap",
+  "icons": "white",
+  "extras": "confetti",
+  "moment": "goal",
+  "accent": "#75aadb"
+}

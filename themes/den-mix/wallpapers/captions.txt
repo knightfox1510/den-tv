@@ -2,54 +2,57 @@
 01-camp-nou.jpg	Camp Nou Nights
 02-clasico.jpg	El Clásico Eve
 03-floodlights.jpg	Floodlights
-04-wankhede.jpg	Wankhede Roar
-05-blue-billion.jpg	Blue Billion
-06-super-saiyan.jpg	Super Saiyan
-07-ultra-instinct.jpg	Ultra Instinct
-08-nine-tails.jpg	Nine-Tails
-09-sage-mode.jpg	Sage Mode
-10-straw-hat.jpg	Straw Hat
-11-three-sword.jpg	Three-Sword Style
-12-navigator.jpg	Navigator
-13-butterfly-mansion.jpg	Butterfly Mansion
-14-copy-ninja.jpg	Copy Ninja
-15-crow-genjutsu.jpg	Crow Genjutsu
-16-fire-fist.jpg	Fire Fist
-17-room.jpg	ROOM
-18-black-leg.jpg	Black Leg
-19-hana-hana.jpg	Hana Hana
-20-drum-island.jpg	Drum Island
-21-hitman.jpg	Hitman
-22-crimson-moon.jpg	Crimson Moon
-23-domain.jpg	Domain Expansion
-24-water-breathing.jpg	Water Breathing
-25-manga.jpg	Manga Panel
-26-anime-dusk.jpg	Anime Dusk
-27-trail-dawn.jpg	Trail Dawn
-28-monsoon.jpg	Sahyadri Monsoon
-29-neon.jpg	Neon Tokyo
-30-diwali.jpg	Diwali Night
-31-seoul.jpg	Seoul Nights
-32-marquee.jpg	Bollywood Marquee
-33-noir.jpg	Noir
-34-velvet.jpg	Velvet Night
-35-high-roller.jpg	High Roller
-36-midnight-lounge.jpg	Midnight Lounge
-37-hero-messi.jpg	Hero Wall · Messi
-38-hero-kohli.jpg	Hero Wall · Kohli
-39-hero-rohit.jpg	Hero Wall · Rohit
-40-hero-luffy.jpg	Hero Wall · Luffy
-41-hero-gojo.jpg	Hero Wall · Gojo
-42-hero-goku.jpg	Hero Wall · Goku
-43-hero-naruto.jpg	Hero Wall · Naruto
-44-hero-zoro.jpg	Hero Wall · Zoro
-45-hero-nami.jpg	Hero Wall · Nami
-46-hero-shinobu.jpg	Hero Wall · Shinobu
-47-hero-kakashi.jpg	Hero Wall · Kakashi
-48-hero-itachi.jpg	Hero Wall · Itachi
-49-hero-ace.jpg	Hero Wall · Ace
-50-hero-law.jpg	Hero Wall · Law
-51-hero-sanji.jpg	Hero Wall · Sanji
-52-hero-robin.jpg	Hero Wall · Robin
-53-hero-chopper.jpg	Hero Wall · Chopper
-54-hero-tanjiro.jpg	Hero Wall · Tanjiro
+04-goat.jpg	GOAT
+05-albiceleste.jpg	Albiceleste
+06-wankhede.jpg	Wankhede Roar
+07-king-kohli.jpg	King Kohli
+08-chase-master.jpg	Chase Master
+09-super-saiyan.jpg	Super Saiyan
+10-ultra-instinct.jpg	Ultra Instinct
+11-nine-tails.jpg	Nine-Tails
+12-sage-mode.jpg	Sage Mode
+13-straw-hat.jpg	Straw Hat
+14-three-sword.jpg	Three-Sword Style
+15-navigator.jpg	Navigator
+16-butterfly-mansion.jpg	Butterfly Mansion
+17-copy-ninja.jpg	Copy Ninja
+18-crow-genjutsu.jpg	Crow Genjutsu
+19-fire-fist.jpg	Fire Fist
+20-room.jpg	ROOM
+21-black-leg.jpg	Black Leg
+22-hana-hana.jpg	Hana Hana
+23-drum-island.jpg	Drum Island
+24-hitman.jpg	Hitman
+25-crimson-moon.jpg	Crimson Moon
+26-domain.jpg	Domain Expansion
+27-water-breathing.jpg	Water Breathing
+28-manga.jpg	Manga Panel
+29-anime-dusk.jpg	Anime Dusk
+30-trail-dawn.jpg	Trail Dawn
+31-monsoon.jpg	Sahyadri Monsoon
+32-neon.jpg	Neon Tokyo
+33-diwali.jpg	Diwali Night
+34-seoul.jpg	Seoul Nights
+35-marquee.jpg	Bollywood Marquee
+36-noir.jpg	Noir
+37-velvet.jpg	Velvet Night
+38-high-roller.jpg	High Roller
+39-midnight-lounge.jpg	Midnight Lounge
+40-hero-messi.jpg	Hero Wall · Messi
+41-hero-kohli.jpg	Hero Wall · Kohli
+42-hero-rohit.jpg	Hero Wall · Rohit
+43-hero-luffy.jpg	Hero Wall · Luffy
+44-hero-gojo.jpg	Hero Wall · Gojo
+45-hero-goku.jpg	Hero Wall · Goku
+46-hero-naruto.jpg	Hero Wall · Naruto
+47-hero-zoro.jpg	Hero Wall · Zoro
+48-hero-nami.jpg	Hero Wall · Nami
+49-hero-shinobu.jpg	Hero Wall · Shinobu
+50-hero-kakashi.jpg	Hero Wall · Kakashi
+51-hero-itachi.jpg	Hero Wall · Itachi
+52-hero-ace.jpg	Hero Wall · Ace
+53-hero-law.jpg	Hero Wall · Law
+54-hero-sanji.jpg	Hero Wall · Sanji
+55-hero-robin.jpg	Hero Wall · Robin
+56-hero-chopper.jpg	Hero Wall · Chopper
+57-hero-tanjiro.jpg	Hero Wall · Tanjiro
