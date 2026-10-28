@@ -1,0 +1,16 @@
+{
+  "id": "sage-mode",
+  "name": "Sage Mode",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "hokage",
+  "hero": "naruto",
+  "watcher": "sage",
+  "focus": "ripple",
+  "wake": "bloom",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "leaves",
+  "moment": "drop",
+  "accent": "#ffb020"
+}

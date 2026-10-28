@@ -1,0 +1,16 @@
+{
+  "id": "hero-wall",
+  "name": "Hero Wall",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "black",
+  "hero": "rotate",
+  "watcher": "sharingan",
+  "focus": "spot",
+  "wake": "sharingan",
+  "clock": "roll",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#e5303a"
+}

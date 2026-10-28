@@ -1,0 +1,17 @@
+{
+  "id": "blue-billion",
+  "name": "Blue Billion",
+  "category": "Cricket",
+  "for": "owner",
+  "scene": "bluebillion",
+  "hero": "kohli",
+  "watcher": "none",
+  "focus": "arc",
+  "wake": "bloom",
+  "clock": "board",
+  "icons": "white",
+  "extras": "flashes",
+  "moment": "six",
+  "accent": "#ff9933",
+  "scoreboard_text": "IND 287/4 · 47.2 OV"
+}

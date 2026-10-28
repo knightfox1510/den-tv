@@ -1,0 +1,16 @@
+{
+  "id": "monsoon",
+  "name": "Sahyadri Monsoon",
+  "category": "Outdoors",
+  "for": "everyone",
+  "scene": "monsoon",
+  "hero": "none",
+  "watcher": "none",
+  "focus": "ripple",
+  "wake": "bloom",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "rain",
+  "moment": "none",
+  "accent": "#7fe8a8"
+}

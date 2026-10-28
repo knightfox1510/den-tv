@@ -1,0 +1,16 @@
+{
+  "id": "trail-dawn",
+  "name": "Trail Dawn",
+  "category": "Outdoors",
+  "for": "everyone",
+  "scene": "dawn",
+  "hero": "none",
+  "watcher": "none",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "none",
+  "moment": "none",
+  "accent": "#ffb86b"
+}

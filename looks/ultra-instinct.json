@@ -1,0 +1,16 @@
+{
+  "id": "ultra-instinct",
+  "name": "Ultra Instinct",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "ui",
+  "hero": "goku",
+  "watcher": "ui",
+  "focus": "aura",
+  "wake": "powerup",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "silver",
+  "moment": "beam",
+  "accent": "#cfe0ff"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "neon",
+  "name": "Neon Tokyo",
+  "category": "Night & neon",
+  "for": "everyone",
+  "scene": "neon",
+  "hero": "none",
+  "watcher": "six",
+  "focus": "aura",
+  "wake": "crt",
+  "clock": "crt",
+  "icons": "white",
+  "extras": "rain",
+  "moment": "drop",
+  "accent": "#ff3df2"
+}

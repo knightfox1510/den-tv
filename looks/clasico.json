@@ -1,0 +1,17 @@
+{
+  "id": "clasico",
+  "name": "El Clásico Eve",
+  "category": "Football",
+  "for": "owner",
+  "scene": "campnou",
+  "hero": "none",
+  "watcher": "none",
+  "focus": "spot",
+  "wake": "tunnel",
+  "clock": "board",
+  "icons": "white",
+  "extras": "flashes",
+  "moment": "goal",
+  "accent": "#a50044",
+  "scoreboard_text": "EL CLÁSICO · KICK-OFF 20:45"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "nine-tails",
+  "name": "Nine-Tails",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "kurama",
+  "hero": "naruto",
+  "watcher": "kurama",
+  "focus": "aura",
+  "wake": "powerup",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "embers",
+  "moment": "drop",
+  "accent": "#ff6a00"
+}

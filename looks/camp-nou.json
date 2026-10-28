@@ -1,0 +1,17 @@
+{
+  "id": "camp-nou",
+  "name": "Camp Nou Nights",
+  "category": "Football",
+  "for": "owner",
+  "scene": "campnou",
+  "hero": "messi",
+  "watcher": "none",
+  "focus": "pass",
+  "wake": "tunnel",
+  "clock": "board",
+  "icons": "white",
+  "extras": "flags",
+  "moment": "goal",
+  "accent": "#edbb00",
+  "scoreboard_text": "BARÇA 2 – 1 R. MADRID · 67'"
+}

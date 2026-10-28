@@ -1,0 +1,16 @@
+{
+  "id": "straw-hat",
+  "name": "Straw Hat",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "grandline",
+  "hero": "luffy",
+  "watcher": "luffy",
+  "focus": "pass",
+  "wake": "ink",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#e8c16a"
+}

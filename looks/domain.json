@@ -1,0 +1,16 @@
+{
+  "id": "domain",
+  "name": "Domain Expansion",
+  "category": "Anime",
+  "for": "owner",
+  "scene": "domain",
+  "hero": "gojo",
+  "watcher": "six",
+  "focus": "aura",
+  "wake": "bloom",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "sparks",
+  "moment": "drop",
+  "accent": "#6fc3ff"
+}

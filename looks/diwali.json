@@ -1,0 +1,17 @@
+{
+  "id": "diwali",
+  "name": "Diwali Night",
+  "category": "Seasonal",
+  "for": "everyone",
+  "scene": "diwali",
+  "hero": "none",
+  "watcher": "none",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "fireworks",
+  "moment": "none",
+  "accent": "#ffc24a",
+  "season": "Nov"
+}

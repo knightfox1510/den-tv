@@ -1,0 +1,5 @@
+node_modules/
+*.apk
+backup/
+shots/
+.DS_Store

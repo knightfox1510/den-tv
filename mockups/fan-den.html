@@ -1,0 +1,702 @@
+<title>Fan Den TV</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&family=Chakra+Petch:wght@500;600;700&display=swap">
+<style>
+/* Layout: a 16:9 TV stage drawn at 1920x1080 and scaled to fit, with the page chrome as quiet controls around it. Single dark look by choice: it is a TV. */
+:root {
+  --page: #0a0b10;
+  --ink: #ece9f3;
+  --ink-dim: #a7a3b5;
+  --line: #262633;
+  --chip: #15161f;
+  --accent: #ff7ab6;
+  --accent2: #9c8cff;
+  --f-ui: "Outfit", "Segoe UI", system-ui, sans-serif;
+  --f-score: "Chakra Petch", "Outfit", ui-monospace, monospace;
+  color-scheme: dark;
+}
+body { background: var(--page); color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; }
+
+/* ---------- page chrome ---------- */
+.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; }
+.top h1 { margin: 0; font-weight: 300; font-size: clamp(26px, 4vw, 38px); letter-spacing: -0.01em; text-wrap: balance; }
+.top h1 b { font-weight: 600; }
+.top p { margin: 4px 0 0; color: var(--ink-dim); max-width: 60ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.seg { display: inline-flex; background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { font: inherit; font-size: 14px; color: var(--ink-dim); background: transparent; border: 0; border-radius: 999px; padding: 6px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.seg button[aria-pressed="true"] { background: #2a2a3a; color: var(--ink); }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.hint { color: var(--ink-dim); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+kbd { font-family: var(--f-ui); font-size: 12px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 0 6px; background: var(--chip); color: var(--ink); }
+
+/* ---------- the TV ---------- */
+.tvbox { display: grid; justify-items: center; gap: 0; }
+.tv { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 8px #050507, 0 0 0 9px #22222c, 0 40px 80px -20px rgba(0,0,0,.8); outline: none; }
+.tv:focus-visible { box-shadow: 0 0 0 8px #050507, 0 0 0 10px var(--accent), 0 40px 80px -20px rgba(0,0,0,.8); }
+.foot { width: 22%; height: 18px; margin-top: 9px; background: linear-gradient(#1c1c24, #0d0d12); border-radius: 0 0 14px 14px; clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%); }
+.stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; color: #fff; font-family: var(--f-ui); --mood: #ff7ab6; --mood2: #9c8cff; }
+#wall { position: absolute; inset: 0; width: 1920px; height: 1080px; transition: opacity .6s; }
+.shade { position: absolute; inset: 0; pointer-events: none; background:
+  linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 48%, rgba(0,0,0,.55) 75%, rgba(0,0,0,.8) 100%); }
+.screen { position: absolute; inset: 0; transition: opacity .45s ease, transform .55s cubic-bezier(.2,.8,.2,1); }
+.stage[data-screen="home"] #hub, .stage[data-screen="hub"] #home { opacity: 0; visibility: hidden; transition: opacity .35s, transform .45s, visibility 0s .45s; }
+.stage[data-screen="hub"] #home { transform: scale(.96); }
+.stage[data-screen="home"] #hub { transform: scale(1.04); }
+.stage[data-screen="hub"] .shade { background: rgba(4,4,10,.62); }
+
+/* ---------- Home (launcher) ---------- */
+.scroller { position: absolute; left: 0; top: 0; width: 1920px; height: 1700px; transition: transform .55s cubic-bezier(.25,.9,.25,1); }
+.hdr-l { position: absolute; left: 110px; top: 76px; }
+.greet { font-size: 24px; letter-spacing: .2em; font-weight: 400; opacity: .78; text-transform: uppercase; }
+.clockrow { display: flex; align-items: baseline; gap: 28px; margin-top: 2px; }
+.clock { font-size: 156px; font-weight: 200; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.date { font-size: 30px; font-weight: 300; opacity: .8; padding-left: 26px; border-left: 2px solid rgba(255,255,255,.35); line-height: 1.15; }
+.gameday { margin-top: 26px; display: inline-flex; align-items: center; gap: 18px; padding: 14px 26px 14px 16px; border-radius: 999px; background: rgba(10,10,18,.42); border: 1px solid rgba(255,255,255,.14); }
+.gameday .ball { width: 46px; height: 46px; }
+.gameday .l1 { font-size: 24px; font-weight: 500; }
+.gameday .l2 { font-size: 21px; color: var(--mood); font-weight: 500; font-variant-numeric: tabular-nums; }
+.hdr-r { position: absolute; right: 110px; top: 80px; display: grid; justify-items: end; gap: 16px; }
+.pills { display: flex; gap: 16px; }
+.pill { position: relative; height: 64px; padding: 0 28px; border-radius: 999px; display: flex; align-items: center; gap: 12px; font-size: 23px; font-weight: 400; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.16); transition: transform .3s cubic-bezier(.3,1.5,.5,1), background .2s; cursor: pointer; }
+.pill.round { width: 64px; padding: 0; justify-content: center; }
+.pill svg { width: 28px; height: 28px; }
+.pill .ok { width: 10px; height: 10px; border-radius: 50%; background: #5be08f; }
+.pill.f { transform: scale(1.08); background: rgba(255,255,255,.22); }
+.caption { font-size: 19px; opacity: .62; font-weight: 300; letter-spacing: .02em; }
+.inputs { position: absolute; top: 76px; right: 0; width: 380px; padding: 12px; border-radius: 26px; background: rgba(18,18,28,.92); border: 1px solid rgba(255,255,255,.16); box-shadow: 0 30px 60px rgba(0,0,0,.5); display: grid; gap: 4px; opacity: 0; transform: translateY(-10px) scale(.97); transform-origin: top right; pointer-events: none; transition: opacity .2s, transform .25s; z-index: 5; }
+.inputs.open { opacity: 1; transform: none; pointer-events: auto; }
+.inputs div { padding: 14px 18px; border-radius: 16px; font-size: 22px; display: flex; justify-content: space-between; gap: 12px; }
+.inputs div span { opacity: .55; font-size: 18px; }
+.inputs div.f { background: rgba(255,255,255,.16); }
+
+.docktitle { position: absolute; left: 110px; top: 548px; height: 120px; display: flex; align-items: center; transition: opacity .3s; }
+.docktitle .glow { position: absolute; left: -160px; top: -160px; width: 900px; height: 440px; background: radial-gradient(closest-side, var(--glow, rgba(255,255,255,.3)), transparent); opacity: .55; transition: background .5s; pointer-events: none; }
+.docktitle span { position: relative; font-size: 86px; font-weight: 300; letter-spacing: -0.01em; text-shadow: 0 4px 30px rgba(0,0,0,.35); }
+.docktitle small { position: relative; display: block; font-size: 24px; font-weight: 400; opacity: .7; letter-spacing: .04em; margin-top: 4px; }
+.band { position: absolute; left: 70px; top: 690px; width: 1780px; height: 250px; border-radius: 42px; background: rgba(255,255,255,.075); border: 1px solid rgba(255,255,255,.09); }
+.grid { position: absolute; left: 99px; top: 1006px; width: 1722px; height: 520px; }
+.slot { position: absolute; width: 262px; height: 147px; cursor: pointer; }
+.tile { position: relative; width: 100%; height: 100%; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 28px rgba(0,0,0,.45); transition: transform .4s cubic-bezier(.3,1.45,.55,1), box-shadow .3s; display: grid; place-items: center; }
+.slot.f .tile { transform: scale(1.1); box-shadow: 0 28px 50px rgba(0,0,0,.6); }
+.slot .name { position: absolute; left: 0; right: 0; top: calc(100% + 22px); text-align: center; font-size: 23px; font-weight: 400; opacity: 0; transform: translateY(-6px); transition: opacity .25s, transform .3s; }
+.grid .slot.f .name { opacity: 1; transform: none; }
+.hl { position: absolute; z-index: 3; pointer-events: none; border-radius: 22px; border: 1.5px solid rgba(255,255,255,.5); background: linear-gradient(155deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.08) 38%, rgba(255,255,255,0) 58%); box-shadow: inset 0 1px 0 rgba(255,255,255,.4); transition: left .45s cubic-bezier(.3,1.4,.5,1), top .45s cubic-bezier(.3,1.4,.5,1), width .45s cubic-bezier(.3,1.4,.5,1), height .45s cubic-bezier(.3,1.4,.5,1), border-radius .3s, opacity .2s; }
+
+/* tile artwork */
+.wm { font-weight: 700; font-size: 40px; letter-spacing: -0.01em; line-height: 1; text-align: center; }
+.sub { position: absolute; left: 16px; bottom: 12px; font-size: 16px; font-weight: 500; opacity: .75; letter-spacing: .04em; }
+
+/* ---------- Fan Hub ---------- */
+#hub { padding: 64px 90px 0; }
+.hubhead { display: flex; align-items: center; justify-content: space-between; height: 92px; }
+.brand { display: flex; align-items: center; gap: 22px; }
+.brand .mark { width: 72px; height: 72px; }
+.brand h2 { margin: 0; font-size: 50px; font-weight: 600; letter-spacing: .02em; }
+.brand p { margin: 0; font-size: 22px; opacity: .65; font-weight: 300; }
+.hubclock { text-align: right; }
+.hubclock b { display: block; font-size: 58px; font-weight: 200; line-height: 1; font-variant-numeric: tabular-nums; }
+.hubclock span { font-size: 19px; opacity: .6; }
+.cards { position: relative; margin-top: 34px; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 430px 372px; gap: 28px; }
+.card { position: relative; border-radius: 30px; padding: 34px 38px; background: rgba(14,14,24,.66); border: 1px solid rgba(255,255,255,.09); overflow: hidden; transition: transform .4s cubic-bezier(.3,1.4,.5,1); cursor: pointer; }
+.card.f { transform: scale(1.018); }
+.card .hl2 { display: none; }
+.eyebrow { font-size: 18px; letter-spacing: .2em; text-transform: uppercase; opacity: .7; font-weight: 500; display: flex; align-items: center; gap: 12px; }
+.eyebrow i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.live i { background: #ff4d5e; box-shadow: 0 0 0 0 rgba(255,77,94,.6); animation: pulse 1.6s infinite; }
+@keyframes pulse { 70% { box-shadow: 0 0 0 14px rgba(255,77,94,0); } 100% { box-shadow: 0 0 0 0 rgba(255,77,94,0); } }
+.hlc { position: absolute; z-index: 4; pointer-events: none; border-radius: 32px; border: 1.5px solid rgba(255,255,255,.45); background: linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,0) 40%); transition: left .45s cubic-bezier(.3,1.35,.5,1), top .45s cubic-bezier(.3,1.35,.5,1), width .45s cubic-bezier(.3,1.35,.5,1), height .45s cubic-bezier(.3,1.35,.5,1); }
+
+.c-cricket { grid-column: 1 / 8; grid-row: 1; background: linear-gradient(120deg, rgba(20,40,110,.62), rgba(14,14,24,.6) 55%, rgba(60,70,20,.5)); }
+.vs { display: flex; align-items: center; gap: 30px; margin-top: 20px; }
+.team { display: flex; align-items: center; gap: 18px; }
+.disc { width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-score); font-weight: 700; font-size: 26px; box-shadow: inset 0 -6px 14px rgba(0,0,0,.3); }
+.team b { font-size: 44px; font-weight: 600; }
+.team small { display: block; font-size: 19px; opacity: .6; font-weight: 400; }
+.vs em { font-style: normal; font-size: 26px; opacity: .5; }
+.count { display: flex; gap: 14px; margin-top: 18px; align-items: flex-end; }
+.count .seg2 { text-align: center; }
+.count .seg2 b { display: block; font-family: var(--f-score); font-size: 82px; font-weight: 600; line-height: .95; font-variant-numeric: tabular-nums; padding: 8px 18px 4px; border-radius: 18px; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.08); }
+.count .seg2 span { font-size: 16px; letter-spacing: .2em; opacity: .55; }
+.count .colon { font-family: var(--f-score); font-size: 64px; opacity: .4; padding-bottom: 34px; }
+.count .what { margin-left: 22px; padding-bottom: 28px; font-size: 22px; line-height: 1.35; }
+.count .what b { display: block; font-size: 28px; font-weight: 500; color: var(--mood); }
+.meta { position: absolute; left: 38px; right: 38px; bottom: 30px; display: flex; justify-content: space-between; align-items: center; gap: 20px; font-size: 20px; }
+.meta .form { display: flex; gap: 8px; align-items: center; opacity: .9; }
+.meta .form i { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-style: normal; font-size: 15px; font-weight: 700; }
+.W { background: #2f9e5b; } .L { background: #b8404c; }
+.chipw { padding: 8px 18px; border-radius: 999px; background: rgba(255,255,255,.12); font-size: 19px; }
+
+.c-foot { grid-column: 8 / 13; grid-row: 1; }
+.score { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+.score .t { text-align: center; width: 120px; }
+.score .t .crest { width: 62px; height: 62px; margin: 0 auto 8px; }
+.score .t b { font-size: 24px; font-weight: 600; letter-spacing: .06em; }
+.score .n { font-family: var(--f-score); font-size: 84px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.score .mid { text-align: center; }
+.score .min { font-family: var(--f-score); font-size: 26px; color: #ff6b78; }
+.scorers { display: flex; justify-content: space-between; font-size: 17px; opacity: .65; margin-top: 8px; }
+.table { margin-top: 18px; display: grid; gap: 2px; font-size: 19px; font-variant-numeric: tabular-nums; }
+.table div { display: grid; grid-template-columns: 34px 1fr 50px 56px; padding: 5px 12px; border-radius: 10px; }
+.table div.me { background: rgba(255,255,255,.12); font-weight: 600; }
+.table div span:nth-child(n+3) { text-align: right; opacity: .8; }
+.table .th { opacity: .45; font-size: 15px; letter-spacing: .12em; }
+
+.c-anime { grid-column: 1 / 6; grid-row: 2; background: linear-gradient(140deg, rgba(90,30,90,.55), rgba(14,14,24,.66) 60%); }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 22px; }
+.day { text-align: center; }
+.day > span { font-size: 16px; letter-spacing: .14em; opacity: .55; }
+.day.today > span { opacity: 1; color: var(--mood); font-weight: 600; }
+.poster { margin-top: 8px; height: 150px; border-radius: 14px; position: relative; overflow: hidden; background: rgba(255,255,255,.05); border: 1px dashed rgba(255,255,255,.1); }
+.poster.has { border: 0; }
+.poster small { position: absolute; left: 8px; right: 8px; bottom: 8px; font-size: 14px; line-height: 1.15; font-weight: 600; text-align: left; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+.day.today .poster { outline: 2px solid var(--mood); outline-offset: 2px; }
+.tonight { margin-top: 18px; font-size: 21px; display: flex; gap: 12px; align-items: baseline; white-space: nowrap; }
+.tonight b { color: var(--mood); font-weight: 600; }
+
+.c-trail { grid-column: 6 / 10; grid-row: 2; background: linear-gradient(160deg, rgba(20,80,70,.5), rgba(14,14,24,.66) 65%); }
+.trailname { font-size: 34px; font-weight: 500; margin-top: 14px; }
+.trailname small { display: block; font-size: 18px; opacity: .6; font-weight: 400; }
+.days2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+.wx { border-radius: 18px; padding: 14px 18px; background: rgba(255,255,255,.06); display: grid; grid-template-columns: 54px 1fr; gap: 4px 14px; align-items: center; }
+.wx svg { width: 54px; height: 54px; grid-row: span 2; }
+.wx b { font-size: 21px; font-weight: 500; }
+.wx span { font-size: 17px; opacity: .7; }
+.wx.go { background: rgba(91,224,143,.14); outline: 1.5px solid rgba(91,224,143,.55); }
+.verdict { margin-top: 16px; font-size: 20px; line-height: 1.4; }
+.verdict b { color: #7fe8a8; font-weight: 600; }
+
+.c-next { grid-column: 10 / 13; grid-row: 2; }
+.tl { margin-top: 16px; display: grid; gap: 9px; position: relative; }
+.tl::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: rgba(255,255,255,.12); }
+.tl div { display: grid; grid-template-columns: 16px 1fr; gap: 16px; font-size: 18px; line-height: 1.25; }
+.tl i { width: 16px; height: 16px; border-radius: 50%; margin-top: 3px; position: relative; }
+.tl b { display: block; font-size: 15px; letter-spacing: .1em; opacity: .55; font-weight: 500; text-transform: uppercase; }
+.hubfoot { position: absolute; left: 90px; right: 90px; bottom: 26px; display: flex; justify-content: space-between; font-size: 17px; opacity: .5; }
+
+.toast { position: absolute; left: 50%; bottom: 60px; transform: translate(-50%, 20px); padding: 16px 30px; border-radius: 999px; background: rgba(20,20,30,.92); border: 1px solid rgba(255,255,255,.18); font-size: 24px; opacity: 0; transition: opacity .25s, transform .3s; z-index: 20; pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- notes ---------- */
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 18px; }
+.note { border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; background: #101118; min-width: 0; }
+.note h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
+.note .tag { display: inline-block; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; margin-bottom: 10px; }
+.tag.ready { background: #16301f; color: #7fe8a8; } .tag.build { background: #33203a; color: #f3a6d0; }
+.note p, .note li { color: var(--ink-dim); margin: 0 0 8px; }
+.note ul { margin: 0; padding-left: 18px; }
+.note code, pre { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; }
+.note code { color: var(--ink); }
+pre { margin: 10px 0 0; padding: 12px 14px; background: #0a0a0f; border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; color: #cfcbe0; line-height: 1.5; }
+.ask { border-color: #3a2c48; background: #140f1a; }
+.ask ol { margin: 0; padding-left: 20px; color: var(--ink-dim); }
+.ask ol li b { color: var(--ink); font-weight: 500; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hl, .hlc, .tile, .card, .pill, .scroller, .screen { transition-duration: .01s !important; }
+  .live i { animation: none; }
+}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1><b>Fan Den</b> TV · mockup</h1>
+      <p>Your TV's Home screen and a Fan Hub dashboard, made for anime, cricket, football and the trails. Drive it like a remote.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Screen">
+        <button id="btn-home" aria-pressed="true">Home</button>
+        <button id="btn-hub" aria-pressed="false">Fan Hub</button>
+      </div>
+      <div class="seg" role="group" aria-label="Wallpaper mood">
+        <button data-mood="dawn" aria-pressed="false"><span class="sw" style="background:linear-gradient(135deg,#ffc58a,#56557a)"></span>Trail dawn</button>
+        <button data-mood="dusk" aria-pressed="false"><span class="sw" style="background:linear-gradient(135deg,#f08a5d,#3b1d5e)"></span>Anime dusk</button>
+        <button data-mood="night" aria-pressed="false"><span class="sw" style="background:linear-gradient(135deg,#9fd8ff,#0a1430)"></span>Match night</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tvbox">
+    <div class="tv" id="tv" tabindex="0" aria-label="TV mockup. Use arrow keys, Enter, and Escape for Back.">
+      <div class="stage" id="stage" data-screen="home">
+        <canvas id="wall" width="1920" height="1080"></canvas>
+        <div class="shade"></div>
+
+        <section class="screen" id="home">
+          <div class="scroller" id="scroller">
+            <div class="hdr-l">
+              <div class="greet" id="greet">Good evening, Gaurav</div>
+              <div class="clockrow"><div class="clock" id="clock">19:42</div><div class="date" id="date">Wednesday<br>28 October</div></div>
+              <div class="gameday">
+                <svg class="ball" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#c8323c"/><path d="M10 9c8 9 8 21 0 30M38 9c-8 9-8 21 0 30" stroke="#fff" stroke-width="1.6" fill="none" stroke-dasharray="2.5 2.5" opacity=".85"/></svg>
+                <div><div class="l1">India vs Australia · 3rd T20I</div><div class="l2" id="gdl2">Toss in 2h 18m</div></div>
+              </div>
+            </div>
+            <div class="hdr-r">
+              <div class="pills" id="pills">
+                <div class="pill" data-top="0"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8"/></svg>Inputs</div>
+                <div class="pill" data-top="1"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.6 16a5 5 0 0 1 6.8 0"/><circle cx="12" cy="19.2" r="1.2" fill="#fff"/></svg>Den_5G<span class="ok"></span></div>
+                <div class="pill round" data-top="2"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></div>
+                <div class="inputs" id="inputs">
+                  <div data-in="0">HDMI 1 <span>PlayStation 5</span></div>
+                  <div data-in="1">HDMI 2 <span>Set-top box</span></div>
+                  <div data-in="2">HDMI 3 <span>Soundbar ARC</span></div>
+                  <div data-in="3">AV <span>Not connected</span></div>
+                  <div data-in="4">Live TV <span>Antenna</span></div>
+                </div>
+              </div>
+              <div class="caption" id="wallcap">Anime dusk · power lines over the city</div>
+            </div>
+
+            <div class="docktitle" id="docktitle"><div class="glow"></div><div><span id="dockName">Fan Hub</span><small id="dockSub">Scores, fixtures, episodes, trails</small></div></div>
+            <div class="band" id="band"></div>
+            <div class="grid" id="grid"></div>
+            <div class="hl" id="hl"></div>
+          </div>
+        </section>
+
+        <section class="screen" id="hub">
+          <div class="hubhead">
+            <div class="brand">
+              <svg class="mark" viewBox="0 0 72 72" aria-hidden="true"><defs><linearGradient id="fhg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--mood)"/><stop offset="1" stop-color="var(--mood2)"/></linearGradient></defs><rect width="72" height="72" rx="20" fill="url(#fhg)"/><path d="M14 52l14-20 9 12 7-9 14 17z" fill="#0d0d16" opacity=".85"/><circle cx="50" cy="22" r="7" fill="#fff"/></svg>
+              <div><h2>Fan Hub</h2><p id="hubdate">Wednesday 28 October · your teams, your shows, your trails</p></div>
+            </div>
+            <div class="hubclock"><b id="hubclock">19:42</b><span>Back <kbd>Esc</kbd> returns Home</span></div>
+          </div>
+
+          <div class="cards" id="cards">
+            <article class="card c-cricket" data-card="0" data-act="Opens JioHotstar at India vs Australia">
+              <div class="eyebrow"><i style="background:#f5c518"></i>Cricket · next up</div>
+              <div class="vs">
+                <div class="team"><div class="disc" style="background:#1f5fd1">IND</div><div><b>India</b><small>Form W W L W W</small></div></div>
+                <em>vs</em>
+                <div class="team"><div class="disc" style="background:#f5c518;color:#0b4a2a">AUS</div><div><b>Australia</b><small>Form W L W W L</small></div></div>
+              </div>
+              <div class="count">
+                <div class="seg2"><b id="ch">02</b><span>HRS</span></div><div class="colon">:</div>
+                <div class="seg2"><b id="cm">18</b><span>MIN</span></div><div class="colon">:</div>
+                <div class="seg2"><b id="cs">44</b><span>SEC</span></div>
+                <div class="what"><b>until the toss</b><span id="firstball">First ball 19:30</span><br>Wankhede, Mumbai</div>
+              </div>
+              <div class="meta">
+                <div class="form">3rd T20I · series level 1–1 · last two: <i class="W">W</i><i class="L">L</i></div>
+                <div class="chipw">Mumbai Indians: IPL card returns in March</div>
+              </div>
+            </article>
+
+            <article class="card c-foot" data-card="1" data-act="Opens El Clásico on the streaming app">
+              <div class="eyebrow live"><i></i>La Liga · El Clásico · live</div>
+              <div class="score">
+                <div class="t"><svg class="crest" viewBox="0 0 74 74"><defs><clipPath id="bc"><path d="M37 4l28 10v22c0 17-12 28-28 34C21 64 9 53 9 36V14z"/></clipPath></defs><g clip-path="url(#bc)"><rect width="74" height="74" fill="#004d98"/><rect x="18" width="9" height="74" fill="#a50044"/><rect x="36" width="9" height="74" fill="#a50044"/><rect x="54" width="9" height="74" fill="#a50044"/><rect width="74" height="26" fill="#fff"/><rect x="9" width="28" height="26" fill="#fff"/><rect x="37" width="28" height="26" fill="#d7262f" opacity=".9"/></g><path d="M37 4l28 10v22c0 17-12 28-28 34C21 64 9 53 9 36V14z" fill="none" stroke="#edbb00" stroke-width="3"/></svg><b>BAR</b></div>
+                <div class="mid"><div class="n" id="fs">2 – 1</div><div class="min" id="fmin">67'</div></div>
+                <div class="t"><svg class="crest" viewBox="0 0 74 74"><circle cx="37" cy="40" r="28" fill="#f4f4f4" stroke="#d4af37" stroke-width="4"/><path d="M37 22v36M22 40h30" stroke="#2a3e8f" stroke-width="5"/><path d="M24 12h26l-4 8H28z" fill="#d4af37"/></svg><b>RMA</b></div>
+              </div>
+              <div class="scorers"><span>Lewandowski 12' · Yamal 51'</span><span>Mbappé 38'</span></div>
+              <div class="table">
+                <div class="th"><span>#</span><span>LA LIGA</span><span>GD</span><span>PTS</span></div>
+                <div class="me"><span>1</span><span>Barcelona</span><span>+16</span><span>25</span></div>
+                <div><span>2</span><span>Real Madrid</span><span>+13</span><span>24</span></div>
+                <div><span>3</span><span>Atlético Madrid</span><span>+9</span><span>20</span></div>
+              </div>
+            </article>
+
+            <article class="card c-anime" data-card="2" data-act="Opens tonight's episode on Crunchyroll">
+              <div class="eyebrow"><i style="background:#ff7ab6"></i>Anime · this week</div>
+              <div class="week" id="week"></div>
+              <div class="tonight" id="tonight"></div>
+            </article>
+
+            <article class="card c-trail" data-card="3" data-act="Sends the trail and forecast to your phone">
+              <div class="eyebrow"><i style="background:#5be08f"></i>Trails · this weekend</div>
+              <div class="trailname">Rajmachi Fort trail<small>Lonavala · 15 km · 650 m climb · sunrise 06:38</small></div>
+              <div class="days2">
+                <div class="wx"><svg viewBox="0 0 54 54"><circle cx="20" cy="22" r="9" fill="#f6c35c"/><path d="M16 40h24a8 8 0 0 0 0-16 11 11 0 0 0-21 3 7 7 0 0 0-3 13z" fill="#cfd6e6"/><path d="M22 44l-2 5M30 44l-2 5M38 44l-2 5" stroke="#7fb4ff" stroke-width="2.4" stroke-linecap="round"/></svg><b>Sat · 29° / 20°</b><span>Showers, 60% after 11:00</span></div>
+                <div class="wx go"><svg viewBox="0 0 54 54"><circle cx="27" cy="27" r="11" fill="#f6c35c"/><g stroke="#f6c35c" stroke-width="3" stroke-linecap="round"><path d="M27 6v6M27 42v6M6 27h6M42 27h6M12 12l4 4M38 38l4 4M12 42l4-4M38 16l4-4"/></g></svg><b>Sun · 27° / 18°</b><span>Clear, wind 9 km/h</span></div>
+              </div>
+              <div class="verdict"><b>Go Sunday, 06:00 to 11:00.</b> Back by 13:00, more than six hours before kickoff.</div>
+            </article>
+
+            <article class="card c-next" data-card="4" data-act="Opens your full schedule">
+              <div class="eyebrow"><i style="background:#9c8cff"></i>Your next 72 hours</div>
+              <div class="tl" id="tl"></div>
+            </article>
+            <div class="hlc" id="hlc"></div>
+          </div>
+          <div class="hubfoot"><span>Sample data for this mockup</span><span>Live: scores and fixtures, AniList schedule, Open-Meteo weather</span></div>
+        </section>
+
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+    <div class="foot" aria-hidden="true"></div>
+  </div>
+
+  <div class="hint">
+    <span>Click the TV, then: <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> move</span>
+    <span><kbd>Enter</kbd> opens (try <b>Fan Hub</b> in the dock, or <b>Inputs</b> up top)</span>
+    <span><kbd>Esc</kbd> is Back</span>
+    <span>Mouse: click a tile to focus it, click again to open</span>
+  </div>
+
+  <div class="notes">
+    <div class="note">
+      <span class="tag ready">Ready in the repo</span>
+      <h3>The Home screen</h3>
+      <p>This is the cleanyourtv launcher with a theme of your own. It needs no new code: a <code>config.json</code> and three wallpapers that change with the time of day (trail dawn in the morning, anime dusk in the evening, match night after dark).</p>
+      <p>The cricket line under the clock is the repo's Game Day add-on. It reads your teams' calendar feeds and counts down to the next game. It never shows scores, so nothing gets spoiled.</p>
+<pre>{
+  "greeting_name": "Gaurav",
+  "dock_apps": ["&lt;fan hub&gt;", "&lt;crunchyroll&gt;",
+    "&lt;jiohotstar&gt;", "&lt;fancode&gt;",
+    "com.google.android.youtube.tv",
+    "com.netflix.ninja"],
+  "columns": 6,
+  "rows_below_dock": 1,
+  "app_glow": true,
+  "wallpaper": true,
+  "wallpaper_rotation_minutes": 60,
+  "wallpaper_moods": {
+    "morning": ["trail-dawn.jpg"],
+    "evening": ["anime-dusk.jpg"],
+    "night":   ["match-night.jpg"]
+  },
+  "wallpaper_dim": 12,
+  "wifi_status_color": true,
+  "home_idle_clock_minutes": 10,
+  "clock_wallpaper": true
+}</pre>
+      <p>The real package names in angle brackets come from your TV's app list once we connect.</p>
+    </div>
+    <div class="note">
+      <span class="tag build">New add-on to build</span>
+      <h3>Fan Hub</h3>
+      <p>The launcher deliberately never touches the network, so live scores can't go on Home itself. Fan Hub would be a small separate app that sits in the dock as a tile, built the same way as the repo's Weather and News add-ons.</p>
+      <ul>
+        <li>Cricket and football: a scores API. Most need a free key, and some limit requests per day.</li>
+        <li>Anime: AniList's airing schedule. Free, no key needed.</li>
+        <li>Trails: Open-Meteo forecasts. Free, no key needed.</li>
+        <li>"Next 72 hours" merges all of these into one list, so you can see whether Sunday's hike clashes with kickoff.</li>
+        <li>It only fetches while it's on screen, so it uses no data in the background on a TV with 1 GB of RAM.</li>
+      </ul>
+    </div>
+    <div class="note ask">
+      <h3>To make it yours</h3>
+      <ol>
+        <li><b>Teams: done.</b> India, Mumbai Indians, FC Barcelona, with La Liga and EPL fixtures.</li>
+        <li><b>Anime: done.</b> One Piece, Jujutsu Kaisen, Demon Slayer.</li>
+        <li><b>Your trails.</b> Your home area or two or three favourite hikes.</li>
+        <li><b>Your TV model</b>, so I can check it's Android TV / Google TV before we touch anything.</li>
+        <li><b>Mood.</b> Keep the three time-of-day wallpapers, or stay on one.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const stage = document.getElementById('stage');
+  const tv = document.getElementById('tv');
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------- scale the 1920x1080 stage to the TV box ---------- */
+  function fit() { stage.style.transform = 'scale(' + (tv.clientWidth / 1920) + ')'; }
+  new ResizeObserver(fit).observe(tv); fit();
+
+  /* ---------- wallpapers, drawn in code ---------- */
+  const cv = $('wall'), g = cv.getContext('2d'); const W = 1920, H = 1080;
+  function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+  function lin(y0, y1, stops) { const gr = g.createLinearGradient(0, y0, 0, y1); stops.forEach(([o, c]) => gr.addColorStop(o, c)); return gr; }
+  function ridge(base, amp, seed, color) {
+    const r = rng(seed); const waves = [0, 1, 2, 3].map((k) => ({ a: amp * (0.6 / (k + 1)) * (0.6 + r()), f: (0.0015 + r() * 0.002) * (k + 1) * 1.7, p: r() * 6.28 }));
+    const ys = [];
+    g.beginPath(); g.moveTo(0, H);
+    for (let x = 0; x <= W; x += 6) { let y = base; waves.forEach((w) => { y += w.a * Math.sin(x * w.f + w.p); }); y += (r() - 0.5) * amp * 0.05; ys.push([x, y]); g.lineTo(x, y); }
+    g.lineTo(W, H); g.closePath(); g.fillStyle = color; g.fill(); return ys;
+  }
+  function stars(n, maxY, seed, alpha) { const r = rng(seed); for (let i = 0; i < n; i++) { g.fillStyle = 'rgba(255,255,255,' + (alpha * (0.3 + r() * 0.7)) + ')'; const s = r() < 0.08 ? 2.4 : 1.3; g.fillRect(r() * W, r() * maxY, s, s); } }
+  function glow(x, y, rad, c) { const gr = g.createRadialGradient(x, y, 0, x, y, rad); gr.addColorStop(0, c); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x - rad, y - rad, rad * 2, rad * 2); }
+
+  function paintDawn() {
+    g.fillStyle = lin(0, 780, [[0, '#18223f'], [0.42, '#5b4a7a'], [0.7, '#e2906f'], [0.86, '#ffc58a'], [1, '#ffe2b4']]); g.fillRect(0, 0, W, H);
+    stars(70, 260, 3, 0.5);
+    glow(1240, 630, 560, 'rgba(255,214,160,.55)');
+    g.fillStyle = '#fff3dc'; g.beginPath(); g.arc(1240, 640, 44, 0, 7); g.fill();
+    ridge(640, 70, 11, '#a48cae');
+    g.fillStyle = lin(600, 760, [[0, 'rgba(255,214,184,0)'], [1, 'rgba(255,214,184,.32)']]); g.fillRect(0, 600, W, 160);
+    ridge(705, 80, 23, '#7c6c95');
+    ridge(775, 85, 37, '#575679');
+    g.fillStyle = lin(720, 860, [[0, 'rgba(255,200,170,0)'], [1, 'rgba(255,200,170,.18)']]); g.fillRect(0, 720, W, 140);
+    ridge(850, 90, 41, '#344563');
+    const front = ridge(950, 95, 53, '#1b2a3b');
+    const r = rng(99); g.fillStyle = '#0e1822';
+    front.forEach(([x, y], i) => { if (i % 3 || r() < 0.35) return; const h = 40 + r() * 80, w = h * 0.36; g.beginPath(); g.moveTo(x, y - h); g.lineTo(x - w, y + 6); g.lineTo(x + w, y + 6); g.fill(); });
+    g.fillStyle = '#0e1822'; g.fillRect(0, 1040, W, 40);
+    g.strokeStyle = 'rgba(255,226,180,.35)'; g.lineWidth = 3; g.setLineDash([10, 10]); g.beginPath(); g.moveTo(560, 1080); g.quadraticCurveTo(700, 960, 640, 900); g.quadraticCurveTo(600, 860, 720, 830); g.stroke(); g.setLineDash([]);
+  }
+
+  function cloud(cx, cy, scale, seed, top, mid, bot) {
+    const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d'); const r = rng(seed);
+    o.fillStyle = '#fff';
+    for (let i = 0; i < 46; i++) { const a = r() * Math.PI, d = r(); const x = cx + Math.cos(a) * 340 * scale * d * 1.4 * (r() < 0.5 ? -1 : 1); const y = cy - Math.sin(a) * 220 * scale * d; const rad = (60 + r() * 120) * scale * (1 - d * 0.45); o.beginPath(); o.arc(x, y, rad, 0, 7); o.fill(); }
+    o.fillRect(cx - 520 * scale, cy, 1040 * scale, 40 * scale);
+    o.globalCompositeOperation = 'source-atop';
+    const gr = o.createLinearGradient(0, cy - 340 * scale, 0, cy + 40 * scale); gr.addColorStop(0, top); gr.addColorStop(0.55, mid); gr.addColorStop(1, bot);
+    o.fillStyle = gr; o.fillRect(0, 0, W, H);
+    g.drawImage(off, 0, 0);
+  }
+  function paintDusk() {
+    g.fillStyle = lin(0, 900, [[0, '#120b2e'], [0.33, '#3a1d5e'], [0.6, '#b4437c'], [0.82, '#f08a5d'], [1, '#ffc78a']]); g.fillRect(0, 0, W, H);
+    stars(170, 360, 7, 0.8);
+    glow(960, 150, 220, 'rgba(255,240,230,.25)'); g.fillStyle = '#fff4ee'; g.beginPath(); g.arc(960, 150, 52, 0, 7); g.fill();
+    g.fillStyle = '#3a1d5e'; g.globalAlpha = .22; g.beginPath(); g.arc(976, 141, 45, 0, 7); g.fill(); g.globalAlpha = 1;
+    cloud(1320, 560, 1.15, 5, '#ffe2d4', '#f39ab0', '#6b3a7d');
+    cloud(640, 690, 0.6, 9, '#ffd0c0', '#e98aa8', '#6a3576');
+    const r = rng(17); g.fillStyle = 'rgba(255,170,130,.35)';
+    for (let i = 0; i < 9; i++) { g.beginPath(); g.ellipse(r() * W, 740 + r() * 90, 220 + r() * 260, 7 + r() * 8, 0, 0, 7); g.fill(); }
+    glow(960, 900, 900, 'rgba(255,150,110,.2)');
+    let x = 0; const rr = rng(31);
+    while (x < W) { const w = 40 + rr() * 90, h = 70 + rr() * 200 * (x > 1300 ? 1.2 : 0.8); g.fillStyle = '#170d26'; g.fillRect(x, H - h, w, h);
+      for (let wy = H - h + 14; wy < H - 10; wy += 22) for (let wx = x + 8; wx < x + w - 10; wx += 16) if (rr() < 0.22) { g.fillStyle = 'rgba(255,207,122,' + (0.4 + rr() * 0.5) + ')'; g.fillRect(wx, wy, 7, 9); }
+      x += w + rr() * 6; }
+    g.strokeStyle = '#0c0616'; g.fillStyle = '#0c0616';
+    g.fillRect(1572, 170, 18, 910);
+    [[230, 300], [300, 220]].forEach(([y, w]) => { g.fillRect(1581 - w / 2, y, w, 10); for (let k = -1; k <= 1; k += 2) { g.fillRect(1581 + k * (w / 2 - 12) - 3, y - 18, 6, 18); } g.fillRect(1578, y - 18, 6, 18); });
+    g.lineWidth = 2.6;
+    [[1441, 212, 420], [1581, 212, 450], [1721, 212, 480], [1471, 282, 520], [1691, 282, 560]].forEach(([sx, sy, ey]) => {
+      g.beginPath(); g.moveTo(sx, sy); g.quadraticCurveTo(700, ey + 140, -40, ey); g.stroke();
+      g.beginPath(); g.moveTo(sx, sy); g.quadraticCurveTo(1820, sy + 60, 1960, sy + 30); g.stroke(); });
+    g.fillStyle = '#0c0616'; [[820, 470], [860, 478], [905, 484]].forEach(([bx, by]) => { g.beginPath(); g.ellipse(bx, by, 7, 5, 0, 0, 7); g.fill(); });
+  }
+
+  function paintNight() {
+    g.fillStyle = lin(0, H, [[0, '#03050d'], [0.55, '#0a1430'], [1, '#14295a']]); g.fillRect(0, 0, W, H);
+    stars(90, 300, 21, 0.45);
+    glow(960, 780, 1000, 'rgba(110,160,255,.22)');
+    const towers = [[170, 300], [620, 250], [1300, 250], [1750, 300]];
+    g.globalCompositeOperation = 'lighter';
+    towers.forEach(([x, y]) => {
+      const gr = g.createLinearGradient(x, y, 960, 960); gr.addColorStop(0, 'rgba(220,236,255,.34)'); gr.addColorStop(1, 'rgba(220,236,255,0)');
+      g.fillStyle = gr; g.beginPath(); g.moveTo(x - 40, y + 20); g.lineTo(x + 40, y + 20); g.lineTo(x < 960 ? 1180 : 1000, 1000); g.lineTo(x < 960 ? 920 : 740, 1000); g.closePath(); g.fill();
+      glow(x, y, 170, 'rgba(210,230,255,.5)');
+    });
+    g.globalCompositeOperation = 'source-over';
+    towers.forEach(([x, y]) => {
+      g.strokeStyle = '#070b16'; g.lineWidth = 8; g.beginPath(); g.moveTo(x, y + 30); g.lineTo(x - 26, 900); g.moveTo(x, y + 30); g.lineTo(x + 26, 900); g.stroke();
+      g.fillStyle = '#0b1020'; g.fillRect(x - 58, y - 4, 116, 46);
+      for (let i = 0; i < 6; i++) for (let j = 0; j < 2; j++) { g.fillStyle = '#f4f9ff'; g.fillRect(x - 52 + i * 18, y + j * 20, 14, 14); }
+    });
+    g.fillStyle = '#060a14'; g.beginPath(); g.moveTo(0, H); g.lineTo(0, 800); g.bezierCurveTo(500, 730, 1420, 730, W, 800); g.lineTo(W, H); g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(160,200,255,.35)'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, 800); g.bezierCurveTo(500, 730, 1420, 730, W, 800); g.stroke();
+    const r = rng(77);
+    for (let i = 0; i < 2600; i++) { const x = r() * W; const top = 800 - 70 * Math.sin(Math.PI * x / W); const y = top + 12 + r() * (H - top - 120);
+      if (y > 1000) continue; const flash = r() < 0.03; g.fillStyle = flash ? 'rgba(255,255,255,.9)' : 'hsla(' + (200 + r() * 160) + ',60%,' + (35 + r() * 25) + '%,.35)'; g.fillRect(x, y, flash ? 3 : 2, flash ? 3 : 2); }
+    const pg = g.createRadialGradient(960, 1060, 0, 960, 1060, 760); pg.addColorStop(0, 'rgba(90,210,130,.55)'); pg.addColorStop(1, 'rgba(90,210,130,0)');
+    g.fillStyle = pg; g.beginPath(); g.ellipse(960, 1060, 760, 110, 0, 0, 7); g.fill();
+  }
+
+  const MOODS = {
+    dawn: { paint: paintDawn, c1: '#ffb86b', c2: '#6fd3c7', cap: 'Trail dawn · first light on the ridge' },
+    dusk: { paint: paintDusk, c1: '#ff7ab6', c2: '#9c8cff', cap: 'Anime dusk · power lines over the city' },
+    night: { paint: paintNight, c1: '#9fd8ff', c2: '#5bd38a', cap: 'Match night · floodlights on' },
+  };
+  function setMood(m) {
+    const md = MOODS[m]; g.clearRect(0, 0, W, H); md.paint();
+    stage.style.setProperty('--mood', md.c1); stage.style.setProperty('--mood2', md.c2);
+    document.documentElement.style.setProperty('--accent', md.c1);
+    $('wallcap').textContent = md.cap;
+    document.querySelectorAll('[data-mood]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mood === m)));
+  }
+  const hr = new Date().getHours();
+  setMood(hr >= 5 && hr < 12 ? 'dawn' : hr >= 12 && hr < 20 ? 'dusk' : 'night');
+  document.querySelectorAll('[data-mood]').forEach((b) => b.addEventListener('click', () => setMood(b.dataset.mood)));
+
+  /* ---------- tile artwork ---------- */
+  const fanMark = '<svg width="96" height="60" viewBox="0 0 96 60" style="position:absolute;right:16px;top:14px;opacity:.9"><circle cx="18" cy="18" r="12" fill="#c8323c"/><path d="M11 9c4 5 4 13 0 18M25 9c-4 5-4 13 0 18" stroke="#fff" stroke-width="1" fill="none" stroke-dasharray="2 2"/><circle cx="48" cy="18" r="12" fill="#fff"/><path d="M48 11l6 4-2 7h-8l-2-7z" fill="#111"/><path d="M64 34l10-16 8 10 6-6 8 12z" fill="#7fe8a8"/><path d="M84 4l2.2 4.8 5.2.6-3.9 3.5 1.1 5.1-4.6-2.6-4.6 2.6 1.1-5.1-3.9-3.5 5.2-.6z" fill="#ffd36e"/></svg>';
+  const DOCK = [
+    { n: 'Fan Hub', sub: 'Scores, fixtures, episodes, trails', glow: '#c39bff', act: 'hub',
+      art: 'background:linear-gradient(135deg,#2b1552,#123b4c)', inner: fanMark + '<div class="wm" style="font-size:38px;letter-spacing:.06em;position:absolute;left:20px;bottom:18px;text-align:left">FAN<br>HUB</div>' },
+    { n: 'Crunchyroll', sub: 'Anime · simulcasts', glow: '#f47521', art: 'background:#f47521', inner: '<div class="wm" style="font-size:38px">crunchyroll</div>' },
+    { n: 'JioHotstar', sub: 'Cricket · live', glow: '#5b6bff', art: 'background:linear-gradient(135deg,#0c1d6b,#4b1a8f)', inner: '<div class="wm" style="font-size:40px">Jio<span style="font-weight:400">Hotstar</span></div>' },
+    { n: 'FanCode', sub: 'Cricket and football', glow: '#ff6a13', art: 'background:linear-gradient(160deg,#202020,#0d0d0d)', inner: '<div class="wm"><span style="color:#ff6a13">Fan</span>Code</div>' },
+    { n: 'YouTube', sub: 'Trail vlogs, highlights', glow: '#ff2b2b', art: 'background:#0f0f0f', inner: '<div class="wm" style="display:flex;align-items:center;gap:10px;font-size:38px"><svg width="52" height="36" viewBox="0 0 52 36"><rect width="52" height="36" rx="10" fill="#ff0033"/><path d="M21 10l14 8-14 8z" fill="#fff"/></svg>YouTube</div>' },
+    { n: 'Netflix', sub: 'Films and series', glow: '#e50914', art: 'background:#000', inner: '<div class="wm" style="color:#e50914;font-weight:800;letter-spacing:.04em;font-size:44px">NETFLIX</div>' },
+  ];
+  const GRID = [
+    { n: 'Prime Video', art: 'background:#0f171e', inner: '<div class="wm" style="color:#00a8e1;font-size:34px">prime video</div>' },
+    { n: 'Spotify', art: 'background:#121212', inner: '<div class="wm" style="color:#1ed760">Spotify</div>' },
+    { n: 'Game Day', art: 'background:linear-gradient(140deg,#0d3321,#165c38)', inner: '<div class="wm" style="font-size:30px;letter-spacing:.12em">GAME DAY</div><div class="sub">2h 18m</div>' },
+    { n: 'Weather', art: 'background:linear-gradient(160deg,#3d7fd6,#86c2f5)', inner: '<div class="wm" style="font-size:52px;font-weight:300">27°</div><div class="sub">Lonavala</div>' },
+    { n: 'Photos', art: 'background:linear-gradient(135deg,#3b2a5a,#a05a6e)', inner: '<div class="wm" style="font-size:32px;font-weight:500">Trail photos</div>' },
+    { n: 'SmartTube', art: 'background:#1b1b1b', inner: '<div class="wm" style="color:#ff4e45;font-size:36px">SmartTube</div>' },
+    { n: 'Plex', art: 'background:#1f1f1f', inner: '<div class="wm" style="color:#e5a00d;font-size:44px">plex</div>' },
+    { n: 'Live TV', art: 'background:linear-gradient(135deg,#202a44,#121624)', inner: '<div class="wm" style="font-size:34px;font-weight:500">Live TV</div>' },
+    { n: 'News', art: 'background:linear-gradient(135deg,#2a2a2a,#3c3c3c)', inner: '<div class="wm" style="font-size:34px;font-weight:500">News</div>' },
+    { n: 'Sleep timer', art: 'background:linear-gradient(135deg,#141a3a,#2a2050)', inner: '<div class="wm" style="font-size:30px;font-weight:400">Sleep 30 min</div>' },
+    { n: 'Settings', art: 'background:linear-gradient(135deg,#2c2c34,#18181e)', inner: '<div class="wm" style="font-size:32px;font-weight:400">Settings</div>' },
+    { n: 'App library', art: 'background:linear-gradient(135deg,#25252e,#33333f)', inner: '<div class="wm" style="font-size:32px;font-weight:400">All apps</div>' },
+  ];
+  const COLS = 6, SW = 262, SH = 147, GAP = 30;
+  const band = $('band'), grid = $('grid');
+  function mkSlot(app, x, y, parent, key) {
+    const s = document.createElement('div'); s.className = 'slot'; s.style.left = x + 'px'; s.style.top = y + 'px'; s.dataset.key = key;
+    s.innerHTML = '<div class="tile" style="' + app.art + '">' + app.inner + '</div><div class="name">' + app.n + '</div>';
+    parent.appendChild(s); return s;
+  }
+  const dockEls = DOCK.map((a, i) => mkSlot(a, 29 + i * (SW + GAP), 51, band, 'd' + i));
+  const gridEls = GRID.map((a, i) => mkSlot(a, (i % COLS) * (SW + GAP), Math.floor(i / COLS) * (SH + 90), grid, 'g' + i));
+  const ROWS = Math.ceil(GRID.length / COLS);
+  const pillEls = [...document.querySelectorAll('.pill')];
+  const inEls = [...document.querySelectorAll('[data-in]')];
+
+  /* ---------- focus model ---------- */
+  const S = { zone: 'dock', d: 0, t: 0, r: 0, c: 0, inputs: false, ii: 0, hub: 0 };
+  const hl = $('hl'), scroller = $('scroller');
+  function offs(el, root) { let x = 0, y = 0; while (el && el !== root) { x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; } return [x, y]; }
+  function place(box, el, root, grow, radius) {
+    const [x, y] = offs(el, root); const w = el.offsetWidth, h = el.offsetHeight;
+    box.style.left = (x - w * grow / 2) + 'px'; box.style.top = (y - h * grow / 2) + 'px';
+    box.style.width = (w * (1 + grow)) + 'px'; box.style.height = (h * (1 + grow)) + 'px'; box.style.borderRadius = radius;
+  }
+  function renderHome() {
+    [...dockEls, ...gridEls, ...pillEls].forEach((e) => e.classList.remove('f'));
+    let el;
+    if (S.zone === 'dock') el = dockEls[S.d];
+    else if (S.zone === 'grid') el = gridEls[S.r * COLS + S.c];
+    else el = pillEls[S.t];
+    el.classList.add('f');
+    if (S.zone === 'top') place(hl, el, scroller, 0.08, '999px'); else place(hl, el, scroller, 0.1, '22px');
+    hl.style.opacity = S.zone === 'top' ? '0' : '1';
+    scroller.style.transform = S.zone === 'grid' ? 'translateY(' + (-600 - Math.max(0, S.r - 1) * 237) + 'px)' : 'none';
+    const dt = $('docktitle'); dt.style.opacity = S.zone === 'grid' ? '0' : '1';
+    const a = DOCK[S.d]; $('dockName').textContent = a.n; $('dockSub').textContent = a.sub;
+    dt.style.setProperty('--glow', a.glow);
+    $('inputs').classList.toggle('open', S.inputs);
+    inEls.forEach((e, i) => e.classList.toggle('f', S.inputs && i === S.ii));
+  }
+  const cards = [...document.querySelectorAll('.card')];
+  function renderHub() {
+    cards.forEach((c, i) => c.classList.toggle('f', i === S.hub));
+    place($('hlc'), cards[S.hub], $('cards'), 0.018, '32px');
+  }
+  function spatial(dir) {
+    const cur = cards[S.hub]; const cx = cur.offsetLeft + cur.offsetWidth / 2, cy = cur.offsetTop + cur.offsetHeight / 2;
+    let best = -1, bd = 1e9;
+    cards.forEach((c, i) => { if (i === S.hub) return; const x = c.offsetLeft + c.offsetWidth / 2, y = c.offsetTop + c.offsetHeight / 2; const dx = x - cx, dy = y - cy;
+      const ok = dir === 'L' ? dx < -10 : dir === 'R' ? dx > 10 : dir === 'U' ? dy < -10 : dy > 10; if (!ok) return;
+      const d = (dir === 'L' || dir === 'R') ? Math.abs(dx) + Math.abs(dy) * 3 : Math.abs(dy) + Math.abs(dx) * 0.6; if (d < bd) { bd = d; best = i; } });
+    if (best >= 0) S.hub = best;
+  }
+
+  let toastT;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800); }
+  function show(screen) {
+    stage.dataset.screen = screen;
+    $('btn-home').setAttribute('aria-pressed', String(screen === 'home')); $('btn-hub').setAttribute('aria-pressed', String(screen === 'hub'));
+    if (screen === 'hub') renderHub(); else renderHome();
+  }
+  function activate() {
+    if (stage.dataset.screen === 'hub') { toast(cards[S.hub].dataset.act); return; }
+    if (S.zone === 'dock') { if (DOCK[S.d].act === 'hub') show('hub'); else toast('Opening ' + DOCK[S.d].n); }
+    else if (S.zone === 'grid') toast('Opening ' + GRID[S.r * COLS + S.c].n);
+    else if (S.t === 0) { S.inputs = !S.inputs; S.ii = 0; renderHome(); }
+    else toast(S.t === 1 ? 'Network: Den_5G, connected' : 'Opening TV settings');
+  }
+  function key(k) {
+    if (stage.dataset.screen === 'hub') {
+      if (k === 'Back') { show('home'); return; }
+      if (k === 'Enter') { activate(); return; }
+      spatial(k); renderHub(); return;
+    }
+    if (S.inputs) {
+      if (k === 'U') S.ii = Math.max(0, S.ii - 1); else if (k === 'D') S.ii = Math.min(inEls.length - 1, S.ii + 1);
+      else if (k === 'Enter') { toast('Switching to ' + inEls[S.ii].firstChild.textContent.trim()); S.inputs = false; }
+      else S.inputs = false;
+      renderHome(); return;
+    }
+    if (k === 'Enter') { activate(); return; }
+    if (k === 'Back') { S.zone = 'dock'; renderHome(); return; }
+    if (S.zone === 'dock') {
+      if (k === 'L') S.d = Math.max(0, S.d - 1); if (k === 'R') S.d = Math.min(DOCK.length - 1, S.d + 1);
+      if (k === 'U') S.zone = 'top';
+      if (k === 'D') { S.zone = 'grid'; S.r = 0; S.c = Math.min(S.d, COLS - 1); }
+    } else if (S.zone === 'top') {
+      if (k === 'L') S.t = Math.max(0, S.t - 1); if (k === 'R') S.t = Math.min(pillEls.length - 1, S.t + 1);
+      if (k === 'D') S.zone = 'dock';
+    } else {
+      const rowLen = (r) => Math.min(COLS, GRID.length - r * COLS);
+      if (k === 'L') S.c = Math.max(0, S.c - 1); if (k === 'R') S.c = Math.min(rowLen(S.r) - 1, S.c + 1);
+      if (k === 'U') { if (S.r === 0) S.zone = 'dock'; else S.r--; }
+      if (k === 'D' && S.r < ROWS - 1) { S.r++; S.c = Math.min(S.c, rowLen(S.r) - 1); }
+    }
+    renderHome();
+  }
+  const KM = { ArrowLeft: 'L', ArrowRight: 'R', ArrowUp: 'U', ArrowDown: 'D', Enter: 'Enter', Escape: 'Back', Backspace: 'Back' };
+  document.addEventListener('keydown', (e) => {
+    const k = KM[e.key]; if (!k) return;
+    const t = e.target; if (t && t.tagName === 'BUTTON' && e.key === 'Enter') return;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    e.preventDefault(); key(k);
+  });
+
+  /* mouse: click focuses, click again opens */
+  function clickFocus(zoneSet, already) { if (already) activate(); else { zoneSet(); renderHome(); } tv.focus({ preventScroll: true }); }
+  dockEls.forEach((el, i) => el.addEventListener('click', () => clickFocus(() => { S.zone = 'dock'; S.d = i; S.inputs = false; }, S.zone === 'dock' && S.d === i)));
+  gridEls.forEach((el, i) => el.addEventListener('click', () => clickFocus(() => { S.zone = 'grid'; S.r = Math.floor(i / COLS); S.c = i % COLS; S.inputs = false; }, S.zone === 'grid' && S.r * COLS + S.c === i)));
+  pillEls.forEach((el, i) => el.addEventListener('click', (e) => { if (e.target.closest('.inputs')) return; clickFocus(() => { S.zone = 'top'; S.t = i; S.inputs = false; }, S.zone === 'top' && S.t === i); }));
+  inEls.forEach((el, i) => el.addEventListener('click', (e) => { e.stopPropagation(); S.ii = i; key('Enter'); }));
+  cards.forEach((c, i) => c.addEventListener('click', () => { if (S.hub === i) activate(); else { S.hub = i; renderHub(); } tv.focus({ preventScroll: true }); }));
+  $('btn-home').addEventListener('click', () => show('home'));
+  $('btn-hub').addEventListener('click', () => show('hub'));
+
+  /* ---------- live bits: clock, countdowns, schedule ---------- */
+  const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const LONGD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const pad = (n) => String(n).padStart(2, '0');
+  const now0 = new Date();
+  const toss = new Date(now0.getTime() + (2 * 3600 + 18 * 60 + 44) * 1000); const hm = (d) => pad(d.getHours()) + ':' + pad(d.getMinutes());
+  const tossDay = toss.getDate() === now0.getDate() ? 'Today' : 'Tomorrow';
+  const footStart = Date.now() - 67 * 60e3;
+  function tick() {
+    const n = new Date();
+    const hhmm = pad(n.getHours()) + ':' + pad(n.getMinutes());
+    $('clock').textContent = hhmm; $('hubclock').textContent = hhmm;
+    $('date').innerHTML = LONGD[n.getDay()] + '<br>' + n.getDate() + ' ' + MONTHS[n.getMonth()];
+    $('hubdate').textContent = LONGD[n.getDay()] + ' ' + n.getDate() + ' ' + MONTHS[n.getMonth()] + ' · your teams, your shows, your trails';
+    const h = n.getHours(); $('greet').textContent = (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ', Gaurav';
+    let d = Math.max(0, Math.floor((toss - n) / 1000));
+    const H_ = Math.floor(d / 3600), M_ = Math.floor(d % 3600 / 60), S_ = d % 60;
+    $('ch').textContent = pad(Math.min(99, H_)); $('cm').textContent = pad(M_); $('cs').textContent = pad(S_);
+    $('gdl2').textContent = 'Toss in ' + (H_ ? H_ + 'h ' : '') + M_ + 'm';
+    const fm = Math.min(90, Math.floor((Date.now() - footStart) / 60e3)); $('fmin').textContent = fm >= 90 ? "90+'" : fm + "'";
+  }
+  $('firstball').textContent = 'First ball ' + hm(new Date(toss.getTime() + 30 * 60e3));
+  tick(); setInterval(tick, 1000);
+
+  const SHOWS = { 0: ['One Piece', 'Ep 1149', '#e94b3c', '#1d3c8f'], 4: ['Jujutsu Kaisen', 'Ep 14', '#3b6fff', '#160b3a'], 5: ['Demon Slayer', 'Ep 9', '#1d6b52', '#7a1f2b'] };
+  const today = now0.getDay(); const order = [1, 2, 3, 4, 5, 6, 0];
+  $('week').innerHTML = order.map((d) => { const s = SHOWS[d];
+    const poster = s ? '<div class="poster has" style="background:linear-gradient(160deg,' + s[2] + ',' + s[3] + ')"><svg viewBox="0 0 100 150" width="100%" height="100%" preserveAspectRatio="none" style="position:absolute;inset:0;opacity:.35"><circle cx="70" cy="40" r="26" fill="#fff"/><path d="M0 120 Q30 80 55 110 T100 95 V150 H0z" fill="#000"/></svg><small>' + s[0] + '<br><span style="opacity:.7;font-weight:500">' + s[1] + '</span></small></div>' : '<div class="poster"></div>';
+    return '<div class="day' + (d === today ? ' today' : '') + '"><span>' + (d === today ? 'TODAY' : DAYS[d]) + '</span>' + poster + '</div>'; }).join('');
+  let nd = today, steps = 0; while (!SHOWS[nd] && steps < 7) { nd = (nd + 1) % 7; steps++; }
+  const sh = SHOWS[nd];
+  $('tonight').innerHTML = '<b>' + (steps === 0 ? 'Tonight 21:30' : steps === 1 ? 'Tomorrow 21:30' : LONGD[nd] + ' 21:30') + '</b><span>' + sh[0] + ' ' + sh[1] + ' · Crunchyroll simulcast</span>';
+
+  const TL = [
+    ['#f5c518', tossDay + ' ' + hm(toss), 'Toss, India vs Australia · 3rd T20I'],
+    [SHOWS[nd][2], (steps === 0 ? 'Today' : steps === 1 ? 'Tomorrow' : LONGD[nd].slice(0, 3)) + ' 21:30', sh[0] + ' ' + sh[1] + ' drops'],
+    ['#a50044', 'Sat 20:45', 'Barcelona vs Sevilla · La Liga'],
+    ['#5be08f', 'Sun 06:00', 'Rajmachi trail, clear'],
+    ['#3d195b', 'Sun 21:00', 'Liverpool vs Man City · EPL'],
+  ];
+  $('tl').innerHTML = TL.map(([c, t, x]) => '<div><i style="background:' + c + '"></i><span><b>' + t + '</b>' + x + '</span></div>').join('');
+
+  document.fonts && document.fonts.ready.then(() => { renderHome(); });
+  renderHome();
+})();
+</script>

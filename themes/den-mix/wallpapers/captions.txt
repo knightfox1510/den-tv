@@ -1,0 +1,32 @@
+# wallpaper_captions: "<file><TAB><name>", one per line
+01-camp-nou.jpg	Camp Nou Nights
+02-clasico.jpg	El Clásico Eve
+03-floodlights.jpg	Floodlights
+04-wankhede.jpg	Wankhede Roar
+05-blue-billion.jpg	Blue Billion
+06-super-saiyan.jpg	Super Saiyan
+07-ultra-instinct.jpg	Ultra Instinct
+08-nine-tails.jpg	Nine-Tails
+09-sage-mode.jpg	Sage Mode
+10-straw-hat.jpg	Straw Hat
+11-three-sword.jpg	Three-Sword Style
+12-crimson-moon.jpg	Crimson Moon
+13-domain.jpg	Domain Expansion
+14-water-breathing.jpg	Water Breathing
+15-manga.jpg	Manga Panel
+16-anime-dusk.jpg	Anime Dusk
+17-trail-dawn.jpg	Trail Dawn
+18-monsoon.jpg	Sahyadri Monsoon
+19-neon.jpg	Neon Tokyo
+20-diwali.jpg	Diwali Night
+21-seoul.jpg	Seoul Nights
+22-marquee.jpg	Bollywood Marquee
+23-hero-messi.jpg	Hero Wall · Messi
+24-hero-kohli.jpg	Hero Wall · Kohli
+25-hero-rohit.jpg	Hero Wall · Rohit
+26-hero-luffy.jpg	Hero Wall · Luffy
+27-hero-gojo.jpg	Hero Wall · Gojo
+28-hero-goku.jpg	Hero Wall · Goku
+29-hero-naruto.jpg	Hero Wall · Naruto
+30-hero-zoro.jpg	Hero Wall · Zoro
+31-hero-tanjiro.jpg	Hero Wall · Tanjiro

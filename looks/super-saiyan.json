@@ -1,0 +1,16 @@
+{
+  "id": "super-saiyan",
+  "name": "Super Saiyan",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "saiyan",
+  "hero": "goku",
+  "watcher": "saiyan",
+  "focus": "aura",
+  "wake": "powerup",
+  "clock": "roll",
+  "icons": "white",
+  "extras": "gold",
+  "moment": "beam",
+  "accent": "#ffd23c"
+}

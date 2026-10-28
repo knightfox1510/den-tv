@@ -1,0 +1,16 @@
+{
+  "id": "wankhede",
+  "name": "Wankhede Roar",
+  "category": "Cricket",
+  "for": "owner",
+  "scene": "wankhede",
+  "hero": "rohit",
+  "watcher": "none",
+  "focus": "arc",
+  "wake": "tunnel",
+  "clock": "over",
+  "icons": "white",
+  "extras": "fireworks",
+  "moment": "six",
+  "accent": "#d1ab3e"
+}

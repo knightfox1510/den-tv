@@ -1,0 +1,16 @@
+{
+  "id": "floodlights",
+  "name": "Floodlights",
+  "category": "Football",
+  "for": "everyone",
+  "scene": "floodlights",
+  "hero": "none",
+  "watcher": "none",
+  "focus": "pass",
+  "wake": "tunnel",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "flashes",
+  "moment": "goal",
+  "accent": "#9fd8ff"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "water-breathing",
+  "name": "Water Breathing",
+  "category": "Anime",
+  "for": "owner",
+  "scene": "wave",
+  "hero": "tanjiro",
+  "watcher": "none",
+  "focus": "ripple",
+  "wake": "ink",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#8fd0ff"
+}

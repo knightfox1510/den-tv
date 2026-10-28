@@ -1,0 +1,414 @@
+<title>Hero Wall TV</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;800;900&display=swap">
+<style>
+/* Layout: a 1920x1080 TV stage scaled to fit; a dark hero poster behind floating white logos, with the page's notes underneath. One dark look on purpose. */
+:root {
+  --page: #08080b;
+  --ink: #ecebf0;
+  --dim: #a3a1ad;
+  --line: #24242e;
+  --chip: #131318;
+  --red: #e5303a;
+  --f: "Outfit", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+body { background: var(--page); color: var(--ink); font-family: var(--f); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; }
+.top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; }
+.top h1 { margin: 0; font-size: clamp(26px, 4vw, 38px); font-weight: 300; text-wrap: balance; }
+.top h1 b { font-weight: 600; }
+.top p { margin: 4px 0 0; color: var(--dim); max-width: 62ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn, .seg button { font: inherit; font-size: 14px; color: var(--ink); background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 7px 15px; cursor: pointer; }
+.btn:hover { background: #1c1c24; }
+.seg { display: inline-flex; background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; color: var(--dim); padding: 6px 14px; }
+.seg button[aria-pressed="true"] { background: #2b2b36; color: var(--ink); }
+.btn:focus-visible, .seg button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.hint { color: var(--dim); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+kbd { font-family: var(--f); font-size: 12px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 0 6px; background: var(--chip); color: var(--ink); }
+
+.tvbox { display: grid; justify-items: center; }
+.tv { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 8px #040405, 0 0 0 9px #202028, 0 40px 80px -20px rgba(0,0,0,.85); outline: none; }
+.tv:focus-visible { box-shadow: 0 0 0 8px #040405, 0 0 0 10px var(--red), 0 40px 80px -20px rgba(0,0,0,.85); }
+.foot { width: 22%; height: 18px; margin-top: 9px; background: linear-gradient(#1b1b22, #0c0c10); clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%); }
+
+.stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; color: #fff; font-family: var(--f); --spot: #ffffff; }
+.home { position: absolute; inset: 0; transition: transform .8s cubic-bezier(.2,.8,.2,1), opacity .5s; }
+.home.asleep { transform: scale(1.08); opacity: 0; }
+.wall { position: absolute; inset: 0; width: 1920px; height: 1080px; transition: opacity 1.4s ease; }
+.vig { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,0) 28%, rgba(0,0,0,0) 55%, rgba(0,0,0,.85) 100%), radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.6) 100%); }
+
+/* clock with rolling seconds */
+.clockbox { position: absolute; left: 110px; top: 70px; }
+.greet { font-size: 22px; letter-spacing: .22em; text-transform: uppercase; opacity: .7; }
+.clock { display: flex; align-items: flex-end; gap: 6px; margin-top: 4px; }
+.hm { font-size: 150px; font-weight: 200; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.drum { display: flex; height: 104px; margin-bottom: 6px; -webkit-mask-image: linear-gradient(transparent 4%, #000 40%, #000 60%, transparent 96%); mask-image: linear-gradient(transparent 4%, #000 40%, #000 60%, transparent 96%); overflow: hidden; margin-left: 10px; }
+.col { width: 40px; }
+.strip { transition: transform .55s cubic-bezier(.3,1.5,.5,1); padding-top: 22px; }
+.strip div { height: 60px; line-height: 60px; font-size: 56px; font-weight: 300; text-align: center; font-variant-numeric: tabular-nums; color: #ff5a63; }
+.date { font-size: 28px; font-weight: 300; opacity: .75; margin-top: 2px; }
+.cap { position: absolute; right: 110px; top: 84px; text-align: right; }
+.cap b { display: block; font-size: 20px; font-weight: 500; letter-spacing: .08em; }
+.cap span { font-size: 17px; opacity: .55; }
+.dots { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); transition: background .3s, width .3s; }
+.dots i.on { background: #fff; width: 22px; border-radius: 4px; }
+
+/* eyes */
+.eyes { position: absolute; left: 960px; top: 250px; width: 0; height: 0; }
+.eyes .shadow { position: absolute; left: -380px; top: -95px; width: 760px; height: 190px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.65), rgba(0,0,0,0)); }
+.eye { position: absolute; top: -45px; width: 200px; height: 90px; }
+.eye.l { left: -250px; } .eye.r { left: 50px; }
+.eye svg { width: 200px; height: 90px; overflow: visible; }
+.lid { transform-origin: 50% 50%; transform-box: fill-box; transition: transform .09s ease-in; }
+.eyes.blink .lid { transform: scaleY(.06); }
+.iris { transition: transform .5s cubic-bezier(.3,1.3,.5,1); }
+.tomoe { transform-origin: 0 0; }
+.eyes.spin .tomoe { animation: spin 1.1s cubic-bezier(.5,0,.2,1); }
+@keyframes spin { to { transform: rotate(720deg); } }
+
+/* dock of white logos */
+.dock { position: absolute; left: 0; right: 0; top: 790px; height: 220px; }
+.app { position: absolute; top: 0; width: 120px; height: 120px; cursor: pointer; }
+.app svg { width: 120px; height: 120px; display: block; transition: transform .45s cubic-bezier(.3,1.6,.5,1), opacity .3s, filter .3s; opacity: .7; filter: drop-shadow(0 6px 14px rgba(0,0,0,.6)); }
+.app.f svg { transform: scale(1.42) translateY(-6px); opacity: 1; filter: drop-shadow(0 0 22px rgba(255,255,255,.35)) drop-shadow(0 10px 20px rgba(0,0,0,.6)); }
+.app .nm { position: absolute; left: -100px; right: -100px; top: 158px; text-align: center; font-size: 28px; font-weight: 400; letter-spacing: .02em; opacity: 0; transform: translateY(-8px); transition: opacity .25s, transform .35s; white-space: nowrap; }
+.app.f .nm { opacity: 1; transform: none; }
+.beam { position: absolute; top: 0; width: 640px; height: 960px; pointer-events: none; transition: left .5s cubic-bezier(.3,1.25,.5,1), opacity .4s; clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%); background: linear-gradient(180deg, rgba(255,255,255,0) 0%, color-mix(in srgb, var(--spot) 9%, transparent) 55%, color-mix(in srgb, var(--spot) 20%, transparent) 100%); mix-blend-mode: screen; }
+.pool { position: absolute; top: 870px; width: 520px; height: 150px; pointer-events: none; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--spot) 34%, transparent), transparent); transition: left .5s cubic-bezier(.3,1.25,.5,1), background .4s; mix-blend-mode: screen; }
+
+/* overlays */
+.zoom { position: absolute; z-index: 30; pointer-events: none; display: grid; place-items: center; opacity: 0; border-radius: 40px; }
+.zoom svg { width: 240px; height: 240px; }
+.wake { position: absolute; inset: 0; z-index: 40; background: #000; display: grid; place-items: center; transition: opacity .6s; }
+.wake.gone { opacity: 0; pointer-events: none; }
+.wake .big { transform: scale(2.6); }
+.wake svg { width: 200px; height: 90px; overflow: visible; display: block; }
+.toast { position: absolute; left: 50%; bottom: 40px; transform: translate(-50%, 20px); padding: 14px 28px; border-radius: 999px; background: rgba(16,16,22,.92); border: 1px solid rgba(255,255,255,.16); font-size: 23px; opacity: 0; transition: opacity .25s, transform .3s; z-index: 50; pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* notes */
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 18px; }
+.note { border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; background: #0f0f14; min-width: 0; }
+.note h3 { margin: 0 0 10px; font-size: 17px; font-weight: 600; }
+.note p, .note li { color: var(--dim); margin: 0 0 8px; }
+.note ul { margin: 0; padding-left: 18px; }
+.note b { color: var(--ink); font-weight: 500; }
+.tbl { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--dim); font-weight: 500; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+td:first-child { color: var(--ink); }
+td code { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: #d8d4e6; }
+.pill { display: inline-block; font-size: 12px; padding: 1px 9px; border-radius: 999px; white-space: nowrap; }
+.p-ready { background: #15301f; color: #85e8ab; } .p-code { background: #2f2414; color: #f2c37a; } .p-art { background: #33171c; color: #f59aa3; }
+
+@media (prefers-reduced-motion: reduce) {
+  .strip, .app svg, .beam, .pool, .iris, .home, .wall { transition-duration: .01s !important; }
+  .eyes.spin .tomoe { animation: none; }
+}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1><b>Hero Wall</b> · your friend's look, your heroes</h1>
+      <p>Dark hero posters that change every 5 minutes, white logos with no boxes, a spotlight that follows you, seconds that roll like a dial, and eyes that watch what you pick.</p>
+    </div>
+    <div class="controls">
+      <button class="btn" id="wakeBtn">⏻ Wake the TV</button>
+      <button class="btn" id="nextBtn">Next hero</button>
+      <div class="seg" role="group" aria-label="Eyes">
+        <button data-eyes="sharingan" aria-pressed="true">Sharingan</button>
+        <button data-eyes="six" aria-pressed="false">Six Eyes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tvbox">
+    <div class="tv" id="tv" tabindex="0" aria-label="TV mockup. Left and Right move, Enter opens an app.">
+      <div class="stage" id="stage">
+        <div class="home" id="home">
+          <canvas class="wall" id="wallA" width="1920" height="1080"></canvas>
+          <canvas class="wall" id="wallB" width="1920" height="1080" style="opacity:0"></canvas>
+          <div class="vig"></div>
+          <div class="beam" id="beam"></div>
+          <div class="pool" id="pool"></div>
+
+          <div class="clockbox">
+            <div class="greet" id="greet">Good evening, Gaurav</div>
+            <div class="clock"><div class="hm" id="hm">19:42</div>
+              <div class="drum" aria-hidden="true"><div class="col"><div class="strip" id="s10"></div></div><div class="col"><div class="strip" id="s1"></div></div></div>
+            </div>
+            <div class="date" id="date">Wednesday 28 October</div>
+          </div>
+          <div class="cap"><b id="capName">LIONEL MESSI</b><span id="capNext">Next hero in 5:00</span><div class="dots" id="dots"></div></div>
+
+          <div class="eyes" id="eyes"><div class="shadow"></div><div class="eye l" id="eyeL"></div><div class="eye r" id="eyeR"></div></div>
+
+          <div class="dock" id="dock"></div>
+        </div>
+        <div class="zoom" id="zoom"></div>
+        <div class="wake gone" id="wake"><div class="big" id="wakeEyes"></div></div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+    <div class="foot" aria-hidden="true"></div>
+  </div>
+  <div class="hint"><span>Click the TV, then <kbd>←</kbd><kbd>→</kbd> move the spotlight (watch the eyes)</span><span><kbd>Enter</kbd> opens an app with a zoom</span><span><kbd>N</kbd> next hero</span><span><kbd>P</kbd> sleep and wake</span></div>
+
+  <div class="notes">
+    <div class="note" style="grid-column: 1 / -1">
+      <h3>How each piece gets onto your TV</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Your friend's effect</th><th>How we'd do it</th><th>Effort</th></tr></thead>
+        <tbody>
+          <tr><td>Dark hero wallpapers, a new one every 5 min</td><td>A <code>wallpapers/</code> folder in your theme with <code>wallpaper_rotation_minutes: 5</code>, <code>wallpaper_order: shuffle</code> and <code>wallpaper_dim: 35</code>. Up to 100 pictures, 1920×1080, under 300 KB each.</td><td><span class="pill p-ready">Theme setting</span></td></tr>
+          <tr><td>Focused app grows, its name shows below</td><td>Built into the launcher. <code>advanced_effects: true</code> adds the bigger lift and icon zoom.</td><td><span class="pill p-ready">Theme setting</span></td></tr>
+          <tr><td>Glow that follows the selected app</td><td><code>app_glow</code> and <code>glow_style: radial</code> give a coloured glow today. The top-down beam shown here is a small launcher change.</td><td><span class="pill p-ready">Theme</span> + <span class="pill p-code">small code</span></td></tr>
+          <tr><td>Zoom-in when an app opens</td><td>Part of <code>advanced_effects</code> ("app opening effects").</td><td><span class="pill p-ready">Theme setting</span></td></tr>
+          <tr><td>White logo-only icons, no boxes</td><td>A launcher change: one white logo per app, bundled with the launcher, drawn with no tile behind it. Apps without a logo fall back to their name.</td><td><span class="pill p-code">Launcher code</span></td></tr>
+          <tr><td>Seconds that roll like a dial</td><td>A launcher change to the clock: two digit strips that slide up each second. It costs almost nothing to draw.</td><td><span class="pill p-code">Launcher code</span></td></tr>
+          <tr><td>Eyes that track the selected app, with random blinks</td><td>A small view drawn in code (no images, no video) that moves the pupils toward the focused tile and blinks every 3 to 9 seconds. It switches off with <code>reduced_motion</code>.</td><td><span class="pill p-code">Launcher code</span></td></tr>
+          <tr><td>Sharingan spin when the TV wakes</td><td>The launcher already knows when the screen turns on (that's how <code>power_on_home</code> works). The spin plays once at that moment, for about 1.5 seconds.</td><td><span class="pill p-code">Launcher code</span></td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:12px">All of it fits the repo's rule for 1 GB TVs: no blur, no video, nothing downloaded. I'd build the code parts as a fork of the launcher on your machine, so nothing needs to be accepted upstream.</p>
+    </div>
+    <div class="note">
+      <h3>Can Messi, Virat and Rohit be on it?</h3>
+      <p><b>Yes, on your own TV.</b> You can put any picture you like on a TV in your home. Where it gets complicated is sharing: almost every good photo of a player belongs to a photographer or an agency, so it can't go into the public repo or a theme you hand around.</p>
+      <ul>
+        <li><b>Official wallpapers:</b> FC Barcelona, Mumbai Indians and the BCCI publish phone and desktop wallpapers for fans to use personally. I'd crop them to 16:9 and darken them.</li>
+        <li><b>Free-licence photos:</b> Wikimedia Commons has CC-licensed photos of all three players. These can be shared, with a credit line.</li>
+        <li><b>Posters drawn in code</b>, like the ones in this mockup: jersey numbers, club colours, names. They're yours to share anywhere.</li>
+      </ul>
+      <p>The anime side works the same way. Crunchyroll and the studios post official key art you can use at home, and fan art needs the artist's permission.</p>
+    </div>
+    <div class="note">
+      <h3>What's in the rotation here</h3>
+      <ul>
+        <li><b>Football:</b> Messi, 10, in Barça colours</li>
+        <li><b>Cricket:</b> Virat Kohli, 18, for India. Rohit Sharma, 45, for Mumbai Indians</li>
+        <li><b>Anime:</b> Luffy (One Piece), Gojo (Jujutsu Kaisen), Tanjiro (Demon Slayer)</li>
+      </ul>
+      <p>Each one is a placeholder poster where your real picture would go. The spotlight takes the colour of the focused app.</p>
+      <p>The eyes come in two versions: Itachi's Sharingan, like your friend's, or Gojo's Six Eyes, since Jujutsu Kaisen is one of yours. Switch between them with the buttons above.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const stage = $('stage'), tv = $('tv');
+  const fit = () => { stage.style.transform = 'scale(' + tv.clientWidth / 1920 + ')'; };
+  new ResizeObserver(fit).observe(tv); fit();
+  const W = 1920, H = 1080;
+  function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+
+  /* ---------- hero posters ---------- */
+  function base(g, c1, c2) {
+    g.fillStyle = '#050507'; g.fillRect(0, 0, W, H);
+    let gr = g.createRadialGradient(1450, 520, 0, 1450, 520, 820); gr.addColorStop(0, c1); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    gr = g.createRadialGradient(1750, 1000, 0, 1750, 1000, 600); gr.addColorStop(0, c2); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  }
+  function number(g, n, stroke, x) {
+    g.save(); g.font = '900 540px Outfit, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    g.lineWidth = 5; g.strokeStyle = stroke; g.globalAlpha = .85; g.strokeText(n, x || 1450, 640);
+    g.globalAlpha = .08; g.fillStyle = '#fff'; g.fillText(n, x || 1450, 640); g.restore();
+  }
+  function name(g, big, small, accent) {
+    g.save(); g.textAlign = 'right';
+    g.font = '800 96px Outfit, sans-serif'; g.fillStyle = 'rgba(255,255,255,.92)'; g.letterSpacing = '14px'; g.fillText(big, 1830, 730);
+    g.font = '500 26px Outfit, sans-serif'; g.letterSpacing = '8px'; g.fillStyle = accent; g.fillText(small, 1820, 772); g.restore();
+  }
+  function stripes(g, cols, x0, x1, alpha) {
+    const w = (x1 - x0) / 10; g.save(); g.globalAlpha = alpha;
+    for (let i = 0; i < 10; i++) { g.fillStyle = cols[i % cols.length]; g.fillRect(x0 + i * w, 0, w, H); }
+    g.globalCompositeOperation = 'destination-in'; const m = g.createRadialGradient(1450, 500, 0, 1450, 500, 700); m.addColorStop(0, '#000'); m.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = m; g.fillRect(0, 0, W, H); g.restore();
+  }
+  function seam(g, x, y, r, col) { g.save(); g.strokeStyle = col; g.lineWidth = 3; g.setLineDash([10, 9]); g.beginPath(); g.arc(x, y, r, -.6, 1.2); g.stroke(); g.beginPath(); g.arc(x + 30, y - 10, r, -.6, 1.2); g.stroke(); g.restore(); }
+  function withMask(g, draw) { const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d'); draw(o);
+    o.globalCompositeOperation = 'destination-in'; const m = o.createRadialGradient(1450, 500, 0, 1450, 500, 760); m.addColorStop(0, '#000'); m.addColorStop(.7, 'rgba(0,0,0,.6)'); m.addColorStop(1, 'rgba(0,0,0,0)'); o.fillStyle = m; o.fillRect(0, 0, W, H); g.drawImage(off, 0, 0); }
+
+  const HEROES = [
+    { n: 'LIONEL MESSI', s: 'FC BARCELONA · LA LIGA', paint(g) { base(g, 'rgba(165,0,68,.55)', 'rgba(0,77,152,.55)'); stripes(g, ['#a50044', '#004d98'], 1000, 1900, .28); number(g, '10', '#edbb00'); name(g, 'MESSI', 'BARÇA LEGEND · NO. 10', '#edbb00'); } },
+    { n: 'VIRAT KOHLI', s: 'INDIA', paint(g) { base(g, 'rgba(31,95,209,.55)', 'rgba(255,153,51,.35)'); seam(g, 1150, 330, 300, 'rgba(255,255,255,.18)'); number(g, '18', '#ff9933'); name(g, 'KOHLI', 'KING KOHLI · INDIA', '#ff9933'); } },
+    { n: 'ROHIT SHARMA', s: 'MUMBAI INDIANS', paint(g) { base(g, 'rgba(0,75,160,.62)', 'rgba(209,171,62,.35)'); withMask(g, (o) => { o.strokeStyle = 'rgba(209,171,62,.4)'; o.lineWidth = 2; for (let i = 0; i < 26; i++) { o.beginPath(); o.moveTo(900 + i * 44, 0); o.lineTo(700 + i * 44, H); o.stroke(); } }); number(g, '45', '#d1ab3e'); name(g, 'ROHIT', 'THE HITMAN · MUMBAI INDIANS', '#d1ab3e'); } },
+    { n: 'MONKEY D. LUFFY', s: 'ONE PIECE', paint(g) {
+      base(g, 'rgba(30,60,120,.5)', 'rgba(190,40,40,.3)');
+      g.fillStyle = 'rgba(255,248,230,.9)'; g.beginPath(); g.arc(1500, 300, 70, 0, 7); g.fill();
+      const r = rng(4); g.strokeStyle = 'rgba(160,200,255,.25)'; g.lineWidth = 2; for (let i = 0; i < 14; i++) { const y = 700 + i * 22; g.beginPath(); for (let x = 900; x < W; x += 20) g.lineTo(x, y + Math.sin(x / 60 + i) * 4 + r() * 2); g.stroke(); }
+      g.save(); g.translate(1450, 620); g.rotate(-.08);
+      g.fillStyle = '#c9a24e'; g.beginPath(); g.ellipse(0, 40, 330, 70, 0, 0, 7); g.fill();
+      g.fillStyle = '#d8b25a'; g.beginPath(); g.ellipse(0, -10, 170, 120, 0, Math.PI, 0); g.fill(); g.fillRect(-170, -10, 340, 40);
+      g.fillStyle = '#b3262a'; g.fillRect(-170, -6, 340, 34);
+      g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(0, 52, 300, 40, 0, 0, Math.PI); g.fill(); g.restore();
+      name(g, 'LUFFY', 'STRAW HAT · ONE PIECE', '#e8c16a'); } },
+    { n: 'SATORU GOJO', s: 'JUJUTSU KAISEN', paint(g) {
+      base(g, 'rgba(40,120,255,.45)', 'rgba(140,90,255,.35)');
+      g.save(); g.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 16; i++) { g.strokeStyle = 'rgba(120,200,255,' + (0.32 - i * 0.018) + ')'; g.lineWidth = 3; g.beginPath(); g.arc(1450, 470, 40 + i * 26, 0, 7); g.stroke(); }
+      const gr = g.createRadialGradient(1450, 470, 0, 1450, 470, 180); gr.addColorStop(0, 'rgba(220,245,255,.9)'); gr.addColorStop(1, 'rgba(60,140,255,0)'); g.fillStyle = gr; g.fillRect(1250, 270, 400, 400); g.restore();
+      name(g, 'GOJO', 'LIMITLESS · JUJUTSU KAISEN', '#9fd8ff'); } },
+    { n: 'TANJIRO KAMADO', s: 'DEMON SLAYER', paint(g) {
+      base(g, 'rgba(30,120,90,.45)', 'rgba(40,110,220,.35)');
+      withMask(g, (o) => { const s = 70; for (let y = 0; y < H; y += s) for (let x = 900; x < W; x += s) { o.fillStyle = ((x / s + y / s) & 1) ? '#1d6b52' : '#0b0b0b'; o.fillRect(x, y, s, s); } });
+      g.save(); g.globalCompositeOperation = 'lighter'; g.strokeStyle = 'rgba(110,180,255,.55)';
+      for (let k = 0; k < 5; k++) { g.lineWidth = 10 - k * 1.6; g.beginPath(); for (let t = 0; t <= 1; t += .01) { const x = 980 + t * 940; const y = 560 + Math.sin(t * 7 + k * .5) * (90 - k * 10) + k * 26; t ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
+      g.restore();
+      name(g, 'TANJIRO', 'WATER BREATHING · DEMON SLAYER', '#8fd0ff'); } },
+  ];
+  const canv = [$('wallA'), $('wallB')]; let front = 0, hero = 0, changedAt = Date.now();
+  const ROT = 5 * 60e3;
+  $('dots').innerHTML = HEROES.map(() => '<i></i>').join('');
+  function showHero(i, instant) {
+    hero = (i + HEROES.length) % HEROES.length; changedAt = Date.now();
+    const back = 1 - front, c = canv[back], g = c.getContext('2d'); g.clearRect(0, 0, W, H); HEROES[hero].paint(g);
+    if (instant) { canv[back].style.transition = 'none'; canv[front].style.transition = 'none'; }
+    canv[back].style.opacity = 1; canv[front].style.opacity = 0;
+    if (instant) requestAnimationFrame(() => { canv.forEach((x) => (x.style.transition = '')); });
+    front = back;
+    $('capName').textContent = HEROES[hero].n;
+    [...$('dots').children].forEach((d, k) => d.classList.toggle('on', k === hero));
+  }
+
+  /* ---------- white logos ---------- */
+  const L = {
+    hub: '<path d="M14 76 38 42l14 18 10-12 24 28z" fill="#fff"/><path d="M70 14l3.6 7.6 8.4 1-6.2 5.7 1.7 8.2-7.5-4.2-7.5 4.2 1.7-8.2-6.2-5.7 8.4-1z" fill="#fff"/>',
+    crunchy: '<path fill="#fff" fill-rule="evenodd" d="M50 10a40 40 0 1 0 0 80 40 40 0 0 0 0-80zm8 18a20 20 0 1 0 20 20 14 14 0 1 1-20-20z"/>',
+    hotstar: '<path fill="#fff" d="M50 10c3 22 18 37 40 40-22 3-37 18-40 40-3-22-18-37-40-40 22-3 37-18 40-40z"/>',
+    yt: '<path fill="#fff" fill-rule="evenodd" d="M24 24h52a14 14 0 0 1 14 14v24a14 14 0 0 1-14 14H24a14 14 0 0 1-14-14V38a14 14 0 0 1 14-14zm18 12v28l24-14z"/>',
+    nf: '<path fill="#fff" d="M28 12h14l16 46V12h14v76H58L42 42v46H28z"/>',
+    spotify: '<path fill="#fff" fill-rule="evenodd" d="M50 10a40 40 0 1 0 0 80 40 40 0 0 0 0-80zM27 38c16-5 34-4 48 4l-3 6c-13-7-29-8-43-4zm3 13c13-4 28-3 39 4l-3 5c-10-6-23-7-34-4zm3 12c10-3 21-2 30 3l-2 4c-8-4-18-5-27-3z"/>',
+    prime: '<path fill="#fff" d="M38 22v40l32-20z"/><path d="M18 70c20 12 46 12 64 0" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M74 62l10 7-11 5" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    fancode: '<text x="50" y="66" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="48" fill="#fff">FC</text><rect x="14" y="16" width="72" height="68" rx="18" fill="none" stroke="#fff" stroke-width="6"/>',
+    gear: '<path fill="#fff" fill-rule="evenodd" d="M44 10h12l2 10 8 4 9-6 8 8-6 9 4 8 10 2v12l-10 2-4 8 6 9-8 8-9-6-8 4-2 10H44l-2-10-8-4-9 6-8-8 6-9-4-8-10-2V44l10-2 4-8-6-9 8-8 9 6 8-4zm6 26a14 14 0 1 0 0 28 14 14 0 0 0 0-28z"/>',
+  };
+  const APPS = [
+    { n: 'Fan Hub', k: 'hub', c: '#c39bff' }, { n: 'Crunchyroll', k: 'crunchy', c: '#f47521' }, { n: 'JioHotstar', k: 'hotstar', c: '#6f7dff' },
+    { n: 'YouTube', k: 'yt', c: '#ff2b2b' }, { n: 'Netflix', k: 'nf', c: '#e50914' }, { n: 'Spotify', k: 'spotify', c: '#1ed760' },
+    { n: 'Prime Video', k: 'prime', c: '#00a8e1' }, { n: 'FanCode', k: 'fancode', c: '#ff6a13' }, { n: 'Settings', k: 'gear', c: '#ffffff' },
+  ];
+  const SP = 200, X0 = (W - (APPS.length - 1) * SP) / 2;
+  const dock = $('dock');
+  const appEls = APPS.map((a, i) => { const d = document.createElement('div'); d.className = 'app'; d.style.left = (X0 + i * SP - 60) + 'px';
+    d.innerHTML = '<svg viewBox="0 0 100 100">' + L[a.k] + '</svg><div class="nm">' + a.n + '</div>'; dock.appendChild(d); return d; });
+  let foc = 0;
+
+  /* ---------- eyes ---------- */
+  let eyeStyle = 'sharingan';
+  function eyeSVG(id) {
+    const almond = 'M6 45 Q100 -18 194 45 Q100 108 6 45 Z';
+    let iris;
+    if (eyeStyle === 'sharingan') {
+      const tom = [0, 120, 240].map((a) => '<g transform="rotate(' + a + ')"><circle cx="0" cy="-19" r="5.2" fill="#0a0000"/><path d="M5 -19 Q8 -10 -2 -8" stroke="#0a0000" stroke-width="3" fill="none" stroke-linecap="round"/></g>').join('');
+      iris = '<circle r="34" fill="url(#ir' + id + ')"/><circle r="22" fill="none" stroke="#1a0000" stroke-width="1.6" opacity=".8"/><g class="tomoe">' + tom + '</g><circle r="7" fill="#050000"/>';
+    } else {
+      let rays = ''; for (let i = 0; i < 36; i++) { const a = i * 10 * Math.PI / 180; rays += '<line x1="' + (Math.cos(a) * 9).toFixed(1) + '" y1="' + (Math.sin(a) * 9).toFixed(1) + '" x2="' + (Math.cos(a) * 32).toFixed(1) + '" y2="' + (Math.sin(a) * 32).toFixed(1) + '" stroke="#eaffff" stroke-width=".8" opacity=".55"/>'; }
+      iris = '<circle r="34" fill="url(#ir' + id + ')"/><g class="tomoe">' + rays + '</g><circle r="6" fill="#0a2a55"/><circle cx="-9" cy="-10" r="4" fill="#fff" opacity=".9"/>';
+    }
+    const grad = eyeStyle === 'sharingan'
+      ? '<radialGradient id="ir' + id + '"><stop offset="0" stop-color="#ff3b3b"/><stop offset=".75" stop-color="#b00000"/><stop offset="1" stop-color="#3a0000"/></radialGradient>'
+      : '<radialGradient id="ir' + id + '"><stop offset="0" stop-color="#e9fdff"/><stop offset=".45" stop-color="#7fd8ff"/><stop offset="1" stop-color="#1d5fd6"/></radialGradient>';
+    const glow = eyeStyle === 'sharingan' ? 'rgba(255,40,40,.55)' : 'rgba(120,210,255,.6)';
+    const lash = eyeStyle === 'sharingan' ? '#000' : '#f4f8ff';
+    return '<svg viewBox="0 0 200 90"><defs>' + grad + '<clipPath id="cp' + id + '"><path d="' + almond + '"/></clipPath><filter id="gl' + id + '" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs>' +
+      '<g class="lid"><ellipse cx="100" cy="45" rx="70" ry="26" fill="' + glow + '" filter="url(#gl' + id + ')"/>' +
+      '<g clip-path="url(#cp' + id + ')"><rect width="200" height="90" fill="#d9d2cf" opacity=".9"/><rect width="200" height="34" fill="#000" opacity=".35"/><g class="iris" id="iris' + id + '" transform="translate(100,45)"><g class="ip">' + iris + '</g></g></g>' +
+      '<path d="M6 45 Q100 -18 194 45" stroke="' + lash + '" stroke-width="6" fill="none" stroke-linecap="round"/></g></svg>';
+  }
+  function buildEyes() { $('eyeL').innerHTML = eyeSVG('L'); $('eyeR').innerHTML = eyeSVG('R'); $('wakeEyes').innerHTML = '<div style="position:relative;width:500px;height:90px"><div style="position:absolute;left:0;width:200px;height:90px">' + eyeSVG('WL') + '</div><div style="position:absolute;left:300px;width:200px;height:90px">' + eyeSVG('WR') + '</div></div>'; look(); }
+  function look() {
+    const ax = X0 + foc * SP; // focused app x on stage
+    ['L', 'R'].forEach((s) => { const ex = 960 + (s === 'L' ? -150 : 150); const dx = Math.max(-1, Math.min(1, (ax - ex) / 800)) * 30; const el = document.getElementById('iris' + s);
+      if (el) el.style.transform = 'translate(' + (100 + dx) + 'px,' + 56 + 'px)'; });
+  }
+  function blink() { const e = $('eyes'); e.classList.add('blink'); setTimeout(() => e.classList.remove('blink'), 130); if (Math.random() < .25) setTimeout(() => { e.classList.add('blink'); setTimeout(() => e.classList.remove('blink'), 120); }, 300); setTimeout(blink, 3000 + Math.random() * 6000); }
+  setTimeout(blink, 2500);
+  document.querySelectorAll('[data-eyes]').forEach((b) => b.addEventListener('click', () => { eyeStyle = b.dataset.eyes; document.querySelectorAll('[data-eyes]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); buildEyes(); spinEyes(); }));
+  function spinEyes() { const e = $('eyes'); e.classList.remove('spin'); void e.offsetWidth; e.classList.add('spin'); setTimeout(() => e.classList.remove('spin'), 1200); }
+
+  /* ---------- focus, spotlight, open ---------- */
+  function render() {
+    appEls.forEach((el, i) => el.classList.toggle('f', i === foc));
+    const x = X0 + foc * SP;
+    $('beam').style.left = (x - 320) + 'px'; $('pool').style.left = (x - 260) + 'px';
+    stage.style.setProperty('--spot', APPS[foc].c === '#ffffff' ? '#ffffff' : APPS[foc].c);
+    look();
+  }
+  let toastT; function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1600); }
+  let opening = false;
+  function openApp() {
+    if (opening) return; opening = true;
+    const a = APPS[foc], z = $('zoom'), x = X0 + foc * SP;
+    z.innerHTML = '<svg viewBox="0 0 100 100">' + L[a.k] + '</svg>';
+    z.style.transition = 'none'; z.style.left = (x - 90) + 'px'; z.style.top = '760px'; z.style.width = '180px'; z.style.height = '180px';
+    z.style.background = 'radial-gradient(circle at 50% 50%, ' + a.c + ', #000 140%)'; z.style.opacity = '1'; z.style.borderRadius = '90px';
+    void z.offsetWidth;
+    z.style.transition = 'left .55s cubic-bezier(.6,0,.2,1), top .55s cubic-bezier(.6,0,.2,1), width .55s cubic-bezier(.6,0,.2,1), height .55s cubic-bezier(.6,0,.2,1), border-radius .55s, opacity .4s .9s';
+    z.style.left = '0px'; z.style.top = '0px'; z.style.width = W + 'px'; z.style.height = H + 'px'; z.style.borderRadius = '0px';
+    $('home').style.transform = 'scale(1.06)';
+    setTimeout(() => { toast(a.n + ' would open here'); }, 500);
+    setTimeout(() => { z.style.opacity = '0'; $('home').style.transform = ''; }, 1000);
+    setTimeout(() => { opening = false; }, 1500);
+  }
+  let asleep = false;
+  function wake() {
+    const w = $('wake'), h = $('home');
+    asleep = false; w.classList.remove('gone'); w.style.transition = 'none'; w.style.opacity = '1'; h.classList.add('asleep');
+    const we = $('wakeEyes'); we.style.opacity = '0'; we.style.transition = 'opacity .5s'; void w.offsetWidth; w.style.transition = '';
+    setTimeout(() => { we.style.opacity = '1'; const tomoes = we.querySelectorAll('.tomoe'); tomoes.forEach((t) => { t.style.animation = 'none'; void t.offsetWidth; t.style.animation = 'spin 1.3s cubic-bezier(.5,0,.2,1)'; }); }, 350);
+    setTimeout(() => { w.style.opacity = ''; w.classList.add('gone'); h.classList.remove('asleep'); }, 1900);
+  }
+  function sleep() { asleep = true; const w = $('wake'); w.classList.remove('gone'); $('wakeEyes').style.opacity = '0'; }
+
+  const KM = { ArrowLeft: 'L', ArrowRight: 'R', Enter: 'E', n: 'N', N: 'N', p: 'P', P: 'P' };
+  document.addEventListener('keydown', (e) => {
+    const k = KM[e.key]; if (!k) return;
+    if (e.target.tagName === 'BUTTON' && e.key === 'Enter') return;
+    e.preventDefault();
+    if (k === 'P') { asleep ? wake() : sleep(); return; }
+    if (asleep) { wake(); return; }
+    if (k === 'L') foc = Math.max(0, foc - 1); else if (k === 'R') foc = Math.min(APPS.length - 1, foc + 1);
+    else if (k === 'E') { openApp(); return; } else if (k === 'N') { showHero(hero + 1); return; }
+    render();
+  });
+  appEls.forEach((el, i) => el.addEventListener('click', () => { tv.focus({ preventScroll: true }); if (foc === i) openApp(); else { foc = i; render(); } }));
+  $('wakeBtn').addEventListener('click', wake);
+  $('nextBtn').addEventListener('click', () => showHero(hero + 1));
+  $('wake').addEventListener('click', () => { if (asleep) wake(); });
+
+  /* ---------- clock with rolling seconds ---------- */
+  const s10 = $('s10'), s1 = $('s1');
+  s10.innerHTML = [0, 1, 2, 3, 4, 5, 0].map((d) => '<div>' + d + '</div>').join('');
+  s1.innerHTML = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((d) => '<div>' + d + '</div>').join('');
+  const last = { t: -1, o: -1 };
+  function roll(strip, idx, prev, max) {
+    if (prev === max && idx === 0) { strip.style.transform = 'translateY(' + (-(max + 1) * 60) + 'px)';
+      setTimeout(() => { strip.style.transition = 'none'; strip.style.transform = 'translateY(0)'; void strip.offsetWidth; strip.style.transition = ''; }, 600); }
+    else strip.style.transform = 'translateY(' + (-idx * 60) + 'px)';
+  }
+  const D = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], M = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const pad = (n) => String(n).padStart(2, '0');
+  function tick() {
+    const n = new Date(), s = n.getSeconds(), t = Math.floor(s / 10), o = s % 10;
+    $('hm').textContent = pad(n.getHours()) + ':' + pad(n.getMinutes());
+    $('date').textContent = D[n.getDay()] + ' ' + n.getDate() + ' ' + M[n.getMonth()];
+    const h = n.getHours(); $('greet').textContent = (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ', Gaurav';
+    if (o !== last.o) { roll(s1, o, last.o, 9); last.o = o; }
+    if (t !== last.t) { roll(s10, t, last.t, 5); last.t = t; }
+    const left = Math.max(0, ROT - (Date.now() - changedAt)); if (left === 0) showHero(hero + 1);
+    $('capNext').textContent = HEROES[hero].s + ' · next hero in ' + Math.floor(left / 60e3) + ':' + pad(Math.floor(left / 1000) % 60);
+  }
+
+  function start() { buildEyes(); showHero(0, true); render(); tick(); setInterval(tick, 1000); wake(); }
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(start);
+})();
+</script>

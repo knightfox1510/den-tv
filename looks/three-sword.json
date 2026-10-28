@@ -1,0 +1,16 @@
+{
+  "id": "three-sword",
+  "name": "Three-Sword Style",
+  "category": "Heroes",
+  "for": "owner",
+  "scene": "zoro",
+  "hero": "zoro",
+  "watcher": "zoro",
+  "focus": "aura",
+  "wake": "slash",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "leaves",
+  "moment": "drop",
+  "accent": "#3ddc84"
+}

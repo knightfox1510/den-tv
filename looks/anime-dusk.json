@@ -1,0 +1,16 @@
+{
+  "id": "anime-dusk",
+  "name": "Anime Dusk",
+  "category": "Anime",
+  "for": "everyone",
+  "scene": "dusk",
+  "hero": "none",
+  "watcher": "none",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#ff7ab6"
+}

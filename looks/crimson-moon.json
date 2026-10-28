@@ -1,0 +1,16 @@
+{
+  "id": "crimson-moon",
+  "name": "Crimson Moon",
+  "category": "Anime",
+  "for": "owner",
+  "scene": "crimson",
+  "hero": "none",
+  "watcher": "mangekyo",
+  "focus": "aura",
+  "wake": "sharingan",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "crows",
+  "moment": "drop",
+  "accent": "#ff2a2a"
+}

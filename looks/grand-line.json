@@ -1,0 +1,16 @@
+{
+  "id": "grand-line",
+  "name": "Grand Line",
+  "category": "Anime",
+  "for": "owner",
+  "scene": "grandline",
+  "hero": "luffy",
+  "watcher": "none",
+  "focus": "pass",
+  "wake": "ink",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#e8c16a"
+}

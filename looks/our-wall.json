@@ -1,0 +1,16 @@
+{
+  "id": "our-wall",
+  "name": "Our Wall",
+  "category": "Together",
+  "for": "everyone",
+  "scene": "dusk",
+  "hero": "none",
+  "watcher": "none",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "petals",
+  "moment": "none",
+  "accent": "#ffb3c1"
+}

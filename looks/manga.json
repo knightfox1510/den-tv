@@ -1,0 +1,16 @@
+{
+  "id": "manga",
+  "name": "Manga Panel",
+  "category": "Anime",
+  "for": "everyone",
+  "scene": "manga",
+  "hero": "none",
+  "watcher": "sharingan",
+  "focus": "pass",
+  "wake": "panels",
+  "clock": "brush",
+  "icons": "white",
+  "extras": "none",
+  "moment": "drop",
+  "accent": "#ff2d55"
+}

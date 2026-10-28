@@ -1,0 +1,16 @@
+{
+  "id": "seoul",
+  "name": "Seoul Nights",
+  "category": "Together",
+  "for": "partner",
+  "scene": "seoul",
+  "hero": "none",
+  "watcher": "none",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "thin",
+  "icons": "white",
+  "extras": "petals",
+  "moment": "none",
+  "accent": "#ff7ac8"
+}
