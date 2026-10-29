@@ -6,7 +6,7 @@ and the rest, plus a Hero Wall poster for each hero. A new one every 5 minutes, 
 its name under the top-right buttons.
 
 This is the part of den-tv that works on a TV today. The moving parts (watchers that follow the
-selected app, wake animations, goals and sixes) need the den-tv launcher, which is still being built.
+selected app, wake animations, goals and sixes) need the [den-tv launcher](../../launcher/DEN.md).
 
 ## Use it
 

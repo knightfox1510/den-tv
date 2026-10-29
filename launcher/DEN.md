@@ -4,7 +4,7 @@ The den-tv home screen for Android TV and Google TV: the [cleanyourtv](https://g
 launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top. It installs as
 `tv.den.launcher`, so it sits beside the cleanyourtv launcher or replaces it.
 
-## What it does (v0.9)
+## What it does (v1.0)
 
 - **Looks tile.** A Looks tile in the dock opens every look with its wallpaper. OK puts a look on Home and
   Back keeps what is on. The first tile, "Rotate every look", goes back to a new wallpaper every 5 minutes.
@@ -44,7 +44,7 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   next match with a countdown (or the live score), your teams' later matches, the anime week, the weekend's trail
   weather, the next 72 hours, and the phone pairing code. OK fetches again; Menu forgets paired phones.
 - **First-time setup.** The first time Home opens, the TV walks through welcome, Wi-Fi and pairing your phone
-  (QR code and a 4-digit code); then the phone takes you through your name, teams and shows, what Home shows
+  (QR code and a 6-digit code that changes every 5 minutes); then the phone takes you through your name, teams and shows, what Home shows
   (greeting, match panel, watcher: each can be off) and a look picked from your interests, while the TV follows
   along. Run it again from the **Set up den-tv** tile at the end of the Looks screen. It needs the Fan Hub app.
 - **The phone app.** Pair once (scan the code on the Fan Hub or setup screen); after that the page works whenever
@@ -112,6 +112,27 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   focused app is. The focus glow follows the tile wherever the look's icon layout lifts, drops or scales it. Watchers that follow the focused app stay on screen at either end of the row. Hold OK on a tile and
   choose **Remove from Home** to hide an app; the App library button in the top bar lists every app and puts
   hidden ones back.
+- **Opening and closing apps.** Opening an app from Home plays an animation from its tile (icon zoom, portal,
+  warp speed, sword slash, manga panels, shatter, ink wipe, camera flash), and coming back Home plays one into the
+  tile you left (shrink to icon, iris, slide down, shatter out, fade). Tweak → Animations chooses each: match the
+  look, one by hand, random, or off.
+- **Motion: Full, Calm or Off.** Calm keeps the watcher, the wake (as a plain bloom) and moments, and drops the
+  drifting extras and focus effects. A TV with under 1.3 GB of memory starts on Calm.
+- **Moving round the layouts.** The carousel wraps round from the last app to the first, and in the formation Up
+  and Down move between the two lines.
+- **Favourites and Surprise me.** Star looks on the phone; they open a Favourites row at the top of the TV's Looks
+  screen and a Favourites chip on the phone. Surprise me puts on a random look (skipping private photos).
+- **Sharing a look.** Share one of your own looks as a code, a QR code or a .json file, and import one from a
+  friend. Photo looks share without their photo.
+- **Picture icons and hiding apps per person.** Tweak → Apps: your own picture for any app's tile (kept on the TV),
+  and "Hide for <name>" to hide an app only while that person is watching.
+- **Continue and screen-time badges.** A teal CONTINUE pill on an app you left in the last 3 hours, and (if turned
+  on) today's minutes on each tile.
+- **Keep running.** TV → Memory: apps ticked here are never closed by "Close background apps".
+- **Screen care.** Home's contents shift by a few pixels every 3 minutes so nothing stays still long enough to
+  burn in (TV → Screen care).
+- **Gemini model.** TV → Live data chooses the Gemini model; the key is checked when saved, and a model your key
+  can't use falls back to one it can.
 - **Everything else from cleanyourtv:** dock and grid, D-pad navigation, Inputs and Wi-Fi pills, Launcher
   settings, the remote-button helpers and the safety checks in the install script.
 
