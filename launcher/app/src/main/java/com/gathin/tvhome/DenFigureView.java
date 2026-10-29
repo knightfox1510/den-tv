@@ -31,6 +31,15 @@ final class DenFigureView extends View implements DenLayer.Watcher {
         nextBlink = SystemClock.uptimeMillis() + 2500;
     }
 
+    /** A figure drawn into the APK (assets/den/figures), or null. */
+    static Bitmap asset(Context ctx, String name) {
+        try (java.io.InputStream in = ctx.getAssets().open("den/figures/" + name + ".webp")) {
+            return android.graphics.BitmapFactory.decodeStream(in);
+        } catch (java.io.IOException e) {
+            return null;
+        }
+    }
+
     @Override public void lookAt(float sx, float sy, String label) {
         if (getWidth() == 0) return;
         float s = 1920f / getWidth();

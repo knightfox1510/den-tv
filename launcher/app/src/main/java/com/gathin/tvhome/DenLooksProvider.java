@@ -75,6 +75,7 @@ public final class DenLooksProvider extends ContentProvider {
         c.addRow(new Object[]{"animations", choices.getBoolean("animations", true) ? "1" : "0"});
         c.addRow(new Object[]{"facts", p.getBoolean("facts", false) ? "1" : "0"});
         c.addRow(new Object[]{"stats", p.getBoolean("stats", false) ? "1" : "0"});
+        c.addRow(new Object[]{"hud", p.getBoolean("hud", false) ? "1" : "0"});
         return c;
     }
 
@@ -101,7 +102,7 @@ public final class DenLooksProvider extends ContentProvider {
             n++;
         }
         for (String k : new String[]{DenSettings.GREETING, DenSettings.PANEL, DenSettings.WATCHER, DenSettings.SETUP_DONE,
-                DenSettings.WAKE, DenSettings.REDUCED_MOTION, "facts", "stats"}) {
+                DenSettings.WAKE, DenSettings.REDUCED_MOTION, "facts", "stats", "hud"}) {
             if (!v.containsKey(k)) continue;
             e.putBoolean(k, "1".equals(v.getAsString(k)) || Boolean.TRUE.equals(v.getAsBoolean(k)));
             n++;

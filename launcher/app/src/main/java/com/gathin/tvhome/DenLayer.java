@@ -98,6 +98,18 @@ final class DenLayer {
                 if (walker) watcher = null;
             }
         }
+        // The look's own figure (Luffy, Gear 5, Zoro), drawn from the mockup, when you haven't put up your own.
+        if (layer.figure == null && look != null && !look.figure.isEmpty() && DenSettings.watcher(activity)) {
+            android.graphics.Bitmap body = DenFigureView.asset(activity, "figure-" + look.figure);
+            if (body != null) {
+                DenFigureView f = new DenFigureView(activity, body, DenFigureView.asset(activity, "figure-" + look.figure + "-closed"), false, motion);
+                layer.figure = f;
+                layer.content.addView(f, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            }
+        }
+        if (look != null && DenSettings.hud(activity, look)) {
+            layer.content.addView(new DenHudView(activity, look.accent), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
         if (watcher != null) {
             layer.eyes = (Watcher) watcher;
             layer.content.addView(watcher, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -151,6 +163,24 @@ final class DenLayer {
     }
 
     /**
+     * Hero Wall shows the next hero each time Home comes back, at most every five minutes, so the picture never
+     * changes under you while you browse. The change rebuilds Home, like any wallpaper change.
+     */
+    private void heroWall() {
+        if (look == null || !"rotate".equals(look.hero)) return;
+        android.content.SharedPreferences den = DenSettings.prefs(activity);
+        long now = System.currentTimeMillis();
+        if (now - den.getLong("hero_at", 0) < 5 * 60_000L) return;
+        String next = DenLooks.nextHero(activity);
+        if (next == null) return;
+        den.edit().putLong("hero_at", now).apply();
+        android.content.SharedPreferences choices = activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
+        if (next.equals(choices.getString(Config.WALLPAPER_CHOICE_KEY, ""))) return;
+        choices.edit().putString(Config.WALLPAPER_CHOICE_KEY, next)
+                .putLong(Config.SETTINGS_REVISION_KEY, choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();
+    }
+
+    /**
      * Plays a moment over Home; false when Home isn't in front (it waits for later). A goal plays the look's own
      * moment when it has a special one (the beam, arise, the punch, Gear 5).
      */
@@ -190,6 +220,7 @@ final class DenLayer {
     }
 
     void onResume() {
+        heroWall();
         content.post(this::followFocus);
         DenMoments.attach(moments);
         content.post(DenMoments::replay);

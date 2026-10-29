@@ -120,7 +120,11 @@ final class DenLooks {
     static Look current(Context ctx, List<Look> looks) {
         String id = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_LOOK, ROTATE);
         String choice = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getString(Config.WALLPAPER_CHOICE_KEY, null);
-        for (Look l : looks) if (l.id.equals(id) && l.wallpaper.equals(choice)) return l;
+        for (Look l : looks) {
+            if (!l.id.equals(id)) continue;
+            // Hero Wall moves through the hero posters (DenLayer), so any of them is still Hero Wall.
+            if (l.wallpaper.equals(choice) || ("rotate".equals(l.hero) && choice != null && choice.matches("\\d+-hero-.+"))) return l;
+        }
         return null;
     }
 
@@ -152,6 +156,17 @@ final class DenLooks {
         } catch (JSONException e) {
             return look;
         }
+    }
+
+    /** The next hero poster after the one on Home, for Hero Wall; null without posters. */
+    static String nextHero(Context ctx) {
+        java.io.File dir = ctx.getExternalFilesDir(null);
+        String[] files = dir == null ? null : new java.io.File(dir, "wallpapers").list((d, n) -> n.matches("\\d+-hero-.+"));
+        if (files == null || files.length == 0) return null;
+        java.util.Arrays.sort(files);
+        String on = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getString(Config.WALLPAPER_CHOICE_KEY, "");
+        for (int i = 0; i < files.length; i++) if (files[i].equals(on)) return files[(i + 1) % files.length];
+        return files[0];
     }
 
     static Look byId(List<Look> looks, String id) {

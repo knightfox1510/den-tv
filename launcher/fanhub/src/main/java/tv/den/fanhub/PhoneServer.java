@@ -438,7 +438,7 @@ final class PhoneServer {
     private JSONObject settings(JSONObject body) throws JSONException {
         ContentValues v = new ContentValues();
         if (body.has("greeting_name")) v.put("greeting_name", body.optString("greeting_name"));
-        for (String k : new String[]{"show_greeting", "fan_panel", "watcher", "wake", "reduced_motion", "animations", "facts", "stats"}) if (body.has(k)) v.put(k, body.optBoolean(k) ? "1" : "0");
+        for (String k : new String[]{"show_greeting", "fan_panel", "watcher", "wake", "reduced_motion", "animations", "facts", "stats", "hud"}) if (body.has(k)) v.put(k, body.optBoolean(k) ? "1" : "0");
         if (body.has("idle_clock")) v.put("idle_clock", String.valueOf(body.optInt("idle_clock", -1)));
         try {
             ctx.getContentResolver().update(SETTINGS, v, null, null);

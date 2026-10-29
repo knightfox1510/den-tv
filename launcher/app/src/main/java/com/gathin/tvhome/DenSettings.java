@@ -40,6 +40,11 @@ final class DenSettings {
     }
     static boolean stats(Context ctx, boolean fallback) { return prefs(ctx).getBoolean("stats", fallback); }
     static boolean facts(Context ctx) { return prefs(ctx).getBoolean("facts", false); }
+    /** The HUD panels: on for the Geek and Coder looks (and any look marked hud) unless switched off; the phone can turn them on anywhere. */
+    static boolean hud(Context ctx, DenLooks.Look look) {
+        boolean own = look.hud || "geek".equals(look.id) || "coder".equals(look.id);
+        return prefs(ctx).getBoolean("hud", false) || (own && prefs(ctx).getBoolean("hud_own", true));
+    }
     static boolean watcher(Context ctx) { return prefs(ctx).getBoolean(WATCHER, true); }
     static boolean wake(Context ctx) { return prefs(ctx).getBoolean(WAKE, true); }
     static boolean reducedMotion(Context ctx, boolean fallback) { return prefs(ctx).getBoolean(REDUCED_MOTION, fallback); }

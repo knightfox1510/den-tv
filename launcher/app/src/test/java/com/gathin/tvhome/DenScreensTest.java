@@ -203,6 +203,23 @@ public class DenScreensTest {
         save(sheet, "layouts");
     }
 
+    @Test public void homeFigureAndHud() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        DenTheme.ensure(ctx);
+        DenSettings.prefs(ctx).edit().putBoolean(DenSettings.WAKE, false).apply();   // the picture, not the first frame of a wake
+        for (String id : new String[]{"straw-hat", "geek"}) {
+            DenLooks.Look look = DenLooks.byId(DenLooks.load(ctx), id);
+            if (look == null) continue;
+            DenLooks.apply(ctx, look);
+            MainActivity a = Robolectric.buildActivity(MainActivity.class).setup().get();
+            View root = a.getWindow().getDecorView();
+            layout(root, 1920, 1080);
+            Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+            root.draw(new Canvas(b));
+            save(b, "home-" + id);
+        }
+    }
+
     @Test public void picker() throws IOException {
         DenLooksActivity a = Robolectric.buildActivity(DenLooksActivity.class).setup().get();
         View root = a.getWindow().getDecorView();
