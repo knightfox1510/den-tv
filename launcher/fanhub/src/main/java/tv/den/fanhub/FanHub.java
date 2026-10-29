@@ -445,6 +445,16 @@ final class FanHub {
         return flatten(out, now);
     }
 
+    /**
+     * A key as pasted, cleaned: phones add spaces, line breaks and invisible characters (zero-width spaces, direction
+     * marks) around or inside a copied key. "" when nothing key-like is left. Keys differ by service (Gemini's come in
+     * more than one format), so the service itself decides whether one works, not a pattern here.
+     */
+    static String cleanKey(String raw) {
+        String v = raw == null ? "" : raw.replaceAll("[\\s\\p{Z}\\p{Cf}\\p{Cc}]", "").replaceAll("^[\"'`]+|[\"'`]+$", "");
+        return v.matches("[\\x21-\\x7e]{8,200}") ? v : "";
+    }
+
     // ---- recent form and the league table ------------------------------------------------------------------------
 
     /**

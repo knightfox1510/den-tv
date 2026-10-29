@@ -243,4 +243,14 @@ public class FanHubTest {
         assertNull(Gemini.words("zzz", looks));
         assertTrue(Gemini.prompt("rainy night", looks, parts).contains("crimson-moon: Crimson Moon"));
     }
+
+    @Test public void pastedKeysAreCleanedNotJudged() {
+        String k = "AIzaSyD-abcdefghijklmnopqrstuvwxyz_0123";
+        assertEquals(k, FanHub.cleanKey("  " + k + "\n"));
+        assertEquals(k, FanHub.cleanKey("\u200B" + k + "\u200E"));          // zero-width space, direction mark from a phone paste
+        assertEquals(k, FanHub.cleanKey("\"" + k + "\""));
+        assertEquals("AQ.Ab8RN6Ix-y_z.0123456789abcdef", FanHub.cleanKey("AQ.Ab8RN6Ix-y_z.0123456789abcdef"));   // the newer format, with dots
+        assertEquals("", FanHub.cleanKey("short"));
+        assertEquals("", FanHub.cleanKey("näme-with-ümlauts-0123"));
+    }
 }

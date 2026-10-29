@@ -906,9 +906,10 @@
     const body = {}; if ($('kFootball').value.trim()) body.football = $('kFootball').value.trim(); if ($('kCricket').value.trim()) body.cricket = $('kCricket').value.trim();
     if ($('kGemini').value.trim()) body.gemini = $('kGemini').value.trim();
     if (!Object.keys(body).length) { say($('liveMsg'), 'Paste a key first.', true); return; }
+    if (body.gemini) say($('liveMsg'), 'Trying the key on Gemini…');
     const r = await api('/api/live', body); $('kFootball').value = ''; $('kCricket').value = ''; $('kGemini').value = '';
     if (r.json.ok === false) { say($('liveMsg'), r.json.error || 'Couldn\'t save.', true); return; }
-    say($('liveMsg'), 'Saved. Fetching…'); setTimeout(loadLive, 4000);
+    say($('liveMsg'), (r.json.geminiCheck ? r.json.geminiCheck + ' ' : '') + 'Saved. Fetching…'); setTimeout(loadLive, 6000);
   });
   $('kgForget').addEventListener('click', async (ev) => { ev.preventDefault(); await api('/api/live', { gemini: '' }); say($('liveMsg'), 'Gemini key removed from the TV.'); loadLive(); });
   $('liveRefresh').addEventListener('click', async () => { await api('/api/live', { refresh: true }); say($('liveMsg'), 'Fetching…'); setTimeout(loadLive, 4000); });

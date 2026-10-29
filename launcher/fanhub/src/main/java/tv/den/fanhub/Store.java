@@ -192,28 +192,41 @@ final class Store {
                 .put("fetched", fetchedAt(ctx)).put("errors", errors(ctx));
     }
 
-    /** Saves a key ("" removes it) and fetches again. */
+    /** Saves a key ("" removes it) and fetches again. A Gemini key is tried on Gemini at once, and the answer said. */
     static org.json.JSONObject setLive(Context ctx, org.json.JSONObject in) throws JSONException {
         SharedPreferences.Editor e = prefs(ctx).edit();
         for (String k : new String[]{"football", "cricket"}) {
             if (!in.has(k)) continue;
-            String v = in.optString(k).trim();
-            if (v.isEmpty()) e.remove("key_" + k); else if (v.matches("[A-Za-z0-9-]{8,80}")) e.putString("key_" + k, v);
-        }
-        if (in.has("gemini")) {
-            // The Gemini key never comes back to a phone: live() says only whether there is one.
-            String v = in.optString("gemini").trim();
-            if (v.isEmpty()) e.remove("key_gemini"); else if (v.matches("[A-Za-z0-9_-]{20,80}")) e.putString("key_gemini", v);
-            else return live(ctx).put("ok", false).put("error", "That doesn't look like a Gemini API key.");
+            String raw = in.optString(k).trim(), v = FanHub.cleanKey(raw);
+            if (raw.isEmpty()) e.remove("key_" + k);
+            else if (v.isEmpty()) return live(ctx).put("ok", false).put("error", "That " + k + " key has characters a key can't have. Copy it again.");
+            else e.putString("key_" + k, v);
         }
         if (in.has("geminiModel")) {
             String m = in.optString("geminiModel").trim();
             if (m.isEmpty()) e.remove("gemini_model"); else if (m.matches("[a-z0-9.-]{3,60}")) e.putString("gemini_model", m);
         }
+        String check = null;
+        if (in.has("gemini")) {
+            // The Gemini key never comes back to a phone: live() says only whether there is one.
+            String raw = in.optString("gemini").trim(), v = FanHub.cleanKey(raw);
+            if (raw.isEmpty()) e.remove("key_gemini");
+            else if (v.isEmpty()) return live(ctx).put("ok", false).put("error", "That Gemini key has characters a key can't have. Copy it again from aistudio.google.com.");
+            else {
+                e.putString("key_gemini", v);
+                String model = in.optString("geminiModel", "").trim().isEmpty() ? geminiModel(ctx) : in.optString("geminiModel").trim();
+                Gemini.Check c = Gemini.test(v, model);
+                if (c.model != null && !c.model.equals(model)) e.putString("gemini_model", c.model);
+                check = c.message;
+                if (!c.ok) { e.apply(); return live(ctx).put("ok", false).put("error", "Saved, but " + c.message); }
+            }
+        }
         e.remove("extras_at");   // a new key: fetch the tables now, not in 6 hours
         e.apply();
         refresh(ctx, true);
-        return live(ctx).put("ok", true);
+        org.json.JSONObject out = live(ctx).put("ok", true);
+        if (check != null) out.put("geminiCheck", check);
+        return out;
     }
 
     static org.json.JSONObject hike(Context ctx) throws JSONException {

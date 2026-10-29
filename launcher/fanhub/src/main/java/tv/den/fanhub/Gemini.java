@@ -110,6 +110,43 @@ final class Gemini {
         return look;
     }
 
+    /** What trying a key said: ok, the model that answered (it may be a fallback), and a sentence for the phone. */
+    static final class Check {
+        final boolean ok;
+        final String model, message;
+        Check(boolean ok, String model, String message) { this.ok = ok; this.model = model; this.message = message; }
+    }
+
+    /** Models tried, in order, when the chosen one isn't known to this key's API version. */
+    static final String[] FALLBACK_MODELS = {"gemini-2.5-flash", "gemini-2.0-flash"};
+
+    /** Asks Gemini about the model (no tokens used): does the key work, and does the model exist? */
+    static Check test(String key, String model) {
+        java.util.List<String> models = new java.util.ArrayList<>();
+        models.add(model);
+        for (String m : FALLBACK_MODELS) if (!models.contains(m)) models.add(m);
+        int last = 0;
+        for (String m : models) {
+            int code;
+            try { code = status("https://generativelanguage.googleapis.com/v1beta/models/" + m, key); }
+            catch (IOException e) { return new Check(false, null, "the TV couldn't reach Gemini (" + e.getMessage() + "). Check its internet and try again."); }
+            if (code / 100 == 2) return new Check(true, m, "Gemini answered: the key works" + (m.equals(model) ? "." : " (with " + m + ")."));
+            if (code == 400 || code == 401 || code == 403) return new Check(false, null, "Gemini refused this key (HTTP " + code + "). Make a new one at aistudio.google.com and paste it again.");
+            if (code == 429) return new Check(true, model, "Gemini's limit is used up right now, but the key was accepted.");
+            last = code;
+            if (code != 404) break;
+        }
+        return new Check(false, null, "Gemini answered HTTP " + last + ".");
+    }
+
+    private static int status(String url, String key) throws IOException {
+        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        c.setConnectTimeout(TIMEOUT_MS);
+        c.setReadTimeout(TIMEOUT_MS);
+        c.setRequestProperty("x-goog-api-key", key);
+        try { return c.getResponseCode(); } finally { c.disconnect(); }
+    }
+
     private static JSONObject post(String url, String body, String key) throws IOException, JSONException {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(TIMEOUT_MS);
