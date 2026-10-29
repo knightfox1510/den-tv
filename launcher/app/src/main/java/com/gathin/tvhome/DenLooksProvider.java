@@ -402,7 +402,7 @@ public final class DenLooksProvider extends ContentProvider {
     /** use=id switches; id with name/colour/guest edits (a new id adds); remove=id removes. */
     private int person(ContentValues v) {
         if (v.containsKey("use")) return DenPeople.use(getContext(), v.getAsString("use"), v.getAsString("pin")) ? 1 : 0;
-        if (v.containsKey("private")) return DenPeople.makePrivate(getContext(), v.getAsString("name"), v.getAsString("pin")) ? 1 : 0;
+        if (v.containsKey("private")) return DenPeople.makePrivate(getContext(), v.getAsString("name"), v.getAsString("pin"), v.getAsString("old")) ? 1 : 0;
         if (v.containsKey("remove")) return DenPeople.edit(getContext(), v.getAsString("remove"), null, null, null, true) ? 1 : 0;
         String id = v.getAsString("id");
         Boolean guest = v.containsKey("guest") ? "1".equals(v.getAsString("guest")) : null;

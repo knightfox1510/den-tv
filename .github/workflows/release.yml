@@ -1,0 +1,60 @@
+name: den-tv release
+
+# Publishes both APKs as a GitHub release, so anyone can download them without a GitHub account and the installer
+# (install/) always finds the newest at releases/latest/download/<name>.apk. Runs when a tag like v1.0.1 is pushed,
+# or by hand from the Actions tab with the tag to create.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create, e.g. v1.0.1"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+        with:
+          packages: platforms;android-34 build-tools;34.0.0
+      - name: Signing key
+        env:
+          KEY: ${{ secrets.DEN_KEYSTORE_B64 }}
+        run: |
+          # A release signed with a throwaway key would refuse to update anyone's TV later, so there is none without it.
+          if [ -z "$KEY" ]; then echo "::error::DEN_KEYSTORE_B64 is not set; a release needs den-tv's own signing key."; exit 1; fi
+          printf '%s' "$KEY" | base64 -d > "$RUNNER_TEMP/den.jks"
+          echo "DEN_KEYSTORE=$RUNNER_TEMP/den.jks" >> "$GITHUB_ENV"
+      - name: Test and build
+        working-directory: launcher
+        env:
+          DEN_KEYSTORE_PASSWORD: ${{ secrets.DEN_KEYSTORE_PASSWORD }}
+        run: chmod +x gradlew && ./gradlew --no-daemon testReleaseUnitTest assembleRelease
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          mkdir out
+          cp launcher/app/build/outputs/apk/release/app-release.apk out/den-tv-launcher.apk
+          cp launcher/fanhub/build/outputs/apk/release/fanhub-release.apk out/den-tv-fanhub.apk
+          launcher=$(sed -n "s/^ *versionName '\(.*\)'$/\1/p" launcher/app/build.gradle)
+          fanhub=$(sed -n "s/^ *versionName '\(.*\)'$/\1/p" launcher/fanhub/build.gradle)
+          cat > notes.md <<EOF
+          Launcher $launcher and Fan Hub $fanhub.
+
+          New here? Follow [INSTALL.md](https://github.com/${{ github.repository }}/blob/main/INSTALL.md).
+          Already have den-tv? Install both APKs over the old ones, or run the installer again.
+          EOF
+          gh release create "$TAG" out/den-tv-launcher.apk out/den-tv-fanhub.apk \
+            --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "den-tv $TAG" --notes-file notes.md

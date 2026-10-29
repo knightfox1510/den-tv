@@ -19,23 +19,24 @@ and replaces its ad-filled home screen. den-tv adds the looks on top.
 | Part | Status |
 |---|---|
 | [`themes/den-mix/`](themes/den-mix/) | **Works now.** Every scene as a wallpaper for the cleanyourtv launcher, a new one every 5 minutes |
-| [`looks/`](looks/) | **Done.** 57 looks as small JSON files, the format the launcher will read |
+| [`looks/`](looks/) | **Done.** 61 looks as small JSON files, which the launcher reads |
 | [`mockups/den-looks.html`](mockups/den-looks.html) | **Works now.** Open it in a browser: the full experience, with the phone settings page driving a TV preview, first-time setup with phone pairing, and live data from `fanhub/` (sample data where it can't reach the internet) |
-| [`launcher/`](launcher/DEN.md) | **v1.0.** cleanyourtv's launcher with den-tv's looks: a Looks tile, the den-mix wallpapers built in, every watcher, clock and icon styles, icon layouts, wake, focus and app-opening animations, moments, a screensaver, and the Fan Hub add-on with live matches, form and standings, new episodes and the phone app. Install steps for a Vu 4K Google TV in [launcher/DEN.md](launcher/DEN.md) |
-| Phone settings page served by the TV | Planned |
+| [`launcher/`](launcher/DEN.md) | **v1.0.** cleanyourtv's launcher with den-tv's looks: a Looks tile, the den-mix wallpapers built in, every watcher, clock and icon styles, icon layouts, wake, focus and app-opening animations, moments, a screensaver, and the Fan Hub add-on with live matches, form and standings, new episodes and the phone app. Install with [INSTALL.md](INSTALL.md); details in [launcher/DEN.md](launcher/DEN.md) |
+| Phone app served by the TV | **Done.** Part of the Fan Hub: looks, tweaks, rules, people, remote and TV health from your phone |
 | [`fanhub/`](fanhub/) | **Works now.** Real fixtures, results, the La Liga table, anime episode dates and the hike forecast; `node fanhub/cli.js` prints them. Live in-match scores need two free keys |
 
 ## Set up a TV
 
-Follow [PROMPT.md](PROMPT.md). It works on Android TV and Google TV sets (Xiaomi, TCL, Sony, Hisense,
-OnePlus, Nvidia Shield and most others), not on Samsung, LG or Fire TV.
+Follow [INSTALL.md](INSTALL.md): turn on USB debugging on the TV, then paste one line on a Windows PC or Mac, or
+use an Android phone, or let Claude Code do it ([PROMPT.md](PROMPT.md)). It works on Android TV and Google TV sets
+(Sony, TCL, Hisense, Xiaomi, Vu, OnePlus, Nvidia Shield and most others), not on Samsung, LG or Fire TV.
 
 ## The looks
 
 | Category | Looks |
 |---|---|
-| Football | Camp Nou Nights, GOAT, Albiceleste, El Clásico Eve, Floodlights |
-| Cricket | Wankhede Roar, Hitman, King Kohli, Chase Master, Blue Billion |
+| Football | Camp Nou Nights, GOAT, Albiceleste, El Clásico Eve, Floodlights, Rocafonda 304, Wonderkid, Barça Wings |
+| Cricket | Wankhede Roar, Hitman, King Kohli, Chase Master, Blue Billion, Master Blaster |
 | Heroes | Hero Wall, Super Saiyan, Ultra Instinct, Prince of Saiyans, Nine-Tails, Sage Mode, Copy Ninja, Crow Genjutsu, Avenger, Humanity's Strongest, Bankai, Arise, One Punch, Set Your Heart Ablaze, King of Curses, Straw Hat, Three-Sword Style, Navigator, Butterfly Mansion |
 | One Piece | Gear 5, Wanted, King of Hell, Lost Again, Fire Fist, ROOM, Black Leg, Hana Hana, Drum Island |
 | Anime | Crimson Moon, Domain Expansion, Grand Line, Water Breathing, Manga Panel, Anime Dusk |

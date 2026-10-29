@@ -131,7 +131,9 @@ final class DenLooks {
                 else keptPhoto = old.getJSONObject(i).optString("photo", "");   // editing a photo look keeps its photo
             }
             if (out.length() >= 20) return null;
-            JSONObject j = new JSONObject().put("id", id).put("name", in.optString("name", "My look").trim().isEmpty() ? "My look" : in.optString("name").trim())
+            String name = in.optString("name", "").trim();
+            if (name.length() > 40) name = name.substring(0, 40);
+            JSONObject j = new JSONObject().put("id", id).put("name", name.isEmpty() ? "My look" : name)
                     .put("base", in.optString("base"));
             String photo = in.has("photo") ? in.optString("photo", "") : keptPhoto;
             if (!photo.isEmpty()) {

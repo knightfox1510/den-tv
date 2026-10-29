@@ -112,6 +112,28 @@ public class PhoneServerTest {
         assertTrue(!first.equals(server.code()) || first.equals(wrong));
     }
 
+    @Test public void aMinutesPauseAfterTooManyWrongCodes() throws IOException {
+        server.openPairing(() -> { });
+        String wrong = server.code().equals("000000") ? "111111" : "000000";
+        for (int i = 0; i < 5; i++) call("POST", "/api/pair", "{\"code\":\"" + wrong + "\"}", null);
+        assertEquals(429, call("POST", "/api/pair", "{\"code\":\"" + server.code() + "\"}", null).status);
+    }
+
+    @Test public void onlyTheTvsOwnAddress() throws IOException {
+        assertTrue(PhoneServer.localHost("192.168.1.23:8765"));
+        assertTrue(PhoneServer.localHost("127.0.0.1"));
+        assertTrue(PhoneServer.localHost("[fe80::1]:8765"));
+        assertTrue(!PhoneServer.localHost("evil.example.com:8765"));
+        assertTrue(!PhoneServer.localHost("192.168.1.23.nip.io"));
+        assertTrue(!PhoneServer.localHost(""));
+        try (Socket s = new Socket("127.0.0.1", PhoneServer.PORT)) {
+            s.setSoTimeout(3000);
+            s.getOutputStream().write("GET / HTTP/1.1\r\nHost: rebind.example.com:8765\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+            String first = new java.io.BufferedReader(new java.io.InputStreamReader(s.getInputStream(), StandardCharsets.UTF_8)).readLine();
+            assertTrue(first, first.startsWith("HTTP/1.1 421"));
+        }
+    }
+
     /** Wi-Fi Direct's 192.168.49.1 (casting) was shown instead of the TV's home address; a phone can't reach it. */
     @Test public void addressSkipsWifiDirect() {
         java.util.Map<String, String> found = new java.util.LinkedHashMap<>();

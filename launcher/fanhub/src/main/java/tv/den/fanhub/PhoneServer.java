@@ -108,6 +108,7 @@ final class PhoneServer {
     private Thread thread;
     private volatile String code;
     private int wrong;
+    private long pausedUntil;   // after MAX_TRIES wrong codes, no code is tried for a minute
 
     PhoneServer(Context ctx, Runnable onChange) {
         pool.allowCoreThreadTimeOut(true);
@@ -227,13 +228,16 @@ final class PhoneServer {
             // A spare connection that never sent a request, or a phone that went away.
         } catch (RuntimeException e) {
             Log.w(TAG, "request failed", e);
+        } catch (OutOfMemoryError e) {
+            // A picture too big for the TV: drop this request rather than the whole phone app.
+            Log.w(TAG, "out of memory", e);
         }
     }
 
     // ---- HTTP ----------------------------------------------------------------------------------------------------
 
     private static final class Request {
-        String method = "", path = "", query = "", cookie = "";
+        String method = "", path = "", query = "", cookie = "", host = "";
         byte[] body = new byte[0];
     }
 
@@ -263,7 +267,11 @@ final class PhoneServer {
             String k = h.substring(0, colon).trim().toLowerCase(Locale.ROOT), v = h.substring(colon + 1).trim();
             if (k.equals("content-length")) try { length = Integer.parseInt(v); } catch (NumberFormatException ignored) { }
             if (k.equals("cookie")) r.cookie = v;
+            if (k.equals("host")) r.host = v;
         }
+        // The page is always opened by the TV's address (the QR code holds it). A request naming any other host is a
+        // web page that pointed its own name at the TV (DNS rebinding) to reach it from the phone's browser.
+        if (!localHost(r.host)) { send(c, 421, "text/plain", "Open the address shown on the TV.".getBytes(StandardCharsets.UTF_8), null); return; }
         // Only a paired phone may send a photo; anyone else is turned away before 15 MB is read.
         boolean picture = r.path.equals("/api/photo") || r.path.equals("/api/character") || r.path.equals("/api/appicon");
         if (picture && length > MAX_BODY && !paired(token(r.cookie))) {
@@ -275,6 +283,19 @@ final class PhoneServer {
         int n = 0, got;
         while (n < length && (got = in.read(r.body, n, length - n)) > 0) n += got;
         route(c, r);
+    }
+
+    /** An IP address (with or without the port) or localhost: what a phone that scanned the TV's code sends. */
+    static boolean localHost(String host) {
+        if (host == null || host.isEmpty()) return false;
+        String h = host.toLowerCase(Locale.ROOT);
+        if (h.startsWith("[")) return h.matches("\\[[0-9a-f:.%a-z]+\\](:\\d{1,5})?");
+        int colon = h.indexOf(':');
+        if (colon >= 0) {
+            if (!h.substring(colon + 1).matches("\\d{1,5}")) return false;
+            h = h.substring(0, colon);
+        }
+        return h.equals("localhost") || h.matches("(\\d{1,3}\\.){3}\\d{1,3}");
     }
 
     private void route(Socket c, Request r) throws IOException {
@@ -406,9 +427,14 @@ final class PhoneServer {
             json(c, 403, new JSONObject().put("error", "Open the Fan Hub on the TV to see a code, then try again."));
             return;
         }
+        if (System.currentTimeMillis() < pausedUntil) {
+            json(c, 429, new JSONObject().put("error", "Too many wrong codes. Wait a minute, then type the new code on the TV."));
+            return;
+        }
         if (!code.equals(body.optString("code"))) {
-            // A few tries per code; then the TV shows a new one, so guessing a million is not practical.
-            if (++wrong >= MAX_TRIES) { newCode(); changed(); }
+            // A few tries per code, then a new code and a minute's pause: guessing one in a million at five a minute
+            // would take months.
+            if (++wrong >= MAX_TRIES) { newCode(); pausedUntil = System.currentTimeMillis() + 60_000; changed(); }
             json(c, 403, new JSONObject().put("error", "That code doesn't match. Check the TV."));
             return;
         }

@@ -50,13 +50,20 @@ final class DenPeople {
         }
     }
 
-    /** Adds the private person (or changes its PIN): 4 to 8 digits. */
-    static boolean makePrivate(Context ctx, String name, String pin) {
+    /**
+     * Adds the private person (or changes its PIN): 4 to 8 digits. Changing it needs the PIN it has now (old), unless
+     * the private person is the one watching; otherwise anyone with a paired phone could set a new PIN and get in.
+     */
+    static boolean makePrivate(Context ctx, String name, String pin, String old) {
         if (pin == null || !pin.matches("\\d{4,8}")) return false;
         List<Person> all = all(ctx);
         for (int i = 0; i < all.size(); i++) {
             Person p = all.get(i);
-            if (p.isPrivate()) { all.set(i, new Person(p.id, p.name, p.colour, p.look, false).withPin(hash(p.id, pin))); save(ctx, all); return true; }
+            if (!p.isPrivate()) continue;
+            if (!privateNow(ctx) && (old == null || !hash(p.id, old).equals(p.pin))) return false;
+            all.set(i, new Person(p.id, p.name, p.colour, p.look, false).withPin(hash(p.id, pin)));
+            save(ctx, all);
+            return true;
         }
         if (all.size() >= MAX) return false;
         String id = "private";

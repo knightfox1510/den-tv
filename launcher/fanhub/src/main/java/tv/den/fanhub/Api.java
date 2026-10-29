@@ -318,8 +318,7 @@ final class Api {
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(data, 0, data.length, o);
         if (o.outWidth <= 0 || o.outHeight <= 0) return fail("That isn't a photo the TV can read (JPEG or PNG).");
-        int sample = 1;
-        while (o.outWidth / (sample * 2) >= 1920 && o.outHeight / (sample * 2) >= 1080) sample *= 2;
+        int sample = sample(o.outWidth, o.outHeight, 1920, 1080);
         o = new BitmapFactory.Options();
         o.inSampleSize = sample;
         Bitmap src = BitmapFactory.decodeByteArray(data, 0, data.length, o);
@@ -338,6 +337,16 @@ final class Api {
         JSONArray list = photos().optJSONArray("photos");
         if (list != null && list.length() > 0) photoAction(new JSONObject().put("use", list.getJSONObject(0).optString("name")));
         return ok(true);
+    }
+
+    /**
+     * How much to shrink a picture while decoding it: halves while both sides stay at least minW by minH, and until it
+     * is at most 8 million pixels whatever its shape (a 60000 by 1100 strip would otherwise need 260 MB).
+     */
+    static int sample(int w, int h, int minW, int minH) {
+        int s = 1;
+        while ((w / (s * 2) >= minW && h / (s * 2) >= minH) || (long) (w / s) * (h / s) > 8_000_000L) s *= 2;
+        return s;
     }
 
     /** A small copy of a saved photo for the phone's list. */
@@ -542,12 +551,13 @@ final class Api {
             if (wrongPins >= 5) return fail("Too many wrong PINs. Try again in a few minutes.");
         }
         ContentValues v = new ContentValues();
-        for (String k : new String[]{"use", "remove", "id", "name", "colour", "pin"}) if (in.has(k)) v.put(k, in.optString(k));
+        for (String k : new String[]{"use", "remove", "id", "name", "colour", "pin", "old"}) if (in.has(k)) v.put(k, in.optString(k));
         if (in.optBoolean("private")) v.put("private", "1");
         if (in.has("guest")) v.put("guest", in.optBoolean("guest") ? "1" : "0");
         try {
             boolean done = ctx.getContentResolver().update(PEOPLE, v, null, null) > 0;
             if (!done && in.has("pin") && in.has("use")) { wrongPins++; return fail("That PIN isn't right."); }
+            if (!done && in.optBoolean("private") && in.has("old")) { wrongPins++; return fail("The current PIN isn't right."); }
             return ok(done);
         } catch (RuntimeException e) { return fail("The launcher didn't accept it."); }
     }
@@ -585,8 +595,7 @@ final class Api {
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(data, 0, data.length, o);
         if (o.outWidth <= 0 || o.outHeight <= 0) return fail("That isn't a picture the TV can read (PNG or JPEG).");
-        int sample = 1;
-        while (o.outHeight / (sample * 2) >= 900) sample *= 2;
+        int sample = sample(o.outWidth, o.outHeight, 1, 900);
         o = new BitmapFactory.Options();
         o.inSampleSize = sample;
         Bitmap src = BitmapFactory.decodeByteArray(data, 0, data.length, o);
@@ -703,10 +712,17 @@ final class Api {
         android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         android.graphics.BitmapFactory.decodeByteArray(body, 0, body.length, o);
-        if (o.outWidth <= 0) return fail("That isn't a picture the TV can read. Use a JPEG or PNG.");
+        if (o.outWidth <= 0 || o.outHeight <= 0) return fail("That isn't a picture the TV can read. Use a JPEG or PNG.");
+        // Shrunk here to tile size (at most 640 by 360), so Home only ever reads a small picture.
+        android.graphics.BitmapFactory.Options d = new android.graphics.BitmapFactory.Options();
+        d.inSampleSize = sample(o.outWidth, o.outHeight, 640, 360);
+        Bitmap src = android.graphics.BitmapFactory.decodeByteArray(body, 0, body.length, d);
+        if (src == null) return fail("That picture couldn't be read.");
+        float k = Math.min(1f, Math.min(640f / src.getWidth(), 360f / src.getHeight()));
+        if (k < 1f) src = Bitmap.createScaledBitmap(src, Math.max(1, Math.round(src.getWidth() * k)), Math.max(1, Math.round(src.getHeight() * k)), true);
         try (java.io.OutputStream out = ctx.getContentResolver().openOutputStream(Uri.parse(L + "icons/" + pkg), "w")) {
             if (out == null) return fail("The launcher didn't accept it.");
-            out.write(body);
+            src.compress(Bitmap.CompressFormat.PNG, 100, out);
         } catch (java.io.IOException | RuntimeException e) {
             return fail("Update the den-tv launcher for app pictures.");
         }

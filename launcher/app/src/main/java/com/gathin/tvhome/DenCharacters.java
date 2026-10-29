@@ -100,9 +100,13 @@ final class DenCharacters {
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(f.getPath(), o);
         int sample = 1;
-        while (o.outHeight / (sample * 2) >= maxH) sample *= 2;
+        while (o.outHeight / (sample * 2) >= maxH || (long) (o.outWidth / sample) * (o.outHeight / sample) > 4_000_000L) sample *= 2;
         o = new BitmapFactory.Options();
         o.inSampleSize = sample;
-        return BitmapFactory.decodeFile(f.getPath(), o);
+        try {
+            return BitmapFactory.decodeFile(f.getPath(), o);
+        } catch (OutOfMemoryError e) {
+            return null;
+        }
     }
 }

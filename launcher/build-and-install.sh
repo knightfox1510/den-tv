@@ -125,6 +125,17 @@ case "$OUT" in
     exit 1 ;;
   *) echo "ERROR: pm install failed; the stock launcher was left untouched." >&2; exit 1 ;;
 esac
+# The Fan Hub (scores, the phone app, the helper) goes on too when it was built; it is an ordinary app. It comes after
+# the launcher, which defines the permission the Fan Hub needs to change the look.
+FANHUB_APK=fanhub/build/outputs/apk/release/fanhub-release.apk
+if [ -f "$FANHUB_APK" ]; then
+  "$PY" -I "$TOOLS/b64push.py" "$FANHUB_APK" /data/local/tmp/denfan.apk
+  FOUT=$("$PY" -I "$TOOLS/tv.py" 'pm install -r /data/local/tmp/denfan.apk; rm -f /data/local/tmp/denfan.apk')
+  case "$FOUT" in
+    *Success*) echo "Fan Hub installed." ;;
+    *) echo "WARNING: the Fan Hub didn't install: $FOUT" >&2 ;;
+  esac
+fi
 # Replacing the launcher while it is Home lets Android restart it mid-update, and on a TCL G03
 # (Android 11) that instance came up with mOccludesParent=false: Home then left the previous app or
 # HDMI picture on screen (#1101). `am start` below would only reuse it, so stop it first; the start

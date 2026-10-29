@@ -169,6 +169,11 @@ picker, Home with a look on), add `-Pden.screens=1 --tests '*DenScreensTest'`; t
 
 ## Install on a Vu 4K Google TV
 
+For most people, [INSTALL.md](../INSTALL.md) is the way: one line on a PC or Mac (`install/install.sh` or
+`install/install.ps1`), an Android phone, or Claude Code, with the APKs from the repo's Releases. Tagging a commit
+`v*` (or running the **den-tv release** workflow) publishes both APKs there, signed with den-tv's key. What follows
+is the longer way, building it yourself with cleanyourtv's tools.
+
 cleanyourtv has tested this TV: [`examples/vu-4k-lushan`](https://github.com/Gathin23/cleanyourtv/tree/main/examples/vu-4k-lushan)
 (model "VU 4K", Google TV 12, MediaTek, about 1.8 GB RAM). From its notes:
 
@@ -202,11 +207,11 @@ This is how den-tv first went onto a Vu 4K. You need an Android phone on the sam
 **Bugjaeger Mobile ADB**.
 
 1. On the TV, turn USB debugging on (step 1 above) and note the TV's IP address.
-2. On the phone, download **den-tv-launcher** from the latest **den-tv launcher** run on the Actions tab, and
-   extract the `.apk` from the zip. Don't tap the `.apk` itself: that tries to install it on the phone, and
+2. On the phone, download **den-tv-launcher.apk** and **den-tv-fanhub.apk** from the repo's Releases page (or the
+   latest **den-tv launcher** run on the Actions tab, and extract each `.apk` from its zip). Don't tap the `.apk` itself: that tries to install it on the phone, and
    Play Protect blocks it because of the remote-button helpers.
-3. In Bugjaeger, connect to `<tv ip>:5555`, allow the prompt on the TV, and install the `.apk` with
-   Bugjaeger's install button.
+3. In Bugjaeger, connect to `<tv ip>:5555`, allow the prompt on the TV, and install the launcher `.apk`, then the
+   Fan Hub `.apk`, with Bugjaeger's install button.
 4. In Bugjaeger's shell, run these in order. Run the second and third lines only once the first has shown
    den-tv on screen: while Google's launcher is enabled it keeps Home, so `set-home-activity` alone does
    nothing.
@@ -235,8 +240,7 @@ pm uninstall tv.den.launcher
 Then install both APKs and run the four lines above again. From v0.2 on, builds signed with den-tv's key install
 straight over the last one, and Home stays den-tv.
 
-`build-and-install.ps1` (Windows) is still cleanyourtv's and installs cleanyourtv's package name: use the
-`.sh` script from WSL or Git Bash for now.
+
 
 ## Undo
 

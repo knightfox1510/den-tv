@@ -106,7 +106,7 @@
       <p id="pairNote">Enter the 6-digit code on the TV's Fan Hub screen. It changes every 5 minutes.</p>
       <input id="code" class="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-label="Code from the TV">
       <label for="phoneName">Name this phone</label>
-      <input id="phoneName" maxlength="30" placeholder="e.g. Gaurav's phone">
+      <input id="phoneName" maxlength="30" placeholder="e.g. Sam's phone">
       <button id="pairBtn">Pair this phone</button>
       <div id="pairMsg" class="msg" role="status"></div>
     </div>
@@ -669,6 +669,7 @@
   // ---- People ----
   async function loadPeople() {
     const r = (await api('/api/people')).json, box = $('people'); box.innerHTML = '';
+    S.people = r.people || [];
     if (r.error) { box.appendChild(el('p', null, r.error)); return; }
     const looks = S.looks || [];
     (r.people || []).forEach((p, i) => {
@@ -699,7 +700,11 @@
   }
   $('privSave').addEventListener('click', async () => {
     const pin = $('privPin').value.trim(); if (!/^\d{4,8}$/.test(pin)) { say($('peopleMsg'), 'The PIN is 4 to 8 digits.', true); return; }
-    const r = await api('/api/people', { private: true, name: 'Private', pin }); $('privPin').value = '';
+    const body = { private: true, name: 'Private', pin };
+    // Changing the PIN of the private profile needs the one it has now, unless it is the one watching.
+    const priv = (S.people || []).find((p) => p.private);
+    if (priv && !priv.on) { const old = prompt('The current PIN for ' + priv.name); if (!old) return; body.old = old; }
+    const r = await api('/api/people', body); $('privPin').value = '';
     say($('peopleMsg'), r.json.ok ? 'The private profile is ready. Switch to it here with its PIN.' : (r.json.error || 'Couldn\'t set it.'), !r.json.ok); loadPeople();
   });
   $('pAdd').addEventListener('click', async () => {

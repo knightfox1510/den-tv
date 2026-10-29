@@ -44,10 +44,18 @@ final class DenApps {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, o);
+        if (o.outWidth <= 0 || o.outHeight <= 0) return null;
         o.inJustDecodeBounds = false;
-        o.inSampleSize = Math.max(1, Math.min(o.outWidth / 480, o.outHeight / 270));
-        Bitmap b = BitmapFactory.decodeFile(path, o);
-        return b == null ? null : new BitmapDrawable(ctx.getResources(), b);
+        // By the larger side, so an odd-shaped picture (a long strip) is shrunk too, not decoded whole.
+        int sample = 1;
+        while (o.outWidth / sample > 960 || o.outHeight / sample > 540) sample *= 2;
+        o.inSampleSize = sample;
+        try {
+            Bitmap b = BitmapFactory.decodeFile(path, o);
+            return b == null ? null : new BitmapDrawable(ctx.getResources(), b);
+        } catch (OutOfMemoryError e) {
+            return null;
+        }
     }
 
     // ---- apps hidden for one person ------------------------------------------------------------------------------
