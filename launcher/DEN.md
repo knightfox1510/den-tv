@@ -71,6 +71,32 @@ TV_HOST=<tv ip> den-tv/launcher/build-and-install.sh
 4. Press Home, open the **Looks** tile and pick a look. Then switch network debugging off, as cleanyourtv's
    prompt says.
 
+### Without a computer: from an Android phone
+
+This is how den-tv first went onto a Vu 4K. You need an Android phone on the same Wi-Fi, with the free app
+**Bugjaeger Mobile ADB**.
+
+1. On the TV, turn USB debugging on (step 1 above) and note the TV's IP address.
+2. On the phone, download **den-tv-launcher** from the latest **den-tv launcher** run on the Actions tab, and
+   extract the `.apk` from the zip. Don't tap the `.apk` itself: that tries to install it on the phone, and
+   Play Protect blocks it because of the remote-button helpers.
+3. In Bugjaeger, connect to `<tv ip>:5555`, allow the prompt on the TV, and install the `.apk` with
+   Bugjaeger's install button.
+4. In Bugjaeger's shell, run these in order. Run the second and third lines only once the first has shown
+   den-tv on screen: while Google's launcher is enabled it keeps Home, so `set-home-activity` alone does
+   nothing.
+
+```bash
+am start -W -a android.intent.action.MAIN -c android.intent.category.HOME -n tv.den.launcher/com.gathin.tvhome.MainActivity
+pm disable-user --user 0 com.google.android.apps.tv.launcherx; pm disable-user --user 0 com.google.android.tungsten.setupwraith
+cmd package set-home-activity --user 0 tv.den.launcher/com.gathin.tvhome.MainActivity
+pm grant tv.den.launcher android.permission.ACCESS_FINE_LOCATION
+```
+
+   The last line lets Home show the Wi-Fi name. Then turn USB debugging off.
+
+This path skips cleanyourtv's debloat and the remote-button helpers.
+
 `build-and-install.ps1` (Windows) is still cleanyourtv's and installs cleanyourtv's package name: use the
 `.sh` script from WSL or Git Bash for now.
 
