@@ -243,6 +243,31 @@ public class DenScreensTest {
         save(b, "home-domain");
     }
 
+    /**
+     * The last app of a long row focused: the cloud stays on screen, and the row fades at the left with a pill
+     * saying 14 more apps that way, and the track under it at the end. Stand-in tiles; the wallpaper is real.
+     */
+    @Test public void rowEnd() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        Bitmap wall = BitmapFactory.decodeFile("../../themes/den-mix/wallpapers/01-camp-nou.jpg");
+        Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        if (wall != null) c.drawBitmap(wall, 0, 0, null);
+        android.graphics.Paint tile = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        float top = 760, h = 230, w = 400;
+        for (int i = 0; i < 6; i++) {
+            float x = 1900 - (i + 1) * (w + 40) + 20;
+            tile.setColor(i == 0 ? 0xffe50914 : 0xff2a2f45 + i * 0x0a0a0a);
+            c.drawRoundRect(x, top, x + w, top + h, 24, 24, tile);
+        }
+        DenWatcherView cloud = new DenWatcherView(ctx, "cloud", "#ff4d6d", false);
+        layout(cloud, 1920, 1080);
+        cloud.lookAt(1900 - w / 2 - 20, top + h / 2, "Netflix");
+        cloud.draw(c);
+        DenRowHints.forTest(0xff4d9fff, 2).draw(c, 1920, top, top + h, 14, 0, 19, 20);
+        save(b, "row-end");
+    }
+
     private static void layout(View v, int w, int h) {
         v.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY));
         v.layout(0, 0, w, h);

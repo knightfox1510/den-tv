@@ -433,7 +433,8 @@ final class FanHub {
         if (cfg.hike != null) {
             try {
                 JSONObject r = get("https://api.open-meteo.com/v1/forecast?latitude=" + cfg.hike.lat + "&longitude=" + cfg.hike.lon
-                        + "&daily=temperature_2m_max,precipitation_probability_max&timezone=auto&forecast_days=7");
+                        + "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code,sunrise&timezone=auto&forecast_days=7");
+                lastForecast = r;
                 Turn t = hikeTurn(cfg.hike.name, r, now);
                 out.put("hike", t == null ? Collections.emptyList() : Collections.singletonList(t));
             } catch (IOException | JSONException e) {
@@ -442,6 +443,65 @@ final class FanHub {
             }
         }
         return flatten(out, now);
+    }
+
+    /** The last weather answer, for the Fan Hub screen's Trails card (Store keeps it); null until one comes. */
+    static volatile JSONObject lastForecast;
+
+    /** One weekend day's forecast for the Trails card. */
+    static final class Day {
+        final String label, sunrise;
+        final long max, min;
+        final int rain, code;
+        final long date;
+        boolean best;
+        Day(String label, long date, long max, long min, int rain, int code, String sunrise) {
+            this.label = label; this.date = date; this.max = max; this.min = min; this.rain = rain; this.code = code; this.sunrise = sunrise;
+        }
+    }
+
+    /**
+     * The coming Saturday and Sunday (today included) from a forecast, the better one for a hike marked: less
+     * chance of rain, then the cooler. Empty when the forecast has neither.
+     */
+    static List<Day> weekend(JSONObject r, long now) {
+        List<Day> out = new ArrayList<>();
+        JSONObject d = r == null ? null : r.optJSONObject("daily");
+        JSONArray days = d == null ? null : d.optJSONArray("time");
+        if (days == null) return out;
+        JSONArray max = d.optJSONArray("temperature_2m_max"), min = d.optJSONArray("temperature_2m_min"),
+                rain = d.optJSONArray("precipitation_probability_max"), code = d.optJSONArray("weather_code"), rise = d.optJSONArray("sunrise");
+        java.time.ZoneOffset zone = java.time.ZoneOffset.ofTotalSeconds(r.optInt("utc_offset_seconds"));
+        LocalDate today = Instant.ofEpochMilli(now).atZone(zone).toLocalDate();
+        for (int i = 0; i < days.length() && out.size() < 2; i++) {
+            LocalDate day;
+            try { day = LocalDate.parse(days.optString(i)); } catch (RuntimeException e) { continue; }
+            if (day.isBefore(today) || day.isAfter(today.plusDays(6))) continue;
+            if (day.getDayOfWeek() != java.time.DayOfWeek.SATURDAY && day.getDayOfWeek() != java.time.DayOfWeek.SUNDAY) continue;
+            String sr = rise == null ? "" : rise.optString(i);
+            out.add(new Day(day.getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, Locale.ENGLISH),
+                    day.atStartOfDay(zone).toInstant().toEpochMilli(),
+                    max == null ? 0 : Math.round(max.optDouble(i)), min == null ? 0 : Math.round(min.optDouble(i)),
+                    rain == null ? 0 : rain.optInt(i), code == null ? 0 : code.optInt(i), sr.length() >= 16 ? sr.substring(11, 16) : ""));
+        }
+        Day best = null;
+        for (Day x : out) if (best == null || x.rain < best.rain || x.rain == best.rain && x.max < best.max) best = x;
+        if (best != null) best.best = true;
+        return out;
+    }
+
+    /** WMO weather code in words, short: "Clear", "Showers", "Thunder" and so on. */
+    static String sky(int code) {
+        if (code == 0) return "Clear";
+        if (code <= 2) return "Partly cloudy";
+        if (code == 3) return "Cloudy";
+        if (code == 45 || code == 48) return "Fog";
+        if (code >= 51 && code <= 57) return "Drizzle";
+        if (code >= 61 && code <= 67) return "Rain";
+        if (code >= 71 && code <= 77) return "Snow";
+        if (code >= 80 && code <= 82) return "Showers";
+        if (code >= 95) return "Thunder";
+        return "Mixed";
     }
 
     // ---- the weekend hike forecast -------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ The den-tv home screen for Android TV and Google TV: the [cleanyourtv](https://g
 launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top. It installs as
 `tv.den.launcher`, so it sits beside the cleanyourtv launcher or replaces it.
 
-## What it does (v0.6)
+## What it does (v0.7)
 
 - **Looks tile.** A Looks tile in the dock opens every look with its wallpaper. OK puts a look on Home and
   Back keeps what is on. The first tile, "Rotate every look", goes back to a new wallpaper every 5 minutes.
@@ -40,7 +40,9 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
 - **Fan Hub add-on** (`fanhub/`, its own app, `tv.den.fanhub`). It fetches each team's next match from
   TheSportsDB (with the score while it is live) and each show's next episode from AniList, and Home shows them
   in the panel under the clock, a countdown before and LIVE during. The launcher stays offline; only the add-on
-  goes online. Open **Fan Hub** on the TV to see the list; OK fetches again.
+  goes online. Open **Fan Hub** on the TV for its dashboard, in the colours and wallpaper of the look on Home: the
+  next match with a countdown (or the live score), your teams' later matches, the anime week, the weekend's trail
+  weather, the next 72 hours, and the phone pairing code. OK fetches again; Menu forgets paired phones.
 - **First-time setup.** The first time Home opens, the TV walks through welcome, Wi-Fi and pairing your phone
   (QR code and a 4-digit code); then the phone takes you through your name, teams and shows, what Home shows
   (greeting, match panel, watcher: each can be off) and a look picked from your interests, while the TV follows
@@ -80,7 +82,9 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   On (or from Bugjaeger: `settings put secure enabled_accessibility_services tv.den.fanhub/tv.den.fanhub.Helper`
   then `settings put secure accessibility_enabled 1`; that replaces any other accessibility service that is on).
   The arrow keys inside other apps and waking the TV aren't possible for an app; the Google TV app does those.
-- **One long row.** Every app sits in one row that scrolls sideways, as in the mockup. Hold OK on a tile and
+- **One long row.** Every app sits in one row that scrolls sideways, as in the mockup. When there are more apps
+  past an edge, that edge fades and a pill says how many ("‹ 4", "12 ›"); a slim track under the row shows where
+  the focused app is. Watchers that follow the focused app stay on screen at either end of the row. Hold OK on a tile and
   choose **Remove from Home** to hide an app; the App library button in the top bar lists every app and puts
   hidden ones back.
 - **Everything else from cleanyourtv:** dock and grid, D-pad navigation, Inputs and Wi-Fi pills, Launcher

@@ -133,11 +133,12 @@ final class DenLayer {
         DenMoments.attach(layer.moments);
         DenIcons.use(look == null ? "" : look.icons, look == null ? "" : look.accent, look == null ? "" : look.id);
         if (look != null) clock(activity, look);
+        int accent = 0xffff4d6d;
         if (look != null) {
-            int accent;
-            try { accent = android.graphics.Color.parseColor(look.accent); } catch (RuntimeException e) { accent = 0xffff4d6d; }
+            try { accent = android.graphics.Color.parseColor(look.accent); } catch (RuntimeException ignored) { }
             DenLayouts.attach(activity.findViewById(R.id.grid), look.iconLayout, accent);
         }
+        DenRowHints.attach(activity.findViewById(R.id.grid), accent);
         layer.content.getViewTreeObserver().addOnGlobalFocusChangeListener(layer.focus);
         layer.content.post(layer::followFocus);
         activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).registerOnSharedPreferenceChangeListener(layer.revision);   // Home may have focused a tile before the watcher was there

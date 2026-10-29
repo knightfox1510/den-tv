@@ -1,6 +1,7 @@
 package tv.den.fanhub;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -182,5 +183,21 @@ public class FanHubTest {
         assertEquals(2, t.ours);
         assertEquals("BAR 2\u20131 RMA \u00B7 67'", t.topLine);
         assertNull(FanHub.liveFootball(new FanHub.Team("India", "cricket", "1", 0), fd, KICKOFF));
+    }
+
+    @Test public void weekendPicksTheDrierDay() throws Exception {
+        long now = java.time.ZonedDateTime.of(2026, 10, 29, 11, 0, 0, 0, java.time.ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli();
+        JSONObject r = new JSONObject("{\"utc_offset_seconds\":19800,\"daily\":{\"time\":[\"2026-10-29\",\"2026-10-31\",\"2026-11-01\",\"2026-11-07\"],"
+                + "\"temperature_2m_max\":[30,29,27,25],\"temperature_2m_min\":[21,20,18,17],\"precipitation_probability_max\":[0,60,5,0],"
+                + "\"weather_code\":[0,80,0,0],\"sunrise\":[\"2026-10-29T06:36\",\"2026-10-31T06:37\",\"2026-11-01T06:38\",\"2026-11-07T06:40\"]}}");
+        java.util.List<FanHub.Day> days = FanHub.weekend(r, now);
+        assertEquals(2, days.size());
+        assertEquals("Sat", days.get(0).label);
+        assertEquals("Sun", days.get(1).label);
+        assertTrue(days.get(1).best);
+        assertFalse(days.get(0).best);
+        assertEquals("06:38", days.get(1).sunrise);
+        assertEquals("Showers", FanHub.sky(80));
+        assertTrue(FanHub.weekend(null, now).isEmpty());
     }
 }

@@ -27,6 +27,7 @@ public final class DenLooksProvider extends ContentProvider {
         if ("people".equals(path)) return people();
         if ("characters".equals(path)) return characters();
         if ("mine".equals(path)) return mine();
+        if ("current".equals(path)) return current();
         if (!"looks".equals(uri.getLastPathSegment())) return null;
         DenTheme.ensure(getContext());
         List<DenLooks.Look> looks = DenLooks.load(getContext());
@@ -280,6 +281,11 @@ public final class DenLooksProvider extends ContentProvider {
     @Override public android.os.ParcelFileDescriptor openFile(Uri uri, String mode) throws java.io.FileNotFoundException {
         java.util.List<String> seg = uri.getPathSegments();
         if (seg.size() == 2 && "characters".equals(seg.get(0))) return characterFile(seg.get(1), mode);
+        if (seg.size() == 1 && "wallpaper".equals(seg.get(0)) && "r".equals(mode)) {
+            java.io.File f = wallpaper();
+            if (f == null) throw new java.io.FileNotFoundException("no look on");
+            return android.os.ParcelFileDescriptor.open(f, android.os.ParcelFileDescriptor.MODE_READ_ONLY);
+        }
         if (seg.size() != 2 || !"photos".equals(seg.get(0))) throw new java.io.FileNotFoundException(uri.toString());
         try {
             if ("new".equals(seg.get(1)) && mode.startsWith("w")) {
@@ -296,6 +302,26 @@ public final class DenLooksProvider extends ContentProvider {
             throw new java.io.FileNotFoundException(e.getMessage());
         }
         throw new java.io.FileNotFoundException(uri.toString());
+    }
+
+    // ---- the look on Home, for the Fan Hub's own screen ---------------------------------------------------------
+
+    /** One row: the look on Home (empty while looks rotate), its name, accent and category. */
+    private Cursor current() {
+        DenTheme.ensure(getContext());
+        DenLooks.Look on = DenLooks.current(getContext(), DenLooks.load(getContext()));
+        MatrixCursor c = new MatrixCursor(new String[]{"id", "name", "accent", "category"});
+        c.addRow(on == null ? new Object[]{"", "Rotate every look", "#ff4d6d", ""} : new Object[]{on.id, on.name, on.accent, on.category});
+        return c;
+    }
+
+    /** The look's wallpaper file (never a photo of yours), or null while looks rotate. */
+    private java.io.File wallpaper() {
+        DenLooks.Look on = DenLooks.current(getContext(), DenLooks.load(getContext()));
+        java.io.File dir = getContext().getExternalFilesDir(null);
+        if (on == null || dir == null || on.wallpaper == null || on.wallpaper.isEmpty()) return null;
+        java.io.File f = new java.io.File(new java.io.File(dir, "wallpapers"), on.wallpaper);
+        return f.isFile() ? f : null;
     }
 
     // ---- your own looks ------------------------------------------------------------------------------------------

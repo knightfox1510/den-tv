@@ -372,6 +372,36 @@ final class DenWatcherView extends View implements DenLayer.Watcher {
                 break;
             default: break;
         }
+        keepOnScreen();
+    }
+
+    /** Kinds whose parts hang from fixed points (hats, swords, hands, the pole, the compass); everything else follows the app. */
+    private static final List<String> PINNED = List.of("luffy", "chopperhat", "fedora", "zoro", "bat", "nichirin", "hands", "pole", "compass");
+
+    /**
+     * Keeps whatever follows the focused app inside the screen: at the first or last app of the row the tile sits
+     * at the edge, and a cloud or a walker centred on it would hang half off the TV.
+     */
+    private void keepOnScreen() {
+        if (PINNED.contains(kind)) return;
+        for (Actor a : actors) keep(a);
+        if (walker != null) { keep(walker); walkTurnX = inside(walker, walkTurnX); }
+        if (ball != null) dribTo = clamp(dribTo, 40, 1880);
+    }
+
+    private static void keep(Actor a) {
+        float x = inside(a, a.tx);
+        if (x == a.tx) return;
+        a.tx = x;
+        if (a.dur <= 0) a.x = x;
+    }
+
+    /** x moved just enough that the actor's picture, from its anchor, fits between 8 and 1912. */
+    private static float inside(Actor a, float x) {
+        if (a.bmp == null) return x;
+        float k = Math.abs(a.tsx), left = a.ax * k, right = (a.bmp.getWidth() - a.ax) * k;
+        if (left + right > 1904) return x;
+        return clamp(x, 8 + left, 1912 - right);
     }
 
     /**

@@ -54,6 +54,12 @@ final class Store {
         return FanHub.flatten(bySource(ctx), System.currentTimeMillis());
     }
 
+    /** The last weekend forecast for the hike place, or null (the forecast is off, or not fetched yet). */
+    static JSONObject forecast(Context ctx) {
+        if (config(ctx).hike == null) return null;
+        try { return new JSONObject(prefs(ctx).getString("forecast", "")); } catch (JSONException e) { return null; }
+    }
+
     static long fetchedAt(Context ctx) { return prefs(ctx).getLong("fetched", 0); }
 
     static String errors(Context ctx) { return prefs(ctx).getString("errors", ""); }
@@ -97,8 +103,11 @@ final class Store {
                     for (FanHub.Turn t : e.getValue()) a.put(t.json());
                     j.put(e.getKey(), a);
                 }
-                prefs(app).edit().putString("by", j.toString()).putLong("fetched", now)
-                        .putString("errors", String.join("\n", errors)).apply();
+                SharedPreferences.Editor ed = prefs(app).edit().putString("by", j.toString()).putLong("fetched", now)
+                        .putString("errors", String.join("\n", errors));
+                JSONObject fc = FanHub.lastForecast;
+                if (fc != null) ed.putString("forecast", fc.toString());
+                ed.apply();
                 app.getContentResolver().notifyChange(TURNS, null);
                 // While a match is live or about to start, keep fetching even if Home does not ask.
                 long again = FanHub.refreshAfter(all, now);

@@ -2,34 +2,35 @@ package tv.den.fanhub;
 
 import android.app.Activity;
 import android.database.ContentObserver;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.format.DateFormat;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
-import java.util.Date;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
- * The Fan Hub's own screen: what Home will show next, when it was fetched and anything that failed. OK fetches
- * again now. Home shows the same games and episodes in the panel under the clock.
+ * The Fan Hub's own screen: a dashboard (HubView) of the next match, the matches after it, the anime week, the
+ * weekend's trail weather and the next 72 hours, in the colours of the look on Home. OK fetches again now; Menu
+ * forgets paired phones. Home shows the same games and episodes in the panel under the clock.
  */
 public final class FanHubActivity extends Activity {
-    private LinearLayout list;
-    private TextView status, phone;
-    private ImageView qr;
-    private String qrFor;
+    private static final Uri CURRENT = Uri.parse("content://tv.den.launcher.looks/current");
+    private static final Uri WALLPAPER = Uri.parse("content://tv.den.launcher.looks/wallpaper");
+
+    private HubView hub;
     private PhoneServer server;
+    private String qrFor;
+    private Bitmap qr;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ContentObserver changed = new ContentObserver(new Handler(Looper.getMainLooper())) {
         @Override public void onChange(boolean self) { show(); }
@@ -37,34 +38,9 @@ public final class FanHubActivity extends Activity {
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
-        float dp = getResources().getDisplayMetrics().density;
-        LinearLayout page = new LinearLayout(this);
-        page.setOrientation(LinearLayout.VERTICAL);
-        page.setBackgroundColor(0xff050507);
-        int pad = Math.round(48 * dp);
-        page.setPadding(pad, Math.round(28 * dp), pad, Math.round(20 * dp));
-        page.addView(text("Fan Hub", 30, Color.WHITE, true));
-        status = text("", 14, 0xffa09dac, false);
-        page.addView(status);
-        LinearLayout phoneRow = new LinearLayout(this);
-        phoneRow.setOrientation(LinearLayout.HORIZONTAL);
-        phoneRow.setGravity(Gravity.CENTER_VERTICAL);
-        phoneRow.setPadding(0, Math.round(12 * dp), 0, 0);
-        qr = new ImageView(this);
-        qr.setVisibility(View.GONE);
-        phoneRow.addView(qr, new LinearLayout.LayoutParams(Math.round(120 * dp), Math.round(120 * dp)));
-        phone = text("", 16, 0xffffd98a, false);
-        phone.setPadding(Math.round(16 * dp), 0, 0, 0);
-        phoneRow.addView(phone, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        page.addView(phoneRow);
+        hub = new HubView(this);
+        setContentView(hub);
         server = PhoneServer.get(this);
-        ScrollView scroll = new ScrollView(this);
-        list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
-        list.setPadding(0, Math.round(16 * dp), 0, 0);
-        scroll.addView(list);
-        page.addView(scroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
-        setContentView(page);
     }
 
     @Override protected void onResume() {
@@ -74,8 +50,7 @@ public final class FanHubActivity extends Activity {
         Store.refresh(this, false);
         PhoneService.start(this);
         server.start();
-        server.openPairing(() -> main.post(this::showPhone));
-        showPhone();
+        server.openPairing(() -> main.post(this::show));
     }
 
     @Override protected void onPause() {
@@ -86,82 +61,80 @@ public final class FanHubActivity extends Activity {
 
     @Override public boolean onKeyUp(int code, KeyEvent e) {
         if (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_NUMPAD_ENTER) {
-            status.setText("Fetching…");
             Store.refresh(this, true);
             return true;
         }
         if (code == KeyEvent.KEYCODE_MENU) {
             server.forgetPhones();
-            showPhone();
+            show();
             return true;
         }
         return super.onKeyUp(code, e);
     }
 
-    /** Where the phone page is, its pairing code, and how many phones are paired. Only while this screen is open. */
-    private void showPhone() {
-        String at = PhoneServer.address(this);
-        int n = server.pairedPhones();
-        if (!server.running()) {
-            phone.setText("Phone settings couldn't start: port " + PhoneServer.PORT + " is in use. Close Fan Hub and open it again.");
-            return;
-        }
-        showQr(at);
-        phone.setText(at == null ? "Phone settings: connect the TV to Wi-Fi first."
-                : "Phone settings: scan the code with a phone on this Wi-Fi, or open " + at + ", and enter " + server.code() + ". After that the phone works whenever the TV is on."
-                + (n > 0 ? " " + n + (n == 1 ? " phone is" : " phones are") + " paired; Menu forgets them." : ""));
-    }
-
+    /** Fills the dashboard from the cache, the phone server and the look on Home. */
     private void show() {
-        List<FanHub.Turn> turns = Store.turns(this);
-        long at = Store.fetchedAt(this);
-        String err = Store.errors(this);
-        status.setText((at == 0 ? "Not fetched yet." : "Updated " + DateFormat.getTimeFormat(this).format(new Date(at)) + ".")
-                + " OK fetches again. Home shows these under the clock." + (err.isEmpty() ? "" : "\nCouldn't reach: " + err.replace('\n', ';')));
-        list.removeAllViews();
-        if (turns.isEmpty()) list.addView(text("Nothing in the next week yet.", 18, Color.WHITE, false));
-        long now = System.currentTimeMillis();
-        for (FanHub.Turn t : turns) {
-            LinearLayout row = new LinearLayout(this);
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            float dp = getResources().getDisplayMetrics().density;
-            row.setPadding(0, Math.round(8 * dp), 0, Math.round(8 * dp));
-            View bar = new View(this);
-            GradientDrawable g = new GradientDrawable();
-            g.setColor(t.colour);
-            g.setCornerRadius(2 * dp);
-            bar.setBackground(g);
-            row.addView(bar, new LinearLayout.LayoutParams(Math.round(4 * dp), Math.round(40 * dp)));
-            LinearLayout col = new LinearLayout(this);
-            col.setOrientation(LinearLayout.VERTICAL);
-            col.setPadding(Math.round(14 * dp), 0, 0, 0);
-            col.addView(text(t.topLine, 18, Color.WHITE, true));
-            boolean live = now >= t.start && now < t.end;
-            col.addView(text(live ? "● Live now" : t.word + " " + DateFormat.format("EEE d MMM, " + (DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm a"), t.start),
-                    14, live ? 0xffff4d4d : 0xffa09dac, false));
-            row.addView(col);
-            list.addView(row);
+        HubView.Data d = new HubView.Data();
+        FanHub.Config cfg = Store.config(this);
+        for (Map.Entry<String, List<FanHub.Turn>> e : Store.bySource(this).entrySet()) {
+            String k = e.getKey();
+            for (FanHub.Turn t : e.getValue()) {
+                if (k.startsWith("team:")) {
+                    FanHub.Team team = null;
+                    for (FanHub.Team x : cfg.teams) if (k.equals("team:" + x.sportsdb)) team = x;
+                    d.teams.add(new HubView.Item(t, team == null ? "" : team.sport, team == null ? "" : team.name));
+                } else if (k.startsWith("show:")) d.shows.add(new HubView.Item(t, "show", k.substring(5)));
+                else d.others.add(new HubView.Item(t, k, ""));
+            }
         }
+        d.fetched = Store.fetchedAt(this);
+        d.errors = Store.errors(this);
+        d.place = cfg.hike == null ? "" : cfg.hike.name;
+        d.weekend = FanHub.weekend(Store.forecast(this), System.currentTimeMillis());
+        d.h24 = DateFormat.is24HourFormat(this);
+        d.running = server.running();
+        d.address = PhoneServer.address(this);
+        d.code = server.code();
+        d.paired = server.pairedPhones();
+        d.qr = qr(d.address);
+        look(d);
+        hub.show(d);
     }
 
-    /** A QR code of the page's address; none without an address. */
-    private void showQr(String at) {
-        if (at == null) { qr.setVisibility(View.GONE); qrFor = null; return; }
-        if (at.equals(qrFor)) return;
-        android.graphics.drawable.BitmapDrawable d = Qr.of(getResources(), at);
-        qr.setImageDrawable(d);
-        qr.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        qr.setVisibility(d == null ? View.GONE : View.VISIBLE);
-        qrFor = d == null ? null : at;
+    /** The look on Home: its name, colour and wallpaper (read once per look). */
+    private String wallFor;
+    private Bitmap wall;
+
+    private void look(HubView.Data d) {
+        String id = "";
+        try (Cursor c = getContentResolver().query(CURRENT, null, null, null, null)) {
+            if (c != null && c.moveToFirst()) {
+                id = c.getString(0);
+                d.lookName = id.isEmpty() ? "" : c.getString(1);
+                try { d.accent = Color.parseColor(c.getString(2)); } catch (RuntimeException ignored) { }
+            }
+        } catch (RuntimeException ignored) { }   // an older launcher, or none: the Fan Hub's own colours
+        if (!id.equals(wallFor)) {
+            wallFor = id;
+            wall = null;
+            if (!id.isEmpty()) {
+                try (InputStream in = getContentResolver().openInputStream(WALLPAPER)) {
+                    BitmapFactory.Options o = new BitmapFactory.Options();
+                    o.inSampleSize = 2;   // darkened behind cards: half size is plenty, and light on a 1.8 GB TV
+                    wall = in == null ? null : BitmapFactory.decodeStream(in, null, o);
+                } catch (Exception ignored) { }
+            }
+        }
+        d.wallpaper = wall;
     }
 
-    private TextView text(String s, float sp, int colour, boolean bold) {
-        TextView v = new TextView(this);
-        v.setText(s);
-        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
-        v.setTextColor(colour);
-        if (bold) v.setTypeface(v.getTypeface(), android.graphics.Typeface.BOLD);
-        return v;
+    private Bitmap qr(String at) {
+        if (at == null) return null;
+        if (!at.equals(qrFor)) {
+            BitmapDrawable b = Qr.of(getResources(), at);
+            qr = b == null ? null : b.getBitmap();
+            qrFor = qr == null ? null : at;
+        }
+        return qr;
     }
 }

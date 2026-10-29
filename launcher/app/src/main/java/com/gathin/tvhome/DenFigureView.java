@@ -46,7 +46,9 @@ final class DenFigureView extends View implements DenLayer.Watcher {
         lookX = sx * s;
         lookY = sy * s;
         if (walker) {
-            float target = lookX - 110;
+            // Kept on screen at the row's first and last app (a 250-high walker is at most about 250 wide).
+            float half = body == null ? 125 : 125f * body.getWidth() / body.getHeight();
+            float target = Math.max(8 + half, Math.min(1912 - half, lookX - 110));
             if (Float.isNaN(x) || !motion) { x = target; walkStart = 0; }
             else { fromX = x; toX = target; left = toX < fromX; walkStart = SystemClock.uptimeMillis(); }
         }
