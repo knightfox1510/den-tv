@@ -15,11 +15,15 @@ import android.view.accessibility.AccessibilityNodeInfo;
 public final class Helper extends AccessibilityService {
     private static volatile Helper running;
     private static volatile String front = "";
+    private static volatile long since;
 
     static boolean on() { return running != null; }
 
     /** The package in front, as last seen; "" before the helper has seen one. */
     static String front() { return front; }
+
+    /** When the app in front came to the front (System.currentTimeMillis); 0 before the helper has seen one. */
+    static long since() { return since; }
 
     @Override protected void onServiceConnected() {
         running = this;
@@ -38,6 +42,7 @@ public final class Helper extends AccessibilityService {
         if (pkg.equals("android") || pkg.equals("com.android.systemui") || pkg.contains("inputmethod") || pkg.contains(".ime")) return;
         if (!pkg.equals(front)) {
             front = pkg;
+            since = System.currentTimeMillis();
             Timers.foreground(this, pkg);
         }
     }

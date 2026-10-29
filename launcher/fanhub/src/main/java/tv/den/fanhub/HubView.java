@@ -48,6 +48,8 @@ final class HubView extends View {
         long fetched;
         final List<Item> teams = new ArrayList<>(), shows = new ArrayList<>(), others = new ArrayList<>();
         List<FanHub.Day> weekend = new ArrayList<>();
+        /** Store.extras: each team's recent form and league table, by team name. */
+        org.json.JSONObject extras = new org.json.JSONObject();
     }
 
     private static final float W = 1920, H = 1080;
@@ -176,6 +178,10 @@ final class HubView extends View {
         float bx = vx + 92;
         badge(c, bx, ty, m[1], same(it.name, m[1]) ? tn.colour : 0xff3b3f55);
         text(c, fit(title(m[1]), x + w - bx - 90, 50, bold), bx + 54, ty + 17, 50, bold, 0xffffffff);
+        // Our side's last results, under its name.
+        org.json.JSONObject ex = data.extras.optJSONObject(it.name);
+        String form = ex == null ? "" : ex.optString("form");
+        if (!form.isEmpty()) formChips(c, same(it.name, m[1]) ? bx + 54 : nx, ty + 34, form);
         // Countdown.
         long left = Math.max(0, tn.start - now) / 1000;
         long[] v;
@@ -235,10 +241,17 @@ final class HubView extends View {
             text(c, "Each team's next match shows here once it's set.", x + 32, y + 172, 22, light, 0xffb9b5c8);
             return;
         }
+        // A league table (football-data.org) takes the bottom of the card; the fixtures keep the top.
+        org.json.JSONObject table = null;
+        for (Item it : data.teams) {
+            org.json.JSONObject ex = data.extras.optJSONObject(it.name);
+            if (ex != null && ex.optJSONObject("table") != null) { table = ex.optJSONObject("table"); break; }
+        }
         text(c, "WHEN", x + 32, y + 100, 16, regular, 0xff8e8aa0);
         text(c, "MATCH", x + 210, y + 100, 16, regular, 0xff8e8aa0);
         float ry = y + 120;
-        for (int i = 0; i < Math.min(5, items.size()); i++) {
+        if (table != null) standings(c, x, y + h - 152, w, table);
+        for (int i = 0; i < Math.min(table == null ? 5 : 2, items.size()); i++) {
             FanHub.Turn tn = items.get(i).turn;
             boolean live = tn.live || now >= tn.start;
             if (i == 0) { r.set(x + 16, ry, x + w - 16, ry + 50); p.setColor(0x1affffff); c.drawRoundRect(r, 10, 10, p); }
@@ -252,6 +265,54 @@ final class HubView extends View {
             text(c, fit(m[2].isEmpty() ? "" : title(m[2]), 120, 18, light), x + w - 32, ry + 33, 18, light, 0xffa7a3b5);
             t.setTextAlign(Paint.Align.LEFT);
             ry += 54;
+        }
+    }
+
+    /** "W D L" chips, oldest first: green, grey, red. */
+    private void formChips(Canvas c, float x, float y, String form) {
+        text(c, "Form", x, y + 17, 18, light, 0xffb9b5c8);
+        float cx = x + 52;
+        Paint.Align al = t.getTextAlign();
+        for (char ch : form.toCharArray()) {
+            r.set(cx, y, cx + 24, y + 24);
+            p.setColor(ch == 'W' ? 0xff2f9e5a : ch == 'L' ? 0xffd8434f : 0xff6b6f80);
+            c.drawRoundRect(r, 6, 6, p);
+            t.setTextAlign(Paint.Align.CENTER);
+            text(c, String.valueOf(ch), cx + 12, y + 18, 15, bold, 0xffffffff);
+            cx += 30;
+        }
+        t.setTextAlign(al);
+    }
+
+    /** Three rows of the league table, ours highlighted: position, team, played, goal difference, points. */
+    private void standings(Canvas c, float x, float y, float w, org.json.JSONObject table) {
+        org.json.JSONArray rows = table.optJSONArray("rows");
+        if (rows == null) return;
+        text(c, "#", x + 34, y + 16, 15, regular, 0xff8e8aa0);
+        t.setLetterSpacing(0.14f);
+        text(c, table.optString("league").toUpperCase(Locale.ROOT), x + 70, y + 16, 15, regular, 0xff8e8aa0);
+        t.setLetterSpacing(0);
+        t.setTextAlign(Paint.Align.RIGHT);
+        text(c, "P", x + w - 170, y + 16, 15, regular, 0xff8e8aa0);
+        text(c, "GD", x + w - 100, y + 16, 15, regular, 0xff8e8aa0);
+        text(c, "PTS", x + w - 34, y + 16, 15, regular, 0xff8e8aa0);
+        t.setTextAlign(Paint.Align.LEFT);
+        float ry = y + 30;
+        for (int i = 0; i < rows.length(); i++) {
+            org.json.JSONObject row = rows.optJSONObject(i);
+            if (row == null) continue;
+            boolean ours = row.optBoolean("ours");
+            if (ours) { r.set(x + 16, ry, x + w - 16, ry + 36); p.setColor(0x26ffffff); c.drawRoundRect(r, 8, 8, p); }
+            Typeface f = ours ? semi : regular;
+            text(c, String.valueOf(row.optInt("pos")), x + 34, ry + 25, 19, f, 0xffffffff);
+            text(c, fit(row.optString("name"), w - 330, 19, f), x + 70, ry + 25, 19, f, 0xffffffff);
+            t.setTextAlign(Paint.Align.RIGHT);
+            int gd = row.optInt("gd");
+            text(c, String.valueOf(row.optInt("played")), x + w - 170, ry + 25, 19, f, 0xffd8d4e4);
+            text(c, (gd > 0 ? "+" : "") + gd, x + w - 100, ry + 25, 19, f, 0xffd8d4e4);
+            text(c, String.valueOf(row.optInt("pts")), x + w - 34, ry + 25, 19, f, 0xffffffff);
+            t.setTextAlign(Paint.Align.LEFT);
+            ry += 38;
         }
     }
 

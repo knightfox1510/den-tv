@@ -412,7 +412,8 @@ final class PhoneServer {
         JSONArray looks = new JSONArray();
         try (Cursor c = ctx.getContentResolver().query(LOOKS, null, null, null, null)) {
             while (c != null && c.moveToNext()) {
-                looks.put(new JSONObject().put("id", c.getString(0)).put("name", c.getString(1)).put("category", c.getString(2)).put("on", c.getInt(3) == 1));
+                looks.put(new JSONObject().put("id", c.getString(0)).put("name", c.getString(1)).put("category", c.getString(2)).put("on", c.getInt(3) == 1)
+                        .put("changed", c.getColumnCount() > 4 && c.getInt(4) == 1));
             }
         } catch (RuntimeException e) {
             s.put("looksError", "The den-tv launcher isn't installed, or was signed with a different key.");

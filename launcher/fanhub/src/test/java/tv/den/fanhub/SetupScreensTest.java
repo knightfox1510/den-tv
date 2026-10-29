@@ -73,6 +73,9 @@ public class SetupScreensTest {
             d.weekend = FanHub.weekend(new org.json.JSONObject("{\"utc_offset_seconds\":19800,\"daily\":{\"time\":[\"2026-10-29\",\"2026-10-30\",\"2026-10-31\",\"2026-11-01\"],"
                     + "\"temperature_2m_max\":[30,30,29,27],\"temperature_2m_min\":[21,21,20,18],\"precipitation_probability_max\":[10,20,60,5],"
                     + "\"weather_code\":[1,2,80,0],\"sunrise\":[\"2026-10-29T06:36\",\"2026-10-30T06:37\",\"2026-10-31T06:37\",\"2026-11-01T06:38\"]}}"), now);
+            d.extras = new org.json.JSONObject("{\"India\":{\"form\":\"WWLWD\"},\"FC Barcelona\":{\"form\":\"WDWWL\",\"table\":{\"league\":\"La Liga\",\"rows\":["
+                    + "{\"pos\":1,\"name\":\"Real Madrid\",\"played\":10,\"gd\":13,\"pts\":24},{\"pos\":2,\"name\":\"Barça\",\"played\":10,\"gd\":16,\"pts\":24,\"ours\":true},"
+                    + "{\"pos\":3,\"name\":\"Atleti\",\"played\":10,\"gd\":9,\"pts\":20}]}}}");
             HubView v = new HubView(org.robolectric.RuntimeEnvironment.getApplication());
             v.freeze(now, z);
             v.show(d);

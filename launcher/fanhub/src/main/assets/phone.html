@@ -16,6 +16,15 @@
   h2 { font-size: 17px; margin: 24px 0 10px; }
   p { color: var(--dim); margin: 0 0 12px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+  .np { display: flex; gap: 12px; align-items: center; }
+  .np img { width: 72px; height: 41px; border-radius: 8px; object-fit: cover; background: #1b1b24; flex: none; }
+  .np .what { flex: 1; min-width: 0; }
+  .np .what b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .np .what small { color: var(--dim); }
+  .np button { flex: none; width: auto; margin: 0; padding: 10px 16px; }
+  .np button[aria-pressed="true"] { background: var(--accent, #ff4d6d); color: #111; }
+  .vol { height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); margin-top: 12px; overflow: hidden; }
+  .vol i { display: block; height: 100%; background: var(--accent, #ff4d6d); width: 0; transition: width .3s; }
   input[type=text], input[type=search], input[type=time], input[type=number], input:not([type]), textarea, select {
     width: 100%; background: var(--card2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: inherit; }
   input.code { font-size: 32px; letter-spacing: .4em; text-align: center; }
@@ -25,6 +34,8 @@
   .looks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .look { text-align: left; background: var(--card2); border: 1px solid var(--line); margin: 0; padding: 12px; font-weight: 500; line-height: 1.25; }
   .look small { display: block; color: var(--dim); font-weight: 400; margin-top: 3px; font-size: 13px; }
+  .look .chg { display: inline-block; margin-top: 6px; font-size: 12px; color: #111; background: #ffd36e; border-radius: 999px; padding: 2px 8px; }
+  .look .restore { display: inline-block; margin: 6px 0 0 6px; font-size: 12px; text-decoration: underline; color: var(--dim); cursor: pointer; }
   .look.on { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc) inset; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip { width: auto; margin: 0; padding: 9px 13px; border-radius: 999px; background: var(--card2); border: 1px solid var(--line); color: var(--text); font-weight: 500; font-size: 15px; }
@@ -158,6 +169,21 @@
     <label class="ghost" style="margin-top:10px"><input type="file" id="photoFile" accept="image/jpeg,image/png" hidden>
       <span style="display:block;text-align:center;padding:13px;border:1px dashed var(--line);border-radius:10px;cursor:pointer">Add a photo</span></label>
     <div id="photoMsg" class="msg" role="status"></div>
+    <details class="card" id="describeCard"><summary><span><b>Describe a look</b><small>Say what you want; den-tv picks the wallpaper and parts</small></span></summary><div class="in">
+      <label for="dText">Your look</label><textarea id="dText" rows="2" maxlength="300" placeholder="Rainy Tokyo night with Itachi's crows and a neon clock"></textarea>
+      <button id="dGo">Make it</button>
+      <div id="dOut" hidden><div class="card" style="margin:10px 0 0"><b id="dName"></b><p id="dWhy" style="margin:4px 0 0"></p><small id="dParts" class="hint"></small></div>
+        <div class="row"><button id="dSave">Save and put it on</button><button id="dAgain" class="ghost">Try another</button></div></div>
+      <div id="dMsg" class="msg" role="status"></div>
+    </div></details>
+    <details class="card" id="photoLookCard"><summary><span><b>Save a photo as a look</b><small>Your photo as the wallpaper, with any look's watcher, clock and icons</small></span></summary><div class="in">
+      <label for="plPhoto">Photo</label><select id="plPhoto"></select>
+      <label for="plBase">Parts from</label><select id="plBase"></select>
+      <label for="plName">Name</label><input id="plName" maxlength="40" placeholder="Our trip to Lonavala">
+      <button id="plSave">Save the look</button>
+      <div class="hint">It goes in My photos on the TV's Looks screen and here. It stays on the TV, never joins the rotation, and a guest doesn't see it. Private photos can't become looks.</div>
+      <div id="plMsg" class="msg" role="status"></div>
+    </div></details>
     <h2>Your characters</h2>
     <p>Turn a picture into a character on Home: a big figure on the right that leans toward the app you pick, or a small one that walks to it. A cut-out PNG (see-through background) looks best; add the same picture with the eyes closed and it blinks.</p>
     <div id="chars"></div>
@@ -191,7 +217,7 @@
   <section id="t-tweak" data-tab hidden>
     <details class="card" open><summary><span><b>This look</b><small id="ovFor">Watcher, clock, icons and colour</small></span></summary><div class="in">
       <div id="ovBox"></div>
-      <button id="ovReset" class="ghost">Put the look's own back</button>
+      <div class="row"><button id="ovReset" class="ghost" hidden>Restore to default look</button><button id="ovSave" class="ghost">Save as my own look</button></div>
       <div id="ovMsg" class="msg" role="status"></div>
     </div></details>
     <details class="card"><summary><span><b>Home</b><small>Name, greeting, panel, motion, idle clock</small></span></summary><div class="in">
@@ -242,6 +268,11 @@
   <!-- ===== Remote ===== -->
   <section id="t-remote" data-tab hidden>
     <div class="banner" id="helperNote" hidden>Back, Home, sleep, typing and opening apps need the den-tv helper. On the TV: Settings → Accessibility → den-tv helper → On. Volume and play/pause work without it.</div>
+    <div class="card" id="npCard">
+      <div class="np"><img id="npIcon" alt=""><div class="what"><small id="npWho">Now on the TV</small><b id="npApp">…</b><small id="npFor"></small></div>
+        <button type="button" id="npMute" aria-pressed="false">Mute</button></div>
+      <div class="vol" aria-hidden="true"><i id="npVol"></i></div>
+    </div>
     <div class="pad">
       <button data-rc="back">Back</button><button data-rc="home">Home</button><button data-rc="sleep">Sleep</button>
       <button data-rc="volume_down" class="big" aria-label="Volume down">−</button><button data-rc="mute">Mute</button><button data-rc="volume_up" class="big" aria-label="Volume up">+</button>
@@ -272,6 +303,8 @@
       <p>Without keys, scores arrive when a match ends. Free keys bring live scores during play, and the goal, six and new-episode moments on Home. Keys stay on the TV.</p>
       <label for="kFootball">football-data.org key <small id="kfSet"></small></label><input id="kFootball" type="password" autocomplete="off" placeholder="Paste a key">
       <label for="kCricket">CricketData.org key <small id="kcSet"></small></label><input id="kCricket" type="password" autocomplete="off" placeholder="Paste a key">
+      <label for="kGemini">Gemini API key <small id="kgSet"></small></label><input id="kGemini" type="password" autocomplete="off" placeholder="Paste a key from aistudio.google.com">
+      <div class="hint">Gemini turns a sentence into a look (Looks → Describe a look). The key stays on the TV; this page can't read it back. Your description goes to Google to answer it. <a href="#" id="kgForget">Remove the Gemini key</a></div>
       <div class="row"><button id="saveKeys">Save keys</button><button id="liveRefresh" class="ghost">Fetch now</button></div>
       <div id="liveMsg" class="msg" role="status"></div>
       <label>Try a moment on Home</label>
@@ -366,6 +399,15 @@
     looks.forEach((l) => {
       const b = el('button', 'look' + (l.on ? ' on' : ''), l.name); b.type = 'button';
       if (l.category) b.appendChild(el('small', null, l.category));
+      if (l.changed) {
+        // Changed from the phone (Tweak → This look): say so, and offer the look's own parts back.
+        b.appendChild(el('span', 'chg', 'Changed'));
+        const rs = el('span', 'restore', 'Restore default'); rs.setAttribute('role', 'button'); rs.tabIndex = 0;
+        const restore = async (ev) => { ev.stopPropagation(); ev.preventDefault(); const r = await api('/api/override', { reset: true, id: l.id });
+          if (r.json.ok) { l.changed = false; renderLooks(box, msg, looks, onPick); say(msg, l.name + ' is back to its own parts.'); } else say(msg, 'Couldn\'t restore it.', true); };
+        rs.addEventListener('click', restore); rs.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') restore(ev); });
+        b.appendChild(rs);
+      }
       b.setAttribute('aria-pressed', l.on ? 'true' : 'false');
       b.addEventListener('click', async () => {
         say(msg, 'Putting on ' + l.name + '…');
@@ -488,6 +530,8 @@
   }
   $('lookFind').addEventListener('input', drawLooks);
   async function loadLooks() { drawLooks(); loadPhotos(); loadChars(); }
+  /** The looks again from the TV (a look saved, changed or restored), then the list. */
+  async function refreshLooks() { const st = (await api('/api/state')).json; if (st.looks) S.looks = st.looks; drawLooks(); }
   const MPART = { watcher: 'Watcher', clock: 'Clock', icons: 'App icons', icon_layout: 'Icon layout', focus: 'When you move between apps', wake: 'Wake animation', extras: 'Extras' };
   $('mineCard').addEventListener('toggle', async () => { if ($('mineCard').open) loadMine(); });
   async function loadMine() {
@@ -594,6 +638,12 @@
   });
   async function loadPhotos() {
     const r = await api('/api/photos'); const box = $('photos'); box.innerHTML = '';
+    // The photo-look card: everyday photos only, newest first, and every look that isn't one of yours.
+    const pp = $('plPhoto'); pp.innerHTML = '';
+    (r.json.photos || []).filter((p) => !/-p\.jpg$/.test(p.name)).forEach((p, i) => { const o = el('option', null, i === 0 ? 'Newest photo' : 'Photo ' + (i + 1)); o.value = p.name; pp.appendChild(o); });
+    const pb = $('plBase'); pb.innerHTML = '';
+    (S.looks || []).filter((l) => l.id !== 'rotate' && !/^mine-/.test(l.id)).forEach((l) => { const o = el('option', null, l.name + (l.category ? ' · ' + l.category : '')); o.value = l.id; pb.appendChild(o); });
+    $('plSave').disabled = !pp.options.length;
     if (r.json.error) { say($('photoMsg'), r.json.error, true); return; }
     (r.json.photos || []).forEach((p) => {
       const b = el('button', 'photo' + (p.on ? ' on' : '')); b.type = 'button';
@@ -606,6 +656,32 @@
       box.appendChild(b);
     });
   }
+  // Describe a look: Gemini (with a key on the TV) or word matching picks a base and parts; Save keeps it as your own.
+  let described = null;
+  async function describeLook() {
+    const text = $('dText').value.trim(); if (!text) { say($('dMsg'), 'Describe the look first.', true); return; }
+    say($('dMsg'), 'Thinking…'); $('dGo').disabled = true;
+    const r = await api('/api/describe', { text }); $('dGo').disabled = false;
+    if (!r.json.ok) { $('dOut').hidden = true; say($('dMsg'), r.json.error || 'Couldn\'t make one.', true); return; }
+    described = r.json.look; const base = (S.looks || []).find((l) => l.id === described.base);
+    $('dName').textContent = described.name; $('dWhy').textContent = described.why || '';
+    $('dParts').textContent = 'Wallpaper from ' + (base ? base.name : described.base) + ['watcher', 'clock', 'icons', 'icon_layout', 'wake', 'extras'].filter((k) => described[k]).map((k) => ' · ' + (MPART[k] || k).toLowerCase() + ' ' + nice(described[k])).join('');
+    $('dOut').hidden = false; say($('dMsg'), (r.json.note || '') + (r.json.by === 'gemini' ? 'Picked by Gemini.' : 'Matched by words (add a Gemini key on TV → Live data for more).'));
+  }
+  $('dGo').addEventListener('click', describeLook);
+  $('dAgain').addEventListener('click', describeLook);
+  $('dSave').addEventListener('click', async () => {
+    if (!described) return; const body = Object.assign({}, described); delete body.why;
+    const r = await api('/api/mine', body);
+    say($('dMsg'), r.json.ok ? described.name + ' is saved in My looks, and on Home now.' : (r.json.error || 'Couldn\'t save it (20 looks at most).'), !r.json.ok);
+    if (r.json.ok) { $('dOut').hidden = true; $('dText').value = ''; refreshLooks(); }
+  });
+  $('plSave').addEventListener('click', async () => {
+    const name = $('plName').value.trim() || 'My photo';
+    const r = await api('/api/mine', { name, base: $('plBase').value, photo: $('plPhoto').value });
+    say($('plMsg'), r.json.ok ? name + ' is saved, and on Home now.' : (r.json.error || 'Couldn\'t save it (20 looks at most).'), !r.json.ok);
+    if (r.json.ok) { $('plName').value = ''; refreshLooks(); }
+  });
   $('photoFile').addEventListener('change', async () => {
     const f = $('photoFile').files[0]; if (!f) return;
     if (f.size > 15e6) { say($('photoMsg'), 'That photo is over 15 MB. Pick a smaller one.', true); return; }
@@ -620,9 +696,11 @@
   const nice = (s) => s.replace(/^walk/, 'walking ').replace(/([a-z])([A-Z])/g, '$1 $2');
   async function loadTweak() {
     const o = (await api('/api/override')).json, box = $('ovBox'); box.innerHTML = '';
-    if (o.error || !o.lookId) { say($('ovFor'), o.error || 'Pick a single look first: these change the look on Home'); $('ovReset').hidden = true; }
+    if (o.error || !o.lookId) { say($('ovFor'), o.error || 'Pick a single look first: these change the look on Home'); $('ovReset').hidden = true; $('ovSave').hidden = true; }
     else {
-      $('ovFor').textContent = o.lookName; $('ovReset').hidden = false;
+      const changed = ['watcher', 'clock', 'icons', 'layout', 'focus', 'wake', 'extras', 'accent'].some((k) => o[k] && o[k].value);
+      $('ovFor').textContent = o.lookName + (changed ? ' · changed' : ''); $('ovReset').hidden = !changed; $('ovSave').hidden = false;
+      OV = o;
       ['watcher', 'clock', 'icons', 'layout', 'focus', 'wake', 'extras'].filter((k) => o[k]).forEach((k) => {
         const lab = el('label', null, PART[k]); const s = el('select'); s.id = 'ov-' + k; lab.htmlFor = s.id;
         const own = el('option', null, 'The look\'s own (' + nice(o[k].look || 'none') + ')'); own.value = ''; s.appendChild(own);
@@ -651,11 +729,25 @@
     const b = await api('/api/hike', { on: $('hikeOn').checked, place: $('hikePlace').value });
     say($('widMsg'), a.json.ok && b.json.ok ? 'Saved. Home shows it now.' : (a.json.error || 'Couldn\'t save.'), !(a.json.ok && b.json.ok));
   });
+  let OV = null;
   async function setPart(part, value) {
     const r = await api('/api/override', { part, value });
-    say($('ovMsg'), r.json.ok ? 'Changed. Home shows it now.' : (r.json.error || 'Couldn\'t.'), !r.json.ok);
+    say($('ovMsg'), r.json.ok ? 'Changed and saved. Home shows it now; Restore to default look undoes it.' : (r.json.error || 'Couldn\'t.'), !r.json.ok);
+    if (r.json.ok) { loadTweak(); }
   }
-  $('ovReset').addEventListener('click', async () => { const r = await api('/api/override', { reset: true }); say($('ovMsg'), r.json.ok ? 'Back to the look\'s own.' : 'Couldn\'t.', !r.json.ok); loadTweak(); });
+  $('ovReset').addEventListener('click', async () => { const r = await api('/api/override', { reset: true }); say($('ovMsg'), r.json.ok ? 'Back to the look\'s own parts.' : 'Couldn\'t.', !r.json.ok); loadTweak(); });
+  // Keep this version as a look of your own (My looks), and the original stays as it was.
+  $('ovSave').addEventListener('click', async () => {
+    if (!OV) return;
+    const name = prompt('Name for your look', OV.lookName + ' (mine)'); if (!name) return;
+    const body = { name: name.trim(), base: OV.lookId };
+    [['watcher', 'watcher'], ['clock', 'clock'], ['icons', 'icons'], ['layout', 'icon_layout'], ['focus', 'focus'], ['wake', 'wake'], ['extras', 'extras'], ['accent', 'accent']]
+      .forEach(([k, key]) => { const v = OV[k] && (OV[k].value || OV[k].look); if (v) body[key] = v; });
+    const r = await api('/api/mine', body);
+    if (r.json.ok) await api('/api/override', { reset: true, id: OV.lookId });   // the copy keeps the changes; the original goes back to its own
+    say($('ovMsg'), r.json.ok ? name + ' is saved in My looks, and on Home now.' : (r.json.error || 'Couldn\'t save it (20 looks at most).'), !r.json.ok);
+    loadTweak();
+  });
   $('saveHome').addEventListener('click', async () => {
     const body = Object.assign({ greeting_name: $('name').value.trim(), idle_clock: +$('idle').value }, readToggles($('toggles')));
     const r = await api('/api/settings', body);
@@ -715,7 +807,22 @@
     say($('rcMsg'), r.json.ok ? 'Sent.' : (r.json.error || 'Couldn\'t type.'), !r.json.ok);
     if (r.json.ok) $('typeBox').value = '';
   });
+  // Now playing: the app in front and for how long, and the volume; every 5 seconds while the Remote tab is open.
+  function forHow(ms) { const m = Math.floor(ms / 60000); return m < 1 ? 'just now' : m < 60 ? 'for ' + m + ' min' : 'for ' + Math.floor(m / 60) + ' h ' + (m % 60) + ' min'; }
+  async function loadNow() {
+    const r = await api('/api/nowplaying'); if (r.status !== 200) return; const n = r.json;
+    $('npWho').textContent = n.who ? n.who + ' is watching' : 'Now on the TV';
+    if (!n.helper) { $('npApp').textContent = 'Turn on the den-tv helper to see what\'s on'; $('npFor').textContent = ''; $('npIcon').removeAttribute('src'); }
+    else if (n.home) { $('npApp').textContent = 'Home'; $('npFor').textContent = ''; $('npIcon').removeAttribute('src'); }
+    else { $('npApp').textContent = n.label || n.pkg; $('npFor').textContent = n.since ? forHow(n.now - n.since) : ''; const src = '/api/icon?pkg=' + encodeURIComponent(n.pkg); if ($('npIcon').getAttribute('src') !== src) $('npIcon').src = src; }
+    $('npMute').textContent = n.muted ? 'Unmute' : 'Mute'; $('npMute').setAttribute('aria-pressed', n.muted ? 'true' : 'false');
+    $('npVol').style.width = (n.muted || !n.max ? 0 : Math.round(n.volume / n.max * 100)) + '%';
+  }
+  $('npMute').addEventListener('click', async () => { await api('/api/remote', { action: 'mute' }); loadNow(); });
+  document.querySelectorAll('[data-rc]').forEach((b) => b.addEventListener('click', () => setTimeout(loadNow, 400)));
+  setInterval(() => { if (tab === 'remote' && !document.hidden) loadNow(); }, 5000);
   async function loadRemote() {
+    loadNow();
     const t = (await api('/api/timers')).json;
     const sc = $('sleepChips'); sc.innerHTML = '';
     [[0, 'Off'], [15, '15 min'], [30, '30 min'], [60, '1 hour'], [90, '1½ hours']].forEach(([m, label]) => {
@@ -784,7 +891,8 @@
   $('liveCard').addEventListener('toggle', async () => { if ($('liveCard').open) loadLive(); });
   async function loadLive() {
     const l = (await api('/api/live')).json;
-    $('kfSet').textContent = l.football ? '· set' : ''; $('kcSet').textContent = l.cricket ? '· set' : '';
+    $('kfSet').textContent = l.football ? '· set' : ''; $('kcSet').textContent = l.cricket ? '· set' : ''; $('kgSet').textContent = l.gemini ? '· set' : '';
+    $('kgForget').hidden = !l.gemini;
     $('liveSum').textContent = (l.football || l.cricket ? 'Live scores on' : 'No keys yet') + (l.fetched ? ' · updated ' + new Date(l.fetched).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '');
     say($('liveMsg'), l.errors ? 'Last fetch: ' + l.errors.replace(/\n/g, '; ') : '', !!l.errors);
     const mc = $('momentChips'); mc.innerHTML = '';
@@ -796,9 +904,13 @@
   }
   $('saveKeys').addEventListener('click', async () => {
     const body = {}; if ($('kFootball').value.trim()) body.football = $('kFootball').value.trim(); if ($('kCricket').value.trim()) body.cricket = $('kCricket').value.trim();
+    if ($('kGemini').value.trim()) body.gemini = $('kGemini').value.trim();
     if (!Object.keys(body).length) { say($('liveMsg'), 'Paste a key first.', true); return; }
-    await api('/api/live', body); $('kFootball').value = ''; $('kCricket').value = ''; say($('liveMsg'), 'Saved. Fetching…'); setTimeout(loadLive, 4000);
+    const r = await api('/api/live', body); $('kFootball').value = ''; $('kCricket').value = ''; $('kGemini').value = '';
+    if (r.json.ok === false) { say($('liveMsg'), r.json.error || 'Couldn\'t save.', true); return; }
+    say($('liveMsg'), 'Saved. Fetching…'); setTimeout(loadLive, 4000);
   });
+  $('kgForget').addEventListener('click', async (ev) => { ev.preventDefault(); await api('/api/live', { gemini: '' }); say($('liveMsg'), 'Gemini key removed from the TV.'); loadLive(); });
   $('liveRefresh').addEventListener('click', async () => { await api('/api/live', { refresh: true }); say($('liveMsg'), 'Fetching…'); setTimeout(loadLive, 4000); });
   $('qCap').addEventListener('input', () => { $('qCapV').textContent = $('qCap').value; });
   $('saveQuiet').addEventListener('click', async () => { const r = await api('/api/timers', { quiet: { on: $('quietOn').checked, from: $('qFrom').value, to: $('qTo').value, cap: +$('qCap').value } }); say($('quietMsg'), r.json.ok ? 'Saved.' : 'Couldn\'t save.', !r.json.ok); loadTv(); });

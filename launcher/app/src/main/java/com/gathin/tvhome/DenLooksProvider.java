@@ -14,7 +14,7 @@ import java.util.List;
  * the one on Home marked; update current with look = an id or "rotate": puts it on, as the Looks screen does.
  */
 public final class DenLooksProvider extends ContentProvider {
-    static final String[] COLUMNS = {"id", "name", "category", "on"};
+    static final String[] COLUMNS = {"id", "name", "category", "on", "changed"};
 
     @Override public boolean onCreate() { return true; }
 
@@ -33,8 +33,8 @@ public final class DenLooksProvider extends ContentProvider {
         List<DenLooks.Look> looks = DenLooks.load(getContext());
         DenLooks.Look on = DenLooks.current(getContext(), looks);
         MatrixCursor c = new MatrixCursor(COLUMNS);
-        c.addRow(new Object[]{DenLooks.ROTATE, "Rotate every look", "", on == null ? 1 : 0});
-        for (DenLooks.Look l : looks) c.addRow(new Object[]{l.id, l.name, l.category, l == on ? 1 : 0});
+        c.addRow(new Object[]{DenLooks.ROTATE, "Rotate every look", "", on == null ? 1 : 0, 0});
+        for (DenLooks.Look l : looks) c.addRow(new Object[]{l.id, l.name, l.category, l == on ? 1 : 0, DenLooks.changed(getContext(), l.id) ? 1 : 0});
         return c;
     }
 
@@ -238,6 +238,13 @@ public final class DenLooksProvider extends ContentProvider {
 
     /** part and value for the look on Home ("" puts the look's own back); reset=1 drops all of its changes. */
     private int saveOverride(ContentValues v) {
+        // Restore to default look: any look by its id (the phone's Looks list), or the one on Home.
+        String resetId = v.getAsString("id");
+        if ("1".equals(v.getAsString("reset")) && resetId != null && resetId.matches("[a-z0-9-]{1,40}")) {
+            DenSettings.prefs(getContext()).edit().remove(DenLooks.OVERRIDE + resetId).apply();
+            bump();
+            return 1;
+        }
         DenLooks.Look look = DenLooks.current(getContext(), DenLooks.load(getContext()));
         if (look == null) return 0;
         String key = DenLooks.OVERRIDE + look.id;

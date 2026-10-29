@@ -4,7 +4,7 @@ The den-tv home screen for Android TV and Google TV: the [cleanyourtv](https://g
 launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top. It installs as
 `tv.den.launcher`, so it sits beside the cleanyourtv launcher or replaces it.
 
-## What it does (v0.8)
+## What it does (v0.9)
 
 - **Looks tile.** A Looks tile in the dock opens every look with its wallpaper. OK puts a look on Home and
   Back keeps what is on. The first tile, "Rotate every look", goes back to a new wallpaper every 5 minutes.
@@ -82,6 +82,18 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   On (or from Bugjaeger: `settings put secure enabled_accessibility_services tv.den.fanhub/tv.den.fanhub.Helper`
   then `settings put secure accessibility_enabled 1`; that replaces any other accessibility service that is on).
   The arrow keys inside other apps and waking the TV aren't possible for an app; the Google TV app does those.
+- **Your changes to a look, kept or undone.** Changes made in Tweak → This look are saved with that look; it shows
+  "Changed" on the phone and on the TV's Looks screen, and **Restore to default look** (in Tweak, or Restore default
+  on the look in the list) puts its own parts back. **Save as my own look** keeps the changed version in My looks
+  and restores the original.
+- **Photo looks.** Looks → Save a photo as a look: one of your photos as the wallpaper with any look's parts, in My
+  photos. It stays on the TV, never joins the rotation, isn't shown to a guest, and private photos can't be used.
+- **Describe a look.** Looks → Describe a look: a sentence becomes a look of your own. With a Gemini API key
+  (TV → Live data; it stays on the TV and the phone can't read it back) Gemini picks the wallpaper and parts from
+  den-tv's own; without one, the words are matched to the looks' names. The description is sent to Google.
+- **Now playing.** The Remote tab shows the app on the TV, for how long, who's watching and the volume, with Mute.
+- **Form and standings.** The Fan Hub shows your team's last five results under the next match (TheSportsDB), and,
+  with a football-data.org key, its place in the league table with the teams either side (every 6 hours).
 - **Screensaver.** The look on Home drifting slowly behind its own clock style, the date, what's next from the Fan
   Hub (a countdown, or LIVE) and a "Did you know?" fact; the clock moves every minute so nothing burns in. Home's
   idle clock (Tweak → Idle clock on the phone, 10 minutes in den-mix) shows it while Home is open. To use it as the

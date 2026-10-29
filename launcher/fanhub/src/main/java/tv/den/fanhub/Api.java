@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -89,6 +89,8 @@ final class Api {
             case "/api/moment": return testMoment(in.optString("type"));
             case "/api/mine": return in.length() == 0 ? mine() : mineAction(in);
             case "/api/order": return order(in);
+            case "/api/nowplaying": return nowPlaying();
+            case "/api/describe": return describe(in.optString("text"));
             default: return new JSONObject().put("error", "not found");
         }
     }
@@ -98,6 +100,25 @@ final class Api {
     private static JSONObject fail(String why) throws JSONException { return new JSONObject().put("ok", false).put("error", why); }
 
     // ---- remote --------------------------------------------------------------------------------------------------
+
+    /**
+     * What the TV is doing, for the Remote tab's readout: the app in front and for how long (from the helper), the
+     * person watching, and the volume. Home counts as Home, not as an app.
+     */
+    private JSONObject nowPlaying() throws JSONException {
+        AudioManager am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
+        String pkg = Helper.front();
+        boolean home = pkg.isEmpty() || pkg.equals("tv.den.launcher") || pkg.equals(ctx.getPackageName());
+        String label = "";
+        if (!pkg.isEmpty()) {
+            try { label = String.valueOf(ctx.getPackageManager().getApplicationLabel(ctx.getPackageManager().getApplicationInfo(pkg, 0))); }
+            catch (PackageManager.NameNotFoundException e) { label = pkg; }
+        }
+        return new JSONObject().put("helper", Helper.on()).put("pkg", pkg).put("label", label).put("home", home)
+                .put("since", Helper.since()).put("now", System.currentTimeMillis()).put("who", Timers.who(ctx))
+                .put("volume", am.getStreamVolume(AudioManager.STREAM_MUSIC)).put("max", am.getStreamMaxVolume(AudioManager.STREAM_MUSIC))
+                .put("muted", am.isStreamMute(AudioManager.STREAM_MUSIC));
+    }
 
     private JSONObject remote(String action, String text) throws JSONException {
         AudioManager am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
@@ -258,7 +279,7 @@ final class Api {
 
     private JSONObject setOverride(JSONObject in) throws JSONException {
         ContentValues v = new ContentValues();
-        if (in.optBoolean("reset")) v.put("reset", "1");
+        if (in.optBoolean("reset")) { v.put("reset", "1"); if (in.has("id")) v.put("id", in.optString("id")); }
         else { v.put("part", in.optString("part")); v.put("value", in.optString("value")); }
         try { return ok(ctx.getContentResolver().update(OVERRIDE, v, null, null) > 0); }
         catch (RuntimeException e) { return fail("The launcher didn't accept it. Update den-tv."); }
@@ -604,6 +625,37 @@ final class Api {
             return new JSONObject().put("mine", list).put("error", "Update the den-tv launcher to make looks.");
         }
         return new JSONObject().put("mine", list).put("parts", parts);
+    }
+
+    private static final Uri LOOKS = Uri.parse(L + "looks");
+
+    /**
+     * "Describe a look": Gemini (with a key) or word matching picks a base look and parts for a sentence. Nothing is
+     * saved here: the phone shows it, and Save sends it to /api/mine like any look of your own.
+     */
+    private JSONObject describe(String text) throws JSONException {
+        text = text == null ? "" : text.trim();
+        if (text.isEmpty() || text.length() > 300) return fail("Describe the look in a sentence (300 letters at most).");
+        JSONArray looks = new JSONArray();
+        try (Cursor c = ctx.getContentResolver().query(LOOKS, null, null, null, null)) {
+            while (c != null && c.moveToNext()) {
+                String id = c.getString(0);
+                if (id.equals("rotate") || id.startsWith("mine-")) continue;
+                looks.put(new JSONObject().put("id", id).put("name", c.getString(1)).put("category", c.getString(2)));
+            }
+        } catch (RuntimeException e) {
+            return fail("Update the den-tv launcher to make looks.");
+        }
+        JSONObject parts = mine().optJSONObject("parts");
+        if (parts == null) parts = new JSONObject();
+        String key = Store.geminiKey(ctx), note = "";
+        if (!key.isEmpty()) {
+            try { return ok(true).put("look", Gemini.ask(key, Store.geminiModel(ctx), text, looks, parts)).put("by", "gemini"); }
+            catch (java.io.IOException e) { note = e.getMessage() + ". "; }
+        }
+        JSONObject w = Gemini.words(text, looks);
+        if (w == null) return fail(note + (key.isEmpty() ? "No look matched those words. Add a Gemini key (TV → Live data) to describe looks freely." : "No look matched those words."));
+        return ok(true).put("look", w).put("by", "words").put("note", note);
     }
 
     private JSONObject mineAction(JSONObject in) throws JSONException {

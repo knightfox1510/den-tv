@@ -91,6 +91,7 @@ public final class FanHubActivity extends Activity {
         d.errors = Store.errors(this);
         d.place = cfg.hike == null ? "" : cfg.hike.name;
         d.weekend = FanHub.weekend(Store.forecast(this), System.currentTimeMillis());
+        d.extras = Store.extras(this);
         d.h24 = DateFormat.is24HourFormat(this);
         d.running = server.running();
         d.address = PhoneServer.address(this);

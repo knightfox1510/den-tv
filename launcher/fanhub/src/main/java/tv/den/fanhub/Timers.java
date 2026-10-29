@@ -89,6 +89,9 @@ final class Timers {
         return who;
     }
 
+    /** Whoever is watching, by name ("" with one person, or no launcher). */
+    static String who(Context ctx) { return person(ctx); }
+
     /** Minutes per person today, as {name: milliseconds}. */
     static synchronized JSONObject byPerson(Context ctx) {
         account(ctx, System.currentTimeMillis());

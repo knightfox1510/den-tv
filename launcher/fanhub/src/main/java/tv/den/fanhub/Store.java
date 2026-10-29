@@ -54,6 +54,59 @@ final class Store {
         return FanHub.flatten(bySource(ctx), System.currentTimeMillis());
     }
 
+    private static final long EXTRAS_EVERY = 6 * 60 * 60_000L;
+
+    /**
+     * Each team's recent form (TheSportsDB, free) and, for football with a football-data.org key, its place in the
+     * league table, every 6 hours: {"FC Barcelona": {"form": "WWDLW", "code": "PD", "table": {...}}}. A league is
+     * remembered once seen, so a cup tie as the next match doesn't lose the table. One call per team, one per league.
+     */
+    private static void extras(Context app, Map<String, List<FanHub.Turn>> by, long now) {
+        SharedPreferences p = prefs(app);
+        if (now - p.getLong("extras_at", 0) < EXTRAS_EVERY) return;
+        FanHub.Config cfg = config(app);
+        JSONObject old = extras(app), out = new JSONObject();
+        Map<String, JSONObject> tables = new HashMap<>();
+        for (FanHub.Team t : cfg.teams) {
+            try {
+                JSONObject e = new JSONObject(), prev = old.optJSONObject(t.name);
+                try {
+                    JSONObject last = FanHub.get("https://www.thesportsdb.com/api/v1/json/" + java.net.URLEncoder.encode(cfg.sportsdbKey, "UTF-8")
+                            + "/eventslast.php?id=" + java.net.URLEncoder.encode(t.sportsdb, "UTF-8"));
+                    e.put("form", FanHub.form(t.name, t.sport, last));
+                } catch (java.io.IOException | JSONException x) { if (prev != null) e.put("form", prev.optString("form")); }
+                if ("football".equals(t.sport) && !cfg.footballKey.isEmpty()) {
+                    String code = "";
+                    for (FanHub.Turn turn : by.getOrDefault("team:" + t.sportsdb, java.util.Collections.emptyList())) {
+                        String[] dot = turn.topLine.split(" \u00B7 ");
+                        if (dot.length > 1) code = FanHub.competition(dot[dot.length - 1]);
+                    }
+                    if (code.isEmpty() || code.equals("CL")) code = prev == null ? "" : prev.optString("code");
+                    if (!code.isEmpty()) {
+                        e.put("code", code);
+                        try {
+                            JSONObject st = tables.get(code);
+                            if (st == null) { st = FanHub.request("https://api.football-data.org/v4/competitions/" + code + "/standings", null, "X-Auth-Token", cfg.footballKey); tables.put(code, st); }
+                            JSONObject table = FanHub.table(t.name, st);
+                            if (table != null) e.put("table", table);
+                        } catch (java.io.IOException | JSONException x) { if (prev != null && prev.has("table")) e.put("table", prev.get("table")); }
+                    }
+                }
+                out.put(t.name, e);
+            } catch (JSONException ignored) { }
+        }
+        p.edit().putString("extras", out.toString()).putLong("extras_at", now).apply();
+    }
+
+    /** What extras() last found, by team name; {} before the first time. */
+    static JSONObject extras(Context ctx) {
+        try { return new JSONObject(prefs(ctx).getString("extras", "{}")); } catch (JSONException e) { return new JSONObject(); }
+    }
+
+    static String geminiKey(Context ctx) { return prefs(ctx).getString("key_gemini", ""); }
+
+    static String geminiModel(Context ctx) { return prefs(ctx).getString("gemini_model", Gemini.DEFAULT_MODEL); }
+
     /** The last weekend forecast for the hike place, or null (the forecast is off, or not fetched yet). */
     static JSONObject forecast(Context ctx) {
         if (config(ctx).hike == null) return null;
@@ -108,6 +161,7 @@ final class Store {
                 JSONObject fc = FanHub.lastForecast;
                 if (fc != null) ed.putString("forecast", fc.toString());
                 ed.apply();
+                extras(app, by, now);
                 app.getContentResolver().notifyChange(TURNS, null);
                 // While a match is live or about to start, keep fetching even if Home does not ask.
                 long again = FanHub.refreshAfter(all, now);
@@ -134,6 +188,7 @@ final class Store {
     static org.json.JSONObject live(Context ctx) throws JSONException {
         SharedPreferences p = prefs(ctx);
         return new org.json.JSONObject().put("football", !p.getString("key_football", "").isEmpty()).put("cricket", !p.getString("key_cricket", "").isEmpty())
+                .put("gemini", !p.getString("key_gemini", "").isEmpty()).put("geminiModel", p.getString("gemini_model", Gemini.DEFAULT_MODEL))
                 .put("fetched", fetchedAt(ctx)).put("errors", errors(ctx));
     }
 
@@ -145,6 +200,17 @@ final class Store {
             String v = in.optString(k).trim();
             if (v.isEmpty()) e.remove("key_" + k); else if (v.matches("[A-Za-z0-9-]{8,80}")) e.putString("key_" + k, v);
         }
+        if (in.has("gemini")) {
+            // The Gemini key never comes back to a phone: live() says only whether there is one.
+            String v = in.optString("gemini").trim();
+            if (v.isEmpty()) e.remove("key_gemini"); else if (v.matches("[A-Za-z0-9_-]{20,80}")) e.putString("key_gemini", v);
+            else return live(ctx).put("ok", false).put("error", "That doesn't look like a Gemini API key.");
+        }
+        if (in.has("geminiModel")) {
+            String m = in.optString("geminiModel").trim();
+            if (m.isEmpty()) e.remove("gemini_model"); else if (m.matches("[a-z0-9.-]{3,60}")) e.putString("gemini_model", m);
+        }
+        e.remove("extras_at");   // a new key: fetch the tables now, not in 6 hours
         e.apply();
         refresh(ctx, true);
         return live(ctx).put("ok", true);

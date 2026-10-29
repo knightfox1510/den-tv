@@ -44,6 +44,8 @@ final class DenLooks {
         boolean hud;
         /** Place in the gallery: category blocks of 100 (looks/README.md). */
         int order = 9000;
+        /** A photo look's photo (photos/photo-….jpg); "" for every other look. Its wallpaper is then PHOTO_FILE. */
+        String photo = "";
 
         boolean hasEyes() { return EYES.contains(watcher); }
     }
@@ -95,12 +97,18 @@ final class DenLooks {
                 JSONObject j = mine.getJSONObject(i);
                 Look base = byId(looks, j.optString("base"));
                 if (base == null) continue;
-                JSONObject recipe = new JSONObject().put("id", j.optString("id")).put("name", j.optString("name", "My look")).put("category", "My looks")
+                // A photo look: one of your photos as the wallpaper, with the base look's parts. Gone with its photo.
+                String photo = j.optString("photo", "");
+                File photos = DenPhotos.dir(ctx);
+                if (!photo.isEmpty() && (!photo.matches(DenPhotos.NAME) || photo.endsWith("-p.jpg") || photos == null || !new File(photos, photo).isFile())) continue;
+                JSONObject recipe = new JSONObject().put("id", j.optString("id")).put("name", j.optString("name", "My look")).put("category", photo.isEmpty() ? "My looks" : "My photos")
                         .put("for", "owner").put("scene", base.scene).put("hero", base.hero);
                 for (String k : new String[]{"watcher", "clock", "icons", "icon_layout", "focus", "wake", "extras", "accent", "moment"}) {
                     if (j.has(k)) recipe.put(k, j.optString(k));
                 }
-                looks.add(look(recipe, base.wallpaper));
+                Look own = look(recipe, photo.isEmpty() ? base.wallpaper : DenSettings.PHOTO_FILE);
+                own.photo = photo;
+                looks.add(own);
             }
         } catch (JSONException ignored) { }
         return looks;
@@ -121,6 +129,12 @@ final class DenLooks {
             if (out.length() >= 20) return null;
             JSONObject j = new JSONObject().put("id", id).put("name", in.optString("name", "My look").trim().isEmpty() ? "My look" : in.optString("name").trim())
                     .put("base", in.optString("base"));
+            String photo = in.optString("photo", "");
+            if (!photo.isEmpty()) {
+                // Only your everyday photos: a private one (-p) never becomes a look anyone can pick.
+                if (!photo.matches(DenPhotos.NAME) || photo.endsWith("-p.jpg")) return null;
+                j.put("photo", photo);
+            }
             for (String k : new String[]{"watcher", "clock", "icons", "icon_layout", "focus", "wake", "extras", "accent"}) {
                 String v = in.optString(k, "").trim();
                 if (!v.isEmpty() && (k.equals("accent") ? v.matches("#[0-9a-fA-F]{6}") : v.matches("[a-z0-9]{1,20}"))) j.put(k, v);
@@ -194,6 +208,12 @@ final class DenLooks {
     /** Changes made from the phone to a look's watcher, clock, icons or colour, as {"watcher": ...} per look. */
     static final String OVERRIDE = "over:";
 
+    /** Whether the phone has changed this look's parts (Restore to default look takes them off again). */
+    static boolean changed(Context ctx, String id) {
+        String raw = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(OVERRIDE + id, null);
+        try { return raw != null && new JSONObject(raw).length() > 0; } catch (JSONException e) { return false; }
+    }
+
     /** The look with the phone's changes to it; the look itself when there are none. */
     static Look tweaked(Context ctx, Look look) {
         if (look == null) return null;
@@ -214,6 +234,8 @@ final class DenLooks {
             t.figure = look.figure;
             t.hud = look.hud;
             t.focus = o.optString("focus", look.focus);
+            t.order = look.order;
+            t.photo = look.photo;
             return t;
         } catch (JSONException e) {
             return look;
@@ -240,6 +262,12 @@ final class DenLooks {
     static void apply(Context ctx, Look look) {
         SharedPreferences choices = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
         DenPhotos.clear(ctx);   // a look or the rotation replaces a photo on Home
+        if (look != null && !look.photo.isEmpty()) {
+            // A photo look: its photo goes on Home as the photo does (never into the rotation), with the look's parts.
+            try { if (DenPhotos.use(ctx, look.photo)) { ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY_LOOK, look.id).apply(); DenPeople.remember(ctx, look.id); return; } }
+            catch (IOException ignored) { }
+            look = null;   // its photo is gone: back to rotating
+        }
         SharedPreferences.Editor e = choices.edit();
         if (look == null) e.remove(Config.WALLPAPER_CHOICE_KEY); else e.putString(Config.WALLPAPER_CHOICE_KEY, look.wallpaper);
         e.putLong(Config.SETTINGS_REVISION_KEY, choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();

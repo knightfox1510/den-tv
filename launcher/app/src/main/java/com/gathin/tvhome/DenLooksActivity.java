@@ -239,7 +239,8 @@ public final class DenLooksActivity extends Activity {
             DenLooks.Look look = item == ROTATE ? null : (DenLooks.Look) item;
             boolean on = look == current;
             h.name.setText(look == null ? "Rotate every look" : look.name);
-            h.meta.setText((look == null ? "A new look every 5 minutes" : look.category) + (on ? " · On now" : ""));
+            h.meta.setText((look == null ? "A new look every 5 minutes" : look.category)
+                    + (look != null && DenLooks.changed(DenLooksActivity.this, look.id) ? " · Changed" : "") + (on ? " · On now" : ""));
             h.frame.setStroke(on ? px(3) : 0, accent(look));
             h.itemView.setOnClickListener(v -> choose(look));
             h.picture.setImageBitmap(null);
@@ -250,16 +251,22 @@ public final class DenLooksActivity extends Activity {
                 return;
             }
             h.picture.setBackgroundColor(0xff000000);
-            h.want = look.wallpaper;
-            Bitmap cached = thumbs.get(look.wallpaper);
+            // A photo look shows its photo; every other look its wallpaper.
+            File photos = DenPhotos.dir(DenLooksActivity.this);
+            File src = look.photo.isEmpty() ? (walls == null ? null : new File(walls, look.wallpaper)) : photos == null ? null : new File(photos, look.photo);
+            if (src == null) return;
+            String file = src.getPath();
+            h.want = file;
+            Bitmap cached = thumbs.get(file);
             if (cached != null) { h.picture.setImageBitmap(cached); return; }
-            if (walls == null) return;
-            String file = look.wallpaper;
             io.execute(() -> {
                 BitmapFactory.Options o = new BitmapFactory.Options();
-                o.inSampleSize = 8;   // 1920x1080 -> 240x135
+                o.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(file, o);
+                o.inJustDecodeBounds = false;
+                o.inSampleSize = Math.max(1, o.outWidth / 240);   // a 1920x1080 wallpaper -> 240x135; phone photos are bigger
                 o.inPreferredConfig = Bitmap.Config.RGB_565;
-                Bitmap b = BitmapFactory.decodeFile(new File(walls, file).getPath(), o);
+                Bitmap b = BitmapFactory.decodeFile(file, o);
                 if (b == null) return;
                 main.post(() -> {
                     thumbs.put(file, b);

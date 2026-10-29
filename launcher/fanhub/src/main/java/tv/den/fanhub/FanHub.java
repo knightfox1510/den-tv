@@ -357,7 +357,7 @@ final class FanHub {
         return request(url, body, null, null);
     }
 
-    private static JSONObject request(String url, String body, String header, String value) throws IOException, JSONException {
+    static JSONObject request(String url, String body, String header, String value) throws IOException, JSONException {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         if (header != null) c.setRequestProperty(header, value);
         c.setConnectTimeout(TIMEOUT_MS);
@@ -443,6 +443,85 @@ final class FanHub {
             }
         }
         return flatten(out, now);
+    }
+
+    // ---- recent form and the league table ------------------------------------------------------------------------
+
+    /**
+     * A team's last results as W, D and L, oldest first (up to five), from TheSportsDB's eventslast.php. Football
+     * compares the goals; cricket reads who won from the result line. "" when there is nothing to read.
+     */
+    static String form(String team, String sport, JSONObject last) {
+        JSONArray r = last == null ? null : last.optJSONArray("results");
+        if (r == null) return "";
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < r.length() && out.length() < 5; i++) {
+            JSONObject e = r.optJSONObject(i);
+            if (e == null) continue;
+            String home = e.optString("strHomeTeam"), away = e.optString("strAwayTeam");
+            boolean mineHome = same(team, home), mineAway = same(team, away);
+            if (!mineHome && !mineAway) continue;
+            char c = 0;
+            if ("football".equals(sport) && has(e, "intHomeScore") && has(e, "intAwayScore")) {
+                try {
+                    int h = Integer.parseInt(e.optString("intHomeScore").trim()), a = Integer.parseInt(e.optString("intAwayScore").trim());
+                    int us = mineHome ? h : a, them = mineHome ? a : h;
+                    c = us > them ? 'W' : us == them ? 'D' : 'L';
+                } catch (NumberFormatException ignored) { }
+            } else {
+                String res = e.optString("strResult", "") + " " + e.optString("strDescriptionEN", "");
+                java.util.regex.Matcher m = Pattern.compile("(?i)([A-Za-z .'-]+?) won\\b").matcher(res);
+                if (m.find()) c = same(team, m.group(1).trim()) || res.toLowerCase(Locale.ROOT).contains(norm(team) + " won") ? 'W' : 'L';
+                else if (res.toLowerCase(Locale.ROOT).matches(".*\\b(tied|drawn|draw|no result)\\b.*")) c = 'D';
+            }
+            if (c != 0) out.append(c);
+        }
+        return out.reverse().toString();
+    }
+
+    /** football-data.org's code for a league line ("LA LIGA" -> "PD"); "" for a cup or a league it doesn't cover. */
+    static String competition(String league) {
+        String l = clean(league).toLowerCase(Locale.ROOT);
+        if (l.contains("champions league")) return "CL";
+        if (l.contains("la liga") || l.equals("primera division")) return "PD";
+        if (l.contains("premier league") && !l.contains("indian")) return "PL";
+        if (l.contains("serie a")) return "SA";
+        if (l.contains("bundesliga")) return "BL1";
+        if (l.contains("ligue 1")) return "FL1";
+        if (l.contains("eredivisie")) return "DED";
+        if (l.contains("primeira liga")) return "PPL";
+        return "";
+    }
+
+    /**
+     * Our team's place in a football-data.org standings answer, with the teams either side of it:
+     * {"league": "La Liga", "rows": [{"pos", "name", "played", "gd", "pts", "ours"}]}; null when we're not in it.
+     */
+    static JSONObject table(String team, JSONObject standings) throws JSONException {
+        JSONArray st = standings == null ? null : standings.optJSONArray("standings");
+        if (st == null) return null;
+        for (int k = 0; k < st.length(); k++) {
+            JSONObject group = st.optJSONObject(k);
+            if (group == null || !"TOTAL".equals(group.optString("type", "TOTAL"))) continue;
+            JSONArray t = group.optJSONArray("table");
+            if (t == null) continue;
+            int at = -1;
+            for (int i = 0; i < t.length(); i++) {
+                JSONObject tm = t.getJSONObject(i).optJSONObject("team");
+                if (tm != null && (same(team, tm.optString("name")) || same(team, tm.optString("shortName")))) { at = i; break; }
+            }
+            if (at < 0) continue;
+            int from = Math.max(0, Math.min(at - 1, t.length() - 3)), to = Math.min(t.length(), from + 3);
+            JSONArray rows = new JSONArray();
+            for (int i = from; i < to; i++) {
+                JSONObject r = t.getJSONObject(i), tm = r.optJSONObject("team");
+                rows.put(new JSONObject().put("pos", r.optInt("position", i + 1)).put("name", tm == null ? "" : tm.optString("shortName", tm.optString("name")))
+                        .put("played", r.optInt("playedGames")).put("gd", r.optInt("goalDifference")).put("pts", r.optInt("points")).put("ours", i == at));
+            }
+            JSONObject comp = standings.optJSONObject("competition");
+            return new JSONObject().put("league", comp == null ? "" : league(comp.optString("name"))).put("rows", rows);
+        }
+        return null;
     }
 
     /** The last weather answer, for the Fan Hub screen's Trails card (Store keeps it); null until one comes. */

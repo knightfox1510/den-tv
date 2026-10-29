@@ -200,4 +200,47 @@ public class FanHubTest {
         assertEquals("Showers", FanHub.sky(80));
         assertTrue(FanHub.weekend(null, now).isEmpty());
     }
+
+    @Test public void formReadsTheLastResults() throws Exception {
+        JSONObject last = new JSONObject("{\"results\":[{\"strHomeTeam\":\"Barcelona\",\"strAwayTeam\":\"Sevilla\",\"intHomeScore\":\"3\",\"intAwayScore\":\"1\"},"
+                + "{\"strHomeTeam\":\"Real Madrid\",\"strAwayTeam\":\"Barcelona\",\"intHomeScore\":\"2\",\"intAwayScore\":\"2\"},"
+                + "{\"strHomeTeam\":\"Girona\",\"strAwayTeam\":\"Barcelona\",\"intHomeScore\":\"1\",\"intAwayScore\":\"0\"}]}");
+        assertEquals("LDW", FanHub.form("FC Barcelona", "football", last));
+        JSONObject cricket = new JSONObject("{\"results\":[{\"strHomeTeam\":\"India\",\"strAwayTeam\":\"Australia\",\"strResult\":\"India won by 6 wickets\"},"
+                + "{\"strHomeTeam\":\"New Zealand\",\"strAwayTeam\":\"India\",\"strResult\":\"New Zealand won by 20 runs\"}]}");
+        assertEquals("LW", FanHub.form("India", "cricket", cricket));
+        assertEquals("", FanHub.form("India", "cricket", null));
+    }
+
+    @Test public void tableFindsOurTeamAndItsNeighbours() throws Exception {
+        StringBuilder t = new StringBuilder();
+        String[] names = {"Real Madrid", "FC Barcelona", "Atlético Madrid", "Villarreal CF"};
+        for (int i = 0; i < names.length; i++) t.append(i > 0 ? "," : "").append("{\"position\":").append(i + 1).append(",\"team\":{\"name\":\"").append(names[i])
+                .append("\",\"shortName\":\"").append(names[i].replace("FC ", "")).append("\"},\"playedGames\":10,\"goalDifference\":").append(12 - i * 3).append(",\"points\":").append(25 - i * 2).append("}");
+        JSONObject st = new JSONObject("{\"competition\":{\"name\":\"Primera Division\"},\"standings\":[{\"type\":\"TOTAL\",\"table\":[" + t + "]}]}");
+        JSONObject table = FanHub.table("FC Barcelona", st);
+        assertNotNull(table);
+        assertEquals(3, table.getJSONArray("rows").length());
+        assertEquals(1, table.getJSONArray("rows").getJSONObject(0).getInt("pos"));
+        assertTrue(table.getJSONArray("rows").getJSONObject(1).getBoolean("ours"));
+        assertNull(FanHub.table("Arsenal", st));
+        assertEquals("PD", FanHub.competition("LA LIGA"));
+        assertEquals("PL", FanHub.competition("Premier League"));
+        assertEquals("", FanHub.competition("Indian Premier League"));
+        assertEquals("", FanHub.competition("Copa del Rey"));
+    }
+
+    @Test public void geminiAnswersAreCheckedAgainstTheLooks() throws Exception {
+        org.json.JSONArray looks = new org.json.JSONArray("[{\"id\":\"neon\",\"name\":\"Neon Tokyo\",\"category\":\"After dark\"},{\"id\":\"crimson-moon\",\"name\":\"Crimson Moon\",\"category\":\"Naruto\"}]");
+        JSONObject parts = new JSONObject("{\"watcher\":[\"none\",\"crows\"],\"clock\":[\"thin\",\"neon\"]}");
+        JSONObject ok = Gemini.check(new JSONObject("{\"name\":\"Rainy Crows\",\"base\":\"neon\",\"watcher\":\"crows\",\"clock\":\"laser\",\"accent\":\"#FF3DF2\",\"why\":\"Neon rain and Itachi's crows.\"}"), looks, parts);
+        assertEquals("neon", ok.getString("base"));
+        assertEquals("crows", ok.getString("watcher"));
+        assertFalse(ok.has("clock"));                      // not a clock den-tv has
+        assertEquals("#ff3df2", ok.getString("accent"));
+        assertNull(Gemini.check(new JSONObject("{\"base\":\"tokyo\"}"), looks, parts));
+        assertEquals("crimson-moon", Gemini.words("a crimson moon please", looks).getString("base"));
+        assertNull(Gemini.words("zzz", looks));
+        assertTrue(Gemini.prompt("rainy night", looks, parts).contains("crimson-moon: Crimson Moon"));
+    }
 }
