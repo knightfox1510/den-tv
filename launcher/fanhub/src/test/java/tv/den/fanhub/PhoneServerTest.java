@@ -29,6 +29,7 @@ public class PhoneServerTest {
     @Before public void start() {
         server = new PhoneServer(RuntimeEnvironment.getApplication(), () -> { });
         server.start();
+        server.openPairing(() -> { });
         assertTrue(server.running());
     }
 
@@ -70,7 +71,7 @@ public class PhoneServerTest {
         idle = new Socket("127.0.0.1", PhoneServer.PORT);
         Reply r = call("GET", "/", null, null);
         assertEquals(200, r.status);
-        assertTrue(r.body.contains("Settings for the TV"));
+        assertTrue(r.body.contains("Your TV, from your phone"));
     }
 
     @Test public void pairingGuardsTheSettings() throws IOException {
@@ -85,6 +86,23 @@ public class PhoneServerTest {
         assertEquals(200, state.status);
         assertTrue(state.body.contains("\"teams\""));
         assertEquals(1, server.pairedPhones());
+    }
+
+    @Test public void pairingOnlyWhileTheTvShowsTheCode() throws IOException {
+        server.closePairing();
+        assertEquals(403, call("POST", "/api/pair", "{\"code\":\"" + server.code() + "\"}", null).status);
+        server.openPairing(() -> { });
+        assertEquals(200, call("POST", "/api/pair", "{\"code\":\"" + server.code() + "\",\"name\":\"Pixel\"}", null).status);
+    }
+
+    @Test public void phonesAreListedAndForgotten() throws IOException {
+        Reply a = call("POST", "/api/pair", "{\"code\":\"" + server.code() + "\",\"name\":\"Pixel\"}", null);
+        String cookie = a.cookie.split(";")[0];
+        Reply list = call("POST", "/api/phones", "{}", cookie);
+        assertTrue(list.body.contains("\"name\":\"Pixel\"") && list.body.contains("\"me\":true"));
+        String id = list.body.replaceAll("(?s).*\"id\":\"([0-9a-f]+)\".*", "$1");
+        call("POST", "/api/phones", "{\"forget\":\"" + id + "\"}", cookie);
+        assertEquals(401, call("POST", "/api/phones", "{}", cookie).status);
     }
 
     @Test public void tooManyWrongCodesMakeANewOne() throws IOException {

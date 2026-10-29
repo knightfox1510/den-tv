@@ -14,7 +14,10 @@ import android.content.SharedPreferences;
  */
 final class DenSettings {
     static final String NAME = "greeting_name", GREETING = "show_greeting", PANEL = "fan_panel", WATCHER = "watcher",
-            SETUP_DONE = "setup_done";
+            SETUP_DONE = "setup_done", WAKE = "wake", REDUCED_MOTION = "reduced_motion", IDLE_CLOCK = "idle_clock",
+            LABELS = "labels", PHOTO = "photo";
+    /** The photo on Home, copied here from photos/ while it is the wallpaper (WallpaperRotation reads wallpapers/). */
+    static final String PHOTO_FILE = "zz-den-photo.jpg";
     private static final String SETUP_OFFERED = "setup_offered";
     static final ComponentName SETUP = new ComponentName("tv.den.fanhub", "tv.den.fanhub.SetupActivity");
 
@@ -26,6 +29,23 @@ final class DenSettings {
     static boolean greeting(Context ctx, boolean fallback) { return prefs(ctx).getBoolean(GREETING, fallback); }
     static boolean panel(Context ctx) { return prefs(ctx).getBoolean(PANEL, true); }
     static boolean watcher(Context ctx) { return prefs(ctx).getBoolean(WATCHER, true); }
+    static boolean wake(Context ctx) { return prefs(ctx).getBoolean(WAKE, true); }
+    static boolean reducedMotion(Context ctx, boolean fallback) { return prefs(ctx).getBoolean(REDUCED_MOTION, fallback); }
+    /** Minutes on Home before the idle clock; the theme's when not set here. */
+    static int idleClock(Context ctx, int fallback) { return prefs(ctx).getInt(IDLE_CLOCK, fallback); }
+
+    /** Names given to apps from the phone, as "package=Name" entries in the launcher's app_labels format. */
+    static java.util.List<String> labels(Context ctx) {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        try {
+            org.json.JSONObject j = new org.json.JSONObject(prefs(ctx).getString(LABELS, "{}"));
+            for (java.util.Iterator<String> it = j.keys(); it.hasNext(); ) {
+                String pkg = it.next(), name = j.optString(pkg).trim();
+                if (!name.isEmpty()) out.add(pkg + "=" + name);
+            }
+        } catch (org.json.JSONException ignored) { }
+        return out;
+    }
 
     /** Opens the setup on the TV; false when the Fan Hub, which runs it, isn't installed. */
     static boolean openSetup(Activity activity) {

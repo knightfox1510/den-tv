@@ -33,10 +33,9 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * The phone settings page: a small web server on the home Wi-Fi that runs only while the Fan Hub screen is open
- * on the TV. A phone pairs once with the 4-digit code shown on the TV and keeps a token (a cookie); without one it
- * can only load the page. It changes the look (through the launcher's DenLooksProvider) and the Fan Hub's teams
- * and shows (config.json).
+ * The phone app: a small web server on the home Wi-Fi, run by PhoneService. A phone pairs once with the 4-digit
+ * code shown on the TV, and only while the Fan Hub or setup screen is open (the pairing window); it then keeps its
+ * own token (a cookie). Without one a phone can only load the page. The API is in Api.
  */
 final class PhoneServer {
     private static final String TAG = "FanHubPhone";
@@ -57,7 +56,31 @@ final class PhoneServer {
 
     /** Puts the page in setup mode (a step-by-step wizard on the phone) while the TV's setup screen is open. */
     void setSetup(Setup s) { setup = s; }
-    private static final int MAX_BODY = 64 * 1024, MAX_TRIES = 5;
+    private static final int MAX_BODY = 64 * 1024, MAX_PHOTO = 15 * 1024 * 1024, MAX_TRIES = 5;
+
+    private static PhoneServer instance;
+
+    /** The one server, shared by the service and the screens. */
+    static synchronized PhoneServer get(Context ctx) {
+        if (instance == null) instance = new PhoneServer(ctx, () -> { });
+        return instance;
+    }
+
+    private volatile Runnable pairing;   // set while the Fan Hub or setup screen is open
+    private Api api;
+
+    /** Opens pairing while a screen shows the code; onChange runs when the code changes or a phone pairs. */
+    void openPairing(Runnable onChange) { pairing = onChange; }
+
+    void closePairing() { pairing = null; setup = null; }
+
+    boolean pairingOpen() { return pairing != null; }
+
+    private void changed() {
+        Runnable r = pairing;
+        if (r != null) r.run();
+        onChange.run();
+    }
 
     private final Context ctx;
     private final SecureRandom random = new SecureRandom();
@@ -74,6 +97,7 @@ final class PhoneServer {
         pool.allowCoreThreadTimeOut(true);
         this.ctx = ctx.getApplicationContext();
         this.onChange = onChange;
+        this.api = new Api(this.ctx, this);
         newCode();
     }
 
@@ -192,7 +216,7 @@ final class PhoneServer {
     // ---- HTTP ----------------------------------------------------------------------------------------------------
 
     private static final class Request {
-        String method = "", path = "", cookie = "";
+        String method = "", path = "", query = "", cookie = "";
         byte[] body = new byte[0];
     }
 
@@ -212,7 +236,9 @@ final class PhoneServer {
         String[] first = line(in).split(" ");
         if (first.length < 2) return;
         r.method = first[0];
-        r.path = first[1];
+        int q = first[1].indexOf('?');
+        r.path = q < 0 ? first[1] : first[1].substring(0, q);
+        r.query = q < 0 ? "" : first[1].substring(q + 1);
         int length = 0;
         for (String h; !(h = line(in)).isEmpty(); ) {
             int colon = h.indexOf(':');
@@ -221,7 +247,12 @@ final class PhoneServer {
             if (k.equals("content-length")) try { length = Integer.parseInt(v); } catch (NumberFormatException ignored) { }
             if (k.equals("cookie")) r.cookie = v;
         }
-        if (length < 0 || length > MAX_BODY) { send(c, 413, "text/plain", "Too large".getBytes(StandardCharsets.UTF_8), null); return; }
+        // Only a paired phone may send a photo; anyone else is turned away before 15 MB is read.
+        if (r.path.equals("/api/photo") && length > MAX_BODY && !paired(token(r.cookie))) {
+            send(c, 401, "application/json", "{\"error\":\"pair\"}".getBytes(StandardCharsets.UTF_8), null);
+            return;
+        }
+        if (length < 0 || length > (r.path.equals("/api/photo") ? MAX_PHOTO : MAX_BODY)) { send(c, 413, "text/plain", "Too large".getBytes(StandardCharsets.UTF_8), null); return; }
         r.body = new byte[length];
         int n = 0, got;
         while (n < length && (got = in.read(r.body, n, length - n)) > 0) n += got;
@@ -229,7 +260,7 @@ final class PhoneServer {
     }
 
     private void route(Socket c, Request r) throws IOException {
-        if (r.method.equals("GET") && (r.path.equals("/") || r.path.startsWith("/?"))) {
+        if (r.method.equals("GET") && r.path.equals("/")) {
             send(c, 200, "text/html; charset=utf-8", page(), null);
             return;
         }
@@ -238,11 +269,24 @@ final class PhoneServer {
                 pair(c, new JSONObject(new String(r.body, StandardCharsets.UTF_8)));
                 return;
             }
-            if (!paired(r.cookie)) { json(c, 401, new JSONObject().put("error", "pair")); return; }
+            String token = token(r.cookie);
+            if (!paired(token)) { json(c, 401, new JSONObject().put("error", "pair").put("open", pairingOpen())); return; }
             if (r.method.equals("GET") && r.path.equals("/api/state")) {
                 Setup su = setup;
                 if (su != null) su.step("phone");
                 json(c, 200, state());
+                return;
+            }
+            if (r.method.equals("GET") && (r.path.equals("/api/icon") || r.path.equals("/api/photo"))) {
+                byte[] png = r.path.equals("/api/icon") ? api.icon(param(r.query, "pkg")) : api.photoFile(param(r.query, "name"));
+                if (png == null) send(c, 404, "text/plain", "Not found".getBytes(StandardCharsets.UTF_8), null);
+                else send(c, 200, r.path.equals("/api/icon") ? "image/png" : "image/jpeg", png, null);
+                return;
+            }
+            if (r.method.equals("POST") && r.path.equals("/api/photo")) { json(c, 200, api.savePhoto(r.body)); return; }
+            if (r.path.startsWith("/api/") && api.handles(r.path)) {
+                JSONObject in = r.method.equals("POST") && r.body.length > 0 ? new JSONObject(new String(r.body, StandardCharsets.UTF_8)) : new JSONObject();
+                json(c, 200, api.call(r.path, in, token));
                 return;
             }
             JSONObject body = new JSONObject(new String(r.body, StandardCharsets.UTF_8));
@@ -284,19 +328,56 @@ final class PhoneServer {
 
     private SharedPreferences prefs() { return ctx.getSharedPreferences("phones", Context.MODE_PRIVATE); }
 
-    private boolean paired(String cookieHeader) {
+    private static String token(String cookieHeader) {
         String token = null;
         for (String part : cookieHeader.split(";")) {
             String p = part.trim();
             if (p.startsWith("den=")) token = p.substring(4);
         }
-        return token != null && token.length() == 32 && prefs().getStringSet("tokens", Collections.emptySet()).contains(token);
+        return token;
+    }
+
+    /** A query parameter, URL-decoded; "" when missing. */
+    static String param(String query, String key) {
+        for (String kv : query.split("&")) {
+            int eq = kv.indexOf('=');
+            if (eq > 0 && kv.substring(0, eq).equals(key)) {
+                try { return java.net.URLDecoder.decode(kv.substring(eq + 1), "UTF-8"); } catch (java.io.UnsupportedEncodingException | IllegalArgumentException e) { return ""; }
+            }
+        }
+        return "";
+    }
+
+    private boolean paired(String token) {
+        return token != null && token.length() == 32 && phones().has(token);
+    }
+
+    /** Paired phones: token -> {name, when}. Older versions kept a bare set of tokens; those become "A phone". */
+    synchronized JSONObject phones() {
+        JSONObject j;
+        try { j = new JSONObject(prefs().getString("phones", "{}")); } catch (JSONException e) { j = new JSONObject(); }
+        Set<String> old = prefs().getStringSet("tokens", null);
+        if (old != null) {
+            for (String t : old) try { if (!j.has(t)) j.put(t, new JSONObject().put("name", "A phone").put("when", 0)); } catch (JSONException ignored) { }
+            prefs().edit().putString("phones", j.toString()).remove("tokens").apply();
+        }
+        return j;
+    }
+
+    synchronized void forget(String token) {
+        JSONObject j = phones();
+        j.remove(token);
+        prefs().edit().putString("phones", j.toString()).apply();
     }
 
     private synchronized void pair(Socket c, JSONObject body) throws IOException, JSONException {
+        if (!pairingOpen()) {
+            json(c, 403, new JSONObject().put("error", "Open the Fan Hub on the TV to see a code, then try again."));
+            return;
+        }
         if (!code.equals(body.optString("code"))) {
             // A few tries per code; then the TV shows a new one, so guessing all 10,000 is not practical.
-            if (++wrong >= MAX_TRIES) { newCode(); onChange.run(); }
+            if (++wrong >= MAX_TRIES) { newCode(); changed(); }
             json(c, 403, new JSONObject().put("error", "That code doesn't match. Check the TV."));
             return;
         }
@@ -304,17 +385,19 @@ final class PhoneServer {
         random.nextBytes(b);
         StringBuilder token = new StringBuilder();
         for (byte x : b) token.append(String.format(Locale.ROOT, "%02x", x));
-        Set<String> tokens = new HashSet<>(prefs().getStringSet("tokens", Collections.emptySet()));
-        tokens.add(token.toString());
-        prefs().edit().putStringSet("tokens", tokens).apply();
+        JSONObject list = phones();
+        String name = body.optString("name", "").trim();
+        list.put(token.toString(), new JSONObject().put("name", name.isEmpty() ? "A phone" : name.length() > 30 ? name.substring(0, 30) : name)
+                .put("when", System.currentTimeMillis()));
+        prefs().edit().putString("phones", list.toString()).apply();
         newCode();
-        onChange.run();
+        changed();
         send(c, 200, "application/json", "{\"ok\":true}".getBytes(StandardCharsets.UTF_8), token.toString());
     }
 
-    int pairedPhones() { return prefs().getStringSet("tokens", Collections.emptySet()).size(); }
+    int pairedPhones() { return phones().length(); }
 
-    void forgetPhones() { prefs().edit().remove("tokens").apply(); }
+    void forgetPhones() { prefs().edit().remove("phones").remove("tokens").apply(); }
 
     // ---- what the page reads and changes -------------------------------------------------------------------------
 
@@ -349,7 +432,8 @@ final class PhoneServer {
     private JSONObject settings(JSONObject body) throws JSONException {
         ContentValues v = new ContentValues();
         if (body.has("greeting_name")) v.put("greeting_name", body.optString("greeting_name"));
-        for (String k : new String[]{"show_greeting", "fan_panel", "watcher"}) if (body.has(k)) v.put(k, body.optBoolean(k) ? "1" : "0");
+        for (String k : new String[]{"show_greeting", "fan_panel", "watcher", "wake", "reduced_motion", "animations"}) if (body.has(k)) v.put(k, body.optBoolean(k) ? "1" : "0");
+        if (body.has("idle_clock")) v.put("idle_clock", String.valueOf(body.optInt("idle_clock", -1)));
         try {
             ctx.getContentResolver().update(SETTINGS, v, null, null);
             return new JSONObject().put("ok", true);

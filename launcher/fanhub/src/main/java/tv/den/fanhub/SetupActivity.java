@@ -37,6 +37,7 @@ public final class SetupActivity extends Activity {
 
     private final Handler main = new Handler(Looper.getMainLooper());
     private PhoneServer server;
+    private PhoneServer.Setup setupListener;
     private FrameLayout root;
     private int step = WELCOME;
     private String phoneStep = "phone";
@@ -48,26 +49,29 @@ public final class SetupActivity extends Activity {
         root = new FrameLayout(this);
         root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xff120a1e, 0xff050507, 0xff0a1620}));
         setContentView(root);
-        server = new PhoneServer(this, () -> main.post(() -> { if (step == PAIR) show(); }));
-        server.setSetup(new PhoneServer.Setup() {
+        server = PhoneServer.get(this);
+        setupListener = new PhoneServer.Setup() {
             @Override public void step(String s) {
                 main.post(() -> {
                     if (step == PAIR || step == PHONE) { phoneStep = s; go(PHONE); }
                 });
             }
             @Override public void done() { main.post(() -> go(DONE)); }
-        });
+        };
         show();
     }
 
     @Override protected void onResume() {
         super.onResume();
+        PhoneService.start(this);
         server.start();
+        server.openPairing(() -> main.post(() -> { if (step == PAIR) show(); }));
+        server.setSetup(setupListener);
         if (step == WIFI || step == PAIR) show();   // back from Wi-Fi settings, or the address changed
     }
 
     @Override protected void onPause() {
-        server.stop();
+        server.closePairing();
         super.onPause();
     }
 

@@ -49,6 +49,19 @@ final class DenLayer {
         }
     };
 
+    private final Runnable rebuild = () -> {
+        Activity a = DenLayer.this.activity;
+        if (a.isFinishing() || !a.hasWindowFocus()) return;   // otherwise MainActivity rebuilds on resume
+        a.recreate();
+    };
+
+    /** A change from the phone (DenLooksProvider bumps the settings revision): rebuild Home now if it is in front. */
+    private final android.content.SharedPreferences.OnSharedPreferenceChangeListener revision = (prefs, key) -> {
+        if (!Config.SETTINGS_REVISION_KEY.equals(key)) return;
+        DenLayer.this.content.removeCallbacks(rebuild);
+        DenLayer.this.content.postDelayed(rebuild, 400);   // several changes in a row rebuild once
+    };
+
     private DenLayer(Activity activity, boolean motion) {
         this.activity = activity;
         this.content = activity.findViewById(android.R.id.content);
@@ -59,7 +72,7 @@ final class DenLayer {
     static DenLayer attach(Activity activity, boolean motion) {
         DenLayer layer = new DenLayer(activity, motion);
         List<DenLooks.Look> looks = DenLooks.load(activity);
-        DenLooks.Look look = DenLooks.current(activity, looks);
+        DenLooks.Look look = DenLooks.tweaked(activity, DenLooks.current(activity, looks));
         View watcher = look == null || !DenSettings.watcher(activity) ? null
                 : look.hasEyes() ? new DenEyesView(activity, look.watcher, motion)
                 : DenWatcherView.draws(look.watcher) ? new DenWatcherView(activity, look.watcher, look.accent, motion) : null;
@@ -70,7 +83,8 @@ final class DenLayer {
         DenIcons.use(look == null ? "" : look.icons, look == null ? "" : look.accent, look == null ? "" : look.id);
         if (look != null) clock(activity, look);
         layer.content.getViewTreeObserver().addOnGlobalFocusChangeListener(layer.focus);
-        layer.content.post(layer::followFocus);   // Home may have focused a tile before the watcher was there
+        layer.content.post(layer::followFocus);
+        activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).registerOnSharedPreferenceChangeListener(layer.revision);   // Home may have focused a tile before the watcher was there
         IntentFilter on = new IntentFilter(Intent.ACTION_SCREEN_ON);
         if (android.os.Build.VERSION.SDK_INT >= 33) activity.registerReceiver(layer.screenOn, on, Context.RECEIVER_NOT_EXPORTED);
         else activity.registerReceiver(layer.screenOn, on);
@@ -119,10 +133,12 @@ final class DenLayer {
         DenSettings.offerSetupOnce(activity);
         if (!wakePending) return;
         wakePending = false;
-        if (motion) wake();
+        if (motion && DenSettings.wake(activity)) wake();
     }
 
     void onDestroy() {
+        content.removeCallbacks(rebuild);
+        activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(revision);
         content.getViewTreeObserver().removeOnGlobalFocusChangeListener(focus);
         try { activity.unregisterReceiver(screenOn); } catch (IllegalArgumentException ignored) { }
     }

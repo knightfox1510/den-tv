@@ -4,7 +4,7 @@ The den-tv home screen for Android TV and Google TV: the [cleanyourtv](https://g
 launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top. It installs as
 `tv.den.launcher`, so it sits beside the cleanyourtv launcher or replaces it.
 
-## What it does (v0.3)
+## What it does (v0.4)
 
 - **Looks tile.** A Looks tile in the dock opens every look with its wallpaper. OK puts a look on Home and
   Back keeps what is on. The first tile, "Rotate every look", goes back to a new wallpaper every 5 minutes.
@@ -28,11 +28,24 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   (QR code and a 4-digit code); then the phone takes you through your name, teams and shows, what Home shows
   (greeting, match panel, watcher: each can be off) and a look picked from your interests, while the TV follows
   along. Run it again from the **Set up den-tv** tile at the end of the Looks screen. It needs the Fan Hub app.
-- **Phone settings.** While the Fan Hub screen is open on the TV, a phone on the same Wi-Fi can scan its QR code
-  (or open the address it shows), pair with the 4-digit code once, then switch looks and change the teams and shows. The page is gone
-  when you leave that screen; Menu on that screen forgets every paired phone. If the page doesn't load, check the phone
-  isn't on a guest network, and that the router doesn't keep Wi-Fi devices apart ("AP isolation" or "client
-  isolation"); the phone has to reach the TV directly.
+- **The phone app.** Pair once (scan the code on the Fan Hub or setup screen); after that the page works whenever
+  the TV is on, from any phone on the same Wi-Fi, and you can add it to your phone's home screen. Five tabs:
+  - **Looks:** every look by category or search, and your own photos as the wallpaper (they stay on the TV and
+    never join the rotation).
+  - **Tweak:** the look's watcher, clock, app icons and colour; your name, the greeting, the match panel,
+    animations, the wake animation, reduced motion and the idle clock; hide, show and rename apps; teams and shows.
+  - **Auto:** looks that change by themselves for match day, India and IPL, a new episode or late night, and
+    come back to yours after.
+  - **Remote:** volume, mute, play/pause, Back, Home, sleep, a sleep timer, typing into a search box, HDMI inputs,
+    watch now for a live match or new episode, and every app.
+  - **TV:** Wi-Fi strength and a speed test, memory and closing background apps, storage, screen time, the kids
+    timer, quiet hours and paired phones.
+
+  Pairing only works while the Fan Hub or setup screen shows the code. Back, Home, sleep, typing, opening apps,
+  screen time and the kids timer need the **den-tv helper**: on the TV, Settings → Accessibility → den-tv helper →
+  On (or from Bugjaeger: `settings put secure enabled_accessibility_services tv.den.fanhub/tv.den.fanhub.Helper`
+  then `settings put secure accessibility_enabled 1`; that replaces any other accessibility service that is on).
+  The arrow keys inside other apps and waking the TV aren't possible for an app; the Google TV app does those.
 - **One long row.** Every app sits in one row that scrolls sideways, as in the mockup. Hold OK on a tile and
   choose **Remove from Home** to hide an app; the App library button in the top bar lists every app and puts
   hidden ones back.

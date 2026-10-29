@@ -57,7 +57,7 @@ public final class FanHubActivity extends Activity {
         phone.setPadding(Math.round(16 * dp), 0, 0, 0);
         phoneRow.addView(phone, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         page.addView(phoneRow);
-        server = new PhoneServer(this, () -> main.post(this::showPhone));
+        server = PhoneServer.get(this);
         ScrollView scroll = new ScrollView(this);
         list = new LinearLayout(this);
         list.setOrientation(LinearLayout.VERTICAL);
@@ -72,12 +72,14 @@ public final class FanHubActivity extends Activity {
         getContentResolver().registerContentObserver(Store.TURNS, false, changed);
         show();
         Store.refresh(this, false);
+        PhoneService.start(this);
         server.start();
+        server.openPairing(() -> main.post(this::showPhone));
         showPhone();
     }
 
     @Override protected void onPause() {
-        server.stop();
+        server.closePairing();
         getContentResolver().unregisterContentObserver(changed);
         super.onPause();
     }
@@ -106,7 +108,7 @@ public final class FanHubActivity extends Activity {
         }
         showQr(at);
         phone.setText(at == null ? "Phone settings: connect the TV to Wi-Fi first."
-                : "Phone settings: scan the code with a phone on this Wi-Fi, or open " + at + ", and enter " + server.code() + ". It works while this screen is open."
+                : "Phone settings: scan the code with a phone on this Wi-Fi, or open " + at + ", and enter " + server.code() + ". After that the phone works whenever the TV is on."
                 + (n > 0 ? " " + n + (n == 1 ? " phone is" : " phones are") + " paired; Menu forgets them." : ""));
     }
 

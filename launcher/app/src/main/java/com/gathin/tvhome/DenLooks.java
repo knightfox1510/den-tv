@@ -115,6 +115,27 @@ final class DenLooks {
     }
 
     /** The look with this id, or null. */
+    /** Changes made from the phone to a look's watcher, clock, icons or colour, as {"watcher": ...} per look. */
+    static final String OVERRIDE = "over:";
+
+    /** The look with the phone's changes to it; the look itself when there are none. */
+    static Look tweaked(Context ctx, Look look) {
+        if (look == null) return null;
+        String raw = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(OVERRIDE + look.id, null);
+        if (raw == null) return look;
+        try {
+            JSONObject o = new JSONObject(raw);
+            Look t = new Look(look.id, look.name, look.category, o.optString("watcher", look.watcher), look.wake,
+                    o.optString("accent", look.accent), look.wallpaper);
+            t.clock = o.optString("clock", look.clock);
+            t.icons = o.optString("icons", look.icons);
+            t.iconLayout = look.iconLayout;
+            return t;
+        } catch (JSONException e) {
+            return look;
+        }
+    }
+
     static Look byId(List<Look> looks, String id) {
         for (Look l : looks) if (l.id.equals(id)) return l;
         return null;
@@ -123,6 +144,7 @@ final class DenLooks {
     /** Puts a look on Home (null: rotate every look). Home rebuilds on its next resume, as after Launcher settings. */
     static void apply(Context ctx, Look look) {
         SharedPreferences choices = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
+        DenPhotos.clear(ctx);   // a look or the rotation replaces a photo on Home
         SharedPreferences.Editor e = choices.edit();
         if (look == null) e.remove(Config.WALLPAPER_CHOICE_KEY); else e.putString(Config.WALLPAPER_CHOICE_KEY, look.wallpaper);
         e.putLong(Config.SETTINGS_REVISION_KEY, choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();

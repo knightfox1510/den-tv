@@ -122,4 +122,19 @@ public class FanHubTest {
         assertEquals("BARÇA V DEPORTIVO ALAVÉS \u00B7 LA LIGA", FanHub.matchLine("Barcelona", "Deportivo Alavés", "Spanish La Liga"));
         assertEquals("MI V CSK \u00B7 IPL", FanHub.matchLine("Mumbai Indians", "Chennai Super Kings", "Indian Premier League"));
     }
+
+    @Test public void quietHoursRunOverMidnight() {
+        assertEquals(true, Timers.inside(23 * 60, Timers.minutes("22:30"), Timers.minutes("07:00")));
+        assertEquals(true, Timers.inside(6 * 60, Timers.minutes("22:30"), Timers.minutes("07:00")));
+        assertEquals(false, Timers.inside(12 * 60, Timers.minutes("22:30"), Timers.minutes("07:00")));
+        assertEquals(true, Timers.inside(14 * 60, Timers.minutes("13:00"), Timers.minutes("15:00")));
+        assertEquals(-1, Timers.minutes("25:00"));
+    }
+
+    @Test public void teamsFindTheirLook() {
+        assertEquals("camp-nou", Rules.teamLook("FC Barcelona"));
+        assertEquals("wankhede", Rules.teamLook("Mumbai Indians"));
+        assertEquals("blue-billion", Rules.teamLook("India"));
+        assertNull(Rules.teamLook("Arsenal"));
+    }
 }

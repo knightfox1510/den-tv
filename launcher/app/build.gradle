@@ -11,8 +11,8 @@ android {
         applicationId providers.gradleProperty('launcherApplicationId').getOrElse('com.gathin.tvhome')
         minSdk 26
         targetSdk 34
-        versionCode 14
-        versionName 'den-0.3 (cleanyourtv 3.1)'
+        versionCode 15
+        versionName 'den-0.4 (cleanyourtv 3.1)'
     }
 
     // den-tv: CI signs with one fixed key (the DEN_KEYSTORE_B64 secret), so every build installs over the last.
