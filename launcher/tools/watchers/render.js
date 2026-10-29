@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 const T = require('./tracker.json');
-const html = fs.readFileSync('/home/user/dev-tv/mockups/den-looks.html', 'utf8');
+const html = fs.readFileSync(require('path').resolve(__dirname, '../../../mockups/den-looks.html'), 'utf8');
 const css = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join('\n');
 const OUT = 'out'; fs.mkdirSync(OUT, { recursive: true });
 const manifest = {};

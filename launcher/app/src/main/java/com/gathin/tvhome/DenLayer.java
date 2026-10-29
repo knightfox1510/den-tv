@@ -67,12 +67,28 @@ final class DenLayer {
             layer.eyes = (Watcher) watcher;
             layer.content.addView(watcher, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
+        DenIcons.use(look == null ? "" : look.icons, look == null ? "" : look.accent, look == null ? "" : look.id);
+        if (look != null) clock(activity, look);
         layer.content.getViewTreeObserver().addOnGlobalFocusChangeListener(layer.focus);
         layer.content.post(layer::followFocus);   // Home may have focused a tile before the watcher was there
         IntentFilter on = new IntentFilter(Intent.ACTION_SCREEN_ON);
         if (android.os.Build.VERSION.SDK_INT >= 33) activity.registerReceiver(layer.screenOn, on, Context.RECEIVER_NOT_EXPORTED);
         else activity.registerReceiver(layer.screenOn, on);
         return layer;
+    }
+
+    /** Puts the look's clock style in place of Home's clock (AM/PM, the date and the rest of the row stay). */
+    static void clock(Activity activity, DenLooks.Look look) {
+        if (!DenClockView.STYLES.contains(look.clock)) return;
+        View clock = activity.findViewById(R.id.clock);
+        if (clock == null || !(clock.getParent() instanceof android.widget.LinearLayout)) return;
+        android.widget.LinearLayout row = (android.widget.LinearLayout) clock.getParent();
+        DenClockView styled = new DenClockView(activity, look.clock, look.accent);
+        android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.gravity = android.view.Gravity.BOTTOM;
+        row.addView(styled, row.indexOfChild(clock), lp);
+        clock.setVisibility(View.GONE);
     }
 
     /** A tile's name for the watchers that show it: its description, else the first text inside it. */

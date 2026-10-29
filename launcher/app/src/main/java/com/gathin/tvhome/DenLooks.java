@@ -37,6 +37,9 @@ final class DenLooks {
             this.accent = accent; this.wallpaper = wallpaper;
         }
 
+        // Optional parts of the recipe (looks/README.md); empty when the look leaves them to the launcher.
+        String clock = "", icons = "", iconLayout = "";
+
         boolean hasEyes() { return EYES.contains(watcher); }
     }
 
@@ -82,8 +85,12 @@ final class DenLooks {
 
     private static Look look(JSONObject j, String wall) {
         String id = j.optString("id");
-        return new Look(id, j.optString("name", id), j.optString("category", ""), j.optString("watcher", "none"),
+        Look l = new Look(id, j.optString("name", id), j.optString("category", ""), j.optString("watcher", "none"),
                 j.optString("wake", "bloom"), j.optString("accent", "#ffffff"), wall);
+        l.clock = j.optString("clock", "");
+        l.icons = j.optString("icons", "");
+        l.iconLayout = j.optString("icon_layout", "");
+        return l;
     }
 
     /** "01-camp-nou.jpg" -> "camp-nou"; anything else (captions.txt, a hero-wall extra) -> null. */

@@ -5,7 +5,8 @@ den-tv builds on [cleanyourtv](https://github.com/Gathin23/cleanyourtv) by Gathi
 (forked from cleanyourtv's `launcher/` at commit fcde1ee), are theirs. Code copied from it keeps its
 original licence notice; den-tv's additions are the `Den*.java` files and the small hooks listed in
 `launcher/DEN.md`. The launcher bundles the Outfit typeface under the SIL Open Font License
-(`launcher/FONT-LICENSE-OFL.txt`).
+(`launcher/FONT-LICENSE-OFL.txt`), and den-tv adds Bebas Neue (Dharma Type), VT323 (Peter Hull) and Kaushan
+Script (Impallari Type) for the clock styles, from Google Fonts under the same licence.
 
 Fonts in the mockups load from Google Fonts: Outfit, Bebas Neue, VT323 and Kaushan Script, all under
 the SIL Open Font License.

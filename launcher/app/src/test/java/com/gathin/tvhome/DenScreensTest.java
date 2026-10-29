@@ -21,6 +21,7 @@ import org.robolectric.annotation.GraphicsMode;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Renders den-tv's screens to PNGs (app/build/den-screens/) so they can be looked at without a TV:
@@ -67,6 +68,40 @@ public class DenScreensTest {
         }
     }
 
+    @Test public void clocks() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        int rows = (DenClockView.STYLES.size() + 2) / 3;
+        Bitmap b = Bitmap.createBitmap(1920, rows * 300, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        c.drawColor(0xff1a1d2a);
+        for (int i = 0; i < DenClockView.STYLES.size(); i++) {
+            DenClockView v = new DenClockView(ctx, DenClockView.STYLES.get(i), "#ff4d6d");
+            v.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
+            c.save();
+            c.translate(40 + (i % 3) * 640, 40 + (i / 3) * 300);
+            v.draw(c);
+            c.restore();
+        }
+        save(b, "clocks");
+    }
+
+    @Test public void icons() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        android.graphics.drawable.Drawable app = ctx.getApplicationInfo().loadIcon(ctx.getPackageManager());
+        List<String> styles = DenIcons.STYLES;
+        Bitmap b = Bitmap.createBitmap(1920, ((styles.size() + 5) / 6) * 300, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        c.drawColor(0xff1a1d2a);
+        for (int i = 0; i < styles.size(); i++) {
+            DenIcons.Tile t = new DenIcons.Tile(styles.get(i), app, "YouTube", i, 0xff4dd2ff, false);
+            int x = 40 + (i % 6) * 310, y = 40 + (i / 6) * 300;
+            t.setBounds(x, y, x + 270, y + 152);   // a dock tile, 16:9
+            t.draw(c);
+        }
+        save(b, "icons");
+    }
+
     @Test public void picker() throws IOException {
         DenLooksActivity a = Robolectric.buildActivity(DenLooksActivity.class).setup().get();
         View root = a.getWindow().getDecorView();
@@ -79,7 +114,7 @@ public class DenScreensTest {
     @Test public void home() throws IOException {
         Context ctx = RuntimeEnvironment.getApplication();
         DenTheme.ensure(ctx);
-        DenLooks.Look look = DenLooks.byId(DenLooks.load(ctx), "domain");   // Domain Expansion: Six Eyes
+        DenLooks.Look look = DenLooks.byId(DenLooks.load(ctx), "domain");   // Domain Expansion: Six Eyes, thin clock
         DenLooks.apply(ctx, look);
         MainActivity a = Robolectric.buildActivity(MainActivity.class).setup().get();
         View root = a.getWindow().getDecorView();
