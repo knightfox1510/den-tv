@@ -16,7 +16,7 @@ import android.view.animation.OvershootInterpolator;
  * as the mockup (mockups/den-looks.html, eyeSVG). Everything is laid out on a 1920x1080 grid and scaled to the
  * view. It draws only when the gaze moves or the eyes blink; no blur, so it stays cheap on a 1-2 GB TV.
  */
-final class DenEyesView extends View {
+final class DenEyesView extends View implements DenLayer.Watcher {
     private static final float CX = 960, CY = 250, DOCK_Y = 860;
 
     private final int g0, g1, g2, glow, lash, brow;
@@ -81,7 +81,7 @@ final class DenEyesView extends View {
     }
 
     /** Turns the eyes toward a point in screen pixels (the focused tile's centre). */
-    void lookAt(float x, float y) {
+    @Override public void lookAt(float x, float y, String label) {
         if (getWidth() == 0) return;
         float s = 1920f / getWidth();
         float tx = x * s, ty = y * s;

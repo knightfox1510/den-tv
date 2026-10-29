@@ -23,7 +23,10 @@ final class DenLayer {
     private final Activity activity;
     private final ViewGroup content;
     private final boolean motion;
-    private DenEyesView eyes;
+    private Watcher eyes;
+
+    /** What follows the focused tile: DenEyesView or DenWatcherView. x, y in screen pixels; label is the tile's name. */
+    interface Watcher { void lookAt(float x, float y, String label); }
     private boolean wakePending = true;   // the first start counts as a wake
     private final int[] where = new int[2];
 
@@ -31,8 +34,9 @@ final class DenLayer {
         if (eyes == null || now == null) return;
         now.getLocationOnScreen(where);
         int x = where[0] + now.getWidth() / 2, y = where[1] + now.getHeight() / 2;
-        eyes.getLocationOnScreen(where);
-        eyes.lookAt(x - where[0], y - where[1]);
+        View v = (View) eyes;
+        v.getLocationOnScreen(where);
+        eyes.lookAt(x - where[0], y - where[1], label(now));
     };
 
     private final List<View> covers = new java.util.ArrayList<>();   // the wake's flash and fade, removed when done
@@ -56,18 +60,46 @@ final class DenLayer {
         DenLayer layer = new DenLayer(activity, motion);
         List<DenLooks.Look> looks = DenLooks.load(activity);
         DenLooks.Look look = DenLooks.current(activity, looks);
-        if (look != null && look.hasEyes()) {
-            layer.eyes = new DenEyesView(activity, look.watcher, motion);
-            layer.content.addView(layer.eyes, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        View watcher = look == null ? null
+                : look.hasEyes() ? new DenEyesView(activity, look.watcher, motion)
+                : DenWatcherView.draws(look.watcher) ? new DenWatcherView(activity, look.watcher, look.accent, motion) : null;
+        if (watcher != null) {
+            layer.eyes = (Watcher) watcher;
+            layer.content.addView(watcher, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
         layer.content.getViewTreeObserver().addOnGlobalFocusChangeListener(layer.focus);
+        layer.content.post(layer::followFocus);   // Home may have focused a tile before the watcher was there
         IntentFilter on = new IntentFilter(Intent.ACTION_SCREEN_ON);
         if (android.os.Build.VERSION.SDK_INT >= 33) activity.registerReceiver(layer.screenOn, on, Context.RECEIVER_NOT_EXPORTED);
         else activity.registerReceiver(layer.screenOn, on);
         return layer;
     }
 
+    /** A tile's name for the watchers that show it: its description, else the first text inside it. */
+    static String label(View v) {
+        CharSequence d = v.getContentDescription();
+        if (d != null && d.length() > 0) return d.toString();
+        if (v instanceof android.widget.TextView) {
+            CharSequence t = ((android.widget.TextView) v).getText();
+            if (t != null && t.length() > 0) return t.toString();
+        }
+        if (v instanceof ViewGroup) {
+            ViewGroup g = (ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) {
+                String s = label(g.getChildAt(i));
+                if (!s.isEmpty()) return s;
+            }
+        }
+        return "";
+    }
+
+    private void followFocus() {
+        View f = content.findFocus();
+        if (f != null) focus.onGlobalFocusChanged(null, f);
+    }
+
     void onResume() {
+        content.post(this::followFocus);
         if (!wakePending) return;
         wakePending = false;
         if (motion) wake();

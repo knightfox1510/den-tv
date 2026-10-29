@@ -46,9 +46,24 @@ public class DenScreensTest {
             Canvas c = new Canvas(b);
             if (wall != null) c.drawBitmap(wall, 0, 0, null);
             layout(eyes, 1920, 1080);
-            eyes.lookAt(kind.equals("six") ? 300 : 1500, 860);   // no motion: jumps straight there
+            eyes.lookAt(kind.equals("six") ? 300 : 1500, 860, "YouTube");   // no motion: jumps straight there
             eyes.draw(c);
             save(b, "eyes-" + kind);
+        }
+    }
+
+    @Test public void watchers() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        Bitmap wall = BitmapFactory.decodeFile("../../themes/den-mix/wallpapers/01-camp-nou.jpg");
+        for (String kind : DenWatcherView.KINDS) {
+            DenWatcherView w = new DenWatcherView(ctx, kind, "#ff4d6d", false);
+            Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(b);
+            if (wall != null) c.drawBitmap(wall, 0, 0, null);
+            layout(w, 1920, 1080);
+            w.lookAt(1200, 860, "YouTube");   // a tile right of centre, on the dock row
+            w.draw(c);
+            save(b, "watcher-" + kind);
         }
     }
 

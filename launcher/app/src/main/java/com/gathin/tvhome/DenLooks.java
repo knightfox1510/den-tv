@@ -26,7 +26,7 @@ final class DenLooks {
     static final String ROTATE = "rotate";
     static final String ASSET_DIR = "den/looks";
 
-    /** Watchers drawn as a pair of eyes (DenEyesView); the other watchers come in later versions. */
+    /** Watchers drawn as a pair of eyes (DenEyesView); DenWatcherView draws the rest. */
     static final List<String> EYES = List.of("sharingan", "mangekyo", "six", "saiyan", "ui", "kurama", "sage", "rinnegan");
 
     static final class Look {
