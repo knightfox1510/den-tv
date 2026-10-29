@@ -81,6 +81,14 @@ public final class DenLooksActivity extends Activity {
         items.add(ROTATE);
         items.add(WATCHING);
         items.add(SETUP);
+        // Your favourites (starred on the phone) first, then every look by category.
+        java.util.Set<String> favs = DenApps.favourites(this);
+        boolean favHead = false;
+        for (DenLooks.Look l : looks) {
+            if (!favs.contains(l.id)) continue;
+            if (!favHead) { items.add("Favourites"); favHead = true; }
+            items.add(l);
+        }
         String cat = null;
         for (DenLooks.Look l : looks) {
             String c = l.category.isEmpty() ? "More" : l.category;

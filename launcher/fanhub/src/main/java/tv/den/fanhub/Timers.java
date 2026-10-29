@@ -92,6 +92,9 @@ final class Timers {
     /** Whoever is watching, by name ("" with one person, or no launcher). */
     static String who(Context ctx) { return person(ctx); }
 
+    /** When each app was last left, as {package: ms}. */
+    static synchronized JSONObject lastLeft(Context ctx) { return json(prefs(ctx), "last"); }
+
     /** Minutes per person today, as {name: milliseconds}. */
     static synchronized JSONObject byPerson(Context ctx) {
         account(ctx, System.currentTimeMillis());
@@ -112,8 +115,13 @@ final class Timers {
     }
 
     static synchronized void foreground(Context ctx, String pkg) {
-        account(ctx, System.currentTimeMillis());
-        prefs(ctx).edit().putString("st_front", pkg).apply();
+        long now = System.currentTimeMillis();
+        account(ctx, now);
+        // When each app was last left, for the launcher's CONTINUE badge (StatsProvider).
+        String prev = prefs(ctx).getString("st_front", "");
+        JSONObject last = json(prefs(ctx), "last");
+        if (!prev.isEmpty() && !prev.equals(pkg)) try { last.put(prev, now); } catch (JSONException ignored) { }
+        prefs(ctx).edit().putString("st_front", pkg).putString("last", last.toString()).apply();
         Store.worker().post(() -> tick(ctx));
     }
 

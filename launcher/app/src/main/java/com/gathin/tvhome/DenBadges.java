@@ -20,11 +20,25 @@ import java.util.regex.Pattern;
  */
 final class DenBadges {
     private static final Uri TURNS = Uri.parse("content://tv.den.fanhub.games/turns");
+    /** The Fan Hub's screen time per app (StatsProvider): package, today's milliseconds, when it was last left. */
+    private static final Uri STATS = Uri.parse("content://tv.den.fanhub.stats/apps");
+    static final String CONTINUE = "CONTINUE";
+    private static volatile Map<String, String> byApp = new HashMap<>();
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
     private static final Pattern SCORE = Pattern.compile("(\\d+)\\u2013(\\d+)"), EPISODE = Pattern.compile("EPISODE (\\d+)");
     private static volatile Map<String, String> badges = new HashMap<>();
 
     private DenBadges() {}
+
+    /**
+     * A tile's badge: live score or new episode first (by the app's name), then CONTINUE on the app you left last
+     * (within 3 hours), then today's time in it when "Time on tiles" is on. Null for none.
+     */
+    static String forApp(String pkg, String label) {
+        String b = forLabel(label);
+        if (b != null || pkg == null) return b;
+        return byApp.get(pkg);
+    }
 
     /** The badge for a tile by its name, or null. */
     static String forLabel(String label) {
@@ -63,11 +77,35 @@ final class DenBadges {
                 } catch (RuntimeException ignored) {
                     // No Fan Hub: no badges.
                 }
-                if (!next.equals(badges)) {
+                Map<String, String> apps = new HashMap<>();
+                android.content.SharedPreferences p = DenSettings.prefs(app);
+                boolean cont = p.getBoolean(DenSettings.TILE_CONTINUE, true), time = p.getBoolean(DenSettings.TILE_TIME, false);
+                if (cont || time) {
+                    String lastPkg = null;
+                    long lastAt = 0;
+                    try (Cursor c = app.getContentResolver().query(STATS, null, null, null, null)) {
+                        while (c != null && c.moveToNext()) {
+                            String pkg = c.getString(0);
+                            long ms = c.getLong(1), left = c.getLong(2);
+                            if (pkg.equals(app.getPackageName()) || pkg.startsWith("tv.den.")) continue;
+                            if (time && ms >= 5 * 60_000L) apps.put(pkg, minutes(ms));
+                            if (left > lastAt) { lastAt = left; lastPkg = pkg; }
+                        }
+                    } catch (RuntimeException ignored) { }   // an older Fan Hub, or none
+                    if (cont && lastPkg != null && now - lastAt < 3 * 3_600_000L) apps.put(lastPkg, CONTINUE);
+                }
+                if (!next.equals(badges) || !apps.equals(byApp)) {
                     badges = next;
+                    byApp = apps;
                     new Handler(Looper.getMainLooper()).post(changed);
                 }
             });
         } catch (RuntimeException ignored) { }
+    }
+
+    /** "1h 12m", "45m". */
+    static String minutes(long ms) {
+        long m = ms / 60_000L;
+        return m >= 60 ? (m / 60) + "h " + (m % 60) + "m" : m + "m";
     }
 }

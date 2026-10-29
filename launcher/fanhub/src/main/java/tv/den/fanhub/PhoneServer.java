@@ -248,11 +248,12 @@ final class PhoneServer {
             if (k.equals("cookie")) r.cookie = v;
         }
         // Only a paired phone may send a photo; anyone else is turned away before 15 MB is read.
-        if ((r.path.equals("/api/photo") || r.path.equals("/api/character")) && length > MAX_BODY && !paired(token(r.cookie))) {
+        boolean picture = r.path.equals("/api/photo") || r.path.equals("/api/character") || r.path.equals("/api/appicon");
+        if (picture && length > MAX_BODY && !paired(token(r.cookie))) {
             send(c, 401, "application/json", "{\"error\":\"pair\"}".getBytes(StandardCharsets.UTF_8), null);
             return;
         }
-        if (length < 0 || length > (r.path.equals("/api/photo") || r.path.equals("/api/character") ? MAX_PHOTO : MAX_BODY)) { send(c, 413, "text/plain", "Too large".getBytes(StandardCharsets.UTF_8), null); return; }
+        if (length < 0 || length > (picture ? MAX_PHOTO : MAX_BODY)) { send(c, 413, "text/plain", "Too large".getBytes(StandardCharsets.UTF_8), null); return; }
         r.body = new byte[length];
         int n = 0, got;
         while (n < length && (got = in.read(r.body, n, length - n)) > 0) n += got;
@@ -286,6 +287,13 @@ final class PhoneServer {
                 return;
             }
             if (r.method.equals("POST") && r.path.equals("/api/photo")) { json(c, 200, api.savePhoto(r.body)); return; }
+            if (r.method.equals("POST") && r.path.equals("/api/appicon")) { json(c, 200, api.saveAppPicture(param(r.query, "pkg"), r.body)); return; }
+            if (r.method.equals("GET") && r.path.equals("/api/qr")) {
+                byte[] png = api.qr(param(r.query, "text"));
+                if (png == null) send(c, 404, "text/plain", "Too long for a code".getBytes(StandardCharsets.UTF_8), null);
+                else send(c, 200, "image/png", png, null);
+                return;
+            }
             if (r.method.equals("POST") && r.path.equals("/api/character")) {
                 json(c, 200, api.saveCharacter(r.body, param(r.query, "id"), param(r.query, "name"), "1".equals(param(r.query, "closed"))));
                 return;
@@ -413,7 +421,7 @@ final class PhoneServer {
         try (Cursor c = ctx.getContentResolver().query(LOOKS, null, null, null, null)) {
             while (c != null && c.moveToNext()) {
                 looks.put(new JSONObject().put("id", c.getString(0)).put("name", c.getString(1)).put("category", c.getString(2)).put("on", c.getInt(3) == 1)
-                        .put("changed", c.getColumnCount() > 4 && c.getInt(4) == 1));
+                        .put("changed", c.getColumnCount() > 4 && c.getInt(4) == 1).put("fav", c.getColumnCount() > 5 && c.getInt(5) == 1));
             }
         } catch (RuntimeException e) {
             s.put("looksError", "The den-tv launcher isn't installed, or was signed with a different key.");

@@ -14,7 +14,7 @@ import java.util.List;
  * the one on Home marked; update current with look = an id or "rotate": puts it on, as the Looks screen does.
  */
 public final class DenLooksProvider extends ContentProvider {
-    static final String[] COLUMNS = {"id", "name", "category", "on", "changed"};
+    static final String[] COLUMNS = {"id", "name", "category", "on", "changed", "fav"};
 
     @Override public boolean onCreate() { return true; }
 
@@ -33,8 +33,9 @@ public final class DenLooksProvider extends ContentProvider {
         List<DenLooks.Look> looks = DenLooks.load(getContext());
         DenLooks.Look on = DenLooks.current(getContext(), looks);
         MatrixCursor c = new MatrixCursor(COLUMNS);
-        c.addRow(new Object[]{DenLooks.ROTATE, "Rotate every look", "", on == null ? 1 : 0, 0});
-        for (DenLooks.Look l : looks) c.addRow(new Object[]{l.id, l.name, l.category, l == on ? 1 : 0, DenLooks.changed(getContext(), l.id) ? 1 : 0});
+        java.util.Set<String> favs = DenApps.favourites(getContext());
+        c.addRow(new Object[]{DenLooks.ROTATE, "Rotate every look", "", on == null ? 1 : 0, 0, 0});
+        for (DenLooks.Look l : looks) c.addRow(new Object[]{l.id, l.name, l.category, l == on ? 1 : 0, DenLooks.changed(getContext(), l.id) ? 1 : 0, favs.contains(l.id) ? 1 : 0});
         return c;
     }
 
@@ -42,6 +43,7 @@ public final class DenLooksProvider extends ContentProvider {
         if ("settings".equals(uri.getLastPathSegment()) && values != null) return saveSettings(values);
         String path = uri.getPathSegments().isEmpty() ? "" : uri.getPathSegments().get(0);
         if ("apps".equals(path) && values != null) return saveApp(values);
+        if ("fav".equals(path) && values != null) { int n = DenApps.favourite(getContext(), values.getAsString("id"), "1".equals(values.getAsString("on"))) ? 1 : 0; bump(); return n; }
         if ("order".equals(path) && values != null) { int n = smartOrder(values.getAsString("order")); bump(); return n; }
         if ("override".equals(path) && values != null) return saveOverride(values);
         if ("photos".equals(path) && values != null) return photo(values);
@@ -97,6 +99,8 @@ public final class DenLooksProvider extends ContentProvider {
         c.addRow(new Object[]{DenLaunch.OPEN_KEY, p.getString(DenLaunch.OPEN_KEY, "look")});
         c.addRow(new Object[]{DenLaunch.BACK_KEY, p.getString(DenLaunch.BACK_KEY, "look")});
         c.addRow(new Object[]{"screen_care", p.getBoolean("screen_care", false) ? "1" : "0"});
+        c.addRow(new Object[]{DenSettings.TILE_CONTINUE, p.getBoolean(DenSettings.TILE_CONTINUE, true) ? "1" : "0"});
+        c.addRow(new Object[]{DenSettings.TILE_TIME, p.getBoolean(DenSettings.TILE_TIME, false) ? "1" : "0"});
         return c;
     }
 
@@ -123,7 +127,7 @@ public final class DenLooksProvider extends ContentProvider {
             n++;
         }
         for (String k : new String[]{DenSettings.GREETING, DenSettings.PANEL, DenSettings.WATCHER, DenSettings.SETUP_DONE,
-                DenSettings.WAKE, DenSettings.REDUCED_MOTION, "facts", "stats", "hud", "screen_care"}) {
+                DenSettings.WAKE, DenSettings.REDUCED_MOTION, "facts", "stats", "hud", "screen_care", DenSettings.TILE_CONTINUE, DenSettings.TILE_TIME}) {
             if (!v.containsKey(k)) continue;
             e.putBoolean(k, "1".equals(v.getAsString(k)) || Boolean.TRUE.equals(v.getAsBoolean(k)));
             n++;
@@ -154,7 +158,8 @@ public final class DenLooksProvider extends ContentProvider {
         android.content.pm.PackageManager pm = getContext().getPackageManager();
         java.util.Set<String> removed = LibraryApps.loadRemoved(getContext());
         org.json.JSONObject names = labelsJson();
-        MatrixCursor c = new MatrixCursor(new String[]{"package", "label", "hidden", "renamed", "folder"});
+        MatrixCursor c = new MatrixCursor(new String[]{"package", "label", "hidden", "renamed", "folder", "picture", "hidden_me"});
+        java.util.Set<String> mine = DenApps.hiddenNow(getContext());
         java.util.List<String> folder = DenFolderActivity.members(getContext());
         java.util.Set<String> seen = new java.util.HashSet<>();
         android.content.Intent tv = new android.content.Intent(android.content.Intent.ACTION_MAIN).addCategory(android.content.Intent.CATEGORY_LEANBACK_LAUNCHER);
@@ -163,7 +168,7 @@ public final class DenLooksProvider extends ContentProvider {
             if (!seen.add(pkg) || pkg.equals(getContext().getPackageName())) continue;
             String renamed = names.optString(pkg, "");
             c.addRow(new Object[]{pkg, renamed.isEmpty() ? String.valueOf(ri.loadLabel(pm)) : renamed, removed.contains(pkg) && !folder.contains(pkg) ? "1" : "0",
-                    renamed, folder.contains(pkg) ? "1" : "0"});
+                    renamed, folder.contains(pkg) ? "1" : "0", DenApps.hasPicture(getContext(), pkg) ? "1" : "0", mine.contains(pkg) ? "1" : "0"});
         }
         return c;
     }
@@ -180,6 +185,14 @@ public final class DenLooksProvider extends ContentProvider {
         int n = 0;
         if (v.containsKey("hidden") && LibraryApps.save(getContext(), pkg, !"1".equals(v.getAsString("hidden")))) n++;
         if (v.containsKey("folder")) { DenFolderActivity.set(getContext(), pkg, "1".equals(v.getAsString("folder"))); n++; }
+        if (v.containsKey("hide_me") && DenApps.hideForNow(getContext(), pkg, "1".equals(v.getAsString("hide_me")))) n++;
+        if (v.containsKey("picture")) {
+            // "0" takes your picture off (the app's own banner comes back); "1" says a new one was just written.
+            java.io.File f = DenApps.pictureFile(getContext(), pkg);
+            if ("0".equals(v.getAsString("picture")) && f != null) //noinspection ResultOfMethodCallIgnored
+                f.delete();
+            n++;
+        }
         if (v.containsKey("label")) {
             org.json.JSONObject names = labelsJson();
             String label = v.getAsString("label");
@@ -301,6 +314,13 @@ public final class DenLooksProvider extends ContentProvider {
     @Override public android.os.ParcelFileDescriptor openFile(Uri uri, String mode) throws java.io.FileNotFoundException {
         java.util.List<String> seg = uri.getPathSegments();
         if (seg.size() == 2 && "characters".equals(seg.get(0))) return characterFile(seg.get(1), mode);
+        if (seg.size() == 2 && "icons".equals(seg.get(0)) && mode.startsWith("w")) {
+            // Your picture for an app's tile, written by the Fan Hub from the phone; update apps picture=1 then shows it.
+            java.io.File f = DenApps.pictureFile(getContext(), seg.get(1));
+            if (f == null || (!f.getParentFile().isDirectory() && !f.getParentFile().mkdirs())) throw new java.io.FileNotFoundException(uri.toString());
+            return android.os.ParcelFileDescriptor.open(f, android.os.ParcelFileDescriptor.MODE_WRITE_ONLY
+                    | android.os.ParcelFileDescriptor.MODE_CREATE | android.os.ParcelFileDescriptor.MODE_TRUNCATE);
+        }
         if (seg.size() == 1 && "wallpaper".equals(seg.get(0)) && "r".equals(mode)) {
             java.io.File f = wallpaper();
             if (f == null) throw new java.io.FileNotFoundException("no look on");

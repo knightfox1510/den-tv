@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -91,6 +91,8 @@ final class Api {
             case "/api/order": return order(in);
             case "/api/nowplaying": return nowPlaying();
             case "/api/describe": return describe(in.optString("text"));
+            case "/api/fav": return fav(in.optString("id"), in.optBoolean("on"));
+            case "/api/surprise": return surprise();
             default: return new JSONObject().put("error", "not found");
         }
     }
@@ -162,13 +164,14 @@ final class Api {
         try (Cursor c = ctx.getContentResolver().query(APPS, null, null, null, null)) {
             while (c != null && c.moveToNext()) {
                 list.put(new JSONObject().put("pkg", c.getString(0)).put("label", c.getString(1)).put("hidden", "1".equals(c.getString(2)))
-                        .put("renamed", c.getString(3)).put("folder", c.getColumnCount() > 4 && "1".equals(c.getString(4))));
+                        .put("renamed", c.getString(3)).put("folder", c.getColumnCount() > 4 && "1".equals(c.getString(4)))
+                        .put("picture", c.getColumnCount() > 5 && "1".equals(c.getString(5))).put("hiddenMe", c.getColumnCount() > 6 && "1".equals(c.getString(6))));
             }
         } catch (RuntimeException e) {
             PackageManager pm = ctx.getPackageManager();
             for (ResolveInfo ri : tvApps(pm)) list.put(new JSONObject().put("pkg", ri.activityInfo.packageName).put("label", ri.loadLabel(pm)).put("hidden", false));
         }
-        return new JSONObject().put("apps", list).put("helper", Helper.on());
+        return new JSONObject().put("apps", list).put("helper", Helper.on()).put("who", Timers.who(ctx));
     }
 
     private static List<ResolveInfo> tvApps(PackageManager pm) {
@@ -181,6 +184,8 @@ final class Api {
         if (in.has("hidden")) v.put("hidden", in.optBoolean("hidden") ? "1" : "0");
         if (in.has("label")) v.put("label", in.optString("label"));
         if (in.has("folder")) v.put("folder", in.optBoolean("folder") ? "1" : "0");
+        if (in.has("hideMe")) v.put("hide_me", in.optBoolean("hideMe") ? "1" : "0");
+        if (in.has("picture") && !in.optBoolean("picture")) v.put("picture", "0");
         try { return ok(ctx.getContentResolver().update(APPS, v, null, null) > 0); }
         catch (RuntimeException e) { return fail("The launcher didn't accept it. Update den-tv."); }
     }
@@ -628,6 +633,68 @@ final class Api {
     }
 
     private static final Uri LOOKS = Uri.parse(L + "looks");
+
+    /** Stars a look (or takes the star off): favourites come first on the TV's Looks screen and in Surprise me. */
+    private JSONObject fav(String id, boolean on) throws JSONException {
+        ContentValues v = new ContentValues();
+        v.put("id", id);
+        v.put("on", on ? "1" : "0");
+        try { return ok(ctx.getContentResolver().update(Uri.parse(L + "fav"), v, null, null) > 0); }
+        catch (RuntimeException e) { return fail("Update the den-tv launcher for favourites."); }
+    }
+
+    /** Surprise me: a random look other than the one on Home, from your favourites when you have two or more. */
+    private JSONObject surprise() throws JSONException {
+        java.util.List<String[]> all = new java.util.ArrayList<>(), favs = new java.util.ArrayList<>();
+        try (Cursor c = ctx.getContentResolver().query(LOOKS, null, null, null, null)) {
+            while (c != null && c.moveToNext()) {
+                String id = c.getString(0);
+                if (id.equals("rotate") || c.getInt(3) == 1) continue;
+                String[] l = {id, c.getString(1)};
+                all.add(l);
+                if (c.getColumnCount() > 5 && c.getInt(5) == 1) favs.add(l);
+            }
+        } catch (RuntimeException e) {
+            return fail("Update the den-tv launcher for Surprise me.");
+        }
+        java.util.List<String[]> from = favs.size() >= 2 ? favs : all;
+        if (from.isEmpty()) return fail("No other look to pick.");
+        String[] pick = from.get(new java.util.Random().nextInt(from.size()));
+        ContentValues v = new ContentValues();
+        v.put("look", pick[0]);
+        try { return ok(ctx.getContentResolver().update(Uri.parse(L + "current"), v, null, null) == 1).put("id", pick[0]).put("name", pick[1]); }
+        catch (RuntimeException e) { return fail("The launcher didn't accept it."); }
+    }
+
+    /** Your picture for an app's tile (POST /api/appicon?pkg=): written into the launcher, which shows it next time. */
+    JSONObject saveAppPicture(String pkg, byte[] body) throws JSONException {
+        if (pkg == null || !pkg.matches("[A-Za-z0-9_.]{1,200}")) return fail("Which app?");
+        android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        android.graphics.BitmapFactory.decodeByteArray(body, 0, body.length, o);
+        if (o.outWidth <= 0) return fail("That isn't a picture the TV can read. Use a JPEG or PNG.");
+        try (java.io.OutputStream out = ctx.getContentResolver().openOutputStream(Uri.parse(L + "icons/" + pkg), "w")) {
+            if (out == null) return fail("The launcher didn't accept it.");
+            out.write(body);
+        } catch (java.io.IOException | RuntimeException e) {
+            return fail("Update the den-tv launcher for app pictures.");
+        }
+        ContentValues v = new ContentValues();
+        v.put("package", pkg);
+        v.put("picture", "1");
+        try { ctx.getContentResolver().update(APPS, v, null, null); } catch (RuntimeException ignored) { }
+        return ok(true);
+    }
+
+    /** A QR code of some text (a look code to share), as a PNG; null when it doesn't fit. */
+    byte[] qr(String text) {
+        if (text == null || text.isEmpty() || text.length() > 1800) return null;
+        android.graphics.drawable.BitmapDrawable d = Qr.of(ctx.getResources(), text);
+        if (d == null) return null;
+        java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream();
+        d.getBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, b);
+        return b.toByteArray();
+    }
 
     /**
      * "Describe a look": Gemini (with a key) or word matching picks a base look and parts for a sentence. Nothing is

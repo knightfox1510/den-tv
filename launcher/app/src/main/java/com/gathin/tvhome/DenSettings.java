@@ -47,6 +47,9 @@ final class DenSettings {
     }
     static boolean watcher(Context ctx) { return prefs(ctx).getBoolean(WATCHER, true); }
     static boolean wake(Context ctx) { return prefs(ctx).getBoolean(WAKE, true); }
+    /** Tile badges from the Fan Hub's screen time: CONTINUE on the app left last (on by default), today's time (off). */
+    static final String TILE_CONTINUE = "tile_continue", TILE_TIME = "tile_time";
+
     /** Motion level: "full", "calm" or unset (calm on a TV with under 1.3 GB of memory, full otherwise). Off is reduced motion. */
     static final String MOTION = "motion";
 

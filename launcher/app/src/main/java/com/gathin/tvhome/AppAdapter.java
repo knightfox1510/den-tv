@@ -286,6 +286,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         && seen.add(ri.activityInfo.packageName)) found.add(ri);
             }
         }
+        Set<String> personHidden = DenApps.hiddenNow(ctx);
         Map<String, Cards.Card> cardByPkg = new HashMap<>();
         for (Cards.Card c : cards) cardByPkg.put(c.pkg, c);
         List<Entry> fresh = new ArrayList<>();
@@ -298,7 +299,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // The launcher's own entries stay out of the grid, except den-tv's Looks tile.
             if ((pkg.equals(ctx.getPackageName()) && !ri.activityInfo.name.equals(DenLooksActivity.class.getName())
                     && !ri.activityInfo.name.equals(DenFolderActivity.class.getName())) || !ri.activityInfo.exported
-                    || !LibraryApps.visible(tvPackages.contains(pkg), hidden.contains(pkg), added.contains(pkg), removed.contains(pkg))) continue;
+                    || !LibraryApps.visible(tvPackages.contains(pkg), hidden.contains(pkg), added.contains(pkg), removed.contains(pkg))
+                    || personHidden.contains(pkg)) continue;   // den-tv: hidden for the person watching (DenApps)
             ComponentName component = new ComponentName(pkg, ri.activityInfo.name);
             Cards.Card card = cardByPkg.get(pkg);
             if (card != null && !card.component.equals(component)) continue;   // the card stands in for this tile
@@ -310,7 +312,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Drawable banner = null;
             // uniform_tiles draws the icon, so an app's banner is never loaded. A module card keeps its banner.
             if (!(uniformTiles && card == null)) {
-                banner = bundledBanner(appBanners.get(pkg));
+                banner = DenApps.picture(ctx, pkg);   // den-tv: your own picture for this app, from the phone
+                if (banner == null) banner = bundledBanner(appBanners.get(pkg));
                 if (banner == null) banner = iconTiles.contains(pkg) ? iconBanner(ri.loadIcon(pm)) : loadBanner(pm, ri);
             }
             // The icon is only drawn (and sampled for the glow) when there is no banner, so a tile with a
@@ -519,7 +522,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             h.label.setText(e.label);
             h.label.setVisibility(uniformTiles ? View.GONE : View.VISIBLE);
         }
-        DenIcons.style(ctx, h.card, e.kind == Entry.APP ? e.label : "", position, e.banner != null);   // den-tv: the look's frame over the tile
+        DenIcons.style(ctx, h.card, e.kind == Entry.APP ? e.label : "", position, e.banner != null, e.pkg);   // den-tv: the look's frame over the tile
         h.card.setOnClickListener(v -> launch(e, h.card));
         h.card.setOnLongClickListener(v -> {
             if (tileMenu) {

@@ -16,6 +16,9 @@
   h2 { font-size: 17px; margin: 24px 0 10px; }
   p { color: var(--dim); margin: 0 0 12px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+  .approw { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .approw .chips { grid-column: 1 / -1; }
+  .approw .chip { margin: 0; }
   .np { display: flex; gap: 12px; align-items: center; }
   .np img { width: 72px; height: 41px; border-radius: 8px; object-fit: cover; background: #1b1b24; flex: none; }
   .np .what { flex: 1; min-width: 0; }
@@ -150,10 +153,14 @@
 
   <!-- ===== Looks ===== -->
   <section id="t-looks" data-tab hidden>
-    <input type="search" id="lookFind" placeholder="Find a look" aria-label="Find a look">
+    <div class="row" style="gap:8px"><input type="search" id="lookFind" placeholder="Find a look" aria-label="Find a look" style="flex:1"><button id="surprise" type="button" style="width:auto;flex:none;margin:0">Surprise me</button></div>
     <div id="lookCats" class="chips" style="margin:10px 0"></div>
     <div id="looks" class="looks"></div>
     <div id="lookMsg" class="msg" role="status"></div>
+    <details class="card" id="importCard"><summary><span><b>Add a shared look</b><small>A friend's look code or .json file</small></span></summary><div class="in">
+      <textarea id="importCode" rows="2" placeholder="den1:…"></textarea>
+      <div class="row"><button id="importGo">Add the look</button><label class="ghost" style="text-align:center;padding:12px;border:1px dashed var(--line);border-radius:10px;cursor:pointer">Open a file<input type="file" id="importFile" accept=".json,application/json" hidden></label></div>
+    </div></details>
     <details class="card" id="mineCard"><summary><span><b>Make your own look</b><small>Any look's wallpaper, with your own parts</small></span></summary><div class="in">
       <label for="mName" style="margin-top:0">Name</label><input id="mName" maxlength="24" placeholder="e.g. Saturday nights">
       <label for="mBase">Start from</label><select id="mBase"></select>
@@ -162,6 +169,11 @@
       <button id="mSave">Save and put it on</button>
       <div id="mMsg" class="msg" role="status"></div>
       <div id="mList"></div>
+      <div id="shareBox" class="card" hidden style="margin-top:10px"><b id="shareName"></b>
+        <img id="shareQr" alt="QR code of the look" style="display:block;width:180px;height:180px;margin:10px auto;background:#fff;border-radius:8px;padding:6px">
+        <textarea id="shareCode" rows="3" readonly></textarea>
+        <div class="row"><button id="shareCopy">Copy the code</button><a id="shareFile" class="ghost" style="display:block;text-align:center;padding:12px;border:1px solid var(--line);border-radius:10px">Download .json</a></div>
+      </div>
     </div></details>
     <h2>Your photos</h2>
     <p>Put one of your own photos on Home. It stays on the TV only, and never joins the rotating looks.</p>
@@ -392,6 +404,8 @@
     ['facts', 'Did you know?', 'A fact about the look\'s hero, team or show along the bottom'],
     ['stats', 'System line', 'Free memory and storage under the clock'],
     ['hud', 'HUD panels', 'System, network and Fan Hub panels on the right, as on the Geek look'],
+    ['tile_continue', 'Continue badge', 'CONTINUE on the app you left last (within 3 hours)'],
+    ['tile_time', 'Time on tiles', 'Today\'s time in each app you\'ve watched for 5 minutes or more'],
   ];
   const on = (settings, k, d) => (settings[k] == null ? (d == null ? true : d) : settings[k] === '1');
   function toggles(box, settings, list) {
@@ -399,7 +413,7 @@
     (list || TOGGLES).forEach(([k, title, note]) => {
       const row = el('label', 'toggle');
       const span = el('span', null, title); span.appendChild(el('small', null, note));
-      const cb = el('input'); cb.type = 'checkbox'; cb.dataset.key = k; cb.checked = on(settings, k, !['reduced_motion', 'facts', 'stats', 'hud', 'screen_care'].includes(k));
+      const cb = el('input'); cb.type = 'checkbox'; cb.dataset.key = k; cb.checked = on(settings, k, !['reduced_motion', 'facts', 'stats', 'hud', 'screen_care', 'tile_time'].includes(k));
       row.appendChild(span); row.appendChild(cb); box.appendChild(row);
     });
   }
@@ -410,6 +424,15 @@
     looks.forEach((l) => {
       const b = el('button', 'look' + (l.on ? ' on' : ''), l.name); b.type = 'button';
       if (l.category) b.appendChild(el('small', null, l.category));
+      if (l.id !== 'rotate' && box.id === 'looks') {
+        // A star: favourites come first on the TV's Looks screen, and Surprise me picks from them.
+        const st = el('span', 'restore', l.fav ? '★ Favourite' : '☆'); st.setAttribute('role', 'button'); st.tabIndex = 0; st.style.textDecoration = 'none';
+        st.setAttribute('aria-label', (l.fav ? 'Unstar ' : 'Star ') + l.name);
+        const star = async (ev) => { ev.stopPropagation(); ev.preventDefault(); const r = await api('/api/fav', { id: l.id, on: !l.fav });
+          if (r.json.ok) { l.fav = !l.fav; drawLooks(); } else say(msg, r.json.error || 'Couldn\'t.', true); };
+        st.addEventListener('click', star); st.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') star(ev); });
+        b.appendChild(st);
+      }
       if (l.changed) {
         // Changed from the phone (Tweak → This look): say so, and offer the look's own parts back.
         b.appendChild(el('span', 'chg', 'Changed'));
@@ -533,10 +556,10 @@
   let cat = 'All';
   function drawLooks() {
     const q = $('lookFind').value.trim().toLowerCase();
-    const cats = ['All'].concat([...new Set((S.looks || []).map((l) => l.category).filter(Boolean))]);
+    const cats = ['All'].concat((S.looks || []).some((l) => l.fav) ? ['Favourites'] : [], [...new Set((S.looks || []).map((l) => l.category).filter(Boolean))]);
     const cb = $('lookCats'); cb.innerHTML = '';
     cats.forEach((c) => { const b = el('button', 'chip', c); b.type = 'button'; b.setAttribute('aria-pressed', c === cat ? 'true' : 'false'); b.onclick = () => { cat = c; drawLooks(); }; cb.appendChild(b); });
-    const list = (S.looks || []).filter((l) => (cat === 'All' || l.category === cat || l.id === 'rotate') && (!q || (l.name + ' ' + l.category).toLowerCase().includes(q)));
+    const list = (S.looks || []).filter((l) => (cat === 'All' || (cat === 'Favourites' ? l.fav : l.category === cat) || l.id === 'rotate') && (!q || (l.name + ' ' + l.category).toLowerCase().includes(q)));
     renderLooks($('looks'), $('lookMsg'), list, () => loadPhotos());
   }
   $('lookFind').addEventListener('input', drawLooks);
@@ -558,11 +581,46 @@
       box.appendChild(lab); box.appendChild(s);
     });
     const list = $('mList'); list.innerHTML = '';
-    (r.mine || []).forEach((m) => { const row = el('div', 'toggle'); row.appendChild(el('span', null, m.name));
+    (r.mine || []).forEach((m) => { const row = el('div', 'toggle'); row.appendChild(el('span', null, m.name + (m.photo ? ' (photo)' : '')));
+      const share = el('button', 'ghost', 'Share'); share.style.cssText = 'width:auto;margin:0 6px 0 0';
+      share.onclick = () => shareLook(m);
       const del = el('button', 'ghost', 'Delete'); del.style.cssText = 'width:auto;margin:0';
       del.onclick = async () => { if (confirm('Delete ' + m.name + '?')) { await api('/api/mine', { delete: m.id }); loadMine(); } };
-      row.appendChild(del); list.appendChild(row); });
+      row.appendChild(share); row.appendChild(del); list.appendChild(row); });
   }
+  // Sharing a look: a code (den1: and the recipe), a .json file and a QR code. A photo look shares its parts only:
+  // the photo stays on this TV.
+  const lookCode = (m) => { const j = Object.assign({}, m); delete j.id; delete j.photo; return 'den1:' + btoa(unescape(encodeURIComponent(JSON.stringify(j)))); };
+  function shareLook(m) {
+    const code = lookCode(m), box = $('shareBox'); box.hidden = false;
+    $('shareName').textContent = m.name + (m.photo ? ' (its parts; the photo stays on this TV)' : '');
+    $('shareCode').value = code;
+    $('shareQr').src = '/api/qr?text=' + encodeURIComponent(code);
+    const blob = new Blob([JSON.stringify(Object.assign({}, m, { id: undefined, photo: undefined }), null, 2)], { type: 'application/json' });
+    $('shareFile').href = URL.createObjectURL(blob); $('shareFile').download = (m.name || 'look').replace(/[^\w -]/g, '') + '.den-look.json';
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  $('shareCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('shareCode').value); say($('mMsg'), 'Copied. Send it to a friend with den-tv.'); } catch (e) { $('shareCode').select(); say($('mMsg'), 'Select the code and copy it.'); } });
+  function readLookCode(text) {
+    text = (text || '').trim();
+    try { if (text.startsWith('den1:')) return JSON.parse(decodeURIComponent(escape(atob(text.slice(5))))); return JSON.parse(text); } catch (e) { return null; }
+  }
+  async function importLook(text) {
+    const j = readLookCode(text);
+    if (!j || !j.base) { say($('mMsg'), 'That isn\'t a den-tv look code.', true); return; }
+    const body = { name: String(j.name || 'Shared look').slice(0, 24), base: j.base };
+    ['watcher', 'clock', 'icons', 'icon_layout', 'focus', 'wake', 'extras', 'accent'].forEach((k) => { if (typeof j[k] === 'string') body[k] = j[k]; });
+    const r = await api('/api/mine', body);
+    say($('mMsg'), r.json.ok ? body.name + ' is in My looks, and on Home now.' : (r.json.error || 'This TV doesn\'t have that look to start from.'), !r.json.ok);
+    if (r.json.ok) { $('importCode').value = ''; loadMine(); refreshLooks(); }
+  }
+  $('importGo').addEventListener('click', () => importLook($('importCode').value));
+  $('importFile').addEventListener('change', async () => { const f = $('importFile').files[0]; if (f) importLook(await f.text()); $('importFile').value = ''; });
+  $('surprise').addEventListener('click', async () => {
+    const r = await api('/api/surprise', {});
+    say($('lookMsg'), r.json.ok ? 'Surprise: ' + r.json.name + '.' : (r.json.error || 'Couldn\'t.'), !r.json.ok);
+    if (r.json.ok) { (S.looks || []).forEach((l) => { l.on = l.id === r.json.id; }); drawLooks(); }
+  });
   $('mSave').addEventListener('click', async () => {
     const body = { name: $('mName').value.trim() || 'My look', base: $('mBase').value, accent: $('mAccent').value };
     Object.keys(MPART).forEach((k) => { const v = $('m-' + k).value; if (v) body[k] = v; });
@@ -774,10 +832,22 @@
       name.onchange = async () => { const x = await api('/api/app', { pkg: a.pkg, label: name.value.trim() }); say($('appMsg'), x.json.ok ? 'Renamed.' : (x.json.error || 'Couldn\'t.'), !x.json.ok); };
       const cb = el('input'); cb.type = 'checkbox'; cb.checked = !a.hidden; cb.setAttribute('aria-label', 'Show ' + a.label + ' on Home');
       cb.onchange = async () => { const x = await api('/api/app', { pkg: a.pkg, hidden: !cb.checked }); say($('appMsg'), x.json.ok ? (cb.checked ? a.label + ' is back on Home.' : a.label + ' is hidden.') : (x.json.error || 'Couldn\'t.'), !x.json.ok); };
+      // Your own picture for the tile, and hiding it for whoever is watching only.
+      const pic = el('label', 'chip', a.picture ? 'Picture ✓' : 'Picture'); pic.style.flex = 'none';
+      const pf = el('input'); pf.type = 'file'; pf.accept = 'image/jpeg,image/png'; pf.hidden = true; pic.appendChild(pf);
+      pf.onchange = async () => { const f = pf.files[0]; if (!f) return; if (f.size > 15e6) { say($('appMsg'), 'Pick a picture under 15 MB.', true); return; }
+        say($('appMsg'), 'Sending to the TV…'); const x = await fetch('/api/appicon?pkg=' + encodeURIComponent(a.pkg), { method: 'POST', body: f }); let j = {}; try { j = await x.json(); } catch (e) {}
+        say($('appMsg'), j.ok ? a.label + ' has your picture now. Hold the chip to take it off.' : (j.error || 'The TV couldn\'t take it.'), !j.ok); if (j.ok) pic.firstChild.textContent = 'Picture ✓'; };
+      pic.oncontextmenu = async (ev) => { ev.preventDefault(); if (a.picture && confirm('Take your picture off ' + a.label + '?')) { await api('/api/app', { pkg: a.pkg, picture: false }); pic.firstChild.textContent = 'Picture'; say($('appMsg'), a.label + ' shows its own banner again.'); } };
+      const me = el('button', 'chip', r.json.who ? 'Hide for ' + r.json.who : 'Hide for me'); me.type = 'button'; me.style.flex = 'none'; me.setAttribute('aria-pressed', a.hiddenMe ? 'true' : 'false');
+      me.onclick = async () => { const on = me.getAttribute('aria-pressed') !== 'true'; const x = await api('/api/app', { pkg: a.pkg, hideMe: on });
+        if (x.json.ok) { me.setAttribute('aria-pressed', on ? 'true' : 'false'); say($('appMsg'), on ? a.label + ' is hidden while ' + (r.json.who || 'you') + ' watch' + (r.json.who ? 'es' : '') + '.' : a.label + ' is back for ' + (r.json.who || 'you') + '.'); } else say($('appMsg'), x.json.error || 'Make a profile first (People).', true); };
       const fold = el('button', 'chip', 'Shows'); fold.type = 'button'; fold.setAttribute('aria-pressed', a.folder ? 'true' : 'false'); fold.style.flex = 'none';
       fold.onclick = async () => { const on = fold.getAttribute('aria-pressed') !== 'true'; const x = await api('/api/app', { pkg: a.pkg, folder: on });
         if (x.json.ok) { fold.setAttribute('aria-pressed', on ? 'true' : 'false'); cb.checked = !on; say($('appMsg'), on ? a.label + ' is in the Shows folder.' : a.label + ' is back on the row.'); } };
-      row.appendChild(name); row.appendChild(fold); row.appendChild(cb); box.appendChild(row);
+      row.className = 'approw';
+      const chips = el('div', 'chips'); chips.appendChild(pic); if (r.json.who) chips.appendChild(me); chips.appendChild(fold);
+      row.appendChild(name); row.appendChild(cb); row.appendChild(chips); box.appendChild(row);
     });
     const st = (await api('/api/screentime')).json; $('sortDaily').checked = !!st.smartOrder;
   });

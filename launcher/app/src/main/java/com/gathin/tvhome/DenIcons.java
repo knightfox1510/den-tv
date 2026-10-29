@@ -48,10 +48,12 @@ final class DenIcons {
     static void style(Context ctx, View card, String name, int position) { style(ctx, card, name, position, true); }
 
     /** banner: the tile shows the app's own banner (which usually has its name); false for an icon tile. */
-    static void style(Context ctx, View card, String name, int position, boolean banner) {
+    static void style(Context ctx, View card, String name, int position, boolean banner) { style(ctx, card, name, position, banner, null); }
+
+    static void style(Context ctx, View card, String name, int position, boolean banner, String pkg) {
         if (!(card instanceof FrameLayout)) return;
         float density = ctx.getResources().getDisplayMetrics().density;
-        String badge = DenBadges.forLabel(name);
+        String badge = DenBadges.forApp(pkg, name);
         Frame f = style.isEmpty() && badge == null ? null : new Frame(style, name, position, accent, albiceleste, density, badge);
         if (f != null) f.banner = banner;
         ((FrameLayout) card).setForeground(f);
@@ -240,7 +242,7 @@ final class DenIcons {
             t.setTextSize(11 * dp);
             t.setTextAlign(Paint.Align.CENTER);
             float tw = t.measureText(badge), ph = 18 * dp, pw = tw + 14 * dp, x = w - pw - 6 * dp, y = 6 * dp;
-            fill(badge.startsWith("LIVE") ? 0xffe0202e : 0xffff7a00);
+            fill(badge.startsWith("LIVE") ? 0xffe0202e : badge.equals(DenBadges.CONTINUE) ? 0xff16a394 : badge.startsWith("EP") || badge.equals("NEW") ? 0xffff7a00 : 0xcc2a2a35);
             r.set(x, y, x + pw, y + ph);
             c.drawRoundRect(r, ph / 2, ph / 2, p);
             t.setColor(Color.WHITE);

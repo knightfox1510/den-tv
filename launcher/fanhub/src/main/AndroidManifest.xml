@@ -44,6 +44,12 @@
             android:authorities="tv.den.fanhub.games"
             android:exported="true" />
 
+        <!-- Screen time per app for the den-tv launcher's tile badges; only an app with den-tv's key may read it. -->
+        <provider
+            android:name=".StatsProvider"
+            android:authorities="tv.den.fanhub.stats"
+            android:exported="true" />
+
         <service
             android:name=".PhoneService"
             android:exported="false"
