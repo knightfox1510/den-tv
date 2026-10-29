@@ -2,6 +2,7 @@
   "id": "camp-nou",
   "name": "Camp Nou Nights",
   "category": "Football",
+  "order": 100,
   "for": "owner",
   "scene": "campnou",
   "hero": "messi",

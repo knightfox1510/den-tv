@@ -1,7 +1,8 @@
 {
   "id": "set-ablaze",
   "name": "Set Your Heart Ablaze",
-  "category": "Heroes",
+  "category": "Demon Slayer",
+  "order": 600,
   "for": "owner",
   "scene": "firefist",
   "hero": "rengoku",

@@ -2,6 +2,7 @@
   "id": "manga",
   "name": "Manga Panel",
   "category": "Anime",
+  "order": 840,
   "for": "everyone",
   "scene": "manga",
   "hero": "none",

@@ -4,7 +4,7 @@ The den-tv home screen for Android TV and Google TV: the [cleanyourtv](https://g
 launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top. It installs as
 `tv.den.launcher`, so it sits beside the cleanyourtv launcher or replaces it.
 
-## What it does (v0.7)
+## What it does (v0.8)
 
 - **Looks tile.** A Looks tile in the dock opens every look with its wallpaper. OK puts a look on Home and
   Back keeps what is on. The first tile, "Rotate every look", goes back to a new wallpaper every 5 minutes.
@@ -82,6 +82,18 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   On (or from Bugjaeger: `settings put secure enabled_accessibility_services tv.den.fanhub/tv.den.fanhub.Helper`
   then `settings put secure accessibility_enabled 1`; that replaces any other accessibility service that is on).
   The arrow keys inside other apps and waking the TV aren't possible for an app; the Google TV app does those.
+- **Screensaver.** The look on Home drifting slowly behind its own clock style, the date, what's next from the Fan
+  Hub (a countdown, or LIVE) and a "Did you know?" fact; the clock moves every minute so nothing burns in. Home's
+  idle clock (Tweak → Idle clock on the phone, 10 minutes in den-mix) shows it while Home is open. To use it as the
+  TV's screensaver everywhere, run once from Bugjaeger:
+  `settings put secure screensaver_components tv.den.launcher/com.gathin.tvhome.DenDream`
+  (Google TV's settings only list its own; choosing Ambient mode there again undoes it).
+- **Looks by category.** The TV's Looks screen and the phone list the looks in one order, under Football, Cricket,
+  One Piece, Dragon Ball, Naruto, Demon Slayer, Jujutsu Kaisen, Anime, Heroes, Outdoors, Seasonal, Together, After
+  dark and Geek & code (`category` and `order` in `looks/*.json`).
+- **Sachin and Yamal.** Master Blaster (Sachin at Sharjah, the Desert Storm; his straight drive races to the app and
+  the crowd chants), Rocafonda 304 and Wonderkid (Lamine Yamal; a trivela curls in to the app) and Barça Wings
+  (Yamal and Raphinha; 11 and 10 play a one-two into it). The bat watcher carries the hero's own number.
 - **One long row.** Every app sits in one row that scrolls sideways, as in the mockup. When there are more apps
   past an edge, that edge fades and a pill says how many ("‹ 4", "12 ›"); a slim track under the row shows where
   the focused app is. Watchers that follow the focused app stay on screen at either end of the row. Hold OK on a tile and

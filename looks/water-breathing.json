@@ -1,7 +1,8 @@
 {
   "id": "water-breathing",
   "name": "Water Breathing",
-  "category": "Anime",
+  "category": "Demon Slayer",
+  "order": 610,
   "for": "owner",
   "scene": "wave",
   "hero": "tanjiro",

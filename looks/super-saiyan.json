@@ -1,7 +1,8 @@
 {
   "id": "super-saiyan",
   "name": "Super Saiyan",
-  "category": "Heroes",
+  "category": "Dragon Ball",
+  "order": 400,
   "for": "owner",
   "scene": "saiyan",
   "hero": "goku",

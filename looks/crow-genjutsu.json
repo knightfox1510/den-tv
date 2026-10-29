@@ -1,7 +1,8 @@
 {
   "id": "crow-genjutsu",
   "name": "Crow Genjutsu",
-  "category": "Heroes",
+  "category": "Naruto",
+  "order": 530,
   "for": "owner",
   "scene": "crimson",
   "hero": "itachi",

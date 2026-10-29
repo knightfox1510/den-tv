@@ -1,7 +1,8 @@
 {
   "id": "copy-ninja",
   "name": "Copy Ninja",
-  "category": "Heroes",
+  "category": "Naruto",
+  "order": 520,
   "for": "owner",
   "scene": "leaf",
   "hero": "kakashi",

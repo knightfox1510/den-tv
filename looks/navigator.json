@@ -1,7 +1,8 @@
 {
   "id": "navigator",
   "name": "Navigator",
-  "category": "Heroes",
+  "category": "One Piece",
+  "order": 370,
   "for": "owner",
   "scene": "tangerine",
   "hero": "nami",

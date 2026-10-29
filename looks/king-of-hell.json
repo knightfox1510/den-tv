@@ -2,6 +2,7 @@
   "id": "king-of-hell",
   "name": "King of Hell",
   "category": "One Piece",
+  "order": 350,
   "for": "owner",
   "scene": "asura",
   "hero": "none",

@@ -1,7 +1,8 @@
 {
   "id": "king-of-curses",
   "name": "King of Curses",
-  "category": "Heroes",
+  "category": "Jujutsu Kaisen",
+  "order": 710,
   "for": "owner",
   "scene": "shrine",
   "hero": "sukuna",

@@ -2,6 +2,7 @@
   "id": "fire-fist",
   "name": "Fire Fist",
   "category": "One Piece",
+  "order": 380,
   "for": "owner",
   "scene": "firefist",
   "hero": "ace",

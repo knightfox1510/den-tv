@@ -502,7 +502,38 @@ final class DenWatcherView extends View implements DenLayer.Watcher {
         c.rotate(a.rot + r);
         c.scale(a.sx * ix * (a.flip ? -1 : 1), a.sy * iy);
         c.drawBitmap(a.bmp, -a.ax, -a.ay, p);
+        if (kind.equals("bat") && !number.isEmpty() && !actors.isEmpty() && a == actors.get(0)) {
+            // The shirt number on the blade, the hero's own (Kohli 18, Rohit 45, Sachin 10), where the mockup prints it.
+            numberPaint.setAlpha(p.getAlpha());
+            c.drawText(number, 360, 12, numberPaint);
+        }
         c.restore();
+    }
+
+    private String number = "";
+    private final Paint numberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    /** The number the bat carries; "" for none. */
+    DenWatcherView number(String n) {
+        number = n == null ? "" : n;
+        numberPaint.setColor(0xff004ba0);
+        numberPaint.setTextSize(34);
+        numberPaint.setTextAlign(Paint.Align.CENTER);
+        Typeface f;
+        try { f = getResources().getFont(R.font.outfit); } catch (RuntimeException e) { f = Typeface.SANS_SERIF; }
+        numberPaint.setTypeface(android.os.Build.VERSION.SDK_INT >= 28 ? Typeface.create(f, 900, false) : Typeface.create(f, Typeface.BOLD));
+        invalidate();
+        return this;
+    }
+
+    /** A hero's shirt number, for the bat; "" when the look has no hero with one. */
+    static String numberFor(String hero) {
+        switch (hero == null ? "" : hero) {
+            case "kohli": return "18";
+            case "rohit": return "45";
+            case "sachin": case "messi": case "yamal": return "10";
+            default: return "";
+        }
     }
 
     private boolean drawPole(Canvas c, long now) {

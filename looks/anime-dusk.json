@@ -2,6 +2,7 @@
   "id": "anime-dusk",
   "name": "Anime Dusk",
   "category": "Anime",
+  "order": 850,
   "for": "everyone",
   "scene": "dusk",
   "hero": "none",

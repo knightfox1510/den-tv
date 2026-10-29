@@ -2,6 +2,7 @@
   "id": "king-kohli",
   "name": "King Kohli",
   "category": "Cricket",
+  "order": 210,
   "for": "owner",
   "scene": "king",
   "hero": "kohli",

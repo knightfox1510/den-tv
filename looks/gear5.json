@@ -2,6 +2,7 @@
   "id": "gear5",
   "name": "Gear 5",
   "category": "One Piece",
+  "order": 310,
   "for": "owner",
   "scene": "clouds",
   "hero": "none",

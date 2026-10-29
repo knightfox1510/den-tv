@@ -1,7 +1,8 @@
 {
   "id": "strongest",
   "name": "Humanity's Strongest",
-  "category": "Heroes",
+  "category": "Anime",
+  "order": 820,
   "for": "owner",
   "scene": "walls",
   "hero": "levi",

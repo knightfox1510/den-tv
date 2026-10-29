@@ -42,6 +42,8 @@ final class DenLooks {
         String clock = "", icons = "", iconLayout = "", hero = "", scene = "", audience = "everyone", moment = "none", extras = "auto",
                 figure = "", focus = "";
         boolean hud;
+        /** Place in the gallery: category blocks of 100 (looks/README.md). */
+        int order = 9000;
 
         boolean hasEyes() { return EYES.contains(watcher); }
     }
@@ -83,6 +85,9 @@ final class DenLooks {
             String wall = sceneWall.get(j.optString("scene"));
             if (wall != null) looks.add(look(j, wall));
         }
+        // The gallery's order everywhere (the TV's picker, the phone, the provider): by category, then each look's
+        // place in it ("order" in looks/*.json; a look without one goes to the end).
+        looks.sort((a, b) -> Integer.compare(a.order, b.order));
         // Your own looks, made on the phone: each starts from a look's wallpaper and scene, with its own parts.
         try {
             JSONArray mine = new JSONArray(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(MINE, "[]"));
@@ -156,6 +161,7 @@ final class DenLooks {
         l.figure = j.optString("figure", "");
         l.hud = j.optBoolean("hud", false);
         l.focus = j.optString("focus", "");
+        l.order = j.optInt("order", 9000);
         return l;
     }
 

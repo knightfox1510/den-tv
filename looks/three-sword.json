@@ -1,7 +1,8 @@
 {
   "id": "three-sword",
   "name": "Three-Sword Style",
-  "category": "Heroes",
+  "category": "One Piece",
+  "order": 340,
   "for": "owner",
   "scene": "zoro",
   "hero": "zoro",

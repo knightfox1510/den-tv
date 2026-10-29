@@ -2,6 +2,7 @@
   "id": "our-wall",
   "name": "Our Wall",
   "category": "Together",
+  "order": 1220,
   "for": "everyone",
   "scene": "dusk",
   "hero": "none",

@@ -2,6 +2,7 @@
   "id": "goat",
   "name": "GOAT",
   "category": "Football",
+  "order": 120,
   "for": "owner",
   "scene": "goat",
   "hero": "messi",

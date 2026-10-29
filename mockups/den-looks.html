@@ -702,6 +702,88 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
           ['#ff9933', '#ffffff', '#138808'].forEach((c, k) => { g.fillStyle = c; g.fillRect(x + 22 * s, jy - 40 * s + k * 10 * s, 44 * s, 10 * s); }); g.fillStyle = '#0a3a8a'; g.beginPath(); g.arc(x + 44 * s, jy - 25 * s, 3.5 * s, 0, 7); g.fill(); } } }
     g.fillStyle = lin(g, 900, 1080, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.7)']]); g.fillRect(0, 900, W, 180);
   }
+  // Desert Storm: Sharjah at dusk, a sandstorm blowing through the floodlights (Sachin's 143 in 1998).
+  function sharjah(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#160c34'], [.32, '#6a2a4c'], [.55, '#d8703a'], [.7, '#f2b050'], [1, '#2a1408']]); g.fillRect(0, 0, W, H);
+    stars(g, 30, 160, 41, .2);
+    g.globalCompositeOperation = 'lighter'; glow(g, 560, 600, 460, 'rgba(255,190,90,.45)'); g.globalCompositeOperation = 'source-over';
+    g.fillStyle = '#ffd98e'; g.beginPath(); g.arc(560, 600, 92, 0, 7); g.fill();
+    const T = [[170, 300], [690, 250], [1230, 250], [1750, 300]];
+    g.fillStyle = '#26100a'; g.beginPath(); g.moveTo(-20, 690); g.quadraticCurveTo(960, 500, 1940, 690); g.lineTo(1940, 760); g.lineTo(-20, 760); g.closePath(); g.fill();
+    const r = rng(19);
+    for (let i = 0; i < 9000; i++) { const x = r() * W, y = 560 + r() * 190; const edge = 690 - 190 * Math.sin(Math.PI * x / W) * 0.98; if (y < edge + 8 || y > 755) continue; g.fillStyle = r() < .2 ? '#5a2e1a' : r() < .08 ? '#f2d8b0' : '#3a1a10'; g.fillRect(x, y, 3, 3); }
+    T.forEach(([x, y]) => { g.strokeStyle = '#1a0a05'; g.lineWidth = 10; g.beginPath(); g.moveTo(x, y + 40); g.lineTo(x, 700); g.stroke(); g.fillStyle = '#1a0a05'; g.fillRect(x - 62, y - 6, 124, 50);
+      for (let i = 0; i < 6; i++) for (let j = 0; j < 2; j++) { g.fillStyle = '#fff4d6'; g.fillRect(x - 56 + i * 19.5, y + j * 22, 14, 16); }
+      g.globalCompositeOperation = 'lighter'; glow(g, x, y + 18, 190, 'rgba(255,232,190,.38)');
+      const gr = g.createLinearGradient(x, y, 960, 860); gr.addColorStop(0, 'rgba(255,236,200,.14)'); gr.addColorStop(1, 'rgba(255,236,200,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(x - 40, y + 20); g.lineTo(x + 40, y + 20); g.lineTo(x < 960 ? 1240 : 1000, 900); g.lineTo(x < 960 ? 920 : 680, 900); g.closePath(); g.fill();
+      g.globalCompositeOperation = 'source-over'; });
+    g.save(); g.beginPath(); g.ellipse(960, 930, 1200, 250, 0, 0, 7); g.clip();
+    for (let k = 0; k < 10; k++) { g.fillStyle = k % 2 ? '#7a8a3a' : '#6c7c32'; g.beginPath(); g.ellipse(960, 930, 1200 * (1 - k / 10), 250 * (1 - k / 10), 0, 0, 7); g.fill(); }
+    g.fillStyle = '#d8b878'; g.beginPath(); g.moveTo(935, 790); g.lineTo(985, 790); g.lineTo(1006, 980); g.lineTo(914, 980); g.closePath(); g.fill();
+    g.fillStyle = '#f6ecd0'; [949, 960, 971].forEach((x) => g.fillRect(x - 1.5, 792, 3, 15)); [940, 960, 980].forEach((x) => g.fillRect(x - 2, 958, 4, 20));
+    g.restore();
+    [[830, 34, 3, '#c98a4a'], [880, 44, 7, '#a86a34'], [960, 40, 11, '#6a3a1c']].forEach(([b, a, s, c]) => ridge(g, b + 70, a, s, c));
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 700; i++) { const x = r() * W * 1.3 - 300, y = 160 + r() * 860, L = 80 + r() * 300; g.strokeStyle = 'rgba(255,200,140,' + (.035 + r() * .07) + ')'; g.lineWidth = 1 + r() * 2.2; g.beginPath(); g.moveTo(x, y); g.lineTo(x + L, y - L * .1); g.stroke(); }
+    g.globalCompositeOperation = 'source-over';
+    g.fillStyle = lin(g, 480, 880, [[0, 'rgba(255,170,100,0)'], [.5, 'rgba(240,150,90,.22)'], [1, 'rgba(255,170,100,0)']]); g.fillRect(0, 480, W, 400);
+    g.fillStyle = lin(g, 960, 1080, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.85)']]); g.fillRect(0, 960, W, 120);
+  }
+  // Rocafonda: a street cage at night in Mataró, the 304 on the wall (Lamine Yamal's neighbourhood).
+  function rocafonda(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#04050e'], [.5, '#121836'], [1, '#090a12']]); g.fillRect(0, 0, W, H);
+    stars(g, 40, 220, 31, .25);
+    const r = rng(23); let x = -30;
+    while (x < W) { const w = 170 + r() * 170, h = 280 + r() * 280, top = 600 - h; g.fillStyle = r() < .5 ? '#0b0e1d' : '#0e1224'; g.fillRect(x, top, w, h + 60);
+      for (let wy = top + 26; wy < 570; wy += 40) for (let wx = x + 18; wx < x + w - 24; wx += 36) if (r() < .42) { g.globalAlpha = .5 + r() * .45; g.fillStyle = r() < .55 ? '#ffd27a' : r() < .5 ? '#ffb24a' : '#9fc8ff'; g.fillRect(wx, wy, 16, 22); g.globalAlpha = 1; }
+      g.fillStyle = 'rgba(0,0,0,.35)'; for (let by = top + 60; by < 560; by += 80) g.fillRect(x + 6, by, w - 12, 6);
+      x += w + 12; }
+    g.fillStyle = '#272230'; g.fillRect(0, 560, W, 240);
+    g.strokeStyle = 'rgba(0,0,0,.28)'; g.lineWidth = 2; for (let y = 586; y < 800; y += 28) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); for (let bx = (y / 28 % 2) * 40; bx < W; bx += 80) { g.beginPath(); g.moveTo(bx, y - 28); g.lineTo(bx, y); g.stroke(); } }
+    g.save(); g.translate(560, 690); g.rotate(-.06); g.font = '900 250px Outfit, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.lineWidth = 22; g.strokeStyle = '#edbb00'; g.lineJoin = 'round'; g.strokeText('304', 0, 0);
+    const gr = g.createLinearGradient(-220, 0, 220, 0); gr.addColorStop(0, '#a50044'); gr.addColorStop(.5, '#7a1a6a'); gr.addColorStop(1, '#004d98'); g.fillStyle = gr; g.fillText('304', 0, 0);
+    g.fillStyle = '#a50044'; [[-150, 95, 40], [-40, 100, 60], [90, 96, 30], [170, 98, 52]].forEach(([dx, dy, l]) => g.fillRect(dx, dy, 6, l)); g.restore();
+    g.save(); g.translate(1150, 650); g.rotate(.03); g.font = 'italic 800 70px Outfit, sans-serif'; g.fillStyle = 'rgba(255,255,255,.88)'; g.fillText('ROCAFONDA', 0, 0);
+    g.font = '700 36px Outfit, sans-serif'; g.fillStyle = '#edbb00'; g.fillText('MATARÓ · 08304', 6, 52); g.restore();
+    g.strokeStyle = 'rgba(190,205,230,.17)'; g.lineWidth = 2; for (let k = -1200; k < W + 1200; k += 34) { g.beginPath(); g.moveTo(k, 410); g.lineTo(k + 420, 830); g.stroke(); g.beginPath(); g.moveTo(k, 830); g.lineTo(k + 420, 410); g.stroke(); }
+    g.fillStyle = '#3a4152'; for (let px = 30; px < W; px += 310) g.fillRect(px, 396, 12, 440); g.fillRect(0, 396, W, 9);
+    g.fillStyle = lin(g, 830, H, [[0, '#2c3648'], [1, '#121824']]); g.fillRect(0, 830, W, 250);
+    g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 5; g.beginPath(); g.moveTo(0, 850); g.lineTo(W, 850); g.stroke(); g.beginPath(); g.ellipse(960, 980, 300, 80, 0, Math.PI, 0); g.stroke();
+    g.strokeStyle = '#d8dde6'; g.lineWidth = 9; g.beginPath(); g.moveTo(90, 852); g.lineTo(90, 700); g.lineTo(330, 700); g.lineTo(330, 852); g.stroke();
+    g.strokeStyle = 'rgba(220,225,235,.25)'; g.lineWidth = 1.5; for (let nx = 100; nx < 330; nx += 16) { g.beginPath(); g.moveTo(nx, 704); g.lineTo(nx, 850); g.stroke(); } for (let ny = 712; ny < 850; ny += 16) { g.beginPath(); g.moveTo(94, ny); g.lineTo(326, ny); g.stroke(); }
+    g.fillStyle = '#1a1d28'; g.fillRect(1598, 290, 12, 560); g.fillRect(1560, 286, 64, 12); g.fillStyle = '#ffe2a8'; g.fillRect(1562, 298, 42, 8);
+    g.globalCompositeOperation = 'lighter'; glow(g, 1585, 320, 560, 'rgba(255,190,110,.22)'); glow(g, 1500, 900, 420, 'rgba(255,190,120,.12)'); g.globalCompositeOperation = 'source-over';
+    g.fillStyle = 'rgba(0,0,0,.4)'; g.beginPath(); g.ellipse(1190, 952, 30, 8, 0, 0, 7); g.fill();
+    g.fillStyle = '#f4f4f4'; g.beginPath(); g.arc(1190, 926, 26, 0, 7); g.fill(); g.fillStyle = '#1a1a1a'; g.beginPath(); for (let k = 0; k < 5; k++) { const a = k / 5 * 6.283 - 1.57; g.lineTo(1190 + Math.cos(a) * 10, 926 + Math.sin(a) * 10); } g.closePath(); g.fill();
+    g.fillStyle = lin(g, 980, 1080, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.85)']]); g.fillRect(0, 980, W, 100);
+  }
+  // Barça Wings: a tactics board under the lights, Raphinha's run down the left and Yamal's down the right.
+  function wingsScene(g) {
+    g.fillStyle = lin(g, 0, H, [[0, '#03061a'], [1, '#0a1634']]); g.fillRect(0, 0, W, H);
+    stars(g, 40, 200, 57, .25);
+    g.globalCompositeOperation = 'lighter'; [[260, 90], [760, 60], [1160, 60], [1660, 90]].forEach(([x, y]) => glow(g, x, y, 300, 'rgba(210,230,255,.22)')); g.globalCompositeOperation = 'source-over';
+    const top = 250, bot = 1100, X = (t, u) => { const l = 560 + (-260 - 560) * t, rr = 1360 + (2180 - 1360) * t; return l + (rr - l) * u; }, Y = (t) => top + (bot - top) * t;
+    for (let k = 0; k < 14; k++) { const t0 = k / 14, t1 = (k + 1) / 14; g.fillStyle = k % 2 ? '#1f7036' : '#247d3d'; g.beginPath(); g.moveTo(X(t0, 0), Y(t0)); g.lineTo(X(t0, 1), Y(t0)); g.lineTo(X(t1, 1), Y(t1)); g.lineTo(X(t1, 0), Y(t1)); g.closePath(); g.fill(); }
+    g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 4;
+    g.beginPath(); g.moveTo(X(0, 0), Y(0)); g.lineTo(X(0, 1), Y(0)); g.lineTo(X(1, 1), Y(1)); g.moveTo(X(1, 0), Y(1)); g.lineTo(X(0, 0), Y(0)); g.stroke();
+    g.beginPath(); g.moveTo(X(0, .28), Y(0)); g.lineTo(X(.16, .28), Y(.16)); g.lineTo(X(.16, .72), Y(.16)); g.lineTo(X(0, .72), Y(0)); g.stroke();
+    g.beginPath(); g.moveTo(X(0, .42), Y(0)); g.lineTo(X(.06, .42), Y(.06)); g.lineTo(X(.06, .58), Y(.06)); g.lineTo(X(0, .58), Y(0)); g.stroke();
+    g.beginPath(); g.moveTo(X(.62, 0), Y(.62)); g.lineTo(X(.62, 1), Y(.62)); g.stroke(); g.beginPath(); g.ellipse(X(.62, .5), Y(.62), 190, 64, 0, 0, 7); g.stroke();
+    g.fillStyle = '#e8ecf4'; g.fillRect(X(0, .45), Y(0) - 26, X(0, .55) - X(0, .45), 26);
+    const run = (pts, c) => { g.save(); g.strokeStyle = c; g.lineWidth = 9; g.lineCap = 'round'; g.setLineDash([2, 20]); g.shadowColor = c; g.shadowBlur = 18; g.beginPath(); g.moveTo(X(pts[0][0], pts[0][1]), Y(pts[0][0]));
+      g.bezierCurveTo(X(pts[1][0], pts[1][1]), Y(pts[1][0]), X(pts[2][0], pts[2][1]), Y(pts[2][0]), X(pts[3][0], pts[3][1]), Y(pts[3][0])); g.stroke(); g.setLineDash([]);
+      const ex = X(pts[3][0], pts[3][1]), ey = Y(pts[3][0]), px = X(pts[2][0], pts[2][1]), py = Y(pts[2][0]), a = Math.atan2(ey - py, ex - px); g.fillStyle = c; g.beginPath(); g.moveTo(ex + Math.cos(a) * 26, ey + Math.sin(a) * 26); g.lineTo(ex + Math.cos(a + 2.5) * 26, ey + Math.sin(a + 2.5) * 26); g.lineTo(ex + Math.cos(a - 2.5) * 26, ey + Math.sin(a - 2.5) * 26); g.fill(); g.restore(); };
+    run([[.8, .1], [.55, .03], [.32, .06], [.17, .22]], '#edbb00');
+    run([[.78, .9], [.55, .98], [.34, .9], [.19, .7]], '#ff4d8a');
+    g.save(); g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 4; g.setLineDash([16, 12]); g.beginPath(); g.moveTo(X(.17, .22), Y(.17)); g.quadraticCurveTo(X(.05, .5), Y(.05), X(.19, .7), Y(.19)); g.stroke(); g.restore();
+    const chip = (t, u, num, c1, c2) => { const x = X(t, u), y = Y(t); g.fillStyle = 'rgba(0,0,0,.4)'; g.beginPath(); g.ellipse(x, y + 44, 46, 12, 0, 0, 7); g.fill();
+      g.fillStyle = c1; g.beginPath(); g.arc(x, y, 44, 0, 7); g.fill(); g.lineWidth = 8; g.strokeStyle = c2; g.stroke(); g.fillStyle = '#fff'; g.font = '900 46px Outfit, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(num, x, y + 2); };
+    chip(.8, .1, '11', '#004d98', '#edbb00'); chip(.78, .9, '10', '#a50044', '#edbb00');
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(X(.19, .7) + 30, Y(.19) - 6, 13, 0, 7); g.fill();
+    g.globalCompositeOperation = 'lighter'; glow(g, 960, 700, 900, 'rgba(255,255,255,.08)'); g.globalCompositeOperation = 'source-over';
+    g.fillStyle = lin(g, 960, 1080, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.8)']]); g.fillRect(0, 960, W, 120);
+  }
   function crimson(g) {
     g.fillStyle = lin(g, 0, H, [[0, '#060002'], [.5, '#2a0508'], [1, '#0c0103']]); g.fillRect(0, 0, W, H);
     glow(g, 1300, 420, 620, 'rgba(255,40,30,.35)');
@@ -1279,7 +1361,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   function heroBlack(g, o) { g.fillStyle = '#050507'; g.fillRect(0, 0, W, H); const h = HEROES[o.hero] || HEROES.messi; glow(g, 1450, 520, 820, h.c1); glow(g, 1750, 1000, 600, h.c2); }
 
   const SCENES = {
-    campnou: { n: 'Camp Nou at night', p: campNou }, wankhede: { n: 'Wankhede under lights', p: wankhede }, bluebillion: { n: 'Sea of blue', p: blueBillion },
+    campnou: { n: 'Camp Nou at night', p: campNou }, sharjah: { n: 'Desert Storm', p: sharjah }, rocafonda: { n: 'Rocafonda street cage', p: rocafonda }, yamalnou: { n: 'Camp Nou, Yamal tifo', p: (g) => campNou(g, { tifo: 'LAMINE YAMAL' }) }, wings: { n: 'Barça wings tactics board', p: wingsScene }, wankhede: { n: 'Wankhede under lights', p: wankhede }, bluebillion: { n: 'Sea of blue', p: blueBillion },
     crimson: { n: 'Crimson moon', p: crimson }, domain: { n: 'Infinite void', p: domain }, grandline: { n: 'Moonlit sea', p: grandLine }, wave: { n: 'The great wave', p: wave },
     manga: { n: 'Manga pages', p: manga }, dusk: { n: 'Anime dusk', p: dusk }, dawn: { n: 'Trail dawn', p: dawn }, monsoon: { n: 'Monsoon ridges', p: (g) => dawn(g, { grey: 1 }) },
     neon: { n: 'Neon city', p: neon }, seoul: { n: 'Seoul neon', p: (g) => neon(g, { pink: 1 }) }, diwali: { n: 'Diwali night', p: diwali }, marquee: { n: 'Velvet marquee', p: (g) => diwali(g, { red: 1 }) },
@@ -1291,6 +1373,9 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   const HEROES = {
     messi: { n: 'LIONEL MESSI', big: 'MESSI', sub: 'BARÇA LEGEND · NO. 10', num: '10', ac: '#edbb00', c1: 'rgba(165,0,68,.55)', c2: 'rgba(0,77,152,.55)' },
     kohli: { n: 'VIRAT KOHLI', big: 'KOHLI', sub: 'KING KOHLI · INDIA', num: '18', ac: '#ff9933', c1: 'rgba(31,95,209,.55)', c2: 'rgba(255,153,51,.35)' },
+    sachin: { n: 'SACHIN TENDULKAR', big: 'SACHIN', sub: 'MASTER BLASTER · INDIA · NO. 10', num: '10', ac: '#5aa9ff', c1: 'rgba(31,95,209,.55)', c2: 'rgba(255,153,51,.35)' },
+    yamal: { n: 'LAMINE YAMAL', big: 'YAMAL', sub: 'LA MASIA · BARÇA · NO. 10', num: '10', ac: '#edbb00', c1: 'rgba(165,0,68,.55)', c2: 'rgba(0,77,152,.55)' },
+    wings: { n: 'YAMAL & RAPHINHA', big: 'WINGS', sub: 'YAMAL 10 · RAPHINHA 11 · BARÇA', emb: 'pair', pair: ['11', '10'], ac: '#edbb00', c1: 'rgba(165,0,68,.5)', c2: 'rgba(0,77,152,.5)' },
     rohit: { n: 'ROHIT SHARMA', big: 'ROHIT', sub: 'THE HITMAN · MUMBAI INDIANS', num: '45', ac: '#d1ab3e', c1: 'rgba(0,75,160,.62)', c2: 'rgba(209,171,62,.35)' },
     luffy: { n: 'MONKEY D. LUFFY', big: 'LUFFY', sub: 'STRAW HAT · ONE PIECE', emb: 'hat', ac: '#e8c16a', c1: 'rgba(30,60,120,.5)', c2: 'rgba(190,40,40,.3)' },
     gojo: { n: 'SATORU GOJO', big: 'GOJO', sub: 'LIMITLESS · JUJUTSU KAISEN', emb: 'rings', ac: '#9fd8ff', c1: 'rgba(40,120,255,.45)', c2: 'rgba(140,90,255,.35)' },
@@ -1316,7 +1401,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     sukuna: { n: 'RYOMEN SUKUNA', big: 'SUKUNA', sub: 'KING OF CURSES · JUJUTSU KAISEN', emb: 'marks', ac: '#ff2a2a', c1: 'rgba(220,20,20,.45)', c2: 'rgba(60,0,0,.5)' },
     tanjiro: { n: 'TANJIRO KAMADO', big: 'TANJIRO', sub: 'WATER BREATHING · DEMON SLAYER', emb: 'check', ac: '#8fd0ff', c1: 'rgba(30,120,90,.45)', c2: 'rgba(40,110,220,.35)' },
   };
-  const HERO_ORDER = ['messi', 'kohli', 'goku', 'vegeta', 'rohit', 'luffy', 'sasuke', 'levi', 'ichigo', 'jinwoo', 'saitama', 'rengoku', 'sukuna', 'nami', 'naruto', 'kakashi', 'itachi', 'gojo', 'zoro', 'sanji', 'robin', 'ace', 'law', 'chopper', 'shinobu', 'tanjiro'];
+  const HERO_ORDER = ['messi', 'kohli', 'sachin', 'yamal', 'goku', 'vegeta', 'rohit', 'luffy', 'sasuke', 'levi', 'ichigo', 'jinwoo', 'saitama', 'rengoku', 'sukuna', 'nami', 'naruto', 'kakashi', 'itachi', 'gojo', 'zoro', 'sanji', 'robin', 'ace', 'law', 'chopper', 'shinobu', 'tanjiro'];
   function swordPath(g, hc) {
     g.save(); g.translate(-240, 0);
     g.fillStyle = hc; g.fillRect(0, -9, 120, 18); g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 3; for (let x = 6; x < 118; x += 14) { g.beginPath(); g.moveTo(x, -9); g.lineTo(x + 7, 9); g.moveTo(x + 7, -9); g.lineTo(x, 9); g.stroke(); }
@@ -1328,6 +1413,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     g.clearRect(0, 0, W, H); const h0 = HEROES[id]; if (!h0) return; const h = noEmb ? Object.assign({}, h0, { emb: 'none', num: null }) : h0;
     g.save(); g.shadowColor = 'rgba(0,0,0,.7)'; g.shadowBlur = 30;
     if (h.num) { g.font = '900 540px Outfit, sans-serif'; g.textAlign = 'center'; g.lineWidth = 6; g.strokeStyle = h.ac; g.globalAlpha = soft ? .42 : .9; g.strokeText(h.num, 1450, 640); g.globalAlpha = soft ? .05 : .14; g.fillStyle = '#fff'; g.fillText(h.num, 1450, 640); }
+    else if (h.emb === 'pair') { g.font = '900 420px Outfit, sans-serif'; g.textAlign = 'center'; g.lineWidth = 6; [[h.pair[0], 1300, 600, '#5aa9ff'], [h.pair[1], 1610, 660, h.ac]].forEach(([t, x, y, c]) => { g.strokeStyle = c; g.globalAlpha = soft ? .42 : .9; g.strokeText(t, x, y); g.globalAlpha = soft ? .05 : .14; g.fillStyle = '#fff'; g.fillText(t, x, y); }); }
     else if (h.emb === 'hat') { g.globalAlpha = .95; g.translate(1450, 470); g.rotate(-.08); g.fillStyle = '#c9a24e'; g.beginPath(); g.ellipse(0, 40, 330, 70, 0, 0, 7); g.fill(); g.fillStyle = '#d8b25a'; g.beginPath(); g.ellipse(0, -10, 170, 120, 0, Math.PI, 0); g.fill(); g.fillRect(-170, -10, 340, 40); g.fillStyle = '#b3262a'; g.fillRect(-170, -6, 340, 34); g.setTransform(1, 0, 0, 1, 0, 0); }
     else if (h.emb === 'rings') { g.globalCompositeOperation = 'lighter'; for (let i = 0; i < 12; i++) { g.strokeStyle = 'rgba(140,210,255,' + (.4 - i * .03) + ')'; g.lineWidth = 3; g.beginPath(); g.arc(1450, 430, 40 + i * 24, 0, 7); g.stroke(); } glow(g, 1450, 430, 170, 'rgba(220,245,255,.9)'); g.globalCompositeOperation = 'source-over'; }
     else if (h.emb === 'check') { const s = 44; g.save(); g.beginPath(); g.arc(1450, 430, 210, 0, 7); g.clip(); for (let y = 200; y < 660; y += s) for (let x = 1220; x < 1680; x += s) { g.fillStyle = (((x - 1220) / s + (y - 200) / s) & 1) ? '#1d6b52' : '#0b0b0b'; g.fillRect(x, y, s, s); } g.restore(); g.strokeStyle = '#8fd0ff'; g.lineWidth = 5; g.beginPath(); g.arc(1450, 430, 214, 0, 7); g.stroke(); g.strokeStyle = 'rgba(140,200,255,.8)'; g.lineWidth = 8; g.beginPath(); for (let t = 0; t <= 1; t += .01) { const x = 1120 + t * 660, y = 470 + Math.sin(t * 9) * 80; t ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
@@ -1367,81 +1453,85 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   const FOCUS = { spot: 'Spotlight beam', pass: 'Football pass', arc: 'Ball-tracking arc', ripple: 'Water ripple', aura: 'Energy aura' };
   const WAKE = { boing: 'Rubber bounce', hudboot: 'HUD boot-up', termboot: 'Terminal boot', room: 'ROOM sphere', fire: 'Fire Fist blaze', powerup: 'Power-up aura', slash: 'Three-sword slash', storm: 'Thunderstorm', flutter: 'Butterfly swarm', sharingan: 'Sharingan spin', tunnel: 'Stadium tunnel walk-out', panels: 'Manga panels', ink: 'Ink brush wipe', bloom: 'Light bloom', crt: 'Old TV switch-on' };
   const CLOCK = { term: 'Terminal', hud: 'HUD readout', analog: 'Analog dial', words: 'In words', neon: 'Neon tube', flap: 'Split-flap board', ring: 'Seconds ring', thin: 'Thin', roll: 'Rolling seconds', board: 'Stadium scoreboard', over: 'Cricket over', brush: 'Brush stroke', crt: 'Retro pixel' };
-  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)', dragonballs: 'Dragon Balls (gather over it)', pole: 'Power Pole (extends to it)', cloud: 'Thundercloud (drifts over it)', butterflies: 'Butterflies (fly to it)', chidori: 'Chidori (zips to it)', crows: 'Crows (fly to it)', room: 'ROOM (wraps it)', hearts: 'Hearts (float to it)', hands: 'Hands (point at it)', chopperhat: 'Chopper\'s hat (turns to it)', bat: 'Cricket bat (points at it)', fedora: 'Fedora (tilts to it)', dice: 'Dice (roll to it)', ballondor: 'Golden ball (floats over it)', dribble: 'Dribbling ball (weaves to it)', crown: 'Crown (hovers over it)', reticle: 'Targeting reticle (locks on)', caret: 'Text cursor (types its name)', rinnegan: 'Rinnegan eyes', walkluffy: 'Luffy walks to it', walkg5: 'Gear 5 Luffy bounces to it', walkzoro: 'Zoro walks to it (eventually)', compass: 'Zoro\'s compass (points the wrong way)', scouter: 'Scouter (reads its power level)', odm: 'ODM gear cables (grapple it)', getsuga: 'Getsuga slash (flies to it)', shadows: 'Shadow soldiers (rise beside it)', fist: 'Serious punch (aims at it)', nichirin: 'Flame sword (points at it)', cleave: 'Cleave (cuts beside it)' };
+  const MASCOT = { none: 'None', sharingan: 'Sharingan', mangekyo: 'Mangekyō Sharingan', six: 'Six Eyes', saiyan: 'Super Saiyan eyes', ui: 'Ultra Instinct eyes', kurama: 'Nine-Tails eyes', sage: 'Sage Mode eyes', luffy: 'Straw hat (turns to follow)', zoro: 'Three swords (point the way)', dragonballs: 'Dragon Balls (gather over it)', pole: 'Power Pole (extends to it)', cloud: 'Thundercloud (drifts over it)', butterflies: 'Butterflies (fly to it)', chidori: 'Chidori (zips to it)', crows: 'Crows (fly to it)', room: 'ROOM (wraps it)', hearts: 'Hearts (float to it)', hands: 'Hands (point at it)', chopperhat: 'Chopper\'s hat (turns to it)', bat: 'Cricket bat (points at it)', fedora: 'Fedora (tilts to it)', dice: 'Dice (roll to it)', ballondor: 'Golden ball (floats over it)', dribble: 'Dribbling ball (weaves to it)', crown: 'Crown (hovers over it)', reticle: 'Targeting reticle (locks on)', caret: 'Text cursor (types its name)', rinnegan: 'Rinnegan eyes', walkluffy: 'Luffy walks to it', walkg5: 'Gear 5 Luffy bounces to it', walkzoro: 'Zoro walks to it (eventually)', compass: 'Zoro\'s compass (points the wrong way)', scouter: 'Scouter (reads its power level)', odm: 'ODM gear cables (grapple it)', getsuga: 'Getsuga slash (flies to it)', shadows: 'Shadow soldiers (rise beside it)', fist: 'Serious punch (aims at it)', nichirin: 'Flame sword (points at it)', cleave: 'Cleave (cuts beside it)', drive: 'Straight drive (ball races to it, the crowd chants)', trivela: 'Trivela (ball curls to it)', onetwo: 'One-two (10 and 11 pass it in)' };
   const EYE_TYPES = ['sharingan', 'mangekyo', 'six', 'saiyan', 'ui', 'kurama', 'sage', 'rinnegan'];
   const AMB = { auto: 'Matches the scene', none: 'None', flashes: 'Camera flashes', flags: 'Flags and flashes', fireworks: 'Fireworks', crows: 'Crows', petals: 'Petals', embers: 'Embers', confetti: 'Confetti', sparks: 'Blue sparks', gold: 'Golden sparks', silver: 'Silver sparks', leaves: 'Falling leaves', wisteria: 'Wisteria petals', rain: 'Rain', snow: 'Snow' };
   const MOMENT = { goal: 'Goal!', six: 'Six!', beam: 'Kamehameha', arise: 'Arise', punch: 'One punch', gear5: 'Drums of Liberation', drop: 'New episode', none: 'None' };
-  const HEROOPT = { none: 'None', rotate: 'Rotate my heroes', messi: 'Lionel Messi', kohli: 'Virat Kohli', rohit: 'Rohit Sharma', goku: 'Goku', vegeta: 'Vegeta', naruto: 'Naruto', sasuke: 'Sasuke', levi: 'Levi', ichigo: 'Ichigo', jinwoo: 'Sung Jinwoo', saitama: 'Saitama', rengoku: 'Rengoku', sukuna: 'Sukuna', kakashi: 'Kakashi', itachi: 'Itachi', ace: 'Ace', law: 'Law', sanji: 'Sanji', robin: 'Robin', chopper: 'Chopper', luffy: 'Luffy', zoro: 'Zoro', nami: 'Nami', shinobu: 'Shinobu', gojo: 'Gojo', tanjiro: 'Tanjiro' };
+  const HEROOPT = { none: 'None', rotate: 'Rotate my heroes', messi: 'Lionel Messi', kohli: 'Virat Kohli', sachin: 'Sachin Tendulkar', yamal: 'Lamine Yamal', wings: 'Yamal & Raphinha', rohit: 'Rohit Sharma', goku: 'Goku', vegeta: 'Vegeta', naruto: 'Naruto', sasuke: 'Sasuke', levi: 'Levi', ichigo: 'Ichigo', jinwoo: 'Sung Jinwoo', saitama: 'Saitama', rengoku: 'Rengoku', sukuna: 'Sukuna', kakashi: 'Kakashi', itachi: 'Itachi', ace: 'Ace', law: 'Law', sanji: 'Sanji', robin: 'Robin', chopper: 'Chopper', luffy: 'Luffy', zoro: 'Zoro', nami: 'Nami', shinobu: 'Shinobu', gojo: 'Gojo', tanjiro: 'Tanjiro' };
   const ICONS = { white: 'White logos', tiles: 'Colour tiles', dball: 'Dragon Balls', wanted: 'Wanted posters', manga: 'Manga ink', neon: 'Neon sign', patch: 'Jersey patch', pin: 'Enamel pin', score: 'Scorecard chip', pixel: 'Retro pixel', glass: 'Glass', sticker: 'Sticker', hud: 'HUD brackets' };
   const LAYOUTS = { row: 'Dock row', formation: 'Football formation', field: 'Cricket field', arc: 'Grand Line arc', shelf: 'Bookshelf', carousel: 'Big carousel', rail: 'Side rail' };
   const L = (id, name, cat, forr, scene, hero, mascot, focus, wake, clock, amb, moment, acc, board, extra) => Object.assign({ id, name, cat, for: forr, scene, hero, mascot, focus, wake, clock, icons: 'white', amb, moment, acc, board }, extra || {});
   const LOOKS = [
     L('camp-nou', 'Camp Nou Nights', 'Football', 'G', 'campnou', 'messi', 'none', 'pass', 'tunnel', 'board', 'flags', 'goal', '#edbb00', 'BARÇA 2 – 1 R. MADRID · 67\''),
     L('clasico', 'El Clásico Eve', 'Football', 'G', 'campnou', 'none', 'none', 'spot', 'tunnel', 'board', 'flashes', 'goal', '#a50044', 'EL CLÁSICO · KICK-OFF 20:45'),
-    L('floodlights', 'Floodlights', 'Football', 'B', 'floodlights', 'none', 'none', 'pass', 'tunnel', 'thin', 'flashes', 'goal', '#9fd8ff', ''),
     L('goat', 'GOAT', 'Football', 'G', 'goat', 'messi', 'ballondor', 'spot', 'bloom', 'analog', 'gold', 'goal', '#e8c35a', '', { goalText: 'Messi · top corner, again' }),
     L('albiceleste', 'Albiceleste', 'Football', 'G', 'albiceleste', 'messi', 'dribble', 'pass', 'tunnel', 'flap', 'confetti', 'goal', '#75aadb', '', { goalText: 'Messi · World champion' }),
-    L('wankhede', 'Wankhede Roar', 'Cricket', 'G', 'wankhede', 'rohit', 'none', 'arc', 'tunnel', 'over', 'fireworks', 'six', '#d1ab3e', ''),
-    L('king-kohli', 'King Kohli', 'Cricket', 'G', 'king', 'kohli', 'crown', 'aura', 'bloom', 'neon', 'gold', 'six', '#ffcc33', ''),
+    L('floodlights', 'Floodlights', 'Football', 'B', 'floodlights', 'none', 'none', 'pass', 'tunnel', 'thin', 'flashes', 'goal', '#9fd8ff', ''),
+    L('rocafonda-304', 'Rocafonda 304', 'Football', 'G', 'rocafonda', 'yamal', 'trivela', 'pass', 'ink', 'brush', 'none', 'goal', '#edbb00', '', { goalText: 'Yamal · trivela, top corner' }),
+    L('wonderkid', 'Wonderkid', 'Football', 'G', 'yamalnou', 'yamal', 'trivela', 'pass', 'tunnel', 'board', 'flags', 'goal', '#edbb00', 'BARÇA 3 – 1 · YAMAL 10'),
+    L('barca-wings', 'Barça Wings', 'Football', 'G', 'wings', 'wings', 'onetwo', 'pass', 'tunnel', 'board', 'flags', 'goal', '#ff4d8a', '', { goalText: 'Raphinha to Yamal · goal' }),
     L('chase-master', 'Chase Master', 'Cricket', 'G', 'bluebillion', 'kohli', 'bat', 'arc', 'tunnel', 'board', 'flashes', 'six', '#ff9933', 'IND 248/3 · NEED 42 OFF 30'),
+    L('king-kohli', 'King Kohli', 'Cricket', 'G', 'king', 'kohli', 'crown', 'aura', 'bloom', 'neon', 'gold', 'six', '#ffcc33', ''),
     L('blue-billion', 'Blue Billion', 'Cricket', 'G', 'bluebillion', 'kohli', 'none', 'arc', 'bloom', 'board', 'flashes', 'six', '#ff9933', 'IND 287/4 · 47.2 OV'),
-    L('hero-wall', 'Hero Wall', 'Heroes', 'G', 'black', 'rotate', 'sharingan', 'spot', 'sharingan', 'roll', 'none', 'drop', '#e5303a', ''),
-    L('super-saiyan', 'Super Saiyan', 'Heroes', 'G', 'saiyan', 'goku', 'dragonballs', 'aura', 'powerup', 'roll', 'gold', 'beam', '#ffd23c', ''),
-    L('ultra-instinct', 'Ultra Instinct', 'Heroes', 'G', 'ui', 'goku', 'pole', 'aura', 'powerup', 'thin', 'silver', 'beam', '#cfe0ff', ''),
-    L('nine-tails', 'Nine-Tails', 'Heroes', 'G', 'kurama', 'naruto', 'kurama', 'aura', 'powerup', 'brush', 'embers', 'drop', '#ff6a00', ''),
-    L('sage-mode', 'Sage Mode', 'Heroes', 'G', 'hokage', 'naruto', 'sage', 'ripple', 'bloom', 'brush', 'leaves', 'drop', '#ffb020', ''),
-    L('straw-hat', 'Straw Hat', 'Heroes', 'G', 'grandline', 'none', 'walkp:luffy-img', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', '', { figure: 'puppet:luffy-img' }),
-    L('three-sword', 'Three-Sword Style', 'Heroes', 'G', 'zoro', 'zoro', 'zoro', 'aura', 'slash', 'brush', 'leaves', 'drop', '#3ddc84', ''),
-    L('navigator', 'Navigator', 'Heroes', 'G', 'tangerine', 'nami', 'cloud', 'ripple', 'storm', 'brush', 'none', 'drop', '#ff8c2a', ''),
-    L('butterfly-mansion', 'Butterfly Mansion', 'Heroes', 'G', 'wisteria', 'shinobu', 'butterflies', 'spot', 'flutter', 'brush', 'wisteria', 'drop', '#c9a2ff', ''),
-    L('copy-ninja', 'Copy Ninja', 'Heroes', 'G', 'leaf', 'kakashi', 'chidori', 'aura', 'storm', 'brush', 'leaves', 'drop', '#7fc8ff', ''),
-    L('crow-genjutsu', 'Crow Genjutsu', 'Heroes', 'G', 'crimson', 'itachi', 'crows', 'aura', 'sharingan', 'brush', 'crows', 'drop', '#ff2a2a', '', { wakeEye: 'mangekyo' }),
-    L('fire-fist', 'Fire Fist', 'One Piece', 'G', 'firefist', 'ace', 'none', 'aura', 'fire', 'brush', 'embers', 'drop', '#ff7a1a', ''),
-    L('room', 'ROOM', 'One Piece', 'G', 'room', 'law', 'room', 'ripple', 'room', 'thin', 'snow', 'drop', '#8fd0ff', ''),
-    L('black-leg', 'Black Leg', 'One Piece', 'G', 'baratie', 'sanji', 'hearts', 'spot', 'fire', 'brush', 'none', 'drop', '#ff5a8a', ''),
-    L('hana-hana', 'Hana Hana', 'One Piece', 'G', 'grandline', 'robin', 'hands', 'spot', 'ink', 'brush', 'petals', 'drop', '#c49aff', ''),
-    L('drum-island', 'Drum Island', 'One Piece', 'B', 'drum', 'chopper', 'chopperhat', 'ripple', 'bloom', 'thin', 'snow', 'drop', '#ff8fc0', ''),
+    L('wankhede', 'Wankhede Roar', 'Cricket', 'G', 'wankhede', 'rohit', 'none', 'arc', 'tunnel', 'over', 'fireworks', 'six', '#d1ab3e', ''),
     L('hitman', 'Hitman', 'Cricket', 'G', 'hitman', 'rohit', 'bat', 'arc', 'tunnel', 'board', 'fireworks', 'six', '#d1ab3e', 'ROHIT 264 (173) · RECORD'),
-    L('geek', 'Geek HUD', 'Geek & code', 'B', 'grid', 'none', 'reticle', 'spot', 'hudboot', 'hud', 'none', 'none', '#38e1ff', '', { hud: true }),
-    L('coder', 'Coder', 'Geek & code', 'B', 'code', 'none', 'caret', 'spot', 'termboot', 'term', 'none', 'none', '#7ee787', ''),
+    L('master-blaster', 'Master Blaster', 'Cricket', 'G', 'sharjah', 'sachin', 'drive', 'arc', 'tunnel', 'over', 'gold', 'six', '#ffb347', 'SACHIN 143 (131) · SHARJAH'),
+    L('straw-hat', 'Straw Hat', 'One Piece', 'G', 'grandline', 'none', 'walkp:luffy-img', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', '', { figure: 'puppet:luffy-img' }),
     L('gear5', 'Gear 5', 'One Piece', 'G', 'clouds', 'none', 'walkg5', 'spot', 'boing', 'brush', 'none', 'gear5', '#c9b6ff', '', { figure: 'g5' }),
     L('wanted', 'Wanted', 'One Piece', 'G', 'wanted', 'none', 'walkp:luffy-img', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', '', { figure: 'puppet:luffy-img' }),
+    L('grand-line', 'Grand Line', 'One Piece', 'G', 'grandline', 'luffy', 'none', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', ''),
+    L('three-sword', 'Three-Sword Style', 'One Piece', 'G', 'zoro', 'zoro', 'zoro', 'aura', 'slash', 'brush', 'leaves', 'drop', '#3ddc84', ''),
     L('king-of-hell', 'King of Hell', 'One Piece', 'G', 'asura', 'none', 'walkzoro', 'aura', 'slash', 'brush', 'embers', 'drop', '#ff3a3a', '', { figure: 'zoro' }),
     L('lost-again', 'Lost Again', 'One Piece', 'G', 'lost', 'none', 'compass', 'spot', 'slash', 'brush', 'leaves', 'drop', '#3ddc84', '', { figure: 'zoro' }),
-    L('prince', 'Prince of Saiyans', 'Heroes', 'G', 'vegeta', 'vegeta', 'scouter', 'aura', 'powerup', 'hud', 'sparks', 'beam', '#b48aff', ''),
-    L('avenger', 'Avenger', 'Heroes', 'G', 'leaf', 'sasuke', 'rinnegan', 'aura', 'sharingan', 'brush', 'none', 'drop', '#a78bff', '', { wakeEye: 'rinnegan' }),
-    L('strongest', 'Humanity\'s Strongest', 'Heroes', 'G', 'walls', 'levi', 'odm', 'spot', 'slash', 'thin', 'none', 'drop', '#9fc4ff', ''),
-    L('bankai', 'Bankai', 'Heroes', 'G', 'soul', 'ichigo', 'getsuga', 'aura', 'slash', 'brush', 'none', 'drop', '#ff6a3a', ''),
-    L('arise', 'Arise', 'Heroes', 'G', 'gate', 'jinwoo', 'shadows', 'aura', 'bloom', 'hud', 'sparks', 'arise', '#8a7aff', ''),
-    L('one-punch', 'One Punch', 'Heroes', 'G', 'crater', 'saitama', 'fist', 'spot', 'bloom', 'thin', 'none', 'punch', '#ffd23c', ''),
-    L('set-ablaze', 'Set Your Heart Ablaze', 'Heroes', 'G', 'firefist', 'rengoku', 'nichirin', 'aura', 'fire', 'brush', 'embers', 'drop', '#ff8a1a', ''),
-    L('king-of-curses', 'King of Curses', 'Heroes', 'G', 'shrine', 'sukuna', 'cleave', 'aura', 'bloom', 'brush', 'embers', 'drop', '#ff2a2a', ''),
-    L('crimson-moon', 'Crimson Moon', 'Anime', 'G', 'crimson', 'none', 'mangekyo', 'aura', 'sharingan', 'brush', 'crows', 'drop', '#ff2a2a', ''),
-    L('domain', 'Domain Expansion', 'Anime', 'G', 'domain', 'gojo', 'six', 'aura', 'bloom', 'thin', 'sparks', 'drop', '#6fc3ff', ''),
-    L('grand-line', 'Grand Line', 'Anime', 'G', 'grandline', 'luffy', 'none', 'pass', 'ink', 'brush', 'none', 'drop', '#e8c16a', ''),
-    L('water-breathing', 'Water Breathing', 'Anime', 'G', 'wave', 'tanjiro', 'none', 'ripple', 'ink', 'brush', 'none', 'drop', '#8fd0ff', ''),
+    L('navigator', 'Navigator', 'One Piece', 'G', 'tangerine', 'nami', 'cloud', 'ripple', 'storm', 'brush', 'none', 'drop', '#ff8c2a', ''),
+    L('fire-fist', 'Fire Fist', 'One Piece', 'G', 'firefist', 'ace', 'none', 'aura', 'fire', 'brush', 'embers', 'drop', '#ff7a1a', ''),
+    L('room', 'ROOM', 'One Piece', 'G', 'room', 'law', 'room', 'ripple', 'room', 'thin', 'snow', 'drop', '#8fd0ff', ''),
+    L('super-saiyan', 'Super Saiyan', 'Dragon Ball', 'G', 'saiyan', 'goku', 'dragonballs', 'aura', 'powerup', 'roll', 'gold', 'beam', '#ffd23c', ''),
+    L('black-leg', 'Black Leg', 'One Piece', 'G', 'baratie', 'sanji', 'hearts', 'spot', 'fire', 'brush', 'none', 'drop', '#ff5a8a', ''),
+    L('ultra-instinct', 'Ultra Instinct', 'Dragon Ball', 'G', 'ui', 'goku', 'pole', 'aura', 'powerup', 'thin', 'silver', 'beam', '#cfe0ff', ''),
+    L('hana-hana', 'Hana Hana', 'One Piece', 'G', 'grandline', 'robin', 'hands', 'spot', 'ink', 'brush', 'petals', 'drop', '#c49aff', ''),
+    L('drum-island', 'Drum Island', 'One Piece', 'B', 'drum', 'chopper', 'chopperhat', 'ripple', 'bloom', 'thin', 'snow', 'drop', '#ff8fc0', ''),
+    L('prince', 'Prince of Saiyans', 'Dragon Ball', 'G', 'vegeta', 'vegeta', 'scouter', 'aura', 'powerup', 'hud', 'sparks', 'beam', '#b48aff', ''),
+    L('nine-tails', 'Nine-Tails', 'Naruto', 'G', 'kurama', 'naruto', 'kurama', 'aura', 'powerup', 'brush', 'embers', 'drop', '#ff6a00', ''),
+    L('sage-mode', 'Sage Mode', 'Naruto', 'G', 'hokage', 'naruto', 'sage', 'ripple', 'bloom', 'brush', 'leaves', 'drop', '#ffb020', ''),
+    L('copy-ninja', 'Copy Ninja', 'Naruto', 'G', 'leaf', 'kakashi', 'chidori', 'aura', 'storm', 'brush', 'leaves', 'drop', '#7fc8ff', ''),
+    L('crow-genjutsu', 'Crow Genjutsu', 'Naruto', 'G', 'crimson', 'itachi', 'crows', 'aura', 'sharingan', 'brush', 'crows', 'drop', '#ff2a2a', '', { wakeEye: 'mangekyo' }),
+    L('avenger', 'Avenger', 'Naruto', 'G', 'leaf', 'sasuke', 'rinnegan', 'aura', 'sharingan', 'brush', 'none', 'drop', '#a78bff', '', { wakeEye: 'rinnegan' }),
+    L('crimson-moon', 'Crimson Moon', 'Naruto', 'G', 'crimson', 'none', 'mangekyo', 'aura', 'sharingan', 'brush', 'crows', 'drop', '#ff2a2a', ''),
+    L('set-ablaze', 'Set Your Heart Ablaze', 'Demon Slayer', 'G', 'firefist', 'rengoku', 'nichirin', 'aura', 'fire', 'brush', 'embers', 'drop', '#ff8a1a', ''),
+    L('water-breathing', 'Water Breathing', 'Demon Slayer', 'G', 'wave', 'tanjiro', 'none', 'ripple', 'ink', 'brush', 'none', 'drop', '#8fd0ff', ''),
+    L('butterfly-mansion', 'Butterfly Mansion', 'Demon Slayer', 'G', 'wisteria', 'shinobu', 'butterflies', 'spot', 'flutter', 'brush', 'wisteria', 'drop', '#c9a2ff', ''),
+    L('domain', 'Domain Expansion', 'Jujutsu Kaisen', 'G', 'domain', 'gojo', 'six', 'aura', 'bloom', 'thin', 'sparks', 'drop', '#6fc3ff', ''),
+    L('king-of-curses', 'King of Curses', 'Jujutsu Kaisen', 'G', 'shrine', 'sukuna', 'cleave', 'aura', 'bloom', 'brush', 'embers', 'drop', '#ff2a2a', ''),
+    L('arise', 'Arise', 'Anime', 'G', 'gate', 'jinwoo', 'shadows', 'aura', 'bloom', 'hud', 'sparks', 'arise', '#8a7aff', ''),
+    L('bankai', 'Bankai', 'Anime', 'G', 'soul', 'ichigo', 'getsuga', 'aura', 'slash', 'brush', 'none', 'drop', '#ff6a3a', ''),
+    L('strongest', 'Humanity\'s Strongest', 'Anime', 'G', 'walls', 'levi', 'odm', 'spot', 'slash', 'thin', 'none', 'drop', '#9fc4ff', ''),
+    L('one-punch', 'One Punch', 'Anime', 'G', 'crater', 'saitama', 'fist', 'spot', 'bloom', 'thin', 'none', 'punch', '#ffd23c', ''),
     L('manga', 'Manga Panel', 'Anime', 'B', 'manga', 'none', 'sharingan', 'pass', 'panels', 'brush', 'none', 'drop', '#ff2d55', ''),
     L('anime-dusk', 'Anime Dusk', 'Anime', 'B', 'dusk', 'none', 'none', 'spot', 'bloom', 'thin', 'none', 'drop', '#ff7ab6', ''),
+    L('hero-wall', 'Hero Wall', 'Heroes', 'G', 'black', 'rotate', 'sharingan', 'spot', 'sharingan', 'roll', 'none', 'drop', '#e5303a', ''),
     L('trail-dawn', 'Trail Dawn', 'Outdoors', 'B', 'dawn', 'none', 'none', 'spot', 'bloom', 'thin', 'none', 'none', '#ffb86b', ''),
     L('monsoon', 'Sahyadri Monsoon', 'Outdoors', 'B', 'monsoon', 'none', 'none', 'ripple', 'bloom', 'thin', 'rain', 'none', '#7fe8a8', ''),
-    L('neon', 'Neon Tokyo', 'Night & neon', 'B', 'neon', 'none', 'six', 'aura', 'crt', 'crt', 'rain', 'drop', '#ff3df2', ''),
     L('diwali', 'Diwali Night', 'Seasonal', 'B', 'diwali', 'none', 'none', 'spot', 'bloom', 'brush', 'fireworks', 'none', '#ffc24a', '', { when: 'Nov' }),
     L('seoul', 'Seoul Nights', 'Together', 'P', 'seoul', 'none', 'none', 'spot', 'bloom', 'thin', 'petals', 'none', '#ff7ac8', ''),
     L('marquee', 'Bollywood Marquee', 'Together', 'P', 'marquee', 'none', 'none', 'spot', 'panels', 'brush', 'embers', 'none', '#ffd36e', ''),
+    L('our-wall', 'Our Wall', 'Together', 'B', 'dusk', 'none', 'none', 'spot', 'bloom', 'brush', 'petals', 'none', '#ffb3c1', ''),
+    L('neon', 'Neon Tokyo', 'After dark', 'B', 'neon', 'none', 'six', 'aura', 'crt', 'crt', 'rain', 'drop', '#ff3df2', ''),
     L('noir', 'Noir', 'After dark', 'B', 'noir', 'none', 'fedora', 'spot', 'crt', 'thin', 'rain', 'none', '#e8dcc0', ''),
     L('velvet', 'Velvet Night', 'After dark', 'B', 'velvet', 'none', 'hearts', 'spot', 'bloom', 'brush', 'embers', 'none', '#ff5a7a', ''),
     L('high-roller', 'High Roller', 'After dark', 'B', 'casino', 'none', 'dice', 'spot', 'bloom', 'board', 'none', 'none', '#ffcf5a', 'TABLE 7 · LIMIT 500'),
     L('midnight-lounge', 'Midnight Lounge', 'After dark', 'G', 'lounge', 'none', 'none', 'spot', 'bloom', 'thin', 'none', 'none', '#ff4d6d', ''),
-    L('our-wall', 'Our Wall', 'Together', 'B', 'dusk', 'none', 'none', 'spot', 'bloom', 'brush', 'petals', 'none', '#ffb3c1', ''),
+    L('geek', 'Geek HUD', 'Geek & code', 'B', 'grid', 'none', 'reticle', 'spot', 'hudboot', 'hud', 'none', 'none', '#38e1ff', '', { hud: true }),
+    L('coder', 'Coder', 'Geek & code', 'B', 'code', 'none', 'caret', 'spot', 'termboot', 'term', 'none', 'none', '#7ee787', ''),
   ];
-  const ICON_PICK = { 'camp-nou': 'patch formation', clasico: 'patch formation', floodlights: 'patch row', goat: 'pin carousel', albiceleste: 'patch arc', wankhede: 'score field', 'king-kohli': 'pin carousel', 'chase-master': 'score row', 'blue-billion': 'score field', hitman: 'score field',
+  const ICON_PICK = { 'rocafonda-304': 'sticker row', wonderkid: 'patch formation', 'barca-wings': 'patch formation', 'master-blaster': 'score field', 'camp-nou': 'patch formation', clasico: 'patch formation', floodlights: 'patch row', goat: 'pin carousel', albiceleste: 'patch arc', wankhede: 'score field', 'king-kohli': 'pin carousel', 'chase-master': 'score row', 'blue-billion': 'score field', hitman: 'score field',
     'hero-wall': 'glass carousel', 'super-saiyan': 'dball arc', 'ultra-instinct': 'glass row', 'nine-tails': 'manga row', 'sage-mode': 'sticker arc', 'straw-hat': 'wanted arc', 'three-sword': 'manga row', navigator: 'sticker arc', 'butterfly-mansion': 'glass row', 'copy-ninja': 'manga row', 'crow-genjutsu': 'manga row',
     'fire-fist': 'wanted row', room: 'glass row', 'black-leg': 'wanted row', 'hana-hana': 'wanted shelf', 'drum-island': 'sticker row', geek: 'hud rail', coder: 'pixel rail', gear5: 'sticker arc', wanted: 'wanted row', 'king-of-hell': 'manga row', 'lost-again': 'wanted arc',
     prince: 'hud row', avenger: 'manga row', strongest: 'glass row', bankai: 'manga row', arise: 'hud carousel', 'one-punch': 'manga row', 'set-ablaze': 'manga row', 'king-of-curses': 'manga row', 'crimson-moon': 'manga row', domain: 'glass carousel', 'grand-line': 'wanted arc',
     'water-breathing': 'manga row', manga: 'manga shelf', 'anime-dusk': 'glass row', 'trail-dawn': 'sticker arc', monsoon: 'sticker row', neon: 'neon row', diwali: 'pin arc', seoul: 'neon carousel', marquee: 'neon row', noir: 'white row', velvet: 'pin row', 'high-roller': 'pin carousel', 'midnight-lounge': 'neon row', 'our-wall': 'sticker shelf' };
   LOOKS.forEach((l) => { const [st, ly] = (ICON_PICK[l.id] || 'white row').split(' '); l.icons = st; l.iconLayout = ly; });
-  const SCENE_AMB = { campnou: 'flags', floodlights: 'flashes', wankhede: 'fireworks', bluebillion: 'flashes', crimson: 'crows', domain: 'sparks', diwali: 'fireworks', saiyan: 'gold', ui: 'silver', kurama: 'embers', hokage: 'leaves', zoro: 'leaves', wisteria: 'wisteria', leaf: 'leaves', firefist: 'embers', room: 'snow', drum: 'snow', hitman: 'fireworks', gate: 'sparks', asura: 'embers', lost: 'leaves', vegeta: 'sparks', noir: 'rain', velvet: 'embers', monsoon: 'rain', neon: 'rain', seoul: 'petals', marquee: 'embers' };
-  const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'Heroes', 'One Piece', 'Anime', 'Outdoors', 'Night & neon', 'Seasonal', 'Together', 'After dark', 'Geek & code', 'My looks'];
+  const SCENE_AMB = { sharjah: 'gold', yamalnou: 'flags', wings: 'flags', campnou: 'flags', floodlights: 'flashes', wankhede: 'fireworks', bluebillion: 'flashes', crimson: 'crows', domain: 'sparks', diwali: 'fireworks', saiyan: 'gold', ui: 'silver', kurama: 'embers', hokage: 'leaves', zoro: 'leaves', wisteria: 'wisteria', leaf: 'leaves', firefist: 'embers', room: 'snow', drum: 'snow', hitman: 'fireworks', gate: 'sparks', asura: 'embers', lost: 'leaves', vegeta: 'sparks', noir: 'rain', velvet: 'embers', monsoon: 'rain', neon: 'rain', seoul: 'petals', marquee: 'embers' };
+  const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'One Piece', 'Dragon Ball', 'Naruto', 'Demon Slayer', 'Jujutsu Kaisen', 'Anime', 'Heroes', 'Outdoors', 'Seasonal', 'Together', 'After dark', 'Geek & code', 'My looks'];
 
   const PEOPLE = { G: { name: 'Gaurav', av: '#ffd36e', tags: ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Hiking'] }, P: { name: 'Partner', av: '#ff9ec4' }, X: { name: 'Guest', av: '#9fe6ff' } };
   const NAMES0 = (() => { try { return JSON.parse(localStorage.getItem('den2.names')) || {}; } catch (e) { return {}; } })();
@@ -1518,8 +1608,8 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   const ALL_APPS = [['Fan Hub', 'hub', '#c39bff', '#3a1d6e'], ['Crunchyroll', 'crunchy', '#f47521', '#f47521'], ['JioHotstar', 'hotstar', '#6f7dff', '#2a2aa0'], ['YouTube', 'yt', '#ff2b2b', '#c4161c'], ['Netflix', 'nf', '#e50914', '#7a0008'], ['Spotify', 'spotify', '#1ed760', '#128a3e'], ['Prime Video', 'prime', '#00a8e1', '#0a6f96'], ['FanCode', 'fancode', '#ff6a13', '#9a3a08'], ['Settings', 'gear', '#ffffff', '#3a3a44']];
   const FOLDER = ['nf', 'prime', 'crunchy'];
   const BANNER = { hub: 'Your scores, shows and trails', crunchy: 'New: Jujutsu Kaisen Ep 14', hotstar: 'Live: IND v AUS · 3rd T20I', yt: 'Continue: Rajmachi trek vlog', nf: 'Continue: One Piece (live action)', spotify: 'Your mix: anime OSTs and Arijit', prime: 'Continue: Panchayat S3', fancode: 'Live: Barça v Real Madrid', gear: 'Wi-Fi, picture and sound', folder: 'Netflix, Prime Video and Crunchyroll' };
-  const SMART = { Football: ['fancode', 'hotstar'], Cricket: ['hotstar', 'fancode'], Heroes: ['crunchy'], 'One Piece': ['crunchy'], Anime: ['crunchy'], Together: ['nf', 'prime'], 'After dark': ['spotify'], 'Geek & code': ['yt'] };
-  const SMART_WHY = { Football: 'it\'s match day', Cricket: 'India are playing', Heroes: 'a new episode is out', 'One Piece': 'a new episode is out', Anime: 'a new episode is out', Together: 'it\'s movie night', 'After dark': 'it\'s late', 'Geek & code': 'tutorials' };
+  const SMART = { Football: ['fancode', 'hotstar'], Cricket: ['hotstar', 'fancode'], Heroes: ['crunchy'], 'One Piece': ['crunchy'], 'Dragon Ball': ['crunchy'], Naruto: ['crunchy'], 'Demon Slayer': ['crunchy'], 'Jujutsu Kaisen': ['crunchy'], Anime: ['crunchy'], Together: ['nf', 'prime'], 'After dark': ['spotify'], 'Geek & code': ['yt'] };
+  const SMART_WHY = { Football: 'it\'s match day', Cricket: 'India are playing', Heroes: 'a new episode is out', 'One Piece': 'a new episode is out', 'Dragon Ball': 'a new episode is out', Naruto: 'a new episode is out', 'Demon Slayer': 'a new episode is out', 'Jujutsu Kaisen': 'a new episode is out', Anime: 'a new episode is out', Together: 'it\'s movie night', 'After dark': 'it\'s late', 'Geek & code': 'tutorials' };
   const escH = (v) => String(v).replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[m]);
   const dock = $('dock');
   let APPS = [], appEls = [], foc = 0, prev = 0, navHold = 0;
@@ -1956,6 +2046,8 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   setInterval(tick, 1000);
   const FACTS = {
     messi: ['Lionel Messi has won the Ballon d\'Or eight times, more than any other player.', 'Messi scored 91 goals in 2012, the most ever in a calendar year.', 'Messi captained Argentina to the 2022 World Cup and won the Golden Ball.', 'Messi is Barcelona\'s all-time top scorer, with 672 goals.'],
+    sachin: ['Sachin Tendulkar scored 100 international centuries, more than anyone else.', 'Sachin was the first man to score a double century in an ODI, against South Africa in 2010.', 'In 1998 at Sharjah, Sachin hit two centuries in three days through a sandstorm, the "Desert Storm".', 'Sachin played 200 Test matches, the most by any cricketer.', 'Sachin won the World Cup in 2011, at Wankhede, his home ground, in his sixth World Cup.'],
+    yamal: ['Lamine Yamal came through La Masia, Barça\'s academy.', 'Yamal won Euro 2024 with Spain at 17, and was named its best young player.', 'Yamal celebrates with "304", the end of the postcode of Rocafonda, the part of Mataró he grew up in.', 'Yamal took Barça\'s number 10 shirt in 2025.', 'Raphinha and Yamal play on opposite wings: Raphinha on the left, Yamal on the right.'],
     barca: ['Camp Nou opened in 1957 and held about 99,000 fans before its rebuild.', 'Barça\'s motto, "Més que un club", means "more than a club".', 'In 2009 Barcelona won six trophies in one calendar year, the first sextuple.'],
     kohli: ['Virat Kohli was the first batter to score 50 ODI centuries, in the 2023 World Cup semi-final.', 'Kohli scored 765 runs at the 2023 World Cup, the most by anyone at a single World Cup.', 'Kohli captained India to the Under-19 World Cup title in 2008.'],
     rohit: ['Rohit Sharma\'s 264 against Sri Lanka in 2014 is the highest score in ODI cricket.', 'Rohit is the only batter with three ODI double centuries.', 'Rohit captained India to the 2024 T20 World Cup title.', 'Rohit has led Mumbai Indians to five IPL titles.'],
@@ -1971,8 +2063,8 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     tech: ['The first computer "bug" was a real moth, found in a Harvard computer in 1947.', 'JavaScript was written in about ten days in 1995.', 'Android is built on the Linux kernel, so this TV runs Linux.', 'Every one of the world\'s 500 fastest supercomputers runs Linux.'],
     hiking: ['The Western Ghats, home of the Sahyadris, became a UNESCO World Heritage Site in 2012.'],
   };
-  const TOPIC = { messi: ['messi', 'barca'], kohli: ['kohli'], rohit: ['rohit'], goku: ['dbz'], vegeta: ['dbz'], sasuke: ['naruto'], levi: ['aot'], ichigo: ['bleach'], jinwoo: ['solo'], saitama: ['opm'], rengoku: ['ds'], sukuna: ['jjk'], naruto: ['naruto'], kakashi: ['naruto'], itachi: ['naruto'], luffy: ['onepiece'], zoro: ['onepiece'], nami: ['onepiece'], ace: ['onepiece'], law: ['onepiece'], sanji: ['onepiece'], robin: ['onepiece'], chopper: ['onepiece'], gojo: ['jjk'], tanjiro: ['ds'], shinobu: ['ds'] };
-  const SCENE_TOPIC = { campnou: ['barca'], albiceleste: ['messi'], goat: ['messi'], wankhede: ['rohit'], hitman: ['rohit'], bluebillion: ['kohli'], king: ['kohli'], dawn: ['hiking'], monsoon: ['hiking'], grid: ['tech'], code: ['tech'], clouds: ['onepiece'], wanted: ['onepiece'], asura: ['onepiece'], lost: ['onepiece'], grandline: ['onepiece'], crimson: ['naruto'] };
+  const TOPIC = { messi: ['messi', 'barca'], kohli: ['kohli'], sachin: ['sachin'], yamal: ['yamal', 'barca'], wings: ['yamal', 'barca'], rohit: ['rohit'], goku: ['dbz'], vegeta: ['dbz'], sasuke: ['naruto'], levi: ['aot'], ichigo: ['bleach'], jinwoo: ['solo'], saitama: ['opm'], rengoku: ['ds'], sukuna: ['jjk'], naruto: ['naruto'], kakashi: ['naruto'], itachi: ['naruto'], luffy: ['onepiece'], zoro: ['onepiece'], nami: ['onepiece'], ace: ['onepiece'], law: ['onepiece'], sanji: ['onepiece'], robin: ['onepiece'], chopper: ['onepiece'], gojo: ['jjk'], tanjiro: ['ds'], shinobu: ['ds'] };
+  const SCENE_TOPIC = { sharjah: ['sachin'], rocafonda: ['yamal'], yamalnou: ['yamal', 'barca'], wings: ['yamal', 'barca'], campnou: ['barca'], albiceleste: ['messi'], goat: ['messi'], wankhede: ['rohit'], hitman: ['rohit'], bluebillion: ['kohli'], king: ['kohli'], dawn: ['hiking'], monsoon: ['hiking'], grid: ['tech'], code: ['tech'], clouds: ['onepiece'], wanted: ['onepiece'], asura: ['onepiece'], lost: ['onepiece'], grandline: ['onepiece'], crimson: ['naruto'] };
   let factI = 0;
   function factPool() { const e = eff(); let t = S.wid.topics === 'all' ? Object.keys(FACTS) : (TOPIC[e.hero] || SCENE_TOPIC[e.scene] || Object.keys(FACTS)); if (e.hero === 'rotate') t = Object.keys(FACTS); return t.flatMap((k) => FACTS[k]); }
   function renderFacts(next) {
@@ -2246,6 +2338,9 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   });
   let toastT; function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1700); }
 
+  // tools/wallpapers/render.js: a look's still wallpaper (scene and hero), as the theme's JPEG.
+  window.denPaint = (scene, hero, q) => { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); SCENES[scene].p(g, { hero: hero || 'messi' });
+    if (hero && hero !== 'none') { const hcv = document.createElement('canvas'); hcv.width = W; hcv.height = H; drawHero(hcv.getContext('2d'), hero, scene !== 'black'); g.drawImage(hcv, 0, 0); } return c.toDataURL('image/jpeg', q || .86); };
   const thumbs = {}; const tc = document.createElement('canvas'); tc.width = W; tc.height = H; tc._thumb = true; const tg = tc.getContext('2d'); const th = document.createElement('canvas'); th.width = 384; th.height = 216; const thg = th.getContext('2d');
   const hc = document.createElement('canvas'); hc.width = W; hc.height = H; const hcg = hc.getContext('2d');
   function thumbOf(l) {
@@ -2442,7 +2537,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     const SC = [[['camp nou', 'barca', 'barça', 'stadium'], 'campnou'], [['world cup', 'argentina'], 'albiceleste'], [['goat', 'ballon'], 'goat'], [['wankhede', 'mumbai', 'ipl'], 'wankhede'], [['india', 'tricolour'], 'bluebillion'], [['tokyo', 'neon', 'city'], 'neon'], [['seoul', 'k-drama'], 'seoul'], [['itachi', 'crimson', 'red moon', 'crow'], 'crimson'], [['gojo', 'void', 'space', 'galaxy'], 'domain'],
       [['goku', 'saiyan'], 'saiyan'], [['kurama', 'nine-tails', 'fox'], 'kurama'], [['kakashi', 'lightning', 'storm'], 'leaf'], [['naruto', 'village'], 'hokage'], [['wisteria', 'butterfl', 'shinobu'], 'wisteria'], [['nami', 'tangerine'], 'tangerine'], [['ace', 'fire', 'flame'], 'firefist'], [['law', 'room'], 'room'], [['sanji', 'restaurant'], 'baratie'], [['chopper', 'cherry', 'sakura'], 'drum'],
       [['pirate', 'sea', 'ocean', 'ship', 'luffy'], 'grandline'], [['wave', 'tanjiro'], 'wave'], [['manga', 'comic'], 'manga'], [['jazz', 'lounge', 'cocktail'], 'lounge'], [['noir', 'detective'], 'noir'], [['casino', 'poker'], 'casino'], [['romantic', 'candle', 'date'], 'velvet'], [['diwali', 'festival'], 'diwali'], [['rain', 'monsoon'], 'monsoon'], [['hike', 'trail', 'mountain', 'dawn'], 'dawn'], [['sunset', 'dusk'], 'dusk'], [['zoro', 'sword'], 'zoro']];
-    const HA = { messi: ['messi', 'lionel'], kohli: ['kohli', 'virat'], rohit: ['rohit', 'hitman'], goku: ['goku'], naruto: ['naruto'], kakashi: ['kakashi'], itachi: ['itachi'], luffy: ['luffy'], zoro: ['zoro'], nami: ['nami'], ace: [' ace '], law: [' law '], sanji: ['sanji'], robin: ['robin'], chopper: ['chopper'], gojo: ['gojo'], tanjiro: ['tanjiro'], shinobu: ['shinobu'] };
+    const HA = { messi: ['messi', 'lionel'], kohli: ['kohli', 'virat'], sachin: ['sachin', 'tendulkar', 'master blaster'], yamal: ['yamal', 'lamine'], wings: ['raphinha'], rohit: ['rohit', 'hitman'], goku: ['goku'], naruto: ['naruto'], kakashi: ['kakashi'], itachi: ['itachi'], luffy: ['luffy'], zoro: ['zoro'], nami: ['nami'], ace: [' ace '], law: [' law '], sanji: ['sanji'], robin: ['robin'], chopper: ['chopper'], gojo: ['gojo'], tanjiro: ['tanjiro'], shinobu: ['shinobu'] };
     const WA = { sharingan: ['sharingan'], mangekyo: ['mangekyo', 'mangekyō'], six: ['six eyes'], dragonballs: ['dragon ball'], pole: ['power pole'], crows: ['crows'], butterflies: ['butterflies'], hearts: ['heart'], crown: ['crown'], dice: ['dice'], zoro: ['swords'], luffy: ['straw hat'], chidori: ['chidori'], room: ['room sphere'], bat: [' bat '], cloud: ['thundercloud', 'cloud'], ballondor: ['golden ball'], fedora: ['fedora'] };
     const EX = { rain: ['rain'], snow: ['snow'], petals: ['petal', 'sakura'], fireworks: ['firework'], confetti: ['confetti'], leaves: ['leaves', 'leaf'], embers: ['ember'], crows: ['crows'] };
     const CK = { analog: ['analog', 'dial'], neon: ['neon clock', 'neon'], words: ['words'], flap: ['flip', 'split-flap', 'flap'], ring: ['ring'], board: ['scoreboard'], brush: ['brush'], roll: ['rolling'] };

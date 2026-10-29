@@ -2,6 +2,7 @@
   "id": "marquee",
   "name": "Bollywood Marquee",
   "category": "Together",
+  "order": 1210,
   "for": "partner",
   "scene": "marquee",
   "hero": "none",

@@ -2,6 +2,7 @@
   "id": "chase-master",
   "name": "Chase Master",
   "category": "Cricket",
+  "order": 200,
   "for": "owner",
   "scene": "bluebillion",
   "hero": "kohli",

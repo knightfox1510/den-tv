@@ -1,7 +1,8 @@
 {
   "id": "avenger",
   "name": "Avenger",
-  "category": "Heroes",
+  "category": "Naruto",
+  "order": 540,
   "for": "owner",
   "scene": "leaf",
   "hero": "sasuke",

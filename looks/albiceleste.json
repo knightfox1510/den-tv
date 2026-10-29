@@ -2,6 +2,7 @@
   "id": "albiceleste",
   "name": "Albiceleste",
   "category": "Football",
+  "order": 130,
   "for": "owner",
   "scene": "albiceleste",
   "hero": "messi",

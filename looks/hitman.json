@@ -2,6 +2,7 @@
   "id": "hitman",
   "name": "Hitman",
   "category": "Cricket",
+  "order": 240,
   "for": "owner",
   "scene": "hitman",
   "hero": "rohit",

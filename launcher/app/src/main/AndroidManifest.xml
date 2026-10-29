@@ -251,6 +251,19 @@
             </intent-filter>
         </service>
 
+        <!-- den-tv's screensaver: the look with its clock, what's next and a fact. Chosen over adb with
+             `settings put secure screensaver_components tv.den.launcher/com.gathin.tvhome.DenDream`. -->
+        <service
+            android:name=".DenDream"
+            android:label="den-tv"
+            android:exported="true"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
         <!-- tools/theme.sh writes the theme through this where the shell can't reach Android/data;
              see ThemeProvider. WRITE_SECURE_SETTINGS: the adb shell has it, ordinary apps don't. -->
         <provider

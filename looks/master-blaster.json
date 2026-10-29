@@ -1,0 +1,19 @@
+{
+  "id": "master-blaster",
+  "name": "Master Blaster",
+  "category": "Cricket",
+  "order": 250,
+  "for": "owner",
+  "scene": "sharjah",
+  "hero": "sachin",
+  "watcher": "drive",
+  "focus": "arc",
+  "wake": "tunnel",
+  "clock": "over",
+  "icons": "score",
+  "icon_layout": "field",
+  "extras": "gold",
+  "moment": "six",
+  "accent": "#ffb347",
+  "scoreboard_text": "SACHIN 143 (131) · SHARJAH"
+}

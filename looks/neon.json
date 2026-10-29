@@ -1,7 +1,8 @@
 {
   "id": "neon",
   "name": "Neon Tokyo",
-  "category": "Night & neon",
+  "category": "After dark",
+  "order": 1300,
   "for": "everyone",
   "scene": "neon",
   "hero": "none",

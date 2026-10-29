@@ -30,12 +30,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * den-tv's look picker, opened from the Looks tile: every look with its wallpaper, four to a row. OK puts the
- * look on Home (DenLooks.apply) and closes; Back keeps what is on. The first tile goes back to rotating looks.
+ * den-tv's look picker, opened from the Looks tile: every look with its wallpaper, four to a row, under a heading
+ * for each category (Football, Cricket, One Piece and so on, in the gallery's order). OK puts the look on Home
+ * (DenLooks.apply) and closes; Back keeps what is on. The first row goes back to rotating looks, switches who's
+ * watching and runs the setup again.
  */
 public final class DenLooksActivity extends Activity {
     private static final int COLUMNS = 4;
     private List<DenLooks.Look> looks;
+    /** What the grid shows, in order: ROTATE, WATCHING, SETUP, then each category's heading (a String) and its looks. */
+    private final List<Object> items = new java.util.ArrayList<>();
+    private static final Integer ROTATE = 0, WATCHING = 1, SETUP = 2;
     private DenLooks.Look current;
     private DenPeople.Person who;
     private File walls;
@@ -73,8 +78,22 @@ public final class DenLooksActivity extends Activity {
         page.addView(text(looks.isEmpty() ? "No looks yet: the den-mix theme isn't on this TV. Restart Home once and try again."
                 : "OK puts a look on Home. Back keeps " + (current == null ? "the looks rotating." : current.name + "."), 14, 0xffa09dac, Typeface.NORMAL));
 
+        items.add(ROTATE);
+        items.add(WATCHING);
+        items.add(SETUP);
+        String cat = null;
+        for (DenLooks.Look l : looks) {
+            String c = l.category.isEmpty() ? "More" : l.category;
+            if (!c.equals(cat)) { items.add(c); cat = c; }
+            items.add(l);
+        }
+
         RecyclerView grid = new RecyclerView(this);
-        grid.setLayoutManager(new GridLayoutManager(this, COLUMNS));
+        GridLayoutManager glm = new GridLayoutManager(this, COLUMNS);
+        glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override public int getSpanSize(int position) { return items.get(position) instanceof String ? COLUMNS : 1; }
+        });
+        grid.setLayoutManager(glm);
         grid.setClipToPadding(false);
         grid.setPadding(0, px(18), 0, px(40));
         grid.setAdapter(new Tiles());
@@ -82,7 +101,7 @@ public final class DenLooksActivity extends Activity {
         page.addView(grid, lp);
         setContentView(page);
 
-        int start = current == null ? 0 : looks.indexOf(current) + 1;
+        int start = current == null ? 0 : Math.max(0, items.indexOf(current));
         grid.scrollToPosition(start);
         grid.post(() -> {
             RecyclerView.ViewHolder h = grid.findViewHolderForAdapterPosition(start);
@@ -138,10 +157,22 @@ public final class DenLooksActivity extends Activity {
     }
 
     private final class Tiles extends RecyclerView.Adapter<Holder> {
-        // Rotate first, then the looks, then "Who's watching" and "Set up den-tv" last.
-        @Override public int getItemCount() { return looks.size() + 3; }
+        @Override public int getItemCount() { return items.size(); }
+
+        @Override public int getItemViewType(int position) { return items.get(position) instanceof String ? 1 : 0; }
 
         @Override public Holder onCreateViewHolder(ViewGroup parent, int type) {
+            if (type == 1) {
+                // A category heading across the row; never focused, so Up and Down jump from looks to looks.
+                TextView head = text("", 18, 0xffd8d4e4, Typeface.BOLD);
+                head.setLetterSpacing(0.12f);
+                head.setPadding(px(10), px(22), px(10), px(4));
+                FrameLayout row = new FrameLayout(DenLooksActivity.this);
+                row.setFocusable(false);
+                row.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                row.addView(head);
+                return new Holder(row, null, head, null, null);
+            }
             FrameLayout card = new FrameLayout(DenLooksActivity.this);
             RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.setMargins(px(9), px(9), px(9), px(9));
@@ -173,7 +204,9 @@ public final class DenLooksActivity extends Activity {
         }
 
         @Override public void onBindViewHolder(Holder h, int position) {
-            if (position == looks.size() + 1) {
+            Object item = items.get(position);
+            if (item instanceof String) { h.name.setText(((String) item).toUpperCase(java.util.Locale.ROOT)); return; }
+            if (item == WATCHING) {
                 DenPeople.Person next = DenPeople.next(DenLooksActivity.this);
                 h.name.setText("Watching: " + (who == null ? "you" : who.name));
                 h.meta.setText("OK switches to " + next.name);
@@ -190,7 +223,7 @@ public final class DenLooksActivity extends Activity {
                 });
                 return;
             }
-            if (position == looks.size() + 2) {
+            if (item == SETUP) {
                 h.name.setText("Set up den-tv");
                 h.meta.setText("Your name, teams, shows and Home");
                 h.frame.setStroke(0, 0);
@@ -203,7 +236,7 @@ public final class DenLooksActivity extends Activity {
                 });
                 return;
             }
-            DenLooks.Look look = position == 0 ? null : looks.get(position - 1);
+            DenLooks.Look look = item == ROTATE ? null : (DenLooks.Look) item;
             boolean on = look == current;
             h.name.setText(look == null ? "Rotate every look" : look.name);
             h.meta.setText((look == null ? "A new look every 5 minutes" : look.category) + (on ? " · On now" : ""));

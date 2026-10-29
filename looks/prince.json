@@ -1,7 +1,8 @@
 {
   "id": "prince",
   "name": "Prince of Saiyans",
-  "category": "Heroes",
+  "category": "Dragon Ball",
+  "order": 420,
   "for": "owner",
   "scene": "vegeta",
   "hero": "vegeta",

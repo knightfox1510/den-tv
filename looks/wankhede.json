@@ -2,6 +2,7 @@
   "id": "wankhede",
   "name": "Wankhede Roar",
   "category": "Cricket",
+  "order": 230,
   "for": "owner",
   "scene": "wankhede",
   "hero": "rohit",

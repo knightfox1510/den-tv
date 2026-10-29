@@ -2,6 +2,7 @@
   "id": "clasico",
   "name": "El Clásico Eve",
   "category": "Football",
+  "order": 110,
   "for": "owner",
   "scene": "campnou",
   "hero": "none",

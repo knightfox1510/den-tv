@@ -268,6 +268,49 @@ public class DenScreensTest {
         save(b, "row-end");
     }
 
+    /** The ball watchers mid-move and settled, on their own looks' wallpapers; and the bat with Kohli's 18. */
+    @Test public void balls() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        String[][] runs = {{"drive", "81-master-blaster", "#ffb347"}, {"trivela", "82-rocafonda-304", "#edbb00"}, {"onetwo", "84-barca-wings", "#ff4d8a"}};
+        for (String[] run : runs) {
+            Bitmap wall = BitmapFactory.decodeFile("../../themes/den-mix/wallpapers/" + run[1] + ".jpg");
+            for (long ms : new long[]{300, 900, 5000}) {
+                Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+                Canvas c = new Canvas(b);
+                if (wall != null) c.drawBitmap(wall, 0, 0, null);
+                DenBallWatcher w = new DenBallWatcher(ctx, run[0], run[2], true);
+                layout(w, 1920, 1080);
+                w.lookAt(500, 870, "Netflix");
+                w.lookAt(1300, 870, "JioHotstar");
+                w.freeze(ms);
+                w.draw(c);
+                save(b, "ball-" + run[0] + "-" + ms);
+            }
+        }
+        Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        Bitmap wall = BitmapFactory.decodeFile("../../themes/den-mix/wallpapers/08-chase-master.jpg");
+        if (wall != null) c.drawBitmap(wall, 0, 0, null);
+        DenWatcherView bat = new DenWatcherView(ctx, "bat", "#ff9933", false).number(DenWatcherView.numberFor("kohli"));
+        layout(bat, 1920, 1080);
+        bat.lookAt(1200, 860, "JioHotstar");
+        bat.draw(c);
+        save(b, "watcher-bat-18");
+    }
+
+    /** The screensaver over the look on Home (Master Blaster). */
+    @Test public void saver() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        DenTheme.ensure(ctx);
+        DenLooks.apply(ctx, DenLooks.byId(DenLooks.load(ctx), "master-blaster"));
+        DenSaverView v = DenSaverView.make(ctx, false);
+        org.junit.Assert.assertNotNull(v);
+        layout(v, 1920, 1080);
+        Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+        v.draw(new Canvas(b));
+        save(b, "saver");
+    }
+
     private static void layout(View v, int w, int h) {
         v.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY));
         v.layout(0, 0, w, h);

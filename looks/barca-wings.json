@@ -1,0 +1,19 @@
+{
+  "id": "barca-wings",
+  "name": "Barça Wings",
+  "category": "Football",
+  "order": 170,
+  "for": "owner",
+  "scene": "wings",
+  "hero": "wings",
+  "watcher": "onetwo",
+  "focus": "pass",
+  "wake": "tunnel",
+  "clock": "board",
+  "icons": "patch",
+  "icon_layout": "formation",
+  "extras": "flags",
+  "moment": "goal",
+  "accent": "#ff4d8a",
+  "goal_text": "Raphinha to Yamal · goal"
+}

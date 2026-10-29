@@ -1,7 +1,8 @@
 {
   "id": "arise",
   "name": "Arise",
-  "category": "Heroes",
+  "category": "Anime",
+  "order": 800,
   "for": "owner",
   "scene": "gate",
   "hero": "jinwoo",

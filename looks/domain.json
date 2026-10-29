@@ -1,7 +1,8 @@
 {
   "id": "domain",
   "name": "Domain Expansion",
-  "category": "Anime",
+  "category": "Jujutsu Kaisen",
+  "order": 700,
   "for": "owner",
   "scene": "domain",
   "hero": "gojo",

@@ -1,7 +1,8 @@
 {
   "id": "crimson-moon",
   "name": "Crimson Moon",
-  "category": "Anime",
+  "category": "Naruto",
+  "order": 550,
   "for": "owner",
   "scene": "crimson",
   "hero": "none",

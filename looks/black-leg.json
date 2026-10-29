@@ -2,6 +2,7 @@
   "id": "black-leg",
   "name": "Black Leg",
   "category": "One Piece",
+  "order": 400,
   "for": "owner",
   "scene": "baratie",
   "hero": "sanji",

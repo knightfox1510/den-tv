@@ -1,7 +1,8 @@
 {
   "id": "nine-tails",
   "name": "Nine-Tails",
-  "category": "Heroes",
+  "category": "Naruto",
+  "order": 500,
   "for": "owner",
   "scene": "kurama",
   "hero": "naruto",

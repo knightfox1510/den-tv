@@ -1,7 +1,8 @@
 {
   "id": "butterfly-mansion",
   "name": "Butterfly Mansion",
-  "category": "Heroes",
+  "category": "Demon Slayer",
+  "order": 620,
   "for": "owner",
   "scene": "wisteria",
   "hero": "shinobu",

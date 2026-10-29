@@ -2,6 +2,7 @@
   "id": "floodlights",
   "name": "Floodlights",
   "category": "Football",
+  "order": 140,
   "for": "everyone",
   "scene": "floodlights",
   "hero": "none",

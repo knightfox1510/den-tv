@@ -2,6 +2,7 @@
   "id": "hana-hana",
   "name": "Hana Hana",
   "category": "One Piece",
+  "order": 410,
   "for": "owner",
   "scene": "grandline",
   "hero": "robin",

@@ -1,0 +1,19 @@
+{
+  "id": "wonderkid",
+  "name": "Wonderkid",
+  "category": "Football",
+  "order": 160,
+  "for": "owner",
+  "scene": "yamalnou",
+  "hero": "yamal",
+  "watcher": "trivela",
+  "focus": "pass",
+  "wake": "tunnel",
+  "clock": "board",
+  "icons": "patch",
+  "icon_layout": "formation",
+  "extras": "flags",
+  "moment": "goal",
+  "accent": "#edbb00",
+  "scoreboard_text": "BARÇA 3 – 1 · YAMAL 10"
+}

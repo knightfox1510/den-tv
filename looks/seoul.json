@@ -2,6 +2,7 @@
   "id": "seoul",
   "name": "Seoul Nights",
   "category": "Together",
+  "order": 1200,
   "for": "partner",
   "scene": "seoul",
   "hero": "none",

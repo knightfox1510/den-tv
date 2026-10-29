@@ -1,7 +1,8 @@
 {
   "id": "one-punch",
   "name": "One Punch",
-  "category": "Heroes",
+  "category": "Anime",
+  "order": 830,
   "for": "owner",
   "scene": "crater",
   "hero": "saitama",

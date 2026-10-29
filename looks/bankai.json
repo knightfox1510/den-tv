@@ -1,7 +1,8 @@
 {
   "id": "bankai",
   "name": "Bankai",
-  "category": "Heroes",
+  "category": "Anime",
+  "order": 810,
   "for": "owner",
   "scene": "soul",
   "hero": "ichigo",

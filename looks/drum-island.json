@@ -2,6 +2,7 @@
   "id": "drum-island",
   "name": "Drum Island",
   "category": "One Piece",
+  "order": 420,
   "for": "everyone",
   "scene": "drum",
   "hero": "chopper",

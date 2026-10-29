@@ -2,6 +2,7 @@
   "id": "blue-billion",
   "name": "Blue Billion",
   "category": "Cricket",
+  "order": 220,
   "for": "owner",
   "scene": "bluebillion",
   "hero": "kohli",

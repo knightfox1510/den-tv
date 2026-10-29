@@ -2,6 +2,7 @@
   "id": "lost-again",
   "name": "Lost Again",
   "category": "One Piece",
+  "order": 360,
   "for": "owner",
   "scene": "lost",
   "hero": "none",

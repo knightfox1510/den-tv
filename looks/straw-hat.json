@@ -1,7 +1,8 @@
 {
   "id": "straw-hat",
   "name": "Straw Hat",
-  "category": "Heroes",
+  "category": "One Piece",
+  "order": 300,
   "for": "owner",
   "scene": "grandline",
   "hero": "none",

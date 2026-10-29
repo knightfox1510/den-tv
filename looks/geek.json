@@ -2,6 +2,7 @@
   "id": "geek",
   "name": "Geek HUD",
   "category": "Geek & code",
+  "order": 1400,
   "for": "everyone",
   "scene": "grid",
   "hero": "none",

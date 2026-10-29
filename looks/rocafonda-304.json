@@ -1,0 +1,19 @@
+{
+  "id": "rocafonda-304",
+  "name": "Rocafonda 304",
+  "category": "Football",
+  "order": 150,
+  "for": "owner",
+  "scene": "rocafonda",
+  "hero": "yamal",
+  "watcher": "trivela",
+  "focus": "pass",
+  "wake": "ink",
+  "clock": "brush",
+  "icons": "sticker",
+  "icon_layout": "row",
+  "extras": "none",
+  "moment": "goal",
+  "accent": "#edbb00",
+  "goal_text": "Yamal · trivela, top corner"
+}

@@ -2,6 +2,7 @@
   "id": "midnight-lounge",
   "name": "Midnight Lounge",
   "category": "After dark",
+  "order": 1340,
   "for": "owner",
   "scene": "lounge",
   "hero": "none",

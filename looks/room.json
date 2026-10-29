@@ -2,6 +2,7 @@
   "id": "room",
   "name": "ROOM",
   "category": "One Piece",
+  "order": 390,
   "for": "owner",
   "scene": "room",
   "hero": "law",

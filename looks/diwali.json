@@ -2,6 +2,7 @@
   "id": "diwali",
   "name": "Diwali Night",
   "category": "Seasonal",
+  "order": 1100,
   "for": "everyone",
   "scene": "diwali",
   "hero": "none",

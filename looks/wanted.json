@@ -2,6 +2,7 @@
   "id": "wanted",
   "name": "Wanted",
   "category": "One Piece",
+  "order": 320,
   "for": "owner",
   "scene": "wanted",
   "hero": "none",

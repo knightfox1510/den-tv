@@ -2,6 +2,7 @@
   "id": "high-roller",
   "name": "High Roller",
   "category": "After dark",
+  "order": 1330,
   "for": "everyone",
   "scene": "casino",
   "hero": "none",

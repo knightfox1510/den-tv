@@ -1,7 +1,8 @@
 {
   "id": "ultra-instinct",
   "name": "Ultra Instinct",
-  "category": "Heroes",
+  "category": "Dragon Ball",
+  "order": 410,
   "for": "owner",
   "scene": "ui",
   "hero": "goku",

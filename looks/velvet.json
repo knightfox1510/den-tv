@@ -2,6 +2,7 @@
   "id": "velvet",
   "name": "Velvet Night",
   "category": "After dark",
+  "order": 1320,
   "for": "everyone",
   "scene": "velvet",
   "hero": "none",

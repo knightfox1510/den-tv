@@ -23,9 +23,13 @@ public class ClockActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dream_clock);
+        // den-tv: the look's own screensaver (DenSaverView) when the looks are there, else the plain clock.
+        DenSaverView saver = DenSaverView.make(this, !DenSettings.reducedMotion(this, false));
+        if (saver != null) setContentView(saver);
+        else setContentView(R.layout.dream_clock);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        if (saver != null) return;
         scene = new ClockScene(getWindow().getDecorView());
         scene.useHomeWallpaper(this);
     }
@@ -33,12 +37,12 @@ public class ClockActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        scene.start();
+        if (scene != null) scene.start();
     }
 
     @Override
     protected void onPause() {
-        scene.stop();
+        if (scene != null) scene.stop();
         super.onPause();
         finish();   // never left behind in the back stack
     }

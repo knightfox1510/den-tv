@@ -1,7 +1,8 @@
 {
   "id": "sage-mode",
   "name": "Sage Mode",
-  "category": "Heroes",
+  "category": "Naruto",
+  "order": 510,
   "for": "owner",
   "scene": "hokage",
   "hero": "naruto",

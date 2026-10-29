@@ -20,7 +20,7 @@ final class DenTheme {
     private static final String TAG = "DenTheme";
     private static final String ASSET_DIR = "den/theme";
     /** Raise when themes/den-mix/config.json changes: TVs set up by an older version get the new settings. */
-    static final int VERSION = 2;
+    static final int VERSION = 3;
     private static final String KEY_VERSION = "theme_version";
 
     private DenTheme() {}

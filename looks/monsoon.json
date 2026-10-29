@@ -2,6 +2,7 @@
   "id": "monsoon",
   "name": "Sahyadri Monsoon",
   "category": "Outdoors",
+  "order": 1010,
   "for": "everyone",
   "scene": "monsoon",
   "hero": "none",

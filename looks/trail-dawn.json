@@ -2,6 +2,7 @@
   "id": "trail-dawn",
   "name": "Trail Dawn",
   "category": "Outdoors",
+  "order": 1000,
   "for": "everyone",
   "scene": "dawn",
   "hero": "none",

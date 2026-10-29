@@ -2,6 +2,7 @@
   "id": "noir",
   "name": "Noir",
   "category": "After dark",
+  "order": 1310,
   "for": "everyone",
   "scene": "noir",
   "hero": "none",

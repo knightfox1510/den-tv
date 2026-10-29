@@ -1,7 +1,8 @@
 {
   "id": "grand-line",
   "name": "Grand Line",
-  "category": "Anime",
+  "category": "One Piece",
+  "order": 330,
   "for": "owner",
   "scene": "grandline",
   "hero": "luffy",

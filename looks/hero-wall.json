@@ -2,6 +2,7 @@
   "id": "hero-wall",
   "name": "Hero Wall",
   "category": "Heroes",
+  "order": 900,
   "for": "owner",
   "scene": "black",
   "hero": "rotate",
