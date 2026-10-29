@@ -312,22 +312,20 @@ public class DenScreensTest {
     }
 
     /**
-     * Home with twenty apps on Wonderkid (formation layout, patch icons, trivela): the focus glass on the picked tile
-     * wherever the layout moved it, the picked tile in the middle with the next apps peeking in at both edges, and
-     * the hints that the row goes on.
+     * Home with twenty apps in every icon layout, each with a different icon style, focused mid-row and on the first
+     * app: the focus glass must sit on the picked tile wherever the layout puts it.
      */
     @Test public void row() throws Exception {
         Context ctx = RuntimeEnvironment.getApplication();
         org.robolectric.shadows.ShadowPackageManager pm = org.robolectric.Shadows.shadowOf(ctx.getPackageManager());
         int[] colours = {0xffe50914, 0xff1db954, 0xff0f79af, 0xffff0000, 0xff6f2da8, 0xff00a8e1, 0xfff5c518};
         for (int i = 0; i < 20; i++) {
-            String pkg = "com.example.app" + i;
+            String pkg = "com.example.app" + (char) ('a' + i);
             android.content.pm.PackageInfo pi = new android.content.pm.PackageInfo();
             pi.packageName = pkg;
             pi.applicationInfo = new android.content.pm.ApplicationInfo();
             pi.applicationInfo.packageName = pkg;
-            pi.applicationInfo.name = "App " + i;
-            pi.applicationInfo.nonLocalizedLabel = "App " + i;
+            pi.applicationInfo.nonLocalizedLabel = "App " + (char) ('A' + i);
             pm.installPackage(pi);
             android.content.ComponentName cn = new android.content.ComponentName(pkg, pkg + ".Main");
             android.content.pm.ActivityInfo ai = new android.content.pm.ActivityInfo();
@@ -336,40 +334,54 @@ public class DenScreensTest {
             ai.exported = true;
             ai.enabled = true;
             ai.applicationInfo = pi.applicationInfo;
-            ai.nonLocalizedLabel = "App " + i;
+            ai.nonLocalizedLabel = "App " + (char) ('A' + i);
             pm.addOrUpdateActivity(ai);
             android.content.IntentFilter f = new android.content.IntentFilter(android.content.Intent.ACTION_MAIN);
             f.addCategory(android.content.Intent.CATEGORY_LEANBACK_LAUNCHER);
             f.addCategory(android.content.Intent.CATEGORY_LAUNCHER);
             pm.addIntentFilterForActivity(cn, f);
-            Bitmap banner = Bitmap.createBitmap(320, 180, Bitmap.Config.ARGB_8888);
-            new Canvas(banner).drawColor(colours[i % colours.length]);
-            pm.setApplicationIcon(pkg, new android.graphics.drawable.BitmapDrawable(ctx.getResources(), banner));
         }
         DenTheme.ensure(ctx);
-        DenLooks.apply(ctx, DenLooks.byId(DenLooks.load(ctx), "wonderkid"));
-        // Still frames: no wake, and no tile entrance (Robolectric doesn't run it to the end, and the tiles stay hidden).
         DenSettings.prefs(ctx).edit().putBoolean(DenSettings.WAKE, false).apply();
-        ctx.getSharedPreferences(com.gathin.tvhome.Config.SETTINGS_NAME, Context.MODE_PRIVATE).edit().putBoolean("animations", false).apply();
-        MainActivity a = Robolectric.buildActivity(MainActivity.class).setup().get();
-        View root = a.getWindow().getDecorView();
-        androidx.recyclerview.widget.RecyclerView grid = a.findViewById(R.id.grid);
-        for (int k = 0; k < 6; k++) { layout(root, 1920, 1080); org.robolectric.shadows.ShadowLooper.idleMainLooper(); }
-        System.out.println("row items: " + grid.getAdapter().getItemCount() + ", focus " + root.findFocus());
-        View first = grid.getChildAt(1) == null ? null : grid.getChildAt(1).findViewById(R.id.card);
-        if (first != null) first.requestFocusFromTouch();   // a TV is never in touch mode; the test window starts in it
-        for (int k = 0; k < 3; k++) { org.robolectric.shadows.ShadowLooper.idleMainLooper(1, java.util.concurrent.TimeUnit.SECONDS); layout(root, 1920, 1080); }
-        System.out.println("focus start: " + root.findFocus());
-        // Move along the row one tile at a time, as Right on the remote does (focus, scroll, glass).
-        for (int pos = 2; pos <= 7; pos++) {
-            androidx.recyclerview.widget.RecyclerView.ViewHolder vh = grid.findViewHolderForAdapterPosition(pos);
-            if (vh != null) vh.itemView.findViewById(R.id.card).requestFocus();
-            for (int k = 0; k < 4; k++) { org.robolectric.shadows.ShadowLooper.idleMainLooper(1, java.util.concurrent.TimeUnit.SECONDS); layout(root, 1920, 1080); }
+        // layout, icon style, look
+        String[][] runs = {{"row", "score", "chase-master"}, {"formation", "patch", "wonderkid"}, {"field", "score", "master-blaster"},
+                {"arc", "wanted", "straw-hat"}, {"shelf", "manga", "hana-hana"}, {"carousel", "pin", "king-kohli"}, {"row", "sticker", "navigator"},
+                {"arc", "dball", "super-saiyan"}, {"carousel", "glass", "domain"}};
+        for (String[] run : runs) {
+            DenLooks.apply(ctx, DenLooks.byId(DenLooks.load(ctx), run[2]));
+            DenSettings.prefs(ctx).edit().putString(DenLooks.OVERRIDE + run[2], new org.json.JSONObject().put("layout", run[0]).put("icons", run[1]).put("watcher", "none").toString()).apply();
+            for (int target : new int[]{0, 7}) for (boolean anim : new boolean[]{false, true}) {
+                // Still frames: no tile entrance with animations off (Robolectric doesn't run it to the end); with them
+                // on the tiles zoom on focus, and the glass must still match.
+                ctx.getSharedPreferences(com.gathin.tvhome.Config.SETTINGS_NAME, Context.MODE_PRIVATE).edit().putBoolean("animations", anim).apply();
+                org.robolectric.android.controller.ActivityController<MainActivity> ctl = Robolectric.buildActivity(MainActivity.class).setup();
+                MainActivity a = ctl.get();
+                View root = a.getWindow().getDecorView();
+                androidx.recyclerview.widget.RecyclerView grid = a.findViewById(R.id.grid);
+                grid.setLayoutAnimation(null);   // the tiles' entrance: Robolectric never runs it to the end
+                for (int k = 0; k < 4; k++) { layout(root, 1920, 1080); org.robolectric.shadows.ShadowLooper.idleMainLooper(); }
+                for (int c = 0; c < grid.getChildCount(); c++) grid.getChildAt(c).clearAnimation();
+                // Home starts on the app it remembers; step from there to the target, a tile at a time, as the remote does.
+                View start = grid.getChildAt(0).findViewById(R.id.card);
+                start.requestFocusFromTouch();   // a TV is never in touch mode; the test window starts in it
+                for (int k = 0; k < 3; k++) { org.robolectric.shadows.ShadowLooper.idleMainLooper(2, java.util.concurrent.TimeUnit.SECONDS); layout(root, 1920, 1080); }
+                int at = grid.getChildAdapterPosition((View) start.getParent());
+                while (at != target) {
+                    at += at < target ? 1 : -1;
+                    androidx.recyclerview.widget.RecyclerView.ViewHolder vh = grid.findViewHolderForAdapterPosition(at);
+                    if (vh == null) { grid.scrollToPosition(at); layout(root, 1920, 1080); vh = grid.findViewHolderForAdapterPosition(at); }
+                    if (vh != null) vh.itemView.findViewById(R.id.card).requestFocus();
+                    for (int k = 0; k < 4; k++) { org.robolectric.shadows.ShadowLooper.idleMainLooper(2, java.util.concurrent.TimeUnit.SECONDS); layout(root, 1920, 1080); }
+                }
+                Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+                root.draw(new Canvas(b));
+                View f = root.findFocus();
+                System.out.println("run " + run[0] + "/" + run[1] + " target " + target + (anim ? " anim" : "") + ": focus "
+                        + (f != null && f.getId() == R.id.card ? grid.getChildAdapterPosition((View) f.getParent()) : f == null ? "none" : f.getClass().getSimpleName()));
+                save(b, "row-" + run[0] + "-" + run[1] + "-" + target + (anim ? "-anim" : ""));
+                ctl.pause().stop().destroy();
+            }
         }
-        Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
-        root.draw(new Canvas(b));
-        System.out.println("focus after: " + root.findFocus());
-        save(b, "row-wonderkid");
     }
 
     private static void layout(View v, int w, int h) {

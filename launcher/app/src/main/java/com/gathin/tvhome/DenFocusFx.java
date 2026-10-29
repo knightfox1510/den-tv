@@ -82,8 +82,10 @@ final class DenFocusFx extends View implements DenLayer.Watcher {
                 break;
             }
             case "arc": {
-                float fade = motion ? Math.max(0, 1 - (el - MOVE_MS) / 600f) : 0.6f;
-                if (fade <= 0) break;
+                // Only while the ball flies: with motion off, or on the first tile (from and to the same), the arc
+                // has nowhere to go and used to stay as a stub standing on the tile.
+                float fade = motion ? Math.max(0, 1 - (el - MOVE_MS) / 600f) : 0;
+                if (fade <= 0 || Math.abs(x - fromX) < 10) break;
                 again = motion && el < MOVE_MS + 600;
                 p.setStyle(Paint.Style.STROKE);
                 p.setStrokeCap(Paint.Cap.ROUND);
