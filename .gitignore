@@ -6,3 +6,7 @@ shots/
 mockups/chars/
 chars/
 fanhub/config.json
+launcher/local.properties
+launcher/.gradle/
+launcher/build/
+launcher/app/build/
