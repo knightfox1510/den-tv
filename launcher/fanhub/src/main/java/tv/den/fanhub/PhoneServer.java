@@ -43,6 +43,20 @@ final class PhoneServer {
     static final int PORT = 8765;
     private static final Uri LOOKS = Uri.parse("content://tv.den.launcher.looks/looks");
     private static final Uri CURRENT = Uri.parse("content://tv.den.launcher.looks/current");
+    private static final Uri SETTINGS = Uri.parse("content://tv.den.launcher.looks/settings");
+
+    /** The TV's setup screen, while it runs: the phone's progress, so the TV can follow along. */
+    interface Setup {
+        /** A paired phone opened the page, or moved to a step ("name", "interests", "home", "look"). */
+        void step(String step);
+        /** The phone finished the setup. */
+        void done();
+    }
+
+    private volatile Setup setup;
+
+    /** Puts the page in setup mode (a step-by-step wizard on the phone) while the TV's setup screen is open. */
+    void setSetup(Setup s) { setup = s; }
     private static final int MAX_BODY = 64 * 1024, MAX_TRIES = 5;
 
     private final Context ctx;
@@ -225,10 +239,17 @@ final class PhoneServer {
                 return;
             }
             if (!paired(r.cookie)) { json(c, 401, new JSONObject().put("error", "pair")); return; }
-            if (r.method.equals("GET") && r.path.equals("/api/state")) { json(c, 200, state()); return; }
+            if (r.method.equals("GET") && r.path.equals("/api/state")) {
+                Setup su = setup;
+                if (su != null) su.step("phone");
+                json(c, 200, state());
+                return;
+            }
             JSONObject body = new JSONObject(new String(r.body, StandardCharsets.UTF_8));
             if (r.method.equals("POST") && r.path.equals("/api/look")) { json(c, 200, look(body.optString("id"))); return; }
             if (r.method.equals("POST") && r.path.equals("/api/fanhub")) { json(c, 200, fanhub(body)); return; }
+            if (r.method.equals("POST") && r.path.equals("/api/settings")) { json(c, 200, settings(body)); return; }
+            if (r.method.equals("POST") && r.path.equals("/api/setup")) { json(c, 200, setupStep(body.optString("step"))); return; }
             json(c, 404, new JSONObject().put("error", "not found"));
         } catch (JSONException e) {
             send(c, 400, "text/plain", "Bad request".getBytes(StandardCharsets.UTF_8), null);
@@ -313,7 +334,42 @@ final class PhoneServer {
         for (FanHub.Team t : cfg.teams) teams.put(t.name);
         for (String sh : cfg.shows) shows.put(sh);
         s.put("teams", teams).put("shows", shows);
+        JSONObject home = new JSONObject();
+        try (Cursor c = ctx.getContentResolver().query(SETTINGS, null, null, null, null)) {
+            while (c != null && c.moveToNext()) home.put(c.getString(0), c.getString(1));
+        } catch (RuntimeException ignored) {
+            // An older launcher without settings: the page leaves those out.
+        }
+        s.put("settings", home);
+        s.put("setup", setup != null);
         return s;
+    }
+
+    /** Your name and what Home shows, saved in the launcher (DenLooksProvider). */
+    private JSONObject settings(JSONObject body) throws JSONException {
+        ContentValues v = new ContentValues();
+        if (body.has("greeting_name")) v.put("greeting_name", body.optString("greeting_name"));
+        for (String k : new String[]{"show_greeting", "fan_panel", "watcher"}) if (body.has(k)) v.put(k, body.optBoolean(k) ? "1" : "0");
+        try {
+            ctx.getContentResolver().update(SETTINGS, v, null, null);
+            return new JSONObject().put("ok", true);
+        } catch (RuntimeException e) {
+            return new JSONObject().put("ok", false).put("error", "The launcher didn't accept it. Update den-tv.");
+        }
+    }
+
+    /** The phone moved on in the setup; "done" also marks the setup finished in the launcher. */
+    private JSONObject setupStep(String step) throws JSONException {
+        Setup su = setup;
+        if ("done".equals(step)) {
+            ContentValues v = new ContentValues();
+            v.put("setup_done", "1");
+            try { ctx.getContentResolver().update(SETTINGS, v, null, null); } catch (RuntimeException ignored) { }
+            if (su != null) su.done();
+        } else if (su != null && step.matches("[a-z]{1,16}")) {
+            su.step(step);
+        }
+        return new JSONObject().put("ok", true);
     }
 
     private JSONObject look(String id) throws JSONException {

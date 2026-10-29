@@ -129,7 +129,8 @@ public final class DenLooksActivity extends Activity {
     }
 
     private final class Tiles extends RecyclerView.Adapter<Holder> {
-        @Override public int getItemCount() { return looks.size() + 1; }
+        // Rotate first, then the looks, then "Set up den-tv" last.
+        @Override public int getItemCount() { return looks.size() + 2; }
 
         @Override public Holder onCreateViewHolder(ViewGroup parent, int type) {
             FrameLayout card = new FrameLayout(DenLooksActivity.this);
@@ -163,6 +164,19 @@ public final class DenLooksActivity extends Activity {
         }
 
         @Override public void onBindViewHolder(Holder h, int position) {
+            if (position == looks.size() + 1) {
+                h.name.setText("Set up den-tv");
+                h.meta.setText("Your name, teams, shows and Home");
+                h.frame.setStroke(0, 0);
+                h.picture.setImageBitmap(null);
+                h.picture.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xff10243a, 0xff2fd0b0}));
+                h.want = null;
+                h.itemView.setOnClickListener(v -> {
+                    if (DenSettings.openSetup(DenLooksActivity.this)) finish();
+                    else Toast.makeText(DenLooksActivity.this, "Install the Fan Hub app first: it runs the setup", Toast.LENGTH_LONG).show();
+                });
+                return;
+            }
             DenLooks.Look look = position == 0 ? null : looks.get(position - 1);
             boolean on = look == current;
             h.name.setText(look == null ? "Rotate every look" : look.name);

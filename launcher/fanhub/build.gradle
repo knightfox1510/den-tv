@@ -12,8 +12,8 @@ android {
         applicationId 'tv.den.fanhub'
         minSdk 26
         targetSdk 34
-        versionCode 3
-        versionName '0.2.2'
+        versionCode 4
+        versionName '0.3'
     }
 
     def denKeystore = System.getenv('DEN_KEYSTORE')
@@ -39,6 +39,7 @@ android {
     testOptions {
         unitTests.includeAndroidResources = true
         unitTests.all {
+            systemProperty 'den.screens', project.findProperty('den.screens') ?: ''
             if (project.hasProperty('robolectric.repo')) systemProperty 'robolectric.dependency.repo.url', project.property('robolectric.repo')
         }
     }

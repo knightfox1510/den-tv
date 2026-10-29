@@ -4,7 +4,7 @@ The den-tv home screen for Android TV and Google TV: the [cleanyourtv](https://g
 launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top. It installs as
 `tv.den.launcher`, so it sits beside the cleanyourtv launcher or replaces it.
 
-## What it does (v0.2)
+## What it does (v0.3)
 
 - **Looks tile.** A Looks tile in the dock opens every look with its wallpaper. OK puts a look on Home and
   Back keeps what is on. The first tile, "Rotate every look", goes back to a new wallpaper every 5 minutes.
@@ -24,6 +24,10 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   TheSportsDB (with the score while it is live) and each show's next episode from AniList, and Home shows them
   in the panel under the clock, a countdown before and LIVE during. The launcher stays offline; only the add-on
   goes online. Open **Fan Hub** on the TV to see the list; OK fetches again.
+- **First-time setup.** The first time Home opens, the TV walks through welcome, Wi-Fi and pairing your phone
+  (QR code and a 4-digit code); then the phone takes you through your name, teams and shows, what Home shows
+  (greeting, match panel, watcher: each can be off) and a look picked from your interests, while the TV follows
+  along. Run it again from the **Set up den-tv** tile at the end of the Looks screen. It needs the Fan Hub app.
 - **Phone settings.** While the Fan Hub screen is open on the TV, a phone on the same Wi-Fi can scan its QR code
   (or open the address it shows), pair with the 4-digit code once, then switch looks and change the teams and shows. The page is gone
   when you leave that screen; Menu on that screen forgets every paired phone. If the page doesn't load, check the phone

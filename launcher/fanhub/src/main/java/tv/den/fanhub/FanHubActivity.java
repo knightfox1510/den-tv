@@ -147,22 +147,11 @@ public final class FanHubActivity extends Activity {
     private void showQr(String at) {
         if (at == null) { qr.setVisibility(View.GONE); qrFor = null; return; }
         if (at.equals(qrFor)) return;
-        try {
-            com.google.zxing.common.BitMatrix m = new com.google.zxing.qrcode.QRCodeWriter()
-                    .encode(at, com.google.zxing.BarcodeFormat.QR_CODE, 0, 0);
-            int w = m.getWidth(), h = m.getHeight(), quiet = 2;
-            android.graphics.Bitmap b = android.graphics.Bitmap.createBitmap(w + 2 * quiet, h + 2 * quiet, android.graphics.Bitmap.Config.ARGB_8888);
-            b.eraseColor(Color.WHITE);
-            for (int y = 0; y < h; y++) for (int x = 0; x < w; x++) if (m.get(x, y)) b.setPixel(x + quiet, y + quiet, Color.BLACK);
-            android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(getResources(), b);
-            d.setFilterBitmap(false);   // crisp modules when scaled up
-            qr.setImageDrawable(d);
-            qr.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            qr.setVisibility(View.VISIBLE);
-            qrFor = at;
-        } catch (com.google.zxing.WriterException e) {
-            qr.setVisibility(View.GONE);
-        }
+        android.graphics.drawable.BitmapDrawable d = Qr.of(getResources(), at);
+        qr.setImageDrawable(d);
+        qr.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        qr.setVisibility(d == null ? View.GONE : View.VISIBLE);
+        qrFor = d == null ? null : at;
     }
 
     private TextView text(String s, float sp, int colour, boolean bold) {

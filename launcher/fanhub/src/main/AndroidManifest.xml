@@ -32,6 +32,11 @@
             android:authorities="tv.den.fanhub.games"
             android:exported="true" />
 
+        <!-- den-tv's first-time setup; the launcher opens it after install and from its Looks screen. -->
+        <activity
+            android:name=".SetupActivity"
+            android:exported="true" />
+
         <activity
             android:name=".FanHubActivity"
             android:exported="true">

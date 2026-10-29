@@ -60,7 +60,7 @@ final class DenLayer {
         DenLayer layer = new DenLayer(activity, motion);
         List<DenLooks.Look> looks = DenLooks.load(activity);
         DenLooks.Look look = DenLooks.current(activity, looks);
-        View watcher = look == null ? null
+        View watcher = look == null || !DenSettings.watcher(activity) ? null
                 : look.hasEyes() ? new DenEyesView(activity, look.watcher, motion)
                 : DenWatcherView.draws(look.watcher) ? new DenWatcherView(activity, look.watcher, look.accent, motion) : null;
         if (watcher != null) {
@@ -116,6 +116,7 @@ final class DenLayer {
 
     void onResume() {
         content.post(this::followFocus);
+        DenSettings.offerSetupOnce(activity);
         if (!wakePending) return;
         wakePending = false;
         if (motion) wake();

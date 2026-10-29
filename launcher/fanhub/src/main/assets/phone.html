@@ -13,7 +13,7 @@
   h2 { font-size: 17px; margin: 28px 0 10px; }
   p { color: var(--dim); margin: 0 0 12px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
-  input, textarea { width: 100%; background: #0d0d12; color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: inherit; }
+  input[type=text], input:not([type]), textarea { width: 100%; background: #0d0d12; color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: inherit; }
   input.code { font-size: 32px; letter-spacing: .4em; text-align: center; }
   button { appearance: none; border: 0; border-radius: 10px; background: var(--acc); color: #fff; font: 600 16px/1 inherit; padding: 13px 18px; margin-top: 10px; width: 100%; cursor: pointer; }
   button.ghost { background: transparent; border: 1px solid var(--line); color: var(--text); }
@@ -21,8 +21,18 @@
   .look { text-align: left; background: #0d0d12; border: 1px solid var(--line); margin: 0; padding: 12px; font-weight: 500; line-height: 1.25; }
   .look small { display: block; color: var(--dim); font-weight: 400; margin-top: 3px; font-size: 13px; }
   .look.on { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc) inset; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { width: auto; margin: 0; padding: 10px 14px; border-radius: 999px; background: #0d0d12; border: 1px solid var(--line); color: var(--text); font-weight: 500; }
+  .chip[aria-pressed=true] { border-color: var(--acc); background: rgba(255,77,109,.16); }
+  .toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .toggle:first-child { border-top: 0; }
+  .toggle span small { display: block; color: var(--dim); font-size: 13px; }
+  .toggle input { width: 22px; height: 22px; accent-color: var(--acc); flex: none; }
   .msg { min-height: 1.4em; color: var(--dim); margin-top: 10px; }
   .msg.bad { color: #ff7a7a; }
+  .steps { color: var(--dim); font-size: 14px; margin-bottom: 6px; }
+  .row { display: flex; gap: 8px; }
+  .row button { flex: 1; }
   [hidden] { display: none !important; }
   label { display: block; font-weight: 600; margin: 12px 0 6px; }
 </style>
@@ -30,15 +40,54 @@
 <body>
 <main>
   <h1>den-tv</h1>
-  <p>Settings for the TV, from your phone.</p>
+  <p id="sub">Settings for the TV, from your phone.</p>
 
   <section id="pair" hidden>
     <div class="card">
-      <p>Enter the 4-digit code on the TV's Fan Hub screen.</p>
+      <p>Enter the 4-digit code on the TV.</p>
       <input id="code" class="code" inputmode="numeric" maxlength="4" autocomplete="one-time-code" aria-label="Code from the TV">
       <button id="pairBtn">Pair this phone</button>
       <div id="pairMsg" class="msg" role="status"></div>
     </div>
+  </section>
+
+  <!-- Setup: one step at a time while the TV's setup screen is open. -->
+  <section id="wiz" hidden>
+    <div class="steps" id="wizStep"></div>
+    <div id="w-name" class="card" hidden>
+      <h2 style="margin-top:0">What should the TV call you?</h2>
+      <p>Home greets you by name: "Good evening, …"</p>
+      <input id="wName" maxlength="24" autocomplete="given-name" aria-label="Your name">
+    </div>
+    <div id="w-interests" hidden>
+      <h2 style="margin-top:0">Teams</h2>
+      <p>Their next match shows under the clock, with the score while it's on.</p>
+      <div id="wTeams" class="chips"></div>
+      <input id="wTeamMore" placeholder="Another team (e.g. Arsenal)" style="margin-top:10px" aria-label="Another team">
+      <h2>Shows</h2>
+      <p>New episodes show up the same way.</p>
+      <div id="wShows" class="chips"></div>
+      <input id="wShowMore" placeholder="Another show (e.g. Bleach)" style="margin-top:10px" aria-label="Another show">
+    </div>
+    <div id="w-home" class="card" hidden>
+      <h2 style="margin-top:0">What Home shows</h2>
+      <p>Fewer things means more room for the wallpaper.</p>
+      <div id="wToggles"></div>
+    </div>
+    <div id="w-look" hidden>
+      <h2 style="margin-top:0">Pick a look</h2>
+      <p>Picked from your teams and shows. Every look is in the Looks tile on the TV later.</p>
+      <div id="wLooks" class="looks"></div>
+    </div>
+    <div id="w-done" class="card" hidden>
+      <h2 style="margin-top:0">All set</h2>
+      <p>Press OK on the TV to go Home. Open the Fan Hub on the TV whenever you want to change something from this phone.</p>
+    </div>
+    <div class="row">
+      <button id="wBack" class="ghost" type="button">Back</button>
+      <button id="wNext" type="button">Next</button>
+    </div>
+    <div id="wMsg" class="msg" role="status"></div>
   </section>
 
   <section id="app" hidden>
@@ -46,6 +95,15 @@
     <p>Tap a look to put it on Home. It changes when you leave the Fan Hub screen on the TV.</p>
     <div id="looks" class="looks"></div>
     <div id="lookMsg" class="msg" role="status"></div>
+
+    <h2>Home</h2>
+    <div class="card">
+      <label for="name" style="margin-top:0">Your name</label>
+      <input id="name" maxlength="24">
+      <div id="toggles" style="margin-top:8px"></div>
+      <button id="saveHome">Save</button>
+      <div id="homeMsg" class="msg" role="status"></div>
+    </div>
 
     <h2>Fan Hub</h2>
     <div class="card">
@@ -67,9 +125,27 @@
     let j = {}; try { j = await r.json(); } catch (e) {}
     return { status: r.status, json: j };
   }
-  function lines(id) { return $(id).value.split('\n').map((s) => s.trim()).filter(Boolean); }
-  function renderLooks(looks) {
-    const box = $('looks'); box.innerHTML = '';
+  const lines = (id) => $(id).value.split('\n').map((s) => s.trim()).filter(Boolean);
+  const TOGGLES = [
+    ['show_greeting', 'Greeting', 'Good evening, and your name, above the clock'],
+    ['fan_panel', 'Match and episode panel', 'Next match or new episode under the clock'],
+    ['watcher', 'Watcher', 'The eyes, hat or swords that follow the app you pick'],
+  ];
+  const on = (settings, k) => (settings[k] == null ? true : settings[k] === '1');
+  function toggles(box, settings) {
+    box.innerHTML = '';
+    TOGGLES.forEach(([k, title, note]) => {
+      const row = document.createElement('label'); row.className = 'toggle';
+      const span = document.createElement('span'); span.textContent = title;
+      const small = document.createElement('small'); small.textContent = note; span.appendChild(small);
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.dataset.key = k; cb.checked = on(settings, k);
+      row.appendChild(span); row.appendChild(cb); box.appendChild(row);
+    });
+  }
+  const readToggles = (box) => { const o = {}; box.querySelectorAll('input[data-key]').forEach((cb) => { o[cb.dataset.key] = cb.checked; }); return o; };
+
+  function renderLooks(box, msg, looks, onPick) {
+    box.innerHTML = '';
     looks.forEach((l) => {
       const b = document.createElement('button');
       b.className = 'look' + (l.on ? ' on' : ''); b.type = 'button';
@@ -77,29 +153,113 @@
       if (l.category) { const s = document.createElement('small'); s.textContent = l.category; b.appendChild(s); }
       b.setAttribute('aria-pressed', l.on ? 'true' : 'false');
       b.addEventListener('click', async () => {
-        say($('lookMsg'), 'Putting on ' + l.name + '…');
+        say(msg, 'Putting on ' + l.name + '…');
         const r = await api('/api/look', { id: l.id });
-        if (r.json.ok) { looks.forEach((x) => { x.on = x.id === l.id; }); renderLooks(looks); say($('lookMsg'), l.name + ' is on. Leave the Fan Hub screen on the TV to see it.'); }
-        else say($('lookMsg'), r.json.error || 'The TV didn\'t take it. Try again.', true);
+        if (r.json.ok) { looks.forEach((x) => { x.on = x.id === l.id; }); renderLooks(box, msg, looks, onPick); say(msg, l.name + ' is on.'); if (onPick) onPick(l); }
+        else say(msg, r.json.error || 'The TV didn\'t take it. Try again.', true);
       });
       box.appendChild(b);
     });
   }
+
+  // ---- setup wizard ----
+  const TEAMS = ['FC Barcelona', 'India', 'Mumbai Indians', 'Real Madrid', 'Argentina', 'Royal Challengers Bengaluru', 'Chennai Super Kings', 'Arsenal'];
+  const SHOWS = ['One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Naruto', 'Dragon Ball', 'Solo Leveling', 'Attack on Titan', 'Bleach'];
+  const SUGGEST = { 'FC Barcelona': ['camp-nou', 'goat', 'clasico'], Argentina: ['albiceleste', 'goat'], 'Real Madrid': ['clasico'], India: ['blue-billion', 'king-kohli'],
+    'Mumbai Indians': ['wankhede', 'hitman'], 'Royal Challengers Bengaluru': ['king-kohli'], 'One Piece': ['straw-hat', 'grand-line', 'fire-fist'], 'Jujutsu Kaisen': ['domain', 'king-of-curses'],
+    'Demon Slayer': ['water-breathing', 'butterfly-mansion', 'set-ablaze'], Naruto: ['nine-tails', 'copy-ninja', 'sage-mode'], 'Dragon Ball': ['super-saiyan', 'prince'], 'Solo Leveling': ['arise'],
+    'Attack on Titan': ['strongest'], Bleach: ['bankai'] };
+  const W = ['name', 'interests', 'home', 'look', 'done'];
+  let wi = 0, S = null, pickedTeams = [], pickedShows = [];
+  function chips(box, all, picked) {
+    box.innerHTML = '';
+    all.forEach((x) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = x;
+      b.setAttribute('aria-pressed', picked.includes(x) ? 'true' : 'false');
+      b.addEventListener('click', () => { const i = picked.indexOf(x); if (i >= 0) picked.splice(i, 1); else picked.push(x); b.setAttribute('aria-pressed', i >= 0 ? 'false' : 'true'); });
+      box.appendChild(b);
+    });
+  }
+  function suggested() {
+    const ids = new Set(S.looks.map((l) => l.id)), out = [];
+    pickedTeams.concat(pickedShows).forEach((x) => (SUGGEST[x] || []).forEach((id) => { if (ids.has(id) && !out.includes(id)) out.push(id); }));
+    ['neon', 'anime-dusk', 'monsoon'].forEach((id) => { if (ids.has(id) && !out.includes(id)) out.push(id); });
+    return S.looks.filter((l) => out.slice(0, 8).includes(l.id) || l.on).slice(0, 9);
+  }
+  function wizShow() {
+    W.forEach((s, i) => { $('w-' + s).hidden = i !== wi; });
+    $('wizStep').textContent = wi < 4 ? 'Step ' + (wi + 1) + ' of 4' : 'Done';
+    $('wBack').hidden = wi === 0 || wi === 4;
+    $('wNext').hidden = wi === 4;
+    $('wNext').textContent = wi === 3 ? 'Finish' : 'Next';
+    say($('wMsg'), '');
+    if (W[wi] === 'look') renderLooks($('wLooks'), $('wMsg'), suggested());
+    if (W[wi] !== 'done') api('/api/setup', { step: W[wi] });   // done is sent once, by Finish
+  }
+  async function wizNext() {
+    const step = W[wi];
+    $('wNext').disabled = true;
+    try {
+      if (step === 'name') {
+        const r = await api('/api/settings', { greeting_name: $('wName').value.trim() });
+        if (!r.json.ok) { say($('wMsg'), r.json.error || 'Couldn\'t save.', true); return; }
+      } else if (step === 'interests') {
+        const more = (id, list) => { const v = $(id).value.trim(); if (v && !list.includes(v)) list.push(v); $(id).value = ''; };
+        more('wTeamMore', pickedTeams); more('wShowMore', pickedShows);
+        say($('wMsg'), 'Looking up your teams…');
+        const r = await api('/api/fanhub', { teams: pickedTeams, shows: pickedShows });
+        if (!r.json.ok) { say($('wMsg'), r.json.error || 'Couldn\'t save.', true); return; }
+        const miss = r.json.missing || [];
+        if (miss.length) { pickedTeams = pickedTeams.filter((t) => !miss.includes(t)); chips($('wTeams'), TEAMS.concat(pickedTeams.filter((t) => !TEAMS.includes(t))), pickedTeams);
+          say($('wMsg'), 'Couldn\'t find ' + miss.join(', ') + '. Check the spelling, or press Next to go on without.', true); return; }
+      } else if (step === 'home') {
+        const r = await api('/api/settings', readToggles($('wToggles')));
+        if (!r.json.ok) { say($('wMsg'), r.json.error || 'Couldn\'t save.', true); return; }
+      } else if (step === 'look') {
+        await api('/api/setup', { step: 'done' });
+      }
+      wi = Math.min(W.length - 1, wi + 1); wizShow();
+    } finally { $('wNext').disabled = false; }
+  }
+  function startWizard() {
+    $('sub').textContent = 'Setting up your TV.';
+    $('wiz').hidden = false; $('app').hidden = true;
+    $('wName').value = (S.settings || {}).greeting_name || '';
+    pickedTeams = (S.teams || []).slice(); pickedShows = (S.shows || []).slice();
+    chips($('wTeams'), TEAMS.concat(pickedTeams.filter((t) => !TEAMS.includes(t))), pickedTeams);
+    chips($('wShows'), SHOWS.concat(pickedShows.filter((t) => !SHOWS.includes(t))), pickedShows);
+    toggles($('wToggles'), S.settings || {});
+    wi = 0; wizShow();
+  }
+  $('wNext').addEventListener('click', wizNext);
+  $('wBack').addEventListener('click', () => { wi = Math.max(0, wi - 1); wizShow(); });
+
+  // ---- everyday page ----
   async function load() {
     let r;
-    try { r = await api('/api/state'); } catch (e) { $('pair').hidden = false; say($('pairMsg'), 'Can\'t reach the TV. Is the Fan Hub screen open?', true); return; }
-    if (r.status === 401) { $('pair').hidden = false; $('app').hidden = true; $('code').focus(); return; }
-    $('pair').hidden = true; $('app').hidden = false;
-    if (r.json.looksError) say($('lookMsg'), r.json.looksError, true);
-    renderLooks(r.json.looks || []);
-    $('teams').value = (r.json.teams || []).join('\n');
-    $('shows').value = (r.json.shows || []).join('\n');
+    try { r = await api('/api/state'); } catch (e) { $('pair').hidden = false; say($('pairMsg'), 'Can\'t reach the TV. Is the Fan Hub or setup screen open on it?', true); return; }
+    if (r.status === 401) { $('pair').hidden = false; $('app').hidden = true; $('wiz').hidden = true; $('code').focus(); return; }
+    $('pair').hidden = true;
+    S = r.json;
+    if (S.setup) { startWizard(); return; }
+    $('app').hidden = false;
+    if (S.looksError) say($('lookMsg'), S.looksError, true);
+    renderLooks($('looks'), $('lookMsg'), S.looks || []);
+    $('name').value = (S.settings || {}).greeting_name || '';
+    toggles($('toggles'), S.settings || {});
+    $('teams').value = (S.teams || []).join('\n');
+    $('shows').value = (S.shows || []).join('\n');
   }
   $('pairBtn').addEventListener('click', async () => {
     const r = await api('/api/pair', { code: $('code').value.trim() });
     if (r.status === 200) load(); else say($('pairMsg'), r.json.error || 'That didn\'t work. Check the code on the TV.', true);
   });
   $('code').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('pairBtn').click(); });
+  $('saveHome').addEventListener('click', async () => {
+    const body = Object.assign({ greeting_name: $('name').value.trim() }, readToggles($('toggles')));
+    const r = await api('/api/settings', body);
+    say($('homeMsg'), r.json.ok ? 'Saved. Home changes when you leave the Fan Hub screen on the TV.' : (r.json.error || 'Couldn\'t save.'), !r.json.ok);
+  });
   $('saveHub').addEventListener('click', async () => {
     say($('hubMsg'), 'Saving and looking up the teams…');
     const r = await api('/api/fanhub', { teams: lines('teams'), shows: lines('shows') });

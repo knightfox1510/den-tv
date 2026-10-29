@@ -105,4 +105,22 @@ public class PhoneServerTest {
         found.put("eth0", "10.0.0.5");
         assertEquals("10.0.0.5", PhoneServer.choose(found));
     }
+
+    /** While the TV's setup screen is open, the phone's steps reach it, and "done" ends it. */
+    @Test public void setupFollowsThePhone() throws IOException {
+        java.util.List<String> seen = new java.util.ArrayList<>();
+        server.setSetup(new PhoneServer.Setup() {
+            @Override public void step(String s) { seen.add(s); }
+            @Override public void done() { seen.add("DONE"); }
+        });
+        Reply paired = call("POST", "/api/pair", "{\"code\":\"" + server.code() + "\"}", null);
+        String cookie = paired.cookie.split(";")[0];
+        Reply state = call("GET", "/api/state", null, cookie);
+        assertTrue(state.body.contains("\"setup\":true"));
+        call("POST", "/api/setup", "{\"step\":\"interests\"}", cookie);
+        call("POST", "/api/setup", "{\"step\":\"../bad\"}", cookie);
+        call("POST", "/api/setup", "{\"step\":\"done\"}", cookie);
+        assertEquals(java.util.Arrays.asList("phone", "interests", "DONE"), seen);
+        assertEquals(401, call("POST", "/api/setup", "{\"step\":\"done\"}", null).status);
+    }
 }
