@@ -9,7 +9,8 @@
   "focus": "aura",
   "wake": "bloom",
   "clock": "neon",
-  "icons": "white",
+  "icons": "pin",
+  "icon_layout": "carousel",
   "extras": "gold",
   "moment": "six",
   "accent": "#ffcc33"

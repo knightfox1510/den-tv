@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "panels",
   "clock": "brush",
-  "icons": "white",
+  "icons": "neon",
+  "icon_layout": "row",
   "extras": "embers",
   "moment": "none",
   "accent": "#ffd36e"

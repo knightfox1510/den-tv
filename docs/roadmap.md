@@ -6,6 +6,10 @@
 ## 2. den-tv launcher
 A fork of the cleanyourtv launcher (Java, Android 8+), with its safety and install scripts kept.
 - **Look engine:** reads `looks/*.json` and draws the scene, hero, clock, icons and extras.
+- **App icons:** each app's real icon and banner come from the installed app (PackageManager), and
+  den-tv draws the style around them (13 styles), places them (7 layouts) and adds live badges. Each
+  style is drawn once into a bitmap; only the selected icon animates. No brand logos in the repo.
+  Smart order, folders, renamed apps, picture icons and per-person hidden apps live on the TV.
 - **Watchers:** eyes that follow the selected app and blink, Dragon Balls that gather over it, the
   Power Pole that extends to it, Nami's thundercloud, Shinobu's butterflies, Luffy's hat and Zoro's
   swords. Each is a small vector view, with no images or video.
@@ -22,7 +26,7 @@ A fork of the cleanyourtv launcher (Java, Android 8+), with its safety and insta
 Served by the TV on the home Wi-Fi, opened by scanning a QR code on the TV, with a pairing code.
 - Five tabs, each grouped into sections you open one at a time:
   - **Looks:** gallery, search, favourites, Surprise me, describe a look.
-  - **Customise:** Look, Animations and motion, Clock and greeting, Widgets on Home (Wi-Fi
+  - **Customise:** Look, Animations and motion, Clock and greeting, App icons, Widgets on Home (Wi-Fi
     strength, system line, HUD panels, scores, episodes, facts, screen time), Fan Hub, Your photos.
   - **Auto:** rules.
   - **People:** renamable profiles, Private.

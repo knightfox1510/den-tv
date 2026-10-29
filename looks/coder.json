@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "termboot",
   "clock": "term",
-  "icons": "white",
+  "icons": "pixel",
+  "icon_layout": "rail",
   "extras": "none",
   "moment": "none",
   "accent": "#7ee787"

@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "bloom",
   "clock": "thin",
-  "icons": "white",
+  "icons": "manga",
+  "icon_layout": "row",
   "extras": "none",
   "moment": "punch",
   "accent": "#ffd23c"

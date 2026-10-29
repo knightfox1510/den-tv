@@ -9,7 +9,8 @@
   "focus": "aura",
   "wake": "bloom",
   "clock": "thin",
-  "icons": "white",
+  "icons": "glass",
+  "icon_layout": "carousel",
   "extras": "sparks",
   "moment": "drop",
   "accent": "#6fc3ff"

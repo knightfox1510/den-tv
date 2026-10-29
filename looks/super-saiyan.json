@@ -9,7 +9,8 @@
   "focus": "aura",
   "wake": "powerup",
   "clock": "roll",
-  "icons": "white",
+  "icons": "dball",
+  "icon_layout": "arc",
   "extras": "gold",
   "moment": "beam",
   "accent": "#ffd23c"

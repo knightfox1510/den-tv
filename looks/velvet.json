@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "bloom",
   "clock": "brush",
-  "icons": "white",
+  "icons": "pin",
+  "icon_layout": "row",
   "extras": "embers",
   "moment": "none",
   "accent": "#ff5a7a"

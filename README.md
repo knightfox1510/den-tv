@@ -47,7 +47,7 @@ OnePlus, Nvidia Shield and most others), not on Samsung, LG or Fire TV.
 | Geek & code | Geek HUD, Coder |
 
 Each look picks a scene, a hero, a watcher, a focus effect, a wake animation, a clock, extras and a
-big moment from one shared library. On top of any look you can switch on widgets: a "Did you know?" facts card or ticker about the heroes in the look, and a next-match countdown. The Fan Hub opens from its dock tile in whichever look is on. [looks/README.md](looks/README.md) lists every option.
+big moment from one shared library. On top of any look you can switch on widgets: a "Did you know?" facts card or ticker about the heroes in the look, and a next-match countdown. App icons have 13 styles (Dragon Balls, Wanted posters, manga ink, neon, jersey patches and more) and 7 layouts (a football formation, a cricket field, a bookshelf, a big carousel and more), with live badges, smart order, a folder that unrolls like a scroll, and your own names and pictures. The Fan Hub opens from its dock tile in whichever look is on. [looks/README.md](looks/README.md) lists every option.
 
 ## Your own characters
 

@@ -9,7 +9,8 @@
   "focus": "aura",
   "wake": "crt",
   "clock": "crt",
-  "icons": "white",
+  "icons": "neon",
+  "icon_layout": "row",
   "extras": "rain",
   "moment": "drop",
   "accent": "#ff3df2"

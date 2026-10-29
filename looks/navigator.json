@@ -9,7 +9,8 @@
   "focus": "ripple",
   "wake": "storm",
   "clock": "brush",
-  "icons": "white",
+  "icons": "sticker",
+  "icon_layout": "arc",
   "extras": "none",
   "moment": "drop",
   "accent": "#ff8c2a"

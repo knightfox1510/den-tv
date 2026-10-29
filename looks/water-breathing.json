@@ -9,7 +9,8 @@
   "focus": "ripple",
   "wake": "ink",
   "clock": "brush",
-  "icons": "white",
+  "icons": "manga",
+  "icon_layout": "row",
   "extras": "none",
   "moment": "drop",
   "accent": "#8fd0ff"

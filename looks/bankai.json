@@ -9,7 +9,8 @@
   "focus": "aura",
   "wake": "slash",
   "clock": "brush",
-  "icons": "white",
+  "icons": "manga",
+  "icon_layout": "row",
   "extras": "none",
   "moment": "drop",
   "accent": "#ff6a3a"

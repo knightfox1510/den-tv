@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "sharingan",
   "clock": "roll",
-  "icons": "white",
+  "icons": "glass",
+  "icon_layout": "carousel",
   "extras": "none",
   "moment": "drop",
   "accent": "#e5303a"

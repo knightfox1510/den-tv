@@ -14,7 +14,8 @@ can borrow any part, and a new look is usually a new mix rather than new code.
 | `focus` | Effect when you move between apps | `spot`, `pass`, `arc`, `ripple`, `aura` |
 | `wake` | Plays once when the TV switches on | `boing`, `hudboot`, `termboot`, `room`, `fire`, `powerup`, `slash`, `storm`, `flutter`, `sharingan`, `tunnel`, `panels`, `ink`, `bloom`, `crt` |
 | `clock` | Clock style | `term`, `hud`, `analog`, `words`, `neon`, `flap` (split-flap), `ring` (seconds ring), `thin`, `roll`, `board`, `over`, `brush`, `crt` |
-| `icons` | App icons | `white` (logo only), `tiles` |
+| `icons` | How each app icon is drawn | `white` (logo only), `tiles`, `dball` (Dragon Balls), `wanted` (bounty posters), `manga` (ink, speed lines on focus), `neon` (tubes that flicker on), `patch` (jersey patch), `pin` (enamel pin), `score` (scorecard chip), `pixel` (retro 8-bit), `glass`, `sticker`, `hud` (target brackets) |
+| `icon_layout` | Where the icons sit | `row` (dock row), `formation` (players on a pitch), `field` (fielding positions, with the selected app on strike), `arc` (islands along a route), `shelf` (manga spines that slide out), `carousel` (selected app as a big banner), `rail` (vertical strip on the left) |
 | `extras` | Small moving things on top | `auto` or `none`, `flashes`, `flags`, `fireworks`, `crows`, `petals`, `embers`, `confetti`, `sparks`, `gold`, `silver`, `leaves`, `wisteria`, `rain`, `snow` |
 | `moment` | The big event the look reacts to | `goal`, `six`, `beam`, `arise`, `punch`, `gear5`, `drop` (new episode), `none` |
 | `figure` | Optional full cartoon character on the right, eyes following the app | `luffy`, `g5`, `zoro` |
@@ -23,6 +24,10 @@ can borrow any part, and a new look is usually a new mix rather than new code.
 | `goal_text` | Optional line shown with the goal moment | text |
 | `scoreboard_text` | Optional line under the scoreboard clock | text |
 | `season` | Optional months the look belongs to | text |
+
+On the phone, App icons can override the style and layout, and adds live badges (new episode, live
+score, continue watching, screen time), smart order, a Shows folder, renamed apps, your own icon
+pictures and apps hidden per person. Those settings belong to the TV, not to the look.
 
 Every key is optional for the engine: a missing one falls back to the scene's own default, and an
 unknown value is ignored, so a broken look can never break Home.

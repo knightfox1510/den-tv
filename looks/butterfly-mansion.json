@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "flutter",
   "clock": "brush",
-  "icons": "white",
+  "icons": "glass",
+  "icon_layout": "row",
   "extras": "wisteria",
   "moment": "drop",
   "accent": "#c9a2ff"

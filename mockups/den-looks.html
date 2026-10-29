@@ -146,13 +146,13 @@ canvas.layer { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 .wakeeyes .tomoe { animation: spin 1.3s cubic-bezier(.5,0,.2,1) .25s; transform-origin: 0 0; }
 @keyframes spin { to { transform: rotate(720deg); } }
 
-.dock { position: absolute; left: 0; right: 0; top: 800px; height: 220px; z-index: 3; }
-.app { position: absolute; top: 0; width: 120px; height: 120px; cursor: pointer; }
+.dock { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.app { position: absolute; top: 0; width: 120px; height: 120px; cursor: pointer; pointer-events: auto; transform: scale(var(--s, 1)); transition: left .5s cubic-bezier(.3,1.2,.5,1), top .5s cubic-bezier(.3,1.2,.5,1), transform .5s cubic-bezier(.3,1.2,.5,1); }
 .app .ic { width: 120px; height: 120px; display: grid; place-items: center; border-radius: 30px; transition: transform .45s cubic-bezier(.3,1.6,.5,1), opacity .3s, filter .3s; opacity: .74; filter: drop-shadow(0 6px 14px rgba(0,0,0,.7)); }
 .app svg { width: 120px; height: 120px; }
 .app.f .ic { transform: scale(1.42) translateY(-6px); opacity: 1; filter: drop-shadow(0 0 22px rgba(255,255,255,.35)) drop-shadow(0 10px 20px rgba(0,0,0,.6)); }
-.tiles .app .ic { background: var(--tile); opacity: .9; }
-.tiles .app svg { width: 70px; height: 70px; }
+.tiles .ic { background: var(--tile); opacity: .9; }
+.tiles .ic > svg { width: 70px; height: 70px; }
 .app .nm { position: absolute; left: -120px; right: -120px; top: 162px; text-align: center; font-size: 28px; opacity: 0; transform: translateY(-8px); transition: opacity .25s, transform .35s; white-space: nowrap; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
 .app.f .nm { opacity: 1; transform: none; }
 .app.aura .ic { animation: aura 1.1s ease-in-out infinite alternate; }
@@ -380,6 +380,72 @@ textarea.prm { width: 100%; min-height: 110px; font: 12.5px/1.45 var(--mono); co
 .pcard p, .pcard li { color: var(--dim); margin: 0 0 7px; }
 .pcard ul { margin: 0; padding-left: 18px; }
 .pcard b { color: var(--ink); font-weight: 500; }
+/* App icons: a style (sty-*) draws each icon, a layout (lay-*) places them; badges sit on top */
+.ic { position: relative; }
+.app .nm span { display: inline-block; }
+.sty-wanted .ic { height: 160px; margin-top: -20px; }
+.sty-wanted .ic > svg:not(.ring) { height: 160px; }
+.sty-dball .app.f .ic { filter: drop-shadow(0 0 28px rgba(255,170,40,.95)) drop-shadow(0 10px 20px rgba(0,0,0,.6)); }
+.sty-manga .ic::before { content: ""; position: absolute; inset: -80px; border-radius: 50%; z-index: -1; background: repeating-conic-gradient(rgba(255,255,255,.95) 0 2deg, transparent 2deg 9deg); -webkit-mask-image: radial-gradient(circle, transparent 28%, #000 42%, transparent 70%); mask-image: radial-gradient(circle, transparent 28%, #000 42%, transparent 70%); opacity: 0; transition: opacity .3s; }
+.sty-manga .app.f .ic::before { opacity: 1; animation: spin 24s linear infinite; }
+.sty-neon .ic { opacity: .36; filter: drop-shadow(0 0 4px var(--c)); }
+.sty-neon .app.f .ic { opacity: 1; filter: drop-shadow(0 0 6px var(--c)) drop-shadow(0 0 20px var(--c)); animation: neonon .8s steps(1); }
+@keyframes neonon { 0% { opacity: .3; } 15% { opacity: 1; } 25% { opacity: .4; } 40% { opacity: 1; } 55% { opacity: .55; } 70%, 100% { opacity: 1; } }
+.sty-sticker .ic > svg { transform: rotate(var(--rot)); }
+.sty-hud .brk { transform-box: view-box; transform-origin: 50% 50%; transform: scale(1.14); transition: transform .4s cubic-bezier(.3,1.4,.5,1); }
+.sty-hud .app.f .brk { transform: scale(.94); }
+.ic canvas.pxc { width: 108px; height: 108px; image-rendering: pixelated; box-shadow: 0 0 0 6px #000, 0 0 0 9px rgba(255,255,255,.85); }
+.bdg { position: absolute; top: -12px; right: -28px; z-index: 2; padding: 3px 10px; border-radius: 999px; font: 700 17px var(--f); color: #fff; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,.55); }
+.bdg.ep { background: #ff4d8d; }
+.bdg.sc { top: -34px; right: auto; left: 50%; transform: translateX(-50%); background: rgba(10,10,14,.92); border: 1px solid rgba(255,255,255,.25); }
+.bdg.sc i { display: inline-block; width: 9px; height: 9px; margin-right: 7px; border-radius: 50%; background: #ff3b3b; animation: blink 1s steps(1) infinite; }
+.ic svg.ring { position: absolute; left: -10px; top: -10px; width: 140px; height: 140px; transform: rotate(-90deg); pointer-events: none; }
+.sty-wanted .ic svg.ring { top: 10px; }
+.stb { position: absolute; left: 14px; right: 14px; bottom: -16px; height: 7px; border-radius: 4px; background: rgba(255,255,255,.2); overflow: hidden; }
+.stb i { display: block; height: 100%; background: #ffd36e; }
+.stb.over i { background: #ff4d6d; }
+.dkdeco { position: absolute; inset: 0; pointer-events: none; }
+.dkdeco svg { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+.strike { position: absolute; left: 910px; top: 742px; transform: translateX(-50%); padding: 6px 18px; border-radius: 999px; background: rgba(0,0,0,.6); font: 600 22px var(--f); letter-spacing: .16em; text-transform: uppercase; white-space: nowrap; }
+.lay-formation .nm span, .lay-field .nm span, .lay-arc .nm span, .lay-carousel .nm span { padding: 2px 16px; border-radius: 999px; background: rgba(0,0,0,.62); }
+.lay-formation .nm, .lay-field .nm { font-size: 34px; }
+.lay-rail .nm { left: 150px; right: auto; top: 30px; font-size: 46px; text-align: left; transform: translateX(-10px); }
+.lay-rail .app.f .nm { transform: none; }
+.bn { display: none; position: absolute; left: -220px; top: -100px; width: 560px; height: 315px; border-radius: 22px; overflow: hidden; background: radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--c) 45%, transparent), transparent 60%), linear-gradient(135deg, var(--tile), #07070b 115%); box-shadow: 0 30px 60px rgba(0,0,0,.6), 0 0 0 3px rgba(255,255,255,.85); }
+.app .bn svg { position: absolute; left: 34px; top: 34px; width: 104px; height: 104px; }
+.bn b { position: absolute; left: 34px; bottom: 74px; font-size: 56px; font-weight: 800; letter-spacing: -.01em; }
+.bn span { position: absolute; left: 34px; right: 30px; bottom: 34px; font-size: 24px; opacity: .82; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bn em { position: absolute; right: 26px; top: 28px; padding: 6px 14px; border-radius: 999px; background: rgba(0,0,0,.45); font-style: normal; font-size: 17px; letter-spacing: .2em; }
+.lay-carousel .app.f .bn { display: block; animation: bnin .45s cubic-bezier(.3,1.3,.5,1); }
+.lay-carousel .app.f .ic, .lay-carousel .app.f .nm { visibility: hidden; }
+@keyframes bnin { from { transform: scale(.35); opacity: 0; } }
+.sp { display: none; position: absolute; left: 18px; top: -70px; width: 84px; height: 260px; overflow: hidden; border-radius: 6px 6px 3px 3px; background: linear-gradient(90deg, rgba(0,0,0,.35), rgba(255,255,255,.14) 18%, rgba(0,0,0,0) 32%, rgba(0,0,0,.32)), var(--tile); box-shadow: inset 0 0 0 2px rgba(0,0,0,.35), 0 10px 18px rgba(0,0,0,.5); transition: transform .45s cubic-bezier(.3,1.4,.5,1), box-shadow .3s; }
+.sp::before, .sp::after { content: ""; position: absolute; left: 0; right: 0; height: 8px; background: rgba(255,255,255,.7); }
+.sp::before { top: 76px; } .sp::after { bottom: 36px; }
+.app .sp svg { position: absolute; left: 14px; top: 12px; width: 56px; height: 56px; }
+.sp b { position: absolute; left: 0; right: 0; top: 92px; bottom: 50px; display: grid; place-items: center; overflow: hidden; writing-mode: vertical-rl; font-size: 25px; font-weight: 700; letter-spacing: .06em; white-space: nowrap; }
+.sp small { position: absolute; left: 0; right: 0; bottom: 9px; text-align: center; font: 600 15px var(--f); opacity: .85; }
+.lay-shelf .app .sp { display: block; }
+.lay-shelf .app .ic, .lay-shelf .app .nm { display: none; }
+.lay-shelf .app.f .sp { transform: translateY(-56px) scale(1.12); box-shadow: inset 0 0 0 2px rgba(0,0,0,.35), 0 0 30px color-mix(in srgb, var(--c) 70%, transparent), 0 24px 30px rgba(0,0,0,.6); }
+.scrollov { position: absolute; inset: 0; z-index: 12; display: grid; place-items: center; background: rgba(0,0,0,.55); cursor: pointer; }
+.scrw { position: relative; width: 1180px; height: 400px; }
+.scrw .paper { position: absolute; inset: 0; overflow: hidden; display: grid; align-content: center; justify-items: center; gap: 26px; border-radius: 6px; color: #3b2610; background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(120,80,20,.25)), linear-gradient(#f4e6c4, #e2c890); box-shadow: 0 30px 70px rgba(0,0,0,.6); }
+.scrw .paper h3 { margin: 0; font: 400 56px "Kaushan Script", cursive; }
+.scrw .rod { position: absolute; top: -28px; bottom: -28px; width: 40px; border-radius: 20px; background: linear-gradient(90deg, #4a2a0c, #b0752e 45%, #4a2a0c); box-shadow: 0 10px 20px rgba(0,0,0,.5); }
+.frow { display: flex; gap: 90px; }
+.fitem { position: relative; width: 120px; height: 120px; }
+.fitem .ic { width: 120px; height: 120px; display: grid; place-items: center; border-radius: 30px; filter: drop-shadow(0 6px 14px rgba(0,0,0,.45)); transition: transform .3s cubic-bezier(.3,1.5,.5,1); }
+.fitem:hover .ic { transform: scale(1.18); }
+.fitem svg { width: 120px; height: 120px; }
+.fitem .nm2 { position: absolute; left: -70px; right: -70px; top: 146px; text-align: center; font-size: 26px; font-weight: 600; }
+.sty-wanted .fitem .nm2 { top: 166px; }
+.iapp { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.iprev { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; overflow: hidden; }
+.iprev svg { width: 24px; height: 24px; }
+.iapp .search { padding: 6px 10px; font-size: 13.5px; }
+.iapp .btn { padding: 6px 10px; font-size: 12px; }
+label.btn { display: inline-block; }
 @media (prefers-reduced-motion: reduce) { .amb *, .app .ic, .beam, .pool { animation: none !important; transition-duration: .01s !important; } }
 </style>
 
@@ -461,6 +527,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
         <li><b>Hero:</b> a player or character poster on top of the scene. It can be off, one fixed hero, or a new one every 5 minutes.</li>
         <li><b>Watcher:</b> something that follows the selected app. Eyes (Sharingan, Mangekyō, Six Eyes, Super Saiyan, Ultra Instinct, Nine-Tails, Sage Mode) blink as they look. Kakashi's Chidori zips to it, Itachi's crows fly to it, Law's ROOM wraps it, Robin's hands point at it, Sanji's hearts float to it, Chopper's hat and Rohit's bat turn to it. The seven Dragon Balls gather over it, the Power Pole extends to it, Nami's thundercloud drifts over it, Shinobu's butterflies fly to it, Luffy's hat turns to it and Zoro's swords point at it.</li>
         <li><b>Wake, focus effect and clock</b>, each chosen separately.</li>
+        <li><b>App icons:</b> a style (Dragon Balls, Wanted posters, manga ink, neon, jersey patches, enamel pins, scorecards, pixels, glass, stickers, HUD) and a layout (row, football formation, cricket field, Grand Line arc, bookshelf, big carousel, side rail). Live badges, smart order, a Shows folder and your own names and pictures are in Customise → App icons.</li>
         <li><b>Moment:</b> the big event the look reacts to, such as a goal, a six or a new episode. Real scores and episode releases set it off.</li>
       </ul>
       <p>Mix any scene with any hero and eyes, then save the result as your own look.</p>
@@ -1270,7 +1337,8 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   const AMB = { auto: 'Matches the scene', none: 'None', flashes: 'Camera flashes', flags: 'Flags and flashes', fireworks: 'Fireworks', crows: 'Crows', petals: 'Petals', embers: 'Embers', confetti: 'Confetti', sparks: 'Blue sparks', gold: 'Golden sparks', silver: 'Silver sparks', leaves: 'Falling leaves', wisteria: 'Wisteria petals', rain: 'Rain', snow: 'Snow' };
   const MOMENT = { goal: 'Goal!', six: 'Six!', beam: 'Kamehameha', arise: 'Arise', punch: 'One punch', gear5: 'Drums of Liberation', drop: 'New episode', none: 'None' };
   const HEROOPT = { none: 'None', rotate: 'Rotate my heroes', messi: 'Lionel Messi', kohli: 'Virat Kohli', rohit: 'Rohit Sharma', goku: 'Goku', vegeta: 'Vegeta', naruto: 'Naruto', sasuke: 'Sasuke', levi: 'Levi', ichigo: 'Ichigo', jinwoo: 'Sung Jinwoo', saitama: 'Saitama', rengoku: 'Rengoku', sukuna: 'Sukuna', kakashi: 'Kakashi', itachi: 'Itachi', ace: 'Ace', law: 'Law', sanji: 'Sanji', robin: 'Robin', chopper: 'Chopper', luffy: 'Luffy', zoro: 'Zoro', nami: 'Nami', shinobu: 'Shinobu', gojo: 'Gojo', tanjiro: 'Tanjiro' };
-  const ICONS = { white: 'White logos', tiles: 'Colour tiles' };
+  const ICONS = { white: 'White logos', tiles: 'Colour tiles', dball: 'Dragon Balls', wanted: 'Wanted posters', manga: 'Manga ink', neon: 'Neon sign', patch: 'Jersey patch', pin: 'Enamel pin', score: 'Scorecard chip', pixel: 'Retro pixel', glass: 'Glass', sticker: 'Sticker', hud: 'HUD brackets' };
+  const LAYOUTS = { row: 'Dock row', formation: 'Football formation', field: 'Cricket field', arc: 'Grand Line arc', shelf: 'Bookshelf', carousel: 'Big carousel', rail: 'Side rail' };
   const L = (id, name, cat, forr, scene, hero, mascot, focus, wake, clock, amb, moment, acc, board, extra) => Object.assign({ id, name, cat, for: forr, scene, hero, mascot, focus, wake, clock, icons: 'white', amb, moment, acc, board }, extra || {});
   const LOOKS = [
     L('camp-nou', 'Camp Nou Nights', 'Football', 'G', 'campnou', 'messi', 'none', 'pass', 'tunnel', 'board', 'flags', 'goal', '#edbb00', 'BARÇA 2 – 1 R. MADRID · 67\''),
@@ -1331,6 +1399,12 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     L('midnight-lounge', 'Midnight Lounge', 'After dark', 'G', 'lounge', 'none', 'none', 'spot', 'bloom', 'thin', 'none', 'none', '#ff4d6d', ''),
     L('our-wall', 'Our Wall', 'Together', 'B', 'dusk', 'none', 'none', 'spot', 'bloom', 'brush', 'petals', 'none', '#ffb3c1', ''),
   ];
+  const ICON_PICK = { 'camp-nou': 'patch formation', clasico: 'patch formation', floodlights: 'patch row', goat: 'pin carousel', albiceleste: 'patch arc', wankhede: 'score field', 'king-kohli': 'pin carousel', 'chase-master': 'score row', 'blue-billion': 'score field', hitman: 'score field',
+    'hero-wall': 'glass carousel', 'super-saiyan': 'dball arc', 'ultra-instinct': 'glass row', 'nine-tails': 'manga row', 'sage-mode': 'sticker arc', 'straw-hat': 'wanted arc', 'three-sword': 'manga row', navigator: 'sticker arc', 'butterfly-mansion': 'glass row', 'copy-ninja': 'manga row', 'crow-genjutsu': 'manga row',
+    'fire-fist': 'wanted row', room: 'glass row', 'black-leg': 'wanted row', 'hana-hana': 'wanted shelf', 'drum-island': 'sticker row', geek: 'hud rail', coder: 'pixel rail', gear5: 'sticker arc', wanted: 'wanted row', 'king-of-hell': 'manga row', 'lost-again': 'wanted arc',
+    prince: 'hud row', avenger: 'manga row', strongest: 'glass row', bankai: 'manga row', arise: 'hud carousel', 'one-punch': 'manga row', 'set-ablaze': 'manga row', 'king-of-curses': 'manga row', 'crimson-moon': 'manga row', domain: 'glass carousel', 'grand-line': 'wanted arc',
+    'water-breathing': 'manga row', manga: 'manga shelf', 'anime-dusk': 'glass row', 'trail-dawn': 'sticker arc', monsoon: 'sticker row', neon: 'neon row', diwali: 'pin arc', seoul: 'neon carousel', marquee: 'neon row', noir: 'white row', velvet: 'pin row', 'high-roller': 'pin carousel', 'midnight-lounge': 'neon row', 'our-wall': 'sticker shelf' };
+  LOOKS.forEach((l) => { const [st, ly] = (ICON_PICK[l.id] || 'white row').split(' '); l.icons = st; l.iconLayout = ly; });
   const SCENE_AMB = { campnou: 'flags', floodlights: 'flashes', wankhede: 'fireworks', bluebillion: 'flashes', crimson: 'crows', domain: 'sparks', diwali: 'fireworks', saiyan: 'gold', ui: 'silver', kurama: 'embers', hokage: 'leaves', zoro: 'leaves', wisteria: 'wisteria', leaf: 'leaves', firefist: 'embers', room: 'snow', drum: 'snow', hitman: 'fireworks', gate: 'sparks', asura: 'embers', lost: 'leaves', vegeta: 'sparks', noir: 'rain', velvet: 'embers', monsoon: 'rain', neon: 'rain', seoul: 'petals', marquee: 'embers' };
   const CATS = ['All', 'Favourites', 'Football', 'Cricket', 'Heroes', 'One Piece', 'Anime', 'Outdoors', 'Night & neon', 'Seasonal', 'Together', 'After dark', 'Geek & code', 'My looks'];
 
@@ -1350,8 +1424,9 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     open: store.get('open', ['look']),
     art: store.get('art', 'detailed'),
     rules: store.get('rules', { match: true, india: true, ipl: true, episode: true, weekend: true, late: true, fest: true, surprise: false }),
+    ic: Object.assign({ badges: { ep: true, score: true, cont: true, st: false }, smart: true, folder: false, names: {}, pics: {}, hidden: { G: [], P: [], X: [] } }, store.get('ic', {})),
   };
-  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules', 'wid', 'hub', 'anim', 'health', 'sys', 'open', 'art'].forEach((k) => store.set(k, S[k]));
+  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules', 'wid', 'hub', 'anim', 'health', 'sys', 'open', 'art', 'ic'].forEach((k) => store.set(k, S[k]));
   const allLooks = () => LOOKS.concat(S.mine);
   const base = () => allLooks().find((l) => l.id === S.look) || LOOKS[0];
   const eff = () => Object.assign({}, base(), S.over);
@@ -1402,42 +1477,147 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     fancode: '<text x="50" y="66" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="48" fill="#fff">FC</text><rect x="14" y="16" width="72" height="68" rx="18" fill="none" stroke="#fff" stroke-width="6"/>',
     gear: '<path fill="#fff" fill-rule="evenodd" d="M44 10h12l2 10 8 4 9-6 8 8-6 9 4 8 10 2v12l-10 2-4 8 6 9-8 8-9-6-8 4-2 10H44l-2-10-8-4-9 6-8-8 6-9-4-8-10-2V44l10-2 4-8-6-9 8-8 9 6 8-4zm6 26a14 14 0 1 0 0 28 14 14 0 0 0 0-28z"/>',
   };
-  const APPS = [['Fan Hub', 'hub', '#c39bff', '#3a1d6e'], ['Crunchyroll', 'crunchy', '#f47521', '#f47521'], ['JioHotstar', 'hotstar', '#6f7dff', '#2a2aa0'], ['YouTube', 'yt', '#ff2b2b', '#c4161c'], ['Netflix', 'nf', '#e50914', '#7a0008'], ['Spotify', 'spotify', '#1ed760', '#128a3e'], ['Prime Video', 'prime', '#00a8e1', '#0a6f96'], ['FanCode', 'fancode', '#ff6a13', '#9a3a08'], ['Settings', 'gear', '#ffffff', '#3a3a44']];
-  const SP = 200, X0 = (W - (APPS.length - 1) * SP) / 2, dock = $('dock');
-  const appEls = APPS.map(([n, k, c, t], i) => { const d = document.createElement('div'); d.className = 'app'; d.style.left = (X0 + i * SP - 60) + 'px'; d.style.setProperty('--tile', t);
-    d.innerHTML = '<div class="ic"><svg viewBox="0 0 100 100">' + ICON[k] + '</svg></div><div class="nm">' + n + '</div>'; d.addEventListener('click', () => { if (foc === i) { if (i === 0) openHub(true); else openApp(i); } else focusTo(i); }); dock.appendChild(d); return d; });
-  let foc = 0, prev = 0;
-  const xOf = (i) => X0 + i * SP;
+  const ALL_APPS = [['Fan Hub', 'hub', '#c39bff', '#3a1d6e'], ['Crunchyroll', 'crunchy', '#f47521', '#f47521'], ['JioHotstar', 'hotstar', '#6f7dff', '#2a2aa0'], ['YouTube', 'yt', '#ff2b2b', '#c4161c'], ['Netflix', 'nf', '#e50914', '#7a0008'], ['Spotify', 'spotify', '#1ed760', '#128a3e'], ['Prime Video', 'prime', '#00a8e1', '#0a6f96'], ['FanCode', 'fancode', '#ff6a13', '#9a3a08'], ['Settings', 'gear', '#ffffff', '#3a3a44']];
+  const FOLDER = ['nf', 'prime', 'crunchy'];
+  const BANNER = { hub: 'Your scores, shows and trails', crunchy: 'New: Jujutsu Kaisen Ep 14', hotstar: 'Live: IND v AUS · 3rd T20I', yt: 'Continue: Rajmachi trek vlog', nf: 'Continue: One Piece (live action)', spotify: 'Your mix: anime OSTs and Arijit', prime: 'Continue: Panchayat S3', fancode: 'Live: Barça v Real Madrid', gear: 'Wi-Fi, picture and sound', folder: 'Netflix, Prime Video and Crunchyroll' };
+  const SMART = { Football: ['fancode', 'hotstar'], Cricket: ['hotstar', 'fancode'], Heroes: ['crunchy'], 'One Piece': ['crunchy'], Anime: ['crunchy'], Together: ['nf', 'prime'], 'After dark': ['spotify'], 'Geek & code': ['yt'] };
+  const SMART_WHY = { Football: 'it\'s match day', Cricket: 'India are playing', Heroes: 'a new episode is out', 'One Piece': 'a new episode is out', Anime: 'a new episode is out', Together: 'it\'s movie night', 'After dark': 'it\'s late', 'Geek & code': 'tutorials' };
+  const escH = (v) => String(v).replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[m]);
+  const dock = $('dock');
+  let APPS = [], appEls = [], foc = 0, prev = 0;
+  // The dock as the current person sees it: their names and hidden apps, the Shows folder, then smart order (Fan Hub stays first).
+  function dockItems() {
+    const ic = S.ic, hid = ic.hidden[S.who] || [];
+    let items = ALL_APPS.filter(([, k]) => k === 'gear' || !hid.includes(k)).map(([n, k, c, t]) => Object.assign([ic.names[k] || n, k, c, t], { o: n }));
+    if (ic.folder) { const kids = items.filter(([, k]) => FOLDER.includes(k)); if (kids.length > 1) { const at = items.indexOf(kids[0]); items = items.filter((a) => !kids.includes(a)); items.splice(at, 0, Object.assign(['Shows', 'folder', '#ffd36e', '#5a3a12'], { o: 'Shows', kids })); } }
+    if (ic.smart) { const up = SMART[base().cat] || [], pri = (a) => { const ks = a.kids ? a.kids.map((x) => x[1]) : [a[1]]; const j = up.findIndex((u) => ks.includes(u)); return j < 0 ? 99 : j; };
+      items = items.filter((a) => a[1] === 'hub').concat(items.filter((a) => a[1] !== 'hub').sort((a, b) => pri(a) - pri(b))); }
+    return items;
+  }
+  const styNow = () => { const v = eff().icons; return ICONS[v] ? v : 'white'; };
+  const layNow = () => { const v = eff().iconLayout; return LAYOUTS[v] ? v : 'row'; };
+  function layPos(lay, i, n) {
+    if (lay === 'formation') { const c0 = Math.ceil(n / 3), c1 = Math.ceil((n - c0) / 2), cn = [c0, c1, n - c0 - c1], r = i < c0 ? 0 : i < c0 + c1 ? 1 : 2, j = i - (r > 0 ? c0 : 0) - (r > 1 ? c1 : 0);
+      return { x: 960 + (j - (cn[r] - 1) / 2) * [250, 340, 450][r], y: [690, 825, 962][r], s: .74 }; }
+    if (lay === 'field') { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return { x: 910 + Math.cos(a) * 570, y: 835 + Math.sin(a) * 190, s: .7 }; }
+    if (lay === 'arc') { const t = n > 1 ? i / (n - 1) : .5; return { x: 280 + t * 1360, y: 950 - Math.sin(Math.PI * t) * 210, s: .82 }; }
+    if (lay === 'shelf') return { x: 960 + (i - (n - 1) / 2) * 94, y: 880, s: 1 };
+    if (lay === 'carousel') { let d = ((i - foc) % n + n) % n; if (d > n / 2) d -= n; return d === 0 ? { x: 960, y: 790, s: 1 } : { x: 960 + Math.sign(d) * (330 + (Math.abs(d) - 1) * 125), y: 890, s: .62 }; }
+    if (lay === 'rail') return { x: 96, y: 410 + i * Math.min(76, 600 / Math.max(1, n - 1)), s: .56 };
+    const sp = Math.min(200, 1700 / Math.max(1, n - 1)); return { x: (1920 - (n - 1) * sp) / 2 + i * sp, y: 860, s: 1 };
+  }
+  const xOf = (i) => layPos(layNow(), i, APPS.length).x;
+  const yOf = (i) => layPos(layNow(), i, APPS.length).y;
+  const recol = (str, col, neon) => neon ? str.replace(/fill="#fff"/g, 'fill="none" stroke="' + col + '" stroke-width="4"').replace(/stroke="#fff"/g, 'stroke="' + col + '"') : str.replace(/"#fff"/g, '"' + col + '"');
+  // The app's logo in a 100x100 box: your own picture if you set one, a mini grid for a folder, otherwise the logo recoloured.
+  function logo(a, col, neon) {
+    const pic = (k, s) => '<image href="' + S.ic.pics[k] + '" x="' + (50 - s / 2) + '" y="' + (50 - s / 2) + '" width="' + s + '" height="' + s + '" preserveAspectRatio="xMidYMid slice"/>';
+    if (a.kids) return a.kids.slice(0, 3).map((kd, j) => '<g transform="translate(' + [[4, 4], [52, 4], [28, 52]][j] + ') scale(.44)">' + (S.ic.pics[kd[1]] ? pic(kd[1], 100) : recol(ICON[kd[1]], col, neon)) + '</g>').join('');
+    return S.ic.pics[a[1]] ? pic(a[1], 88) : recol(ICON[a[1]], col, neon);
+  }
+  function iconInner(a, i, sty) {
+    const [n, k, c, t] = a, e = eff(), at = (s, x, y) => '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')">', V = '<svg viewBox="0 0 100 100">';
+    if (sty === 'dball') { let st = ''; const m = i % 7 + 1; for (let j = 0; j < m; j++) { const g = j / m * 6.283 - 1.571; st += '<path transform="translate(' + (50 + Math.cos(g) * 36).toFixed(1) + ' ' + (50 + Math.sin(g) * 36).toFixed(1) + ')" d="M0-5 1.5-1.6 5-1.5 2.3.8 3.1 4.4 0 2.4-3.1 4.4-2.3.8-5-1.5-1.5-1.6z" fill="#d0140c"/>'; }
+      return V + '<defs><radialGradient id="dbg' + i + '" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#fff6c8"/><stop offset=".3" stop-color="#ffb21f"/><stop offset=".72" stop-color="#e66a00"/><stop offset="1" stop-color="#7a3000"/></radialGradient></defs><circle cx="50" cy="50" r="47" fill="url(#dbg' + i + ')"/>' + st + at(.4, 30, 30) + logo(a, '#b0100c') + '</g><ellipse cx="34" cy="24" rx="14" ry="7" fill="#fff" opacity=".45" transform="rotate(-30 34 24)"/></svg>'; }
+    if (sty === 'wanted') return '<svg viewBox="0 0 100 134"><rect x="2" y="2" width="96" height="130" rx="2" fill="#f0dcae" stroke="#9c7a40" stroke-width="2"/><rect x="6" y="6" width="88" height="122" fill="none" stroke="rgba(110,70,20,.35)" stroke-width="1"/><text x="50" y="22" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="19" letter-spacing="1" fill="#3b2610">WANTED</text><rect x="14" y="29" width="72" height="58" fill="#e2c890" stroke="#5a3a14" stroke-width="2"/>' + at(.46, 27, 35) + logo(a, '#3b2610') + '</g><text x="50" y="104" text-anchor="middle" font-family="Bebas Neue" font-size="16" fill="#3b2610">' + escH(n.toUpperCase().slice(0, 14)) + '</text><text x="50" y="122" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="10" fill="#3b2610">฿ ' + (((i * 7919) % 900 + 100) * 1e6).toLocaleString('en-US') + '-</text></svg>';
+    if (sty === 'manga') return V + '<defs><pattern id="ht' + i + '" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.1" fill="#000" opacity=".3"/></pattern></defs><rect x="4" y="4" width="92" height="92" fill="#fff" stroke="#0a0a0a" stroke-width="6"/><rect x="4" y="4" width="92" height="92" fill="url(#ht' + i + ')"/>' + at(.62, 19, 19) + logo(a, '#0a0a0a') + '</g></svg>';
+    if (sty === 'neon') return V + '<rect x="5" y="5" width="90" height="90" rx="22" fill="rgba(0,0,0,.35)" stroke="' + c + '" stroke-width="2.5"/>' + at(.6, 20, 20) + logo(a, c, true) + '</g></svg>';
+    if (sty === 'patch') { const pc = e.scene === 'albiceleste' ? ['#75aadb', '#f4f8ff', '#0b2a4a'] : ['#a50044', '#004d98', '#fff'];
+      return V + '<defs><pattern id="ps' + i + '" width="24" height="100" patternUnits="userSpaceOnUse"><rect width="12" height="100" fill="' + pc[0] + '"/><rect x="12" width="12" height="100" fill="' + pc[1] + '"/></pattern></defs><path d="M50 3 93 15V50C93 75 74 89 50 97 26 89 7 75 7 50V15Z" fill="url(#ps' + i + ')" stroke="#edbb00" stroke-width="3.5"/><path d="M50 10 86 20V50C86 70 70 82 50 89 30 82 14 70 14 50V20Z" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-dasharray="3 2.5"/>' + at(.46, 27, 24) + logo(a, pc[2]) + '</g></svg>'; }
+    if (sty === 'pin') return V + '<defs><linearGradient id="pg' + i + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".45" stop-color="#d4a636"/><stop offset="1" stop-color="#6a4608"/></linearGradient></defs><circle cx="50" cy="50" r="47" fill="url(#pg' + i + ')"/><circle cx="50" cy="50" r="39" fill="' + t + '" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>' + at(.5, 25, 25) + logo(a, '#fff') + '</g><path d="M22 38A30 30 0 0 1 62 18" stroke="#fff" stroke-width="5" fill="none" opacity=".35" stroke-linecap="round"/></svg>';
+    if (sty === 'score') return V + '<rect x="3" y="12" width="94" height="76" rx="8" fill="#0b0c10" stroke="#34343c" stroke-width="3"/><text x="50" y="40" text-anchor="middle" font-family="Bebas Neue" font-size="21" letter-spacing="1" fill="#ffc23a">' + escH(n.toUpperCase().slice(0, 10)) + '</text><line x1="10" y1="48" x2="90" y2="48" stroke="#2a2a30" stroke-width="2"/>' + at(.26, 12, 53) + logo(a, '#ffc23a') + '</g><text x="88" y="77" text-anchor="end" font-family="Bebas Neue" font-size="20" fill="#ffd98a">' + (k === 'hotstar' || k === 'fancode' ? '● LIVE' : 'OV ' + (i * 3 + 4) + '.' + (i % 6)) + '</text></svg>';
+    if (sty === 'pixel') return '<canvas class="pxc" width="20" height="20"></canvas>';
+    if (sty === 'glass') return V + '<defs><linearGradient id="gg' + i + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".34"/><stop offset="1" stop-color="#fff" stop-opacity=".06"/></linearGradient></defs><rect x="4" y="4" width="92" height="92" rx="24" fill="' + c + '" opacity=".16"/><rect x="4" y="4" width="92" height="92" rx="24" fill="url(#gg' + i + ')" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/><path d="M14 32Q14 13 33 13H70" stroke="#fff" stroke-width="3" fill="none" opacity=".55" stroke-linecap="round"/>' + at(.58, 21, 21) + logo(a, '#fff') + '</g></svg>';
+    if (sty === 'sticker') { const sc = c === '#ffffff' ? '#3a3a44' : c; return V + '<g fill="' + sc + '" stroke="#fff" stroke-width="9" stroke-linejoin="round" paint-order="stroke">' + at(.84, 8, 8) + logo(a, sc) + '</g></g></svg>'; }
+    if (sty === 'hud') return V + '<path class="brk" d="M4 24V4h20M76 4h20v20M96 76v20H76M24 96H4V76" stroke="' + e.acc + '" stroke-width="4" fill="none"/>' + at(.5, 25, 20) + logo(a, '#bff4ff') + '</g><text x="50" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="8" letter-spacing="1" fill="' + e.acc + '">APP_0' + i + '</text></svg>';
+    return V + logo(a, '#fff') + '</svg>';
+  }
+  // Pixel style: the logo drawn small onto a 20x20 canvas and scaled up with crisp pixels.
+  function drawPixel(cv, a) { const g = cv.getContext('2d'); g.fillStyle = a[3]; g.fillRect(0, 0, 20, 20); const im = new Image(); im.onload = () => g.drawImage(im, 3, 3, 14, 14);
+    im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">' + logo(a, '#fff') + '</svg>'); }
+  function badgeHTML(a) {
+    const b = S.ic.badges, k = a[1], ks = a.kids ? a.kids.map((x) => x[1]) : [k], mine = S.who !== 'X'; let h = '';
+    if (b.ep && mine && ks.includes('crunchy')) h += '<b class="bdg ep">EP 14</b>';
+    if (b.score && mine && (k === 'hotstar' || k === 'fancode')) h += '<b class="bdg sc"><i></i>' + (k === 'hotstar' ? 'IND 187/3' : 'BAR 2–1') + '</b>';
+    const cp = ks.map((x) => ({ yt: .62, nf: .35, prime: .8 })[x]).find((v) => v != null);
+    if (b.cont && cp != null) h += '<svg class="ring" viewBox="0 0 140 140"><circle cx="70" cy="70" r="64" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="5"/><circle cx="70" cy="70" r="64" fill="none" stroke="var(--acc)" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + (402 * cp).toFixed(0) + ' 402"/></svg>';
+    const m = ks.reduce((s2, x) => s2 + (({ yt: 52, crunchy: 41, hotstar: 28, nf: 13 })[x] || 0), 0), lim = +S.sys.kidsMin || 60;
+    if (b.st && m) h += '<span class="stb' + (m > lim ? ' over' : '') + '"><i style="width:' + Math.min(100, m / lim * 100) + '%"></i></span>';
+    return h;
+  }
+  function decoHTML(lay, n) {
+    const sv = (x) => '<svg viewBox="0 0 1920 1080">' + x + '</svg>';
+    if (lay === 'formation') return sv('<g fill="none" stroke="rgba(255,255,255,.3)" stroke-width="3"><path d="M560 615H1360L1580 1068H340Z" fill="rgba(20,100,40,.22)"/><path d="M450 842H1470"/><ellipse cx="960" cy="842" rx="140" ry="40"/><path d="M800 615V655H1120V615M690 1068V1000H1230V1068"/></g>');
+    if (lay === 'field') return sv('<ellipse cx="910" cy="835" rx="620" ry="235" fill="rgba(40,110,50,.2)" stroke="rgba(255,255,255,.3)" stroke-width="3"/><ellipse cx="910" cy="835" rx="310" ry="110" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="2" stroke-dasharray="10 10"/><rect x="886" y="790" width="48" height="112" fill="rgba(214,190,130,.6)"/><path d="M878 806H942M878 886H942" stroke="#fff" stroke-width="3"/>') + '<div class="strike" id="strike"></div>';
+    if (lay === 'arc') { let d = ''; for (let t = 0; t <= 1.001; t += .02) d += (t ? 'L' : 'M') + (280 + t * 1360).toFixed(0) + ' ' + (950 - Math.sin(Math.PI * t) * 210).toFixed(0); let isl = ''; for (let i = 0; i < n; i++) { const p = layPos('arc', i, n); isl += '<ellipse cx="' + p.x.toFixed(0) + '" cy="' + (p.y + 64).toFixed(0) + '" rx="74" ry="14" fill="rgba(232,193,106,.28)"/>'; }
+      return sv(isl + '<path d="' + d + '" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="4" stroke-dasharray="4 14" stroke-linecap="round"/>'); }
+    if (lay === 'shelf') return '<div style="position:absolute;left:' + (960 - n * 47 - 40) + 'px;width:' + (n * 94 + 80) + 'px;top:1008px;height:24px;border-radius:4px;background:linear-gradient(#8a5a2a,#4a2c10);box-shadow:0 14px 24px rgba(0,0,0,.6)"></div>';
+    if (lay === 'rail') return '<div style="position:absolute;left:40px;top:362px;bottom:34px;width:112px;border-radius:30px;background:rgba(6,6,12,.45);border:1px solid rgba(255,255,255,.12)"></div>';
+    return '';
+  }
+  function placeApps(instant) { const lay = layNow(), n = APPS.length; appEls.forEach((el, i) => { const p = layPos(lay, i, n); if (instant) el.style.transition = 'none'; el.style.left = (p.x - 60) + 'px'; el.style.top = (p.y - 60) + 'px'; el.style.setProperty('--s', p.s); if (instant) { void el.offsetWidth; el.style.transition = ''; } }); }
+  function buildDock() {
+    const sty = styNow(), lay = layNow();
+    APPS = dockItems(); if (foc >= APPS.length) foc = 0; if (prev >= APPS.length) prev = foc;
+    dock.className = 'dock lay-' + lay + ' sty-' + sty + (sty === 'tiles' ? ' tiles' : '');
+    dock.innerHTML = '<div class="dkdeco">' + decoHTML(lay, APPS.length) + '</div>';
+    appEls = APPS.map((a, i) => { const [n, k, c, t] = a, d = document.createElement('div'); d.className = 'app'; d.style.setProperty('--tile', t); d.style.setProperty('--c', c); d.style.setProperty('--rot', ((i * 37) % 11 - 5) + 'deg');
+      d.innerHTML = '<div class="ic">' + iconInner(a, i, sty) + badgeHTML(a) + '</div><div class="nm"><span>' + escH(n) + '</span></div>' +
+        '<div class="bn"><svg viewBox="0 0 100 100">' + logo(a, '#fff') + '</svg><em>' + (k === 'hotstar' || k === 'fancode' ? '● LIVE' : a.kids ? 'FOLDER' : 'FEATURED') + '</em><b>' + escH(n) + '</b><span>' + BANNER[k] + '</span></div>' +
+        '<div class="sp"><svg viewBox="0 0 100 100">' + logo(a, '#fff') + '</svg><b>' + escH(n) + '</b><small>VOL. ' + (i + 1) + '</small></div>';
+      const cv = d.querySelector('canvas.pxc'); if (cv) drawPixel(cv, a);
+      d.addEventListener('click', () => { if (foc !== i) focusTo(i); else if (k === 'hub') openHub(true); else if (a.kids) openFolder(i); else openApp(i); }); dock.appendChild(d); return d; });
+    placeApps(true);
+    $('factcard').style.left = lay === 'rail' ? '210px' : '';
+  }
+  const redock = () => { buildDock(); renderFocus(true); };
+  // A folder unrolls like a scroll; picking an app rolls it back up and opens the app.
+  function openFolder(i) {
+    const a = APPS[i], sty = styNow(), s2 = sty === 'white' ? 'tiles' : sty, D = (eff().motion || 'full') === 'full' ? 750 : 1, ez = 'cubic-bezier(.5,0,.2,1)';
+    stage.querySelectorAll('.scrollov').forEach((z) => z.remove());
+    const ov = document.createElement('div'); ov.className = 'scrollov';
+    ov.innerHTML = '<div class="scrw sty-' + s2 + (s2 === 'tiles' ? ' tiles' : '') + '"><div class="paper"><h3>' + escH(a[0]) + '</h3><div class="frow">' + a.kids.map((kd, j) => '<div class="fitem" data-fk="' + j + '" style="--tile:' + kd[3] + ';--c:' + kd[2] + '"><div class="ic">' + iconInner(kd, 20 + j, s2) + badgeHTML(kd) + '</div><div class="nm2">' + escH(kd[0]) + '</div></div>').join('') + '</div></div><div class="rod" style="left:-20px"></div><div class="rod" style="right:-20px"></div></div>';
+    stage.appendChild(ov);
+    ov.querySelectorAll('.fitem').forEach((f, j) => { const cv = f.querySelector('canvas.pxc'); if (cv) drawPixel(cv, a.kids[j]); });
+    const pp = ov.querySelector('.paper'), [rl, rr] = ov.querySelectorAll('.rod');
+    const roll = (open) => { const o = { duration: open ? D : D * .7, easing: ez, fill: 'forwards' }, k = (x, y) => open ? [x, y] : [y, x];
+      pp.animate(k({ clipPath: 'inset(0 50% 0 50%)' }, { clipPath: 'inset(0 0 0 0)' }), o); rl.animate(k({ transform: 'translateX(570px)' }, { transform: 'none' }), o); rr.animate(k({ transform: 'translateX(-570px)' }, { transform: 'none' }), o); };
+    roll(true);
+    ov.addEventListener('click', (ev) => { const f = ev.target.closest('.fitem'); roll(false); setTimeout(() => { ov.remove(); if (f) openApp(i, a.kids[+f.dataset.fk]); }, D * .7); });
+  }
   function setupFx() {
     const e = eff(), fx = $('fx'); fx.innerHTML = '';
     if (e.focus === 'spot') fx.innerHTML = '<div class="beam" id="beam"></div><div class="pool" id="pool"></div>';
     if (e.focus === 'pass' || e.focus === 'arc') fx.innerHTML = '<svg class="arc" id="arcsvg" viewBox="0 0 1920 1080"></svg><div class="ball' + (e.focus === 'arc' ? ' red' : '') + '" id="ball"></div>';
   }
   function renderFocus(instant) {
-    const e = eff(), x = xOf(foc), px = xOf(prev), calm = (e.motion || 'full') !== 'full';
+    if (!APPS.length) return;
+    const e = eff(), x = xOf(foc), px = xOf(prev), dy = yOf(foc) - 860, pdy = yOf(prev) - 860, calm = (e.motion || 'full') !== 'full';
+    if (layNow() === 'carousel') placeApps(instant);
+    const sk = $('strike'); if (sk) sk.textContent = 'On strike · ' + APPS[foc][0];
     appEls.forEach((el, i) => { el.classList.toggle('f', i === foc); el.classList.toggle('aura', i === foc && e.focus === 'aura'); });
     stage.style.setProperty('--spot', APPS[foc][2] === '#ffffff' ? e.acc : APPS[foc][2]);
     if (e.focus === 'spot') { $('beam').style.left = (x - 320) + 'px'; $('pool').style.left = (x - 260) + 'px'; }
     if (e.focus === 'pass' || e.focus === 'arc') {
-      const ball = $('ball');
+      const ball = $('ball'); ball.style.top = (960 + dy) + 'px';
       if (instant || calm || px === x) ball.style.transform = 'translate(' + (x - 13) + 'px,0)';
       else {
         const lift = e.focus === 'arc' ? -320 : -Math.min(180, Math.abs(x - px) * .3);
         ball.animate([{ transform: 'translate(' + (px - 13) + 'px,0)' }, { transform: 'translate(' + ((px + x) / 2 - 13) + 'px,' + lift + 'px) rotate(360deg)' }, { transform: 'translate(' + (x - 13) + 'px,0) rotate(720deg)' }], { duration: e.focus === 'arc' ? 760 : 520, easing: 'cubic-bezier(.3,.6,.4,1)', fill: 'forwards' });
         const svg = $('arcsvg'), mx = (px + x) / 2, arc = e.focus === 'arc';
-        svg.innerHTML = '<path d="M' + px + ' 973 Q' + mx + ' ' + (973 + lift * 2) + ' ' + x + ' 973" fill="none" stroke="' + e.acc + '" stroke-width="' + (arc ? 6 : 4) + '" stroke-dasharray="' + (arc ? '1600' : '14 12') + '" stroke-dashoffset="' + (arc ? 1600 : 0) + '" opacity=".9"/>' + (arc ? '<circle cx="' + x + '" cy="973" r="10" fill="none" stroke="' + e.acc + '" stroke-width="4" opacity="0"/>' : '');
+        svg.innerHTML = '<path d="M' + px + ' ' + (973 + pdy) + ' Q' + mx + ' ' + (973 + dy + lift * 2) + ' ' + x + ' ' + (973 + dy) + '" fill="none" stroke="' + e.acc + '" stroke-width="' + (arc ? 6 : 4) + '" stroke-dasharray="' + (arc ? '1600' : '14 12') + '" stroke-dashoffset="' + (arc ? 1600 : 0) + '" opacity=".9"/>' + (arc ? '<circle cx="' + x + '" cy="' + (973 + dy) + '" r="10" fill="none" stroke="' + e.acc + '" stroke-width="4" opacity="0"/>' : '');
         const p = svg.querySelector('path');
         if (arc) { p.animate([{ strokeDashoffset: 1600 }, { strokeDashoffset: 0, offset: .6 }, { strokeDashoffset: 0, opacity: 0 }], { duration: 1400, fill: 'forwards' }); svg.querySelector('circle').animate([{ opacity: 0 }, { opacity: 1, offset: .6 }, { opacity: 0 }], { duration: 1400, fill: 'forwards' }); }
         else p.animate([{ opacity: .8 }, { opacity: 0 }], { duration: 900, fill: 'forwards' });
       }
     }
-    if (e.focus === 'ripple' && !instant && !calm) { const fx = $('fx'); for (let k = 0; k < 3; k++) { const r = document.createElement('div'); r.className = 'rip'; r.style.left = (x - 75) + 'px'; r.style.top = '785px'; r.style.opacity = 0; fx.appendChild(r);
+    if (e.focus === 'ripple' && !instant && !calm) { const fx = $('fx'); for (let k = 0; k < 3; k++) { const r = document.createElement('div'); r.className = 'rip'; r.style.left = (x - 75) + 'px'; r.style.top = (yOf(foc) - 75) + 'px'; r.style.opacity = 0; fx.appendChild(r);
       r.animate([{ transform: 'scale(.5)', opacity: .9 }, { transform: 'scale(3.4)', opacity: 0 }], { duration: 1300, delay: k * 240, easing: 'ease-out' }).onfinish = () => r.remove(); } }
     look();
   }
   function focusTo(i) { prev = foc; foc = i; renderFocus(false); if (S.toggles.sounds) click(); }
   let actx; function click() { try { actx = actx || new AudioContext(); const o = actx.createOscillator(), gn = actx.createGain(); o.frequency.value = 880; gn.gain.value = .03; o.connect(gn); gn.connect(actx.destination); o.start(); gn.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + .06); o.stop(actx.currentTime + .07); } catch (e) {} }
-  setInterval(() => { if ((eff().motion || 'full') === 'off') return; focusTo((foc + 1) % APPS.length); }, 2600);
+  setInterval(() => { if ((eff().motion || 'full') === 'off') return; if (APPS.length) focusTo((foc + 1) % APPS.length); }, 2600);
 
   const EYE = {
     sharingan: { g: ['#ff3b3b', '#b00000', '#3a0000'], glow: 'rgba(255,40,40,.6)', lash: '#000', shape: 'round' },
@@ -1507,6 +1687,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     if (isEye) { $('eyeL').innerHTML = eyeSVG('L', m); $('eyeR').innerHTML = eyeSVG('R', m); }
     const fg = eff().figure; $('figure').innerHTML = fg && fg.startsWith('puppet:') ? (pById(fg.slice(7)) ? puppetHTML(pById(fg.slice(7)), false) : (fg === 'puppet:luffy-img' ? charSVG('luffy', false) : '')) : fg && fg !== 'none' ? charSVG(fg, false) : ''; look(true); }
   function look() {
+    if (!APPS.length) return;
     const ax = xOf(foc);
     ['L', 'R'].forEach((s) => { const el = document.getElementById('iris' + s); if (!el) return; const ex = 960 + (s === 'L' ? -150 : 150); let dx = Math.max(-1, Math.min(1, (ax - ex) / 800)) * 30; if (s === 'R') dx = -dx; el.style.transform = 'translate(' + (100 + dx) + 'px,' + el.dataset.cy + 'px)'; });
     const n = Math.max(-1, Math.min(1, (ax - 960) / 800));
@@ -1515,7 +1696,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     const pole = $('pole'); if (pole) { const px = 960, py = 60, ang = Math.atan2(760 - py, ax - px), len = Math.hypot(ax - px, 760 - py) - 120; pole.style.transform = 'translate(' + px + 'px,' + py + 'px) rotate(' + ang * 180 / Math.PI + 'deg)'; $('rod').setAttribute('width', len); $('cap').setAttribute('x', 40 + len); }
     const cw = $('cloudw'); if (cw) cw.style.left = ax + 'px';
     const ch = $('chid'); if (ch) ch.style.left = ax + 'px';
-    const rt = $('ret'); if (rt) { rt.style.left = ax + 'px'; $('retl').textContent = eff().mascot === 'scouter' ? 'POWER LEVEL › ' + (APPS[foc][0] === 'Fan Hub' ? 'OVER 9000!' : (1000 + (foc * 1371) % 8000)) : 'LOCK › ' + APPS[foc][0].toUpperCase() + '  [' + ax.toFixed(0) + ', 860]'; }
+    const rt = $('ret'); if (rt) { rt.style.left = ax + 'px'; rt.style.top = yOf(foc) + 'px'; $('retl').textContent = eff().mascot === 'scouter' ? 'POWER LEVEL › ' + (APPS[foc][1] === 'hub' ? 'OVER 9000!' : (1000 + (foc * 1371) % 8000)) : 'LOCK › ' + APPS[foc][0].toUpperCase() + '  [' + ax.toFixed(0) + ', ' + yOf(foc).toFixed(0) + ']'; }
     const wk = $('walker'); if (wk) { const from = wk._x == null ? ax : wk._x; wk._x = ax; const mt2 = eff().mascot; const go2 = (tx) => { wk.classList.toggle('left', tx < (wk._cur == null ? tx : wk._cur)); wk._cur = tx; wk.style.left = (tx - 110) + 'px'; };
       if (from === ax) { wk.style.transition = 'none'; go2(ax); void wk.offsetWidth; wk.style.transition = ''; }
       else { wk.classList.add('walking'); clearTimeout(wk._t); clearTimeout(wk._t2); if (mt2 === 'walkzoro') { go2(from - (ax - from) * .5); wk._t2 = setTimeout(() => go2(ax), 900); wk._t = setTimeout(() => wk.classList.remove('walking'), 2000); } else { go2(ax); wk._t = setTimeout(() => wk.classList.remove('walking'), 1100); } } }
@@ -1616,7 +1797,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     const y = S.sys, e = eff(); $('statl').style.display = y.stats ? '' : 'none'; $('statl').textContent = 'CPU ' + cpu + '% · RAM 930 MB free · 12.4 GB free';
     const hudOn = (e.hud || y.hud) && S.who !== 'X'; const hd = $('hud'); hd.classList.toggle('on', hudOn);
     if (hudOn) { const mem = 62 + Math.round(Math.sin(Date.now() / 4000) * 4);
-      hd.innerHTML = '<div class="hp" style="left:110px;top:390px"><h4>SYSTEM</h4><div class="r"><span>CPU</span><span>' + cpu + '%  · 48°C</span></div><div class="g"><i style="width:' + cpu + '%"></i></div><div class="r"><span>MEMORY</span><span>930 MB / 1.5 GB</span></div><div class="g"><i style="width:' + mem + '%"></i></div><div class="r"><span>STORAGE</span><span>5.1 / 8 GB</span></div><div class="g"><i style="width:64%"></i></div><div class="r"><span>UPTIME</span><span>3d 04:12</span></div></div>' +
+      hd.innerHTML = '<div class="hp" style="left:' + (layNow() === 'rail' ? 210 : 110) + 'px;top:390px"><h4>SYSTEM</h4><div class="r"><span>CPU</span><span>' + cpu + '%  · 48°C</span></div><div class="g"><i style="width:' + cpu + '%"></i></div><div class="r"><span>MEMORY</span><span>930 MB / 1.5 GB</span></div><div class="g"><i style="width:' + mem + '%"></i></div><div class="r"><span>STORAGE</span><span>5.1 / 8 GB</span></div><div class="g"><i style="width:64%"></i></div><div class="r"><span>UPTIME</span><span>3d 04:12</span></div></div>' +
         '<div class="hp" style="right:110px;top:300px"><h4>NETWORK</h4><div class="r"><span>WI-FI</span><span>Den_5G · -52 dBm</span></div><div class="r"><span>DOWN / UP</span><span>' + net.d + ' / ' + net.u + ' Mbps</span></div><div class="r"><span>PING</span><span>' + net.p + ' ms</span></div><div class="r"><span>IP</span><span>192.168.1.50</span></div></div>' +
         '<div class="hp" style="right:110px;top:530px"><h4>FEED</h4><div class="r"><span>BARÇA v SEV</span><span>T-2d 23h</span></div><div class="r"><span>IND v AUS</span><span>T-2h 18m</span></div><div class="r"><span>JJK EP 14</span><span>OUT NOW</span></div><div class="r"><span>RAJMACHI</span><span>27° CLEAR</span></div><div class="r"><span>SCREEN TIME</span><span>2h 14m</span></div></div>'; }
   }
@@ -1633,8 +1814,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   }
   function applyTV(withWake) {
     const e = eff(); stage.style.setProperty('--acc', e.acc);
-    paint(); ambient(); setupFx(); buildEyes(); buildClock(); renderChips(); renderSys(); renderFacts(false); if ($('hub').classList.contains('on')) renderHub();
-    dock.className = 'dock' + (e.icons === 'tiles' ? ' tiles' : '');
+    buildDock(); paint(); ambient(); setupFx(); buildEyes(); buildClock(); renderChips(); renderSys(); renderFacts(false); if ($('hub').classList.contains('on')) renderHub();
     $('greet').style.display = S.toggles.greeting ? '' : 'none'; $('date').style.display = S.toggles.date ? '' : 'none';
     renderFocus(true);
     $('tvLook').textContent = base().name + (Object.keys(S.over).length ? ' (customised)' : '');
@@ -1660,14 +1840,14 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   const LOOK_OPEN = { hudboot: 'glitch', termboot: 'glitch', tunnel: 'portal', room: 'portal', slash: 'slash', panels: 'panels', powerup: 'warp', ink: 'ink', storm: 'flash', fire: 'warp', sharingan: 'portal', flutter: 'ink', bloom: 'zoom', crt: 'flash' };
   const LOOK_CLOSE = { hudboot: 'iris', termboot: 'slide', tunnel: 'iris', room: 'iris', slash: 'shatter', panels: 'shatter', powerup: 'shrink', ink: 'slide', storm: 'fade', fire: 'fade', sharingan: 'iris', flutter: 'slide', bloom: 'shrink', crt: 'iris' };
   let appBusy = false;
-  function openApp(i) {
-    if (appBusy) return; const e = eff(), a = S.anim, [n, k, c, t] = APPS[i]; const x = xOf(i), y = 860;
+  function openApp(i, item) {
+    if (appBusy) return; const e = eff(), a = S.anim, it = item || APPS[i], [n, k, c, t] = it; const x = xOf(i), y = yOf(i);
     const rnd = (o) => { const ks = Object.keys(o); return ks[Math.floor(Math.random() * ks.length)]; };
     const op = !a.on || (e.motion || 'full') === 'off' ? 'none' : a.random ? rnd(OPENA) : a.open === 'look' ? (LOOK_OPEN[e.wake] || 'zoom') : a.open;
     const cl = !a.on || (e.motion || 'full') === 'off' ? 'none' : a.random ? rnd(CLOSEA) : a.close === 'look' ? (LOOK_CLOSE[e.wake] || 'shrink') : a.close;
     appBusy = true; stage.querySelectorAll('.appscr').forEach((z) => z.remove());
     const scr = document.createElement('div'); scr.className = 'appscr'; scr.style.background = 'radial-gradient(circle at 50% 40%, ' + t + ', #050508 120%)';
-    scr.innerHTML = '<svg viewBox="0 0 100 100">' + ICON[k] + '</svg><b>' + n + '</b><span>' + n + ' would open here · closing in a moment</span>'; stage.appendChild(scr);
+    scr.innerHTML = '<svg viewBox="0 0 100 100">' + logo(it, '#fff') + '</svg><b>' + escH(n) + '</b><span>' + escH(n) + ' would open here · closing in a moment</span>'; stage.appendChild(scr);
     const D = 650, ez = 'cubic-bezier(.6,0,.2,1)';
     const fx = { zoom: () => scr.animate([{ clipPath: 'inset(' + (y - 60) + 'px ' + (1920 - x - 60) + 'px ' + (1080 - y - 60) + 'px ' + (x - 60) + 'px round 30px)' }, { clipPath: 'inset(0 0 0 0 round 0)' }], { duration: D, easing: ez }),
       portal: () => scr.animate([{ clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(2300px at ' + x + 'px ' + y + 'px)' }], { duration: D + 150, easing: 'cubic-bezier(.5,0,.3,1)' }),
@@ -1692,7 +1872,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
       fade: () => scr.animate([{ opacity: 1 }, { opacity: 0 }], { duration: D, fill: 'forwards' }), none: () => { scr.style.display = 'none'; return {}; } };
     fx[op]();
     setTimeout(() => { cx[cl](); if (op === 'warp') home.animate([{ transform: 'scale(1.3)', opacity: .4 }, { transform: 'none', opacity: 1 }], { duration: D, easing: 'ease-out' }); setTimeout(() => { scr.remove(); appBusy = false; if (S.health.auto) toast('Back Home · closed 4 background apps'); }, D + 450); }, 1900);
-    if (S.sys.kids && S.sys.kidsApps.includes(n)) { setTimeout(() => toast('Kids timer · ' + n + ' closes in ' + S.sys.kidsMin + ' min'), 700); return; }
+    if (S.sys.kids && S.sys.kidsApps.includes(it.o || n)) { setTimeout(() => toast('Kids timer · ' + n + ' closes in ' + S.sys.kidsMin + ' min'), 700); return; }
     toast((op === 'none' ? 'No animation' : OPENA[op]) + ' → ' + (cl === 'none' ? 'no animation' : CLOSEA[cl]));
   }
   const home = $('home'), ease = 'cubic-bezier(.6,0,.2,1)';
@@ -1859,7 +2039,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     return ls;
   }
   function card(l) {
-    const b = []; if (l.hero !== 'none') b.push(l.hero === 'rotate' ? 'Heroes' : HEROOPT[l.hero].split(' ').pop()); if (l.mascot !== 'none') b.push(MASCOT[l.mascot].split(' ')[0]); b.push(l.mine ? 'Mine' : forLabel[l.for]);
+    const b = []; if (l.hero !== 'none') b.push(l.hero === 'rotate' ? 'Heroes' : HEROOPT[l.hero].split(' ').pop()); if (l.mascot !== 'none') b.push((MASCOT[l.mascot] || 'Walker').split(' ')[0]); b.push(l.mine ? 'Mine' : forLabel[l.for]);
     return '<div class="card' + (l.id === S.look ? ' on' : '') + '" role="button" tabindex="0" data-look="' + l.id + '"><div class="thumb" data-tid="' + l.id + '"><div class="badges">' + b.map((x) => '<span>' + x + '</span>').join('') + '</div></div>' +
       '<button class="fav" data-fav="' + l.id + '" aria-pressed="' + S.favs.includes(l.id) + '" aria-label="Favourite ' + l.name + '">★</button><div class="meta"><b>' + l.name + '</b><span>' + WAKE[l.wake] + (l.moment !== 'none' ? ' · ' + MOMENT[l.moment] : '') + '</span></div></div>';
   }
@@ -1905,10 +2085,10 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   syncPuppetOpts();
   function vTweak() {
     const e = eff(), t = S.toggles, mod = Object.keys(S.over).length, F = Fd, y = S.sys;
-    const on = (b) => b ? 'on' : 'off';
+    const on = (b) => b ? 'on' : 'off', isw = (k) => sw('i-' + k, S.ic.badges[k]);
     return '<div class="modbar"><span>Based on <b style="color:var(--ink)">' + base().name + '</b>' + (mod ? ' · ' + mod + ' change' + (mod > 1 ? 's' : '') : '') + '</span><span class="row"><button class="btn" id="reset"' + (mod ? '' : ' disabled') + '>Reset</button><button class="btn hot" id="saveMine">Save as my look</button></span></div>' +
-      acc('look', '🎨', 'Look', SCENES[e.scene].n + ' · ' + HEROOPT[e.hero] + ' · ' + MASCOT[e.mascot].split(' (')[0],
-        F('t-scene', 'Scene', 'The painted backdrop', sel('t-scene', SCN, e.scene)) + F('t-hero', 'Hero', 'A poster on top of the scene', sel('t-hero', HEROOPT, e.hero)) + F('t-mascot', 'Watcher', 'Follows the selected app', sel('t-mascot', MASCOT, e.mascot)) + F('t-figure', 'Full character', 'A big cartoon figure whose eyes follow the app', sel('t-figure', Object.assign({ none: 'None', luffy: 'Luffy', g5: 'Gear 5 Luffy', zoro: 'Zoro' }, Object.fromEntries(PUPPETS.map((p) => ['puppet:' + p.id, p.name + ' (yours)']))), e.figure || 'none')) + F('b-art', 'Character art', 'Detailed: anime-style Luffy, shaded Gear 5 and Zoro', '<select id="b-art">' + [['detailed', 'Detailed'], ['classic', 'Classic']].map(([k, l]) => '<option value="' + k + '"' + (S.art === k ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>') + F('t-amb', 'Moving extras', '', sel('t-amb', AMB, e.amb)) + F('t-icons', 'App icons', '', sel('t-icons', ICONS, e.icons)) + F('t-acc', 'Accent colour', '', '<input type="color" id="t-acc" value="' + e.acc + '" style="width:44px;height:30px;border:0;background:none;padding:0">')) +
+      acc('look', '🎨', 'Look', SCENES[e.scene].n + ' · ' + HEROOPT[e.hero] + ' · ' + (MASCOT[e.mascot] || 'Your character walks').split(' (')[0],
+        F('t-scene', 'Scene', 'The painted backdrop', sel('t-scene', SCN, e.scene)) + F('t-hero', 'Hero', 'A poster on top of the scene', sel('t-hero', HEROOPT, e.hero)) + F('t-mascot', 'Watcher', 'Follows the selected app', sel('t-mascot', MASCOT, e.mascot)) + F('t-figure', 'Full character', 'A big cartoon figure whose eyes follow the app', sel('t-figure', Object.assign({ none: 'None', luffy: 'Luffy', g5: 'Gear 5 Luffy', zoro: 'Zoro' }, Object.fromEntries(PUPPETS.map((p) => ['puppet:' + p.id, p.name + ' (yours)']))), e.figure || 'none')) + F('b-art', 'Character art', 'Detailed: anime-style Luffy, shaded Gear 5 and Zoro', '<select id="b-art">' + [['detailed', 'Detailed'], ['classic', 'Classic']].map(([k, l]) => '<option value="' + k + '"' + (S.art === k ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>') + F('t-amb', 'Moving extras', '', sel('t-amb', AMB, e.amb)) + F('t-acc', 'Accent colour', '', '<input type="color" id="t-acc" value="' + e.acc + '" style="width:44px;height:30px;border:0;background:none;padding:0">')) +
       acc('fx', '✨', 'Animations and motion', WAKE[e.wake] + ' · apps ' + (S.anim.on ? (S.anim.random ? 'random' : 'on') : 'off') + ' · motion ' + (e.motion || 'full'),
         '<div class="sub">On the Home screen</div>' + F('t-focus', 'When you move', '', sel('t-focus', FOCUS, e.focus)) + F('t-wake', 'When the TV wakes', '', sel('t-wake', WAKE, e.wake)) + F('t-moment', 'Big moment', 'Played by real goals, sixes and new episodes', sel('t-moment', MOMENT, e.moment)) +
         '<div class="sub">Opening and closing apps</div>' + F('a-on', 'Animate apps', '', sw('a-on', S.anim.on)) + F('a-random', 'Surprise me', 'A different pair every time', sw('a-random', S.anim.random)) + F('a-open', 'When an app opens', '', sel('a-open', Object.assign({ look: 'Match the look' }, OPENA), S.anim.open)) + F('a-close', 'When you come back Home', '', sel('a-close', Object.assign({ look: 'Match the look' }, CLOSEA), S.anim.close)) +
@@ -1916,6 +2096,16 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
         '<div class="sub">Overall</div>' + F('t-motion', 'Motion', 'Calm suits a 1 GB TV or a sleepy evening', sel('t-motion', { full: 'Full', calm: 'Calm', off: 'Off' }, e.motion || 'full')) + F('g-sounds', 'Soft click sounds', '', sw('g-sounds', t.sounds))) +
       acc('clock', '🕒', 'Clock and greeting', CLOCK[e.clock] + ' · greeting ' + on(t.greeting),
         F('t-clock', 'Clock style', '', sel('t-clock', CLOCK, e.clock)) + F('g-greeting', 'Greeting with your name', '', sw('g-greeting', t.greeting)) + F('g-date', 'Date', '', sw('g-date', t.date))) +
+      acc('icons', '🔲', 'App icons', ICONS[e.icons] + ' · ' + LAYOUTS[e.iconLayout || 'row'] + ' · ' + Object.values(S.ic.badges).filter(Boolean).length + ' badges',
+        F('t-icons', 'Style', 'This look\'s own: ' + ICONS[base().icons || 'white'], sel('t-icons', Object.assign({ match: 'Match the look' }, ICONS), S.over.icons || 'match')) +
+        F('t-ilay', 'Layout', 'This look\'s own: ' + LAYOUTS[base().iconLayout || 'row'], sel('t-ilay', Object.assign({ match: 'Match the look' }, LAYOUTS), S.over.iconLayout || 'match')) +
+        '<p class="note" style="margin:6px 0 2px">Bookshelf turns apps into book spines and Big carousel shows the selected app as its banner, so both work with any style.</p>' +
+        '<div class="sub">Live badges</div>' + F('i-ep', 'New episode', 'A dot on Crunchyroll when an episode drops', isw('ep')) + F('i-score', 'Live score', 'On JioHotstar and FanCode during a match', isw('score')) + F('i-cont', 'Continue watching', 'A ring showing how far in you are', isw('cont')) + F('i-st', 'Screen time', 'A bar under each app; red past the kids-timer limit', isw('st')) +
+        '<div class="sub">Order and folders</div>' + F('i-smart', 'Smart order', S.ic.smart && SMART[base().cat] ? 'Right now ' + SMART[base().cat].map((k) => (ALL_APPS.find((x) => x[1] === k) || [])[0]).join(' and ') + ' first, because ' + SMART_WHY[base().cat] : 'Match days and episode days move the right app to the front', sw('i-smart', S.ic.smart)) +
+        F('i-folder', 'Shows folder', 'Netflix, Prime Video and Crunchyroll in one folder that unrolls like a scroll', sw('i-folder', S.ic.folder)) +
+        '<div class="sub">Your apps · ' + escH(PEOPLE[S.who].name) + '</div>' + ALL_APPS.map(([n, k, c, t]) => '<div class="iapp"><span class="iprev" style="background:' + t + '"><svg viewBox="0 0 100 100">' + logo([n, k], '#fff') + '</svg></span><input class="search" data-iname="' + k + '" value="' + escH(S.ic.names[k] || n) + '" maxlength="16" aria-label="Name for ' + n + '"><span class="row" style="gap:4px;flex-wrap:nowrap"><label class="btn">Picture<input type="file" accept="image/*" data-ipic="' + k + '" hidden></label>' + (S.ic.pics[k] ? '<button class="btn" data-ipicx="' + k + '" aria-label="Remove picture">✕</button>' : '') + '</span>' + (k === 'gear' ? '<span class="note" style="width:44px;text-align:center">always</span>' : '<span class="sw" title="Show on Home"><input type="checkbox" data-ihide="' + k + '"' + ((S.ic.hidden[S.who] || []).includes(k) ? '' : ' checked') + ' aria-label="Show ' + n + ' on Home"><span></span></span>') + '</div>').join('') +
+        '<div class="row" style="margin-top:10px"><button class="btn" id="icReset">Reset names, pictures and hidden apps</button></div>' +
+        '<p class="note" style="margin-top:8px">The switch hides an app for ' + escH(PEOPLE[S.who].name) + ' only. On the real TV each app\'s own icon and banner come from the app itself; den-tv only draws the frame and effects around them, so no brand logos go into the repo.</p>') +
       acc('widgets', '🧩', 'Widgets on Home', ['Wi-Fi ' + on(y.wifi), 'facts ' + on(S.wid.facts), 'HUD ' + on(y.hud || e.hud)].join(' · '),
         '<div class="sub">Status</div>' + F('b-sys-wifi', 'Wi-Fi strength', 'Signal bars in the top-right corner', bsw('sys.wifi')) + F('b-sys-wifiName', 'Show the network name', '', bsw('sys.wifiName')) + F('b-sys-stats', 'System line under the clock', 'CPU, free memory and free storage', bsw('sys.stats')) + F('b-sys-hud', 'Detailed HUD panels', 'System, network and feed panels, like the Geek look', bsw('sys.hud')) +
         '<div class="sub">Sports and shows</div>' + F('w-countdown', 'Next match countdown', '', sw('w-countdown', S.wid.countdown)) + F('g-scores', 'Live scores', 'Barça, India and Mumbai Indians', sw('g-scores', t.scores)) + F('g-anime', 'New episodes', '', sw('g-anime', t.anime)) + F('g-trail', 'Weekend hike forecast', '', sw('g-trail', t.trail)) +
@@ -2037,8 +2227,8 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     on('mom', moment); on('wk', wake);
     const dg = () => { const v = $('descIn').value.trim(); if (!v) { toast('Describe a look first'); return; } const l = makeLook(v); S.mine = S.mine.concat([l]); save(); setLook(l.id); };
     on('descGo', dg); const di = $('descIn'); if (di) di.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') dg(); });
-    [['t-figure', 'figure'], ['t-scene', 'scene'], ['t-hero', 'hero'], ['t-mascot', 'mascot'], ['t-amb', 'amb'], ['t-focus', 'focus'], ['t-wake', 'wake'], ['t-moment', 'moment'], ['t-clock', 'clock'], ['t-icons', 'icons'], ['t-motion', 'motion'], ['t-acc', 'acc']].forEach(([id, key]) => { const el = $(id); if (!el) return;
-      el.addEventListener(id === 't-acc' ? 'input' : 'change', () => { const bv = key === 'motion' ? (base().motion || 'full') : key === 'figure' ? (base().figure || 'none') : base()[key]; if (el.value === bv) delete S.over[key]; else S.over[key] = el.value; save(); applyTV(key === 'wake');
+    [['t-figure', 'figure'], ['t-scene', 'scene'], ['t-hero', 'hero'], ['t-mascot', 'mascot'], ['t-amb', 'amb'], ['t-focus', 'focus'], ['t-wake', 'wake'], ['t-moment', 'moment'], ['t-clock', 'clock'], ['t-icons', 'icons'], ['t-ilay', 'iconLayout'], ['t-motion', 'motion'], ['t-acc', 'acc']].forEach(([id, key]) => { const el = $(id); if (!el) return;
+      el.addEventListener(id === 't-acc' ? 'input' : 'change', () => { const bv = key === 'motion' ? (base().motion || 'full') : key === 'figure' ? (base().figure || 'none') : base()[key]; if (el.value === bv || el.value === 'match') delete S.over[key]; else S.over[key] = el.value; save(); applyTV(key === 'wake');
         if (key === 'moment' && el.value !== 'none') moment(); if (id !== 't-acc') render(); }); });
     ['greeting', 'date', 'scores', 'anime', 'trail', 'photos', 'sounds', 'askwho'].forEach((k) => { const el = $('g-' + k); if (el) el.addEventListener('change', () => { S.toggles[k] = el.checked; save(); applyTV(false); if (k === 'photos' && el.checked) toast('Your album would replace the drawn heroes'); }); });
     body.querySelectorAll('[data-b]').forEach((el) => { const ev = el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input'; el.addEventListener(ev, () => { const [a, k] = el.dataset.b.split('.'); S[a][k] = el.type === 'checkbox' ? el.checked : el.type === 'range' ? +el.value : el.value; save(); renderChips(); renderSys(); renderFacts(false);
@@ -2068,7 +2258,8 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     body.querySelectorAll('[data-kapp]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.kapp; S.sys.kidsApps = S.sys.kidsApps.includes(x) ? S.sys.kidsApps.filter((z) => z !== x) : S.sys.kidsApps.concat(x); save(); const keep = body.scrollTop; render(); body.scrollTop = keep; }));
     ['on', 'random'].forEach((k) => { const el = $('a-' + k); if (el) el.addEventListener('change', () => { S.anim[k] = el.checked; save(); }); });
     ['open', 'close'].forEach((k) => { const el = $('a-' + k); if (el) el.addEventListener('change', () => { S.anim[k] = el.value; save(); }); });
-    on('tryOpen', () => { foc = 3; renderFocus(true); openApp(3); });
+    on('tryOpen', () => { const yi = APPS.findIndex((a) => a[1] === 'yt'), fi = APPS.findIndex((a) => a.kids && a.kids.some((x) => x[1] === 'yt'));
+      if (yi >= 0) { prev = foc; foc = yi; renderFocus(true); openApp(yi); } else if (fi >= 0) openApp(fi, APPS[fi].kids.find((x) => x[1] === 'yt')); else toast('YouTube is hidden for ' + PEOPLE[S.who].name); });
     on('cleanNow', () => { const m = $('memi'); if (m) m.style.width = '41%'; $('memt').textContent = '612 MB used of 1.5 GB · 7 apps closed, 318 MB freed'; toast('Closed 7 background apps · 318 MB freed'); });
     const ha = $('h-auto'); if (ha) ha.addEventListener('change', () => { S.health.auto = ha.checked; save(); });
     body.querySelectorAll('[data-keep]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.keep; S.health.keep = S.health.keep.includes(x) ? S.health.keep.filter((y) => y !== x) : S.health.keep.concat(x); save(); render(); }));
@@ -2078,6 +2269,15 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     body.querySelectorAll('[data-hteam]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.hteam; S.hub.teams = S.hub.teams.includes(x) ? S.hub.teams.filter((y) => y !== x) : S.hub.teams.concat(x); save(); render(); openHub(true); }));
     body.querySelectorAll('[data-hshow]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.hshow; S.hub.shows = S.hub.shows.includes(x) ? S.hub.shows.filter((y) => y !== x) : S.hub.shows.concat(x); save(); render(); openHub(true); }));
     on('openHub', () => openHub(true));
+    ['ep', 'score', 'cont', 'st'].forEach((k) => { const el = $('i-' + k); if (el) el.addEventListener('change', () => { S.ic.badges[k] = el.checked; save(); redock(); keepRender(); }); });
+    ['smart', 'folder'].forEach((k) => { const el = $('i-' + k); if (el) el.addEventListener('change', () => { S.ic[k] = el.checked; save(); redock(); keepRender(); if (k === 'folder' && el.checked) toast('Select Shows on the TV and press it to unroll'); }); });
+    body.querySelectorAll('[data-iname]').forEach((inp) => inp.addEventListener('change', () => { const k = inp.dataset.iname, v = inp.value.trim(), def = ALL_APPS.find((x) => x[1] === k)[0]; if (!v || v === def) delete S.ic.names[k]; else S.ic.names[k] = v; save(); redock(); keepRender(); }));
+    body.querySelectorAll('[data-ipic]').forEach((inp) => inp.addEventListener('change', () => { const f = inp.files[0]; if (!f) return; const k = inp.dataset.ipic, rd = new FileReader();
+      rd.onload = () => { const im = new Image(); im.onload = () => { const cv = document.createElement('canvas'); cv.width = cv.height = 128; const m = Math.min(im.naturalWidth, im.naturalHeight); cv.getContext('2d').drawImage(im, (im.naturalWidth - m) / 2, (im.naturalHeight - m) / 2, m, m, 0, 0, 128, 128);
+        S.ic.pics[k] = cv.toDataURL('image/webp', .85); save(); redock(); keepRender(); toast('Your picture is now the icon'); }; im.src = rd.result; }; rd.readAsDataURL(f); }));
+    body.querySelectorAll('[data-ipicx]').forEach((b) => b.addEventListener('click', () => { delete S.ic.pics[b.dataset.ipicx]; save(); redock(); keepRender(); }));
+    body.querySelectorAll('[data-ihide]').forEach((el) => el.addEventListener('change', () => { const k = el.dataset.ihide, h = S.ic.hidden[S.who] || []; S.ic.hidden[S.who] = el.checked ? h.filter((x) => x !== k) : h.concat(k); save(); redock(); keepRender(); }));
+    on('icReset', () => { Object.assign(S.ic, { names: {}, pics: {}, hidden: { G: [], P: [], X: [] } }); save(); redock(); keepRender(); toast('Apps are back to normal'); });
     RULES.forEach(([k]) => { const el = $('r-' + k); if (el) el.addEventListener('change', () => { S.rules[k] = el.checked; save(); }); });
     on('reset', () => { S.over = {}; save(); applyTV(false); render(); toast('Back to ' + base().name); });
     on('saveMine', () => { const e = eff(), id = 'mine-' + Date.now(), name = 'My ' + base().name.replace(/^My /, ''); S.mine = S.mine.concat([Object.assign({}, e, { id, name, mine: true, cat: 'My looks', for: S.who === 'P' ? 'P' : S.who === 'X' ? 'B' : 'G' })]); S.look = id; S.over = {}; save(); applyTV(false); render(); toast('Saved as ' + name); });

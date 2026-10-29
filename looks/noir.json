@@ -10,6 +10,7 @@
   "wake": "crt",
   "clock": "thin",
   "icons": "white",
+  "icon_layout": "row",
   "extras": "rain",
   "moment": "none",
   "accent": "#e8dcc0"

@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "bloom",
   "clock": "thin",
-  "icons": "white",
+  "icons": "glass",
+  "icon_layout": "row",
   "extras": "none",
   "moment": "drop",
   "accent": "#ff7ab6"

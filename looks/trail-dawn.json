@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "bloom",
   "clock": "thin",
-  "icons": "white",
+  "icons": "sticker",
+  "icon_layout": "arc",
   "extras": "none",
   "moment": "none",
   "accent": "#ffb86b"

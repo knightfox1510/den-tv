@@ -9,7 +9,8 @@
   "focus": "arc",
   "wake": "tunnel",
   "clock": "over",
-  "icons": "white",
+  "icons": "score",
+  "icon_layout": "field",
   "extras": "fireworks",
   "moment": "six",
   "accent": "#d1ab3e"

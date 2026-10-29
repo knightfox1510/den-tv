@@ -9,7 +9,8 @@
   "focus": "aura",
   "wake": "sharingan",
   "clock": "brush",
-  "icons": "white",
+  "icons": "manga",
+  "icon_layout": "row",
   "extras": "crows",
   "moment": "drop",
   "accent": "#ff2a2a"

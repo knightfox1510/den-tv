@@ -9,7 +9,8 @@
   "focus": "aura",
   "wake": "powerup",
   "clock": "thin",
-  "icons": "white",
+  "icons": "glass",
+  "icon_layout": "row",
   "extras": "silver",
   "moment": "beam",
   "accent": "#cfe0ff"

@@ -9,7 +9,8 @@
   "focus": "pass",
   "wake": "panels",
   "clock": "brush",
-  "icons": "white",
+  "icons": "manga",
+  "icon_layout": "shelf",
   "extras": "none",
   "moment": "drop",
   "accent": "#ff2d55"

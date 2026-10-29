@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "fire",
   "clock": "brush",
-  "icons": "white",
+  "icons": "wanted",
+  "icon_layout": "row",
   "extras": "none",
   "moment": "drop",
   "accent": "#ff5a8a"

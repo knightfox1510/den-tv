@@ -9,7 +9,8 @@
   "focus": "aura",
   "wake": "powerup",
   "clock": "hud",
-  "icons": "white",
+  "icons": "hud",
+  "icon_layout": "row",
   "extras": "sparks",
   "moment": "beam",
   "accent": "#b48aff"

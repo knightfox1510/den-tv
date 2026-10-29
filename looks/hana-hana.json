@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "ink",
   "clock": "brush",
-  "icons": "white",
+  "icons": "wanted",
+  "icon_layout": "shelf",
   "extras": "petals",
   "moment": "drop",
   "accent": "#c49aff"

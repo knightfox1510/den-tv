@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "hudboot",
   "clock": "hud",
-  "icons": "white",
+  "icons": "hud",
+  "icon_layout": "rail",
   "extras": "none",
   "moment": "none",
   "accent": "#38e1ff"

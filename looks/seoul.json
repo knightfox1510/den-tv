@@ -9,7 +9,8 @@
   "focus": "spot",
   "wake": "bloom",
   "clock": "thin",
-  "icons": "white",
+  "icons": "neon",
+  "icon_layout": "carousel",
   "extras": "petals",
   "moment": "none",
   "accent": "#ff7ac8"

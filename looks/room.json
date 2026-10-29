@@ -9,7 +9,8 @@
   "focus": "ripple",
   "wake": "room",
   "clock": "thin",
-  "icons": "white",
+  "icons": "glass",
+  "icon_layout": "row",
   "extras": "snow",
   "moment": "drop",
   "accent": "#8fd0ff"

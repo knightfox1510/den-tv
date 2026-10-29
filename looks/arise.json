@@ -9,7 +9,8 @@
   "focus": "aura",
   "wake": "bloom",
   "clock": "hud",
-  "icons": "white",
+  "icons": "hud",
+  "icon_layout": "carousel",
   "extras": "sparks",
   "moment": "arise",
   "accent": "#8a7aff"

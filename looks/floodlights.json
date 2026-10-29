@@ -9,7 +9,8 @@
   "focus": "pass",
   "wake": "tunnel",
   "clock": "thin",
-  "icons": "white",
+  "icons": "patch",
+  "icon_layout": "row",
   "extras": "flashes",
   "moment": "goal",
   "accent": "#9fd8ff"
