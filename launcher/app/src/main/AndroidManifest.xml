@@ -71,12 +71,29 @@
     </queries>
 
     <application
-        android:label="@string/app_name"
+        android:label="@string/den_app_name"
         android:icon="@mipmap/ic_launcher"
         android:banner="@drawable/banner"
         android:theme="@style/Theme.TvHome"
         android:allowBackup="false"
         android:localeConfig="@xml/locales_config">
+
+        <!-- den-tv's look picker. Leanback-launchable so Home shows it as the Looks tile (AppAdapter lets it through);
+             its own task, so it opens over Home and Back returns there. -->
+        <activity
+            android:name=".DenLooksActivity"
+            android:exported="true"
+            android:label="@string/den_looks"
+            android:icon="@drawable/den_looks_banner"
+            android:banner="@drawable/den_looks_banner"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".MainActivity"

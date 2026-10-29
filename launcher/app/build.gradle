@@ -12,7 +12,7 @@ android {
         minSdk 26
         targetSdk 34
         versionCode 10
-        versionName '3.1'
+        versionName 'den-0.1 (cleanyourtv 3.1)'
     }
 
     buildTypes {
@@ -34,15 +34,37 @@ android {
         }
     }
 
+    testOptions {
+        unitTests.includeAndroidResources = true
+        unitTests.all {
+            systemProperty 'den.screens', project.findProperty('den.screens') ?: ''
+            // Robolectric fetches its Android runtime itself; -Probolectric.repo=<maven mirror> points it elsewhere.
+            if (project.hasProperty('robolectric.repo')) systemProperty 'robolectric.dependency.repo.url', project.property('robolectric.repo')
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
 }
 
+// den-tv: the looks (repo looks/) and the den-mix theme (repo themes/den-mix/) go into the APK from the repo,
+// so there is one copy of each. DenTheme copies the theme out on the first start; DenLooks reads the looks.
+def denAssets = layout.buildDirectory.dir('generated/den-assets')
+def copyDenAssets = tasks.register('copyDenAssets', Sync) {
+    into denAssets
+    from('../../looks') { include '*.json'; into 'den/looks' }
+    from('../../themes/den-mix') { include 'config.json', 'wallpapers/**'; into 'den/theme' }
+}
+android.sourceSets.main.assets.srcDir(denAssets)
+tasks.named('preBuild') { dependsOn copyDenAssets }
+
 dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'androidx.dynamicanimation:dynamicanimation:1.0.0'
     // Test only (never in the APK): plain JVM tests for the module card validators, src/test.
     testImplementation 'junit:junit:4.13.2'
+    // den-tv: renders den-tv's screens to PNGs in a test (DenScreensTest, run with -Pden.screens); not part of the APK.
+    testImplementation 'org.robolectric:robolectric:4.13'
 }

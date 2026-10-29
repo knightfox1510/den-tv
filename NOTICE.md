@@ -1,8 +1,11 @@
 # Credits
 
 den-tv builds on [cleanyourtv](https://github.com/Gathin23/cleanyourtv) by Gathin, MIT licensed
-(Copyright (c) 2026 Gathin). The TV cleanup, backup and safety checks, and the launcher that the
-den-tv launcher will be forked from, are theirs. Code copied from it keeps its original licence notice.
+(Copyright (c) 2026 Gathin). The TV cleanup, backup and safety checks, and the launcher in `launcher/`
+(forked from cleanyourtv's `launcher/` at commit fcde1ee), are theirs. Code copied from it keeps its
+original licence notice; den-tv's additions are the `Den*.java` files and the small hooks listed in
+`launcher/DEN.md`. The launcher bundles the Outfit typeface under the SIL Open Font License
+(`launcher/FONT-LICENSE-OFL.txt`).
 
 Fonts in the mockups load from Google Fonts: Outfit, Bebas Neue, VT323 and Kaushan Script, all under
 the SIL Open Font License.

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- den-tv's own strings. English only for now; cleanyourtv's strings keep their translations. -->
+<resources>
+    <string name="den_app_name" translatable="false">den-tv</string>
+    <string name="den_looks">Looks</string>
+</resources>
