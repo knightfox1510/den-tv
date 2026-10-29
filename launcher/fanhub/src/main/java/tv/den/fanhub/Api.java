@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -93,6 +93,7 @@ final class Api {
             case "/api/describe": return describe(in.optString("text"));
             case "/api/fav": return fav(in.optString("id"), in.optBoolean("on"));
             case "/api/surprise": return surprise();
+            case "/api/keep": return keep(in);
             default: return new JSONObject().put("error", "not found");
         }
     }
@@ -450,6 +451,7 @@ final class Api {
         am.getMemoryInfo(before);
         PackageManager pm = ctx.getPackageManager();
         Set<String> skip = new HashSet<>(Arrays.asList(ctx.getPackageName(), "tv.den.launcher", Helper.front()));
+        skip.addAll(kept());   // the keep-running list: apps you want left alone (a music app, a VPN)
         Set<String> done = new HashSet<>();
         for (ResolveInfo ri : tvApps(pm)) {
             String pkg = ri.activityInfo.packageName;
@@ -459,6 +461,35 @@ final class Api {
         ActivityManager.MemoryInfo after = new ActivityManager.MemoryInfo();
         am.getMemoryInfo(after);
         return ok(true).put("apps", done.size()).put("freed", Math.max(0, after.availMem - before.availMem)).put("free", after.availMem).put("total", after.totalMem);
+    }
+
+    private Set<String> kept() {
+        Set<String> out = new HashSet<>();
+        try {
+            JSONArray a = new JSONArray(Timers.prefs(ctx).getString("keep", "[]"));
+            for (int i = 0; i < a.length(); i++) out.add(a.optString(i));
+        } catch (JSONException ignored) { }
+        return out;
+    }
+
+    /** The keep-running list: GET lists the TV's apps with whether each is kept; {pkg, on} keeps one or lets it go. */
+    private JSONObject keep(JSONObject in) throws JSONException {
+        Set<String> keep = kept();
+        if (in.has("pkg")) {
+            String pkg = in.optString("pkg");
+            if (!pkg.matches("[A-Za-z0-9_.]{1,200}")) return fail("Which app?");
+            if (in.optBoolean("on")) keep.add(pkg); else keep.remove(pkg);
+            Timers.prefs(ctx).edit().putString("keep", new JSONArray(keep).toString()).apply();
+        }
+        PackageManager pm = ctx.getPackageManager();
+        JSONArray list = new JSONArray();
+        Set<String> seen = new HashSet<>();
+        for (ResolveInfo ri : tvApps(pm)) {
+            String pkg = ri.activityInfo.packageName;
+            if (!seen.add(pkg) || pkg.equals(ctx.getPackageName()) || pkg.equals("tv.den.launcher")) continue;
+            list.put(new JSONObject().put("pkg", pkg).put("label", String.valueOf(ri.loadLabel(pm))).put("kept", keep.contains(pkg)));
+        }
+        return ok(true).put("apps", list);
     }
 
     private JSONObject screenTime() throws JSONException {

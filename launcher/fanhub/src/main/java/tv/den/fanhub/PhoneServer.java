@@ -33,7 +33,7 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * The phone app: a small web server on the home Wi-Fi, run by PhoneService. A phone pairs once with the 4-digit
+ * The phone app: a small web server on the home Wi-Fi, run by PhoneService. A phone pairs once with the 6-digit
  * code shown on the TV, and only while the Fan Hub or setup screen is open (the pairing window); it then keeps its
  * own token (a cookie). Without one a phone can only load the page. The API is in Api.
  */
@@ -70,7 +70,23 @@ final class PhoneServer {
     private Api api;
 
     /** Opens pairing while a screen shows the code; onChange runs when the code changes or a phone pairs. */
-    void openPairing(Runnable onChange) { pairing = onChange; }
+    void openPairing(Runnable onChange) {
+        pairing = onChange;
+        // While the code is on show it changes every 5 minutes, so one seen over a shoulder soon stops working.
+        if (rotate == null) {
+            rotate = new java.util.Timer("pair-code", true);
+            rotate.scheduleAtFixedRate(new java.util.TimerTask() {
+                @Override public void run() {
+                    if (pairingOpen() && System.currentTimeMillis() - codeAt >= CODE_MS) { synchronized (PhoneServer.this) { newCode(); } changed(); }
+                }
+            }, 15_000, 15_000);
+        }
+    }
+
+    /** How long one pairing code lasts while it shows. */
+    static final long CODE_MS = 5 * 60_000L;
+    private java.util.Timer rotate;
+    private volatile long codeAt;
 
     void closePairing() { pairing = null; setup = null; }
 
@@ -106,7 +122,8 @@ final class PhoneServer {
     synchronized boolean running() { return socket != null && !socket.isClosed(); }
 
     private void newCode() {
-        code = String.format(Locale.ROOT, "%04d", random.nextInt(10000));
+        code = String.format(Locale.ROOT, "%06d", random.nextInt(1_000_000));
+        codeAt = System.currentTimeMillis();
         wrong = 0;
     }
 
@@ -390,7 +407,7 @@ final class PhoneServer {
             return;
         }
         if (!code.equals(body.optString("code"))) {
-            // A few tries per code; then the TV shows a new one, so guessing all 10,000 is not practical.
+            // A few tries per code; then the TV shows a new one, so guessing a million is not practical.
             if (++wrong >= MAX_TRIES) { newCode(); changed(); }
             json(c, 403, new JSONObject().put("error", "That code doesn't match. Check the TV."));
             return;

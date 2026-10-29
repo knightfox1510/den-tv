@@ -49,6 +49,24 @@ final class DenLayer {
         for (Watcher w : others) w.lookAt(x - where[0], y - where[1], label(now));
     };
 
+    /**
+     * Screen care (phone: Tweak -> Home): every 3 minutes Home drifts to a new spot a few pixels away, so the clock,
+     * the panel and the tiles never sit on the same pixels for hours (burn-in on OLED and some LCD panels).
+     */
+    private final java.util.Random careRandom = new java.util.Random();
+    private final Runnable care = new Runnable() {
+        @Override public void run() {
+            View home = content.getChildAt(0);
+            if (home != null && DenSettings.prefs(activity).getBoolean("screen_care", false)) {
+                float d = activity.getResources().getDisplayMetrics().density * 6;
+                home.animate().translationX((careRandom.nextFloat() * 2 - 1) * d).translationY((careRandom.nextFloat() * 2 - 1) * d).setDuration(2000).start();
+            } else if (home != null && (home.getTranslationX() != 0 || home.getTranslationY() != 0)) {
+                home.animate().translationX(0).translationY(0).setDuration(600).start();
+            }
+            content.postDelayed(this, 180_000);
+        }
+    };
+
     private final List<View> covers = new java.util.ArrayList<>();   // the wake's flash and fade, removed when done
 
     private final BroadcastReceiver screenOn = new BroadcastReceiver() {
@@ -156,6 +174,7 @@ final class DenLayer {
         }
         layer.content.getViewTreeObserver().addOnGlobalFocusChangeListener(layer.focus);
         layer.content.post(layer::followFocus);
+        layer.content.postDelayed(layer.care, 180_000);
         activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).registerOnSharedPreferenceChangeListener(layer.revision);   // Home may have focused a tile before the watcher was there
         IntentFilter on = new IntentFilter(Intent.ACTION_SCREEN_ON);
         on.addAction(Intent.ACTION_SCREEN_OFF);
@@ -255,6 +274,7 @@ final class DenLayer {
     }
 
     void onDestroy() {
+        content.removeCallbacks(care);
         DenMoments.detach(moments);
         content.removeCallbacks(rebuild);
         activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(revision);

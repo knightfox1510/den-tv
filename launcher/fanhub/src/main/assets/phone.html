@@ -103,8 +103,8 @@
 
   <section id="pair" hidden>
     <div class="card">
-      <p id="pairNote">Enter the 4-digit code on the TV's Fan Hub screen.</p>
-      <input id="code" class="code" inputmode="numeric" maxlength="4" autocomplete="one-time-code" aria-label="Code from the TV">
+      <p id="pairNote">Enter the 6-digit code on the TV's Fan Hub screen. It changes every 5 minutes.</p>
+      <input id="code" class="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-label="Code from the TV">
       <label for="phoneName">Name this phone</label>
       <input id="phoneName" maxlength="30" placeholder="e.g. Gaurav's phone">
       <button id="pairBtn">Pair this phone</button>
@@ -335,6 +335,9 @@
     <details class="card"><summary><span><b>Memory</b><small id="memSum"></small></span></summary><div class="in">
       <div class="meter"><i id="memBar"></i></div>
       <button id="cleanGo">Close background apps</button>
+      <label>Keep running</label>
+      <p class="hint" style="margin-top:0">Close background apps leaves these alone: a music app, a VPN, anything you want to come back to as it was.</p>
+      <div id="keepList" class="chips"></div>
       <div id="memMsg" class="msg" role="status"></div>
     </div></details>
     <details class="card"><summary><span><b>Storage</b><small id="stoSum"></small></span></summary><div class="in">
@@ -529,7 +532,7 @@
   function showPair(open) {
     $('pair').hidden = false; $('tabs').hidden = true; $('wiz').hidden = true;
     document.querySelectorAll('[data-tab]').forEach((s) => { if (s.tagName === 'SECTION') s.hidden = true; });
-    say($('pairNote'), open === false ? 'Open the Fan Hub on the TV: it shows a 4-digit code. Then enter it here.' : 'Enter the 4-digit code on the TV\'s screen.');
+    say($('pairNote'), open === false ? 'Open the Fan Hub on the TV: it shows a 6-digit code. Then enter it here.' : 'Enter the 6-digit code on the TV\'s screen.');
   }
   $('pairBtn').addEventListener('click', async () => {
     const r = await api('/api/pair', { code: $('code').value.trim(), name: $('phoneName').value.trim() || guessName() });
@@ -937,11 +940,20 @@
   }
 
   // ---- TV ----
+  async function loadKeep() {
+    const r = (await api('/api/keep')).json, box = $('keepList'); box.innerHTML = '';
+    (r.apps || []).sort((a, b) => a.label.localeCompare(b.label)).forEach((a) => {
+      const b = el('button', 'chip', a.label); b.type = 'button'; b.setAttribute('aria-pressed', a.kept ? 'true' : 'false');
+      b.onclick = async () => { const on = b.getAttribute('aria-pressed') !== 'true'; const x = await api('/api/keep', { pkg: a.pkg, on }); if (x.json.ok) b.setAttribute('aria-pressed', on ? 'true' : 'false'); };
+      box.appendChild(b);
+    });
+  }
   async function loadTv() {
     const t = (await api('/api/tv')).json, n = t.network || {};
     $('netSum').textContent = n.type === 'Wi-Fi' ? 'Wi-Fi · ' + n.ghz + ' · ' + ['very weak', 'weak', 'fair', 'good', 'strong'][Math.max(0, Math.min(4, n.bars || 0))] + ' (' + n.rssi + ' dBm)' : (n.type || '');
     if (t.memory) { const used = t.memory.total - t.memory.free; $('memSum').textContent = mb(used) + ' used of ' + mb(t.memory.total); $('memBar').style.width = Math.round(used / t.memory.total * 100) + '%'; }
     if (t.storage) { const used = t.storage.total - t.storage.free; $('stoSum').textContent = mb(used) + ' used of ' + mb(t.storage.total); $('stoBar').style.width = Math.round(used / t.storage.total * 100) + '%'; }
+    loadKeep();
     $('ver').textContent = 'Fan Hub ' + (t.version || '') + ' · den-tv helper ' + (t.helper ? 'on' : 'off');
     const st = (await api('/api/screentime')).json;
     $('stSum').textContent = st.helper ? 'Today ' + mins(st.minutes || 0) : 'Needs the den-tv helper';

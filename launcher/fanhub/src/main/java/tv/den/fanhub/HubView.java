@@ -440,7 +440,7 @@ final class HubView extends View {
         text(c, fit(host[0], x + w - tx - 16, 20, semi), tx, y + 132, 20, semi, 0xffffffff);
         if (host.length > 1) text(c, ":" + host[1], tx, y + 158, 20, semi, 0xffffffff);
         text(c, "and enter", tx, y + 196, 20, light, 0xffb9b5c8);
-        text(c, data.code, tx, y + 248, 52, semi, lift(data.accent));
+        text(c, fit(data.code, x + w - tx - 16, 44, semi), tx, y + 248, 44, semi, lift(data.accent));
         text(c, "Same Wi-Fi as the TV.", x + 32, y + h - 34, 20, light, 0xffb9b5c8);
     }
 
