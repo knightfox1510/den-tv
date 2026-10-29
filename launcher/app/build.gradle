@@ -11,8 +11,22 @@ android {
         applicationId providers.gradleProperty('launcherApplicationId').getOrElse('com.gathin.tvhome')
         minSdk 26
         targetSdk 34
-        versionCode 10
+        versionCode 11
         versionName 'den-0.1 (cleanyourtv 3.1)'
+    }
+
+    // den-tv: CI signs with one fixed key (the DEN_KEYSTORE_B64 secret), so every build installs over the last.
+    // Without it, as in a local build, the debug key is used.
+    def denKeystore = System.getenv('DEN_KEYSTORE')
+    signingConfigs {
+        if (denKeystore) {
+            den {
+                storeFile file(denKeystore)
+                storePassword System.getenv('DEN_KEYSTORE_PASSWORD')
+                keyAlias 'den-tv'
+                keyPassword System.getenv('DEN_KEYSTORE_PASSWORD')
+            }
+        }
     }
 
     buildTypes {
@@ -22,7 +36,7 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // Sideloaded over ADB, never published: sign with the debug key so it installs over a debug build.
-            signingConfig signingConfigs.debug
+            signingConfig denKeystore ? signingConfigs.den : signingConfigs.debug
         }
     }
 

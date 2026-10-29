@@ -24,8 +24,20 @@ jobs:
       - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
         with:
           packages: platforms;android-34 build-tools;34.0.0
+      - name: Signing key
+        env:
+          KEY: ${{ secrets.DEN_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEY" ]; then
+            printf '%s' "$KEY" | base64 -d > "$RUNNER_TEMP/den.jks"
+            echo "DEN_KEYSTORE=$RUNNER_TEMP/den.jks" >> "$GITHUB_ENV"
+          else
+            echo "::warning::DEN_KEYSTORE_B64 is not set: this APK is signed with a throwaway key and will not install over another build."
+          fi
       - name: Test and build
         working-directory: launcher
+        env:
+          DEN_KEYSTORE_PASSWORD: ${{ secrets.DEN_KEYSTORE_PASSWORD }}
         run: chmod +x gradlew && ./gradlew --no-daemon testReleaseUnitTest assembleRelease
       - uses: actions/upload-artifact@v4
         with:
