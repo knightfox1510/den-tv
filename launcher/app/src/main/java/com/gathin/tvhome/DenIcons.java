@@ -273,14 +273,16 @@ final class DenIcons {
             c.drawRoundRect(r, 8, 8, p);
             stroke(0xff34343c, 3);
             c.drawRoundRect(r, 8, 8, p);
+            // The whole name, smaller when it is long, over the app's icon: no made-up overs, it read like a score.
             String n = name.toUpperCase(Locale.ROOT);
-            label(c, n.length() > 10 ? n.substring(0, 10) : n, 50, 40, 19, Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD), 0xffffc23a);
+            Typeface bold = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
+            t.setTypeface(bold);
+            t.setTextSize(19);
+            float w = t.measureText(n);
+            label(c, n, 50, 38, w > 86 ? Math.max(10, 19 * 86 / w) : 19, bold, 0xffffc23a);
             stroke(0xff2a2a30, 2);
-            c.drawLine(10, 48, 90, 48, p);
-            logo(c, 12, 53, 26, null);
-            t.setTextAlign(Paint.Align.RIGHT);
-            label(c, "OV " + (index * 3 + 4) + "." + (index % 6), 88, 77, 18, Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD), 0xffffd98a);
-            t.setTextAlign(Paint.Align.CENTER);
+            c.drawLine(10, 46, 90, 46, p);
+            logo(c, 33, 51, 34, null);
         }
 
         private void pixel(Canvas c) {

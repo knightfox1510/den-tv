@@ -49,17 +49,23 @@ final class PhoneServer {
     private final SecureRandom random = new SecureRandom();
     private final Runnable onChange;
     private ServerSocket socket;
+    // A few connections at once; more wait in the queue, past that they are turned away.
+    private final java.util.concurrent.ThreadPoolExecutor pool = new java.util.concurrent.ThreadPoolExecutor(
+            4, 4, 30, java.util.concurrent.TimeUnit.SECONDS, new java.util.concurrent.ArrayBlockingQueue<>(16));
     private Thread thread;
     private volatile String code;
     private int wrong;
 
     PhoneServer(Context ctx, Runnable onChange) {
+        pool.allowCoreThreadTimeOut(true);
         this.ctx = ctx.getApplicationContext();
         this.onChange = onChange;
         newCode();
     }
 
     String code() { return code; }
+
+    synchronized boolean running() { return socket != null && !socket.isClosed(); }
 
     private void newCode() {
         code = String.format(Locale.ROOT, "%04d", random.nextInt(10000));
@@ -82,8 +88,11 @@ final class PhoneServer {
     synchronized void start() {
         if (thread != null) return;
         try {
-            socket = new ServerSocket(PORT);
+            socket = new ServerSocket();
+            socket.setReuseAddress(true);   // reopening the screen right away must not find the port still taken
+            socket.bind(new java.net.InetSocketAddress(PORT));
         } catch (IOException e) {
+            socket = null;
             Log.w(TAG, "port " + PORT + " is taken", e);
             return;
         }
@@ -97,20 +106,39 @@ final class PhoneServer {
         thread = null;
     }
 
+    /**
+     * Each connection on its own thread: phone browsers open spare connections that send nothing, and one of those
+     * must not hold up the real request behind it (that left the page blank on a phone).
+     */
     private void serve() {
         ServerSocket s = socket;
         while (s != null && !s.isClosed()) {
-            try (Socket c = s.accept()) {
-                // Only phones on the same network: a link- or site-local address, never a public one.
-                InetAddress from = c.getInetAddress();
-                if (!(from.isSiteLocalAddress() || from.isLinkLocalAddress() || from.isLoopbackAddress())) continue;
-                c.setSoTimeout(5000);
-                handle(c);
+            Socket c;
+            try {
+                c = s.accept();
             } catch (IOException e) {
                 if (s.isClosed()) return;
-            } catch (RuntimeException e) {
-                Log.w(TAG, "request failed", e);
+                continue;
             }
+            try {
+                pool.execute(() -> answer(c));
+            } catch (java.util.concurrent.RejectedExecutionException busy) {
+                try { c.close(); } catch (IOException ignored) { }
+            }
+        }
+    }
+
+    private void answer(Socket socket) {
+        try (Socket c = socket) {
+            // Only phones on the same network: a link- or site-local address, never a public one.
+            InetAddress from = c.getInetAddress();
+            if (!(from.isSiteLocalAddress() || from.isLinkLocalAddress() || from.isLoopbackAddress())) return;
+            c.setSoTimeout(10_000);
+            handle(c);
+        } catch (IOException e) {
+            // A spare connection that never sent a request, or a phone that went away.
+        } catch (RuntimeException e) {
+            Log.w(TAG, "request failed", e);
         }
     }
 

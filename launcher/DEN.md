@@ -25,7 +25,12 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   goes online. Open **Fan Hub** on the TV to see the list; OK fetches again.
 - **Phone settings.** While the Fan Hub screen is open on the TV, a phone on the same Wi-Fi can open the address
   it shows, pair with the 4-digit code once, then switch looks and change the teams and shows. The page is gone
-  when you leave that screen; Menu on that screen forgets every paired phone.
+  when you leave that screen; Menu on that screen forgets every paired phone. If the page doesn't load, check the phone
+  isn't on a guest network, and that the router doesn't keep Wi-Fi devices apart ("AP isolation" or "client
+  isolation"); the phone has to reach the TV directly.
+- **One long row.** Every app sits in one row that scrolls sideways, as in the mockup. Hold OK on a tile and
+  choose **Remove from Home** to hide an app; the App library button in the top bar lists every app and puts
+  hidden ones back.
 - **Everything else from cleanyourtv:** dock and grid, D-pad navigation, Inputs and Wi-Fi pills, Launcher
   settings, the remote-button helpers and the safety checks in the install script.
 

@@ -89,6 +89,10 @@ public final class FanHubActivity extends Activity {
     private void showPhone() {
         String at = PhoneServer.address();
         int n = server.pairedPhones();
+        if (!server.running()) {
+            phone.setText("Phone settings couldn't start: port " + PhoneServer.PORT + " is in use. Close Fan Hub and open it again.");
+            return;
+        }
         phone.setText(at == null ? "Phone settings: connect the TV to Wi-Fi first."
                 : "Phone settings: on a phone on this Wi-Fi, open " + at + " and enter " + server.code() + ". It works while this screen is open."
                 + (n > 0 ? " " + n + (n == 1 ? " phone is" : " phones are") + " paired; Menu forgets them." : ""));

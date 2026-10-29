@@ -13,11 +13,15 @@ import java.io.OutputStream;
 /**
  * den-tv: on the first start, copies the den-mix theme bundled in the APK (assets/den/theme: config.json,
  * wallpapers/, captions) to where the launcher reads a pushed theme, so a fresh install has the looks without
- * tools/theme.sh. Only when no theme is there yet: a theme pushed later replaces it as usual.
+ * tools/theme.sh. When no theme is there yet, and again once when den-tv's settings change (VERSION); a theme pushed
+ * later replaces it as usual.
  */
 final class DenTheme {
     private static final String TAG = "DenTheme";
     private static final String ASSET_DIR = "den/theme";
+    /** Raise when themes/den-mix/config.json changes: TVs set up by an older version get the new settings. */
+    static final int VERSION = 2;
+    private static final String KEY_VERSION = "theme_version";
 
     private DenTheme() {}
 
@@ -25,7 +29,8 @@ final class DenTheme {
         File dir = ctx.getExternalFilesDir(null);
         if (dir == null) return;   // storage not mounted yet: the launcher starts with config.xml, we try again next time
         File config = new File(dir, Config.FILE_NAME);
-        if (config.exists()) return;
+        android.content.SharedPreferences den = ctx.getSharedPreferences(DenLooks.PREFS, Context.MODE_PRIVATE);
+        if (config.exists() && den.getInt(KEY_VERSION, 1) >= VERSION) return;
         AssetManager assets = ctx.getAssets();
         try {
             File walls = new File(dir, "wallpapers");
@@ -37,6 +42,7 @@ final class DenTheme {
             }
             // config.json last: an interrupted copy has no config.json, so the next start finishes it.
             copy(assets, ASSET_DIR + "/" + Config.FILE_NAME, config);
+            den.edit().putInt(KEY_VERSION, VERSION).apply();
         } catch (IOException e) {
             Log.w(TAG, "could not set up the den-mix theme", e);
         }
@@ -49,6 +55,7 @@ final class DenTheme {
             int n;
             while ((n = in.read(b)) > 0) out.write(b, 0, n);
         }
+        if (to.exists() && !to.delete()) throw new IOException("could not replace " + to);
         if (!part.renameTo(to)) throw new IOException("could not write " + to);
     }
 }
