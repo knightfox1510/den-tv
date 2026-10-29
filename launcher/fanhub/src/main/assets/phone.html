@@ -563,16 +563,17 @@
   });
 
   // ---- Tweak ----
-  const PART = { watcher: 'Watcher', clock: 'Clock', icons: 'App icons', accent: 'Colour' };
+  const PART = { watcher: 'Watcher', clock: 'Clock', icons: 'App icons', layout: 'Icon layout', focus: 'When you move between apps', wake: 'Wake animation', extras: 'Extras', accent: 'Colour' };
   const nice = (s) => s.replace(/^walk/, 'walking ').replace(/([a-z])([A-Z])/g, '$1 $2');
   async function loadTweak() {
     const o = (await api('/api/override')).json, box = $('ovBox'); box.innerHTML = '';
     if (o.error || !o.lookId) { say($('ovFor'), o.error || 'Pick a single look first: these change the look on Home'); $('ovReset').hidden = true; }
     else {
       $('ovFor').textContent = o.lookName; $('ovReset').hidden = false;
-      ['watcher', 'clock', 'icons'].forEach((k) => {
+      ['watcher', 'clock', 'icons', 'layout', 'focus', 'wake', 'extras'].filter((k) => o[k]).forEach((k) => {
         const lab = el('label', null, PART[k]); const s = el('select'); s.id = 'ov-' + k; lab.htmlFor = s.id;
         const own = el('option', null, 'The look\'s own (' + nice(o[k].look || 'none') + ')'); own.value = ''; s.appendChild(own);
+        if (k === 'focus' && !o[k].choices.includes('none')) { const n = el('option', null, 'none'); n.value = 'none'; s.appendChild(n); }
         o[k].choices.forEach((c) => { const op = el('option', null, nice(c)); op.value = c; s.appendChild(op); });
         s.value = o[k].value || '';
         s.onchange = () => setPart(k, s.value);

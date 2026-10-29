@@ -39,7 +39,7 @@ final class DenLooks {
 
         // Optional parts of the recipe (looks/README.md); empty when the look leaves them to the launcher.
         String clock = "", icons = "", iconLayout = "", hero = "", scene = "", audience = "everyone", moment = "none", extras = "auto",
-                figure = "";
+                figure = "", focus = "";
         boolean hud;
 
         boolean hasEyes() { return EYES.contains(watcher); }
@@ -99,6 +99,7 @@ final class DenLooks {
         l.extras = j.optString("extras", "auto");
         l.figure = j.optString("figure", "");
         l.hud = j.optBoolean("hud", false);
+        l.focus = j.optString("focus", "");
         return l;
     }
 
@@ -134,11 +135,11 @@ final class DenLooks {
         if (raw == null) return look;
         try {
             JSONObject o = new JSONObject(raw);
-            Look t = new Look(look.id, look.name, look.category, o.optString("watcher", look.watcher), look.wake,
+            Look t = new Look(look.id, look.name, look.category, o.optString("watcher", look.watcher), o.optString("wake", look.wake),
                     o.optString("accent", look.accent), look.wallpaper);
             t.clock = o.optString("clock", look.clock);
             t.icons = o.optString("icons", look.icons);
-            t.iconLayout = look.iconLayout;
+            t.iconLayout = o.optString("layout", look.iconLayout);
             t.hero = look.hero;
             t.scene = look.scene;
             t.audience = look.audience;
@@ -146,6 +147,7 @@ final class DenLooks {
             t.extras = o.optString("extras", look.extras);
             t.figure = look.figure;
             t.hud = look.hud;
+            t.focus = o.optString("focus", look.focus);
             return t;
         } catch (JSONException e) {
             return look;

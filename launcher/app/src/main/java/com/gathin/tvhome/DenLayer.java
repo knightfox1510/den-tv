@@ -25,6 +25,7 @@ final class DenLayer {
     private final boolean motion;
     private Watcher eyes;
     private Watcher figure;   // your character, when one is on Home
+    private final List<Watcher> others = new java.util.ArrayList<>();   // focus effects
     private DenLooks.Look look;
     private final DenMoments.Player moments = this::play;
 
@@ -34,13 +35,14 @@ final class DenLayer {
     private final int[] where = new int[2];
 
     private final ViewTreeObserver.OnGlobalFocusChangeListener focus = (old, now) -> {
-        if ((eyes == null && figure == null) || now == null) return;
+        if ((eyes == null && figure == null && others.isEmpty()) || now == null) return;
         now.getLocationOnScreen(where);
         int x = where[0] + now.getWidth() / 2, y = where[1] + now.getHeight() / 2;
-        View v = (View) (eyes != null ? eyes : figure);
+        View v = (View) (eyes != null ? eyes : figure != null ? figure : others.get(0));
         v.getLocationOnScreen(where);
         if (eyes != null) eyes.lookAt(x - where[0], y - where[1], label(now));
         if (figure != null) figure.lookAt(x - where[0], y - where[1], label(now));
+        for (Watcher w : others) w.lookAt(x - where[0], y - where[1], label(now));
     };
 
     private final List<View> covers = new java.util.ArrayList<>();   // the wake's flash and fade, removed when done
@@ -100,6 +102,17 @@ final class DenLayer {
             layer.eyes = (Watcher) watcher;
             layer.content.addView(watcher, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
+        if (look != null) {
+            int accent;
+            try { accent = android.graphics.Color.parseColor(look.accent); } catch (RuntimeException e) { accent = 0xffff4d6d; }
+            DenExtras extras = DenExtras.make(activity, look, motion);
+            if (extras != null) layer.content.addView(extras, 1, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            if (DenFocusFx.draws(look.focus)) {
+                DenFocusFx fx = new DenFocusFx(activity, look.focus, accent, motion);
+                layer.others.add(fx);
+                layer.content.addView(fx, 1, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            }
+        }
         if (DenSettings.facts(activity) && look != null) {
             DenFactsView facts = DenFactsView.make(activity, look, motion);
             if (facts != null) layer.content.addView(facts, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -108,6 +121,11 @@ final class DenLayer {
         DenMoments.attach(layer.moments);
         DenIcons.use(look == null ? "" : look.icons, look == null ? "" : look.accent, look == null ? "" : look.id);
         if (look != null) clock(activity, look);
+        if (look != null) {
+            int accent;
+            try { accent = android.graphics.Color.parseColor(look.accent); } catch (RuntimeException e) { accent = 0xffff4d6d; }
+            DenLayouts.attach(activity.findViewById(R.id.grid), look.iconLayout, accent);
+        }
         layer.content.getViewTreeObserver().addOnGlobalFocusChangeListener(layer.focus);
         layer.content.post(layer::followFocus);
         activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).registerOnSharedPreferenceChangeListener(layer.revision);   // Home may have focused a tile before the watcher was there
@@ -197,6 +215,11 @@ final class DenLayer {
     private void wake() {
         View home = content.getChildAt(0);
         if (home == null) return;
+        if (look != null && !"bloom".equals(look.wake)) {
+            int accent;
+            try { accent = android.graphics.Color.parseColor(look.accent); } catch (RuntimeException e) { accent = 0xffff4d6d; }
+            if (DenWake.play(content, home, look.wake, accent)) return;
+        }
         for (View v : covers) { v.animate().cancel(); content.removeView(v); }
         covers.clear();
         View dark = cover(Color.BLACK, 1f), flash = cover(Color.WHITE, 0.5f);

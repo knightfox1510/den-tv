@@ -182,6 +182,10 @@ public final class DenLooksProvider extends ContentProvider {
         icons.add(0, "tiles");
         c.addRow(new Object[]{"icons", look.icons, o.optString("icons"), String.join(",", icons), look.id, look.name});
         c.addRow(new Object[]{"accent", look.accent, o.optString("accent"), "", look.id, look.name});
+        c.addRow(new Object[]{"layout", look.iconLayout, o.optString("layout"), String.join(",", DenLayouts.LAYOUTS), look.id, look.name});
+        c.addRow(new Object[]{"wake", look.wake, o.optString("wake"), String.join(",", DenWake.STYLES), look.id, look.name});
+        c.addRow(new Object[]{"extras", look.extras, o.optString("extras"), String.join(",", DenExtras.KINDS), look.id, look.name});
+        c.addRow(new Object[]{"focus", look.focus, o.optString("focus"), String.join(",", DenFocusFx.KINDS), look.id, look.name});
         return c;
     }
 
@@ -201,7 +205,7 @@ public final class DenLooksProvider extends ContentProvider {
             return 1;
         }
         String part = v.getAsString("part"), value = v.getAsString("value");
-        if (part == null || !part.matches("watcher|clock|icons|accent")) return 0;
+        if (part == null || !part.matches("watcher|clock|icons|accent|layout|wake|extras|focus")) return 0;
         value = value == null ? "" : value.trim();
         if (part.equals("accent") && !value.isEmpty() && !value.matches("#[0-9a-fA-F]{6}")) return 0;
         if (!part.equals("accent") && !value.matches("[a-z0-9]{0,20}")) return 0;

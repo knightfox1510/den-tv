@@ -144,6 +144,65 @@ public class DenScreensTest {
         }
     }
 
+    @Test public void wakes() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        Bitmap wall = BitmapFactory.decodeFile("../../themes/den-mix/wallpapers/01-camp-nou.jpg");
+        List<String> styles = DenWake.STYLES.subList(1, DenWake.STYLES.size());
+        Bitmap sheet = Bitmap.createBitmap(1920, ((styles.size() + 3) / 4) * 270, Bitmap.Config.ARGB_8888);
+        Canvas sc = new Canvas(sheet);
+        for (int i = 0; i < styles.size(); i++) {
+            Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(b);
+            if (wall != null) c.drawBitmap(wall, null, new android.graphics.Rect(0, 0, 1920, 1080), null);
+            DenWake w = new DenWake(ctx, styles.get(i), 0xff3ddc84);
+            w.frozenAt = 520;
+            layout(w, 1920, 1080);
+            w.draw(c);
+            sc.drawBitmap(b, null, new android.graphics.Rect((i % 4) * 480, (i / 4) * 270, (i % 4) * 480 + 480, (i / 4) * 270 + 270), null);
+        }
+        save(sheet, "wakes");
+    }
+
+    @Test public void layouts() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        List<String> kinds = DenLayouts.LAYOUTS.subList(1, DenLayouts.LAYOUTS.size());
+        Bitmap sheet = Bitmap.createBitmap(1920, kinds.size() * 360, Bitmap.Config.ARGB_8888);
+        Canvas sc = new Canvas(sheet);
+        sc.drawColor(0xff101624);
+        for (int i = 0; i < kinds.size(); i++) {
+            androidx.recyclerview.widget.RecyclerView rv = new androidx.recyclerview.widget.RecyclerView(ctx);
+            rv.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(ctx, androidx.recyclerview.widget.RecyclerView.HORIZONTAL, false));
+            rv.setAdapter(new androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
+                @Override public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup p, int t) {
+                    android.widget.FrameLayout cell = new android.widget.FrameLayout(ctx);
+                    cell.setLayoutParams(new androidx.recyclerview.widget.RecyclerView.LayoutParams(320, 200));
+                    cell.setFocusable(true);
+                    View tile = new View(ctx);
+                    tile.setBackgroundColor(0xffe0e0e8);
+                    cell.addView(tile, new android.widget.FrameLayout.LayoutParams(240, 135, android.view.Gravity.CENTER));
+                    return new androidx.recyclerview.widget.RecyclerView.ViewHolder(cell) { };
+                }
+                @Override public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder h, int pos) {
+                    ((android.widget.FrameLayout) h.itemView).getChildAt(0).setBackgroundColor(pos == 2 ? 0xffff4d6d : 0xffe0e0e8);
+                }
+                @Override public int getItemCount() { return 8; }
+            });
+            DenLayouts.attach(rv, kinds.get(i), 0xffffd23c);
+            android.widget.FrameLayout host = new android.widget.FrameLayout(ctx);
+            host.addView(rv, new android.widget.FrameLayout.LayoutParams(1920, 200, android.view.Gravity.CENTER));
+            layout(host, 1920, 360);
+            rv.getChildAt(2).requestFocus();
+            layout(host, 1920, 360);
+            rv.getViewTreeObserver().dispatchOnGlobalLayout();
+            sc.save();
+            sc.translate(0, i * 360);
+            sc.clipRect(0, 0, 1920, 360);
+            host.draw(sc);
+            sc.restore();
+        }
+        save(sheet, "layouts");
+    }
+
     @Test public void picker() throws IOException {
         DenLooksActivity a = Robolectric.buildActivity(DenLooksActivity.class).setup().get();
         View root = a.getWindow().getDecorView();
