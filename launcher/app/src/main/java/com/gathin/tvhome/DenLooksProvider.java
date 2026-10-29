@@ -44,6 +44,11 @@ public final class DenLooksProvider extends ContentProvider {
         if ("photos".equals(path) && values != null) return photo(values);
         if ("people".equals(path) && values != null) return person(values);
         if ("characters".equals(path) && values != null) return character(values);
+        if ("moment".equals(path) && values != null) {
+            Integer colour = values.getAsInteger("colour");
+            DenMoments.post(values.getAsString("type"), values.getAsString("title"), values.getAsString("line"), colour == null ? 0 : colour);
+            return 1;
+        }
         if (!"current".equals(uri.getLastPathSegment()) || values == null) return 0;
         String id = values.getAsString("look");
         if (id == null) return 0;

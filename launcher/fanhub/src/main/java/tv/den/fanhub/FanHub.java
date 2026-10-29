@@ -46,6 +46,8 @@ final class FanHub {
         final List<Team> teams = new ArrayList<>();
         final List<String> shows = new ArrayList<>();
         String sportsdbKey = "123";
+        /** Free keys for live in-match scores (football-data.org, CricketData.org), kept on the TV only; "" for none. */
+        String footballKey = "", cricketKey = "";
         /** The weekend hike forecast's place, from the phone; null when the forecast is off. */
         Place hike;
 
@@ -90,17 +92,25 @@ final class FanHub {
         final long start, end;
         final int colour;
         final boolean live;
+        /** Our side's goals or runs while live, -1 when unknown; what the moments compare between fetches. */
+        int ours = -1;
+        /** The other side's, for the moment's score line. */
+        String score = "";
 
         Turn(String topLine, String word, long start, long end, int colour, boolean live) {
             this.topLine = topLine; this.word = word; this.start = start; this.end = end; this.colour = colour; this.live = live;
         }
 
+        Turn with(int ours, String score) { this.ours = ours; this.score = score; return this; }
+
         JSONObject json() throws JSONException {
-            return new JSONObject().put("top", topLine).put("word", word).put("start", start).put("end", end).put("colour", colour).put("live", live);
+            return new JSONObject().put("top", topLine).put("word", word).put("start", start).put("end", end).put("colour", colour).put("live", live)
+                    .put("ours", ours).put("score", score);
         }
 
         static Turn of(JSONObject j) {
-            return new Turn(j.optString("top"), j.optString("word"), j.optLong("start"), j.optLong("end"), j.optInt("colour"), j.optBoolean("live"));
+            return new Turn(j.optString("top"), j.optString("word"), j.optLong("start"), j.optLong("end"), j.optInt("colour"), j.optBoolean("live"))
+                    .with(j.optInt("ours", -1), j.optString("score"));
         }
     }
 
@@ -222,7 +232,85 @@ final class FanHub {
             } else {
                 top = matchLine(home, away, league);
             }
-            return new Turn(top, "football".equals(team.sport) ? "Kick-off" : "First ball", start, end, team.colour, live);
+            int ours = -1;
+            if (live) {
+                boolean mineHome = same(team.name, home);
+                String mine = e.optString(mineHome ? "intHomeScore" : "intAwayScore");
+                try { ours = Integer.parseInt(mine.replaceAll("[^0-9].*$", "")); } catch (NumberFormatException ignored) { }
+            }
+            return new Turn(top, "football".equals(team.sport) ? "Kick-off" : "First ball", start, end, team.colour, live).with(ours, top);
+        }
+        return null;
+    }
+
+    // ---- live scores with keys -----------------------------------------------------------------------------------
+
+    /** "FC Barcelona" and "Barcelona", "India" and "India Women" are told apart; "Barça" too. */
+    static boolean same(String ours, String theirs) {
+        String a = norm(ours), b = norm(theirs);
+        return !a.isEmpty() && (a.equals(b) || b.startsWith(a + " ") && !b.contains(" women") || a.startsWith(b + " "));
+    }
+
+    private static String norm(String n) {
+        return clean(n).toLowerCase(Locale.ROOT).replace("barça", "barcelona").replaceAll("^(fc|cf|afc) | (fc|cf|afc)$", "").replaceAll(" cricket$", "").trim();
+    }
+
+    /** The team's match from football-data.org's live list, with the score; null when it isn't playing. */
+    static Turn liveFootball(Team team, JSONObject fd, long now) {
+        JSONArray m = fd == null ? null : fd.optJSONArray("matches");
+        if (m == null) return null;
+        for (int i = 0; i < m.length(); i++) {
+            JSONObject x = m.optJSONObject(i);
+            if (x == null) continue;
+            JSONObject h = x.optJSONObject("homeTeam"), a = x.optJSONObject("awayTeam");
+            String hn = h == null ? "" : h.optString("name"), an = a == null ? "" : a.optString("name");
+            boolean home = same(team.name, hn) || h != null && same(team.name, h.optString("shortName"));
+            boolean away = same(team.name, an) || a != null && same(team.name, a.optString("shortName"));
+            if (!home && !away) continue;
+            JSONObject ft = x.optJSONObject("score") == null ? null : x.optJSONObject("score").optJSONObject("fullTime");
+            int hs = ft == null || ft.isNull("home") ? 0 : ft.optInt("home"), as = ft == null || ft.isNull("away") ? 0 : ft.optInt("away");
+            String min = "PAUSED".equals(x.optString("status")) ? " \u00B7 HT" : x.has("minute") && !x.isNull("minute") ? " \u00B7 " + x.optString("minute") + "'" : "";
+            String hsn = shortName(h == null ? "" : h.optString("shortName", hn)), asn = shortName(a == null ? "" : a.optString("shortName", an));
+            String line = hsn + " " + hs + "\u2013" + as + " " + asn;
+            long start = now;
+            try { start = Instant.parse(x.optString("utcDate")).toEpochMilli(); } catch (RuntimeException ignored) { }
+            return new Turn(line + min, "Kick-off", start, Math.max(start + 2 * HOUR, now + 15 * MIN), team.colour, true)
+                    .with(home ? hs : as, line);
+        }
+        return null;
+    }
+
+    /** The team's match from CricketData.org's current list, with the latest innings; null when it isn't playing. */
+    static Turn liveCricket(Team team, JSONObject cd, long now) {
+        JSONArray m = cd == null ? null : cd.optJSONArray("data");
+        if (m == null) return null;
+        for (int i = 0; i < m.length(); i++) {
+            JSONObject x = m.optJSONObject(i);
+            if (x == null || !x.optBoolean("matchStarted") || x.optBoolean("matchEnded")) continue;
+            JSONArray teams = x.optJSONArray("teams");
+            String mine = null, other = null;
+            if (teams != null) for (int k = 0; k < teams.length(); k++) {
+                if (same(team.name, teams.optString(k))) mine = teams.optString(k); else other = teams.optString(k);
+            }
+            if (mine == null) continue;
+            JSONArray sc = x.optJSONArray("score");
+            int ours = -1;
+            StringBuilder line = new StringBuilder();
+            if (sc != null) for (int k = 0; k < sc.length(); k++) {
+                JSONObject in = sc.optJSONObject(k);
+                if (in == null) continue;
+                String inning = in.optString("inning");
+                String who = inning.replaceAll("(?i) inning.*$", "");
+                if (same(mine, who)) ours = in.optInt("r");
+                if (line.length() > 0) line.append(" \u00B7 ");
+                line.append(shortName(who)).append(' ').append(in.optInt("r")).append('/').append(in.optInt("w")).append(" (").append(in.optString("o")).append(')');
+            }
+            if (line.length() == 0) line.append(shortName(mine)).append(" v ").append(shortName(other == null ? "" : other));
+            long start = now;
+            try { start = Instant.parse(x.optString("dateTimeGMT").replaceAll("Z?$", "Z")).toEpochMilli(); } catch (RuntimeException ignored) { }
+            String top = line.toString().toUpperCase(Locale.ROOT);
+            return new Turn(top, "First ball", start, Math.max(start + length("cricket", x.optString("matchType")), now + 15 * MIN), team.colour, true)
+                    .with(ours, top);
         }
         return null;
     }
@@ -266,7 +354,12 @@ final class FanHub {
     }
 
     private static JSONObject request(String url, String body) throws IOException, JSONException {
+        return request(url, body, null, null);
+    }
+
+    private static JSONObject request(String url, String body, String header, String value) throws IOException, JSONException {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        if (header != null) c.setRequestProperty(header, value);
         c.setConnectTimeout(TIMEOUT_MS);
         c.setReadTimeout(TIMEOUT_MS);
         c.setRequestProperty("Accept", "application/json");
@@ -299,7 +392,21 @@ final class FanHub {
      * rate limit or a dropped connection never empties the panel.
      */
     static List<Turn> fetch(Config cfg, long now, Map<String, List<Turn>> prev, Map<String, List<Turn>> out, List<String> errors) {
+        // Live in-match scores first, when there are keys: one call each covers every followed team.
+        JSONObject fd = null, cd = null;
+        if (!cfg.footballKey.isEmpty()) {
+            try { fd = request("https://api.football-data.org/v4/matches?status=IN_PLAY,PAUSED", null, "X-Auth-Token", cfg.footballKey); }
+            catch (IOException | JSONException e) { errors.add("football-data.org: " + e.getMessage()); }
+        }
+        if (!cfg.cricketKey.isEmpty()) {
+            try {
+                cd = get("https://api.cricapi.com/v1/currentMatches?offset=0&apikey=" + URLEncoder.encode(cfg.cricketKey, "UTF-8"));
+                if (!"success".equals(cd.optString("status", "success"))) { errors.add("CricketData.org: " + cd.optString("reason", "refused")); cd = null; }
+            } catch (IOException | JSONException e) { errors.add("CricketData.org: " + e.getMessage()); }
+        }
         for (Team t : cfg.teams) {
+            Turn live = "football".equals(t.sport) ? liveFootball(t, fd, now) : liveCricket(t, cd, now);
+            if (live != null) { out.put("team:" + t.sportsdb, Collections.singletonList(live)); continue; }
             String key = "team:" + t.sportsdb;
             try {
                 JSONObject next = get("https://www.thesportsdb.com/api/v1/json/" + URLEncoder.encode(cfg.sportsdbKey, "UTF-8")

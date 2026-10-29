@@ -25,6 +25,8 @@ final class DenLayer {
     private final boolean motion;
     private Watcher eyes;
     private Watcher figure;   // your character, when one is on Home
+    private DenLooks.Look look;
+    private final DenMoments.Player moments = this::play;
 
     /** What follows the focused tile: DenEyesView or DenWatcherView. x, y in screen pixels; label is the tile's name. */
     interface Watcher { void lookAt(float x, float y, String label); }
@@ -102,6 +104,8 @@ final class DenLayer {
             DenFactsView facts = DenFactsView.make(activity, look, motion);
             if (facts != null) layer.content.addView(facts, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
+        layer.look = look;
+        DenMoments.attach(layer.moments);
         DenIcons.use(look == null ? "" : look.icons, look == null ? "" : look.accent, look == null ? "" : look.id);
         if (look != null) clock(activity, look);
         layer.content.getViewTreeObserver().addOnGlobalFocusChangeListener(layer.focus);
@@ -126,6 +130,22 @@ final class DenLayer {
         lp.gravity = android.view.Gravity.BOTTOM;
         row.addView(styled, row.indexOfChild(clock), lp);
         clock.setVisibility(View.GONE);
+    }
+
+    /**
+     * Plays a moment over Home; false when Home isn't in front (it waits for later). A goal plays the look's own
+     * moment when it has a special one (the beam, arise, the punch, Gear 5).
+     */
+    private boolean play(String type, String title, String line, int colour) {
+        if (activity.isFinishing() || !activity.hasWindowFocus()) return false;
+        String t = type;
+        if ("goal".equals(type) && look != null && java.util.Arrays.asList("beam", "arise", "punch", "gear5").contains(look.moment)) {
+            t = look.moment;
+            title = java.util.Map.of("beam", "Kamehameha!", "arise", "Arise", "punch", "One punch", "gear5", "Gear 5").get(t);
+        }
+        DenMomentView v = new DenMomentView(activity, t, title, line, colour, motion);
+        content.addView(v, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        return true;
     }
 
     /** A tile's name for the watchers that show it: its description, else the first text inside it. */
@@ -153,6 +173,8 @@ final class DenLayer {
 
     void onResume() {
         content.post(this::followFocus);
+        DenMoments.attach(moments);
+        content.post(DenMoments::replay);
         DenSettings.offerSetupOnce(activity);
         if (!wakePending) return;
         wakePending = false;
@@ -160,6 +182,7 @@ final class DenLayer {
     }
 
     void onDestroy() {
+        DenMoments.detach(moments);
         content.removeCallbacks(rebuild);
         activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(revision);
         content.getViewTreeObserver().removeOnGlobalFocusChangeListener(focus);

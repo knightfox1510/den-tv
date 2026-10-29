@@ -125,6 +125,25 @@ public class DenScreensTest {
         save(b, "facts-figure");
     }
 
+    @Test public void moments() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        Bitmap wall = BitmapFactory.decodeFile("../../themes/den-mix/wallpapers/01-camp-nou.jpg");
+        String[][] m = {{"goal", "Goal!", "BAR 2\u20131 RMA \u00B7 67'", "1100"}, {"six", "100 up", "IND 100/2 (11.4)", "1800"},
+                {"beam", "Kamehameha!", "BAR 2\u20131 RMA", "1700"}, {"arise", "Arise", "BAR 2\u20131 RMA", "1900"},
+                {"punch", "One punch", "BAR 2\u20131 RMA", "1300"}, {"gear5", "Gear 5", "BAR 2\u20131 RMA", "1500"},
+                {"drop", "New episode", "ONE PIECE \u00B7 EPISODE 1181", "900"}};
+        for (String[] x : m) {
+            Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(b);
+            if (wall != null) c.drawBitmap(wall, null, new android.graphics.Rect(0, 0, 1920, 1080), null);
+            DenMomentView v = new DenMomentView(ctx, x[0], x[1], x[2], 0xffa50044, true);
+            v.frozenAt = Long.parseLong(x[3]);
+            layout(v, 1920, 1080);
+            v.draw(c);
+            save(b, "moment-" + x[0]);
+        }
+    }
+
     @Test public void picker() throws IOException {
         DenLooksActivity a = Robolectric.buildActivity(DenLooksActivity.class).setup().get();
         View root = a.getWindow().getDecorView();

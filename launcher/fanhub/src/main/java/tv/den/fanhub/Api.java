@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -85,6 +85,8 @@ final class Api {
             case "/api/people": return in.length() == 0 ? people() : person(in);
             case "/api/characters": return in.length() == 0 ? characters() : characterAction(in);
             case "/api/hike": return in.length() == 0 ? Store.hike(ctx) : Store.setHike(ctx, in);
+            case "/api/live": return in.length() == 0 ? Store.live(ctx) : in.optBoolean("refresh") ? refreshNow() : Store.setLive(ctx, in);
+            case "/api/moment": return testMoment(in.optString("type"));
             default: return new JSONObject().put("error", "not found");
         }
     }
@@ -543,6 +545,26 @@ final class Api {
         } catch (IOException | RuntimeException e) {
             return null;
         }
+    }
+
+    // ---- live data and moments -----------------------------------------------------------------------------------
+
+    private JSONObject refreshNow() throws JSONException {
+        Store.refresh(ctx, true);
+        return Store.live(ctx).put("ok", true);
+    }
+
+    /** Plays a moment on Home to try it out. */
+    private JSONObject testMoment(String type) throws JSONException {
+        String[][] samples = {{"goal", "Goal!", "BAR 2\u20131 RMA \u00B7 67'", "-5963708"}, {"six", "100 up", "IND 100/2 (11.4)", "-14721071"},
+                {"drop", "New episode", "ONE PIECE \u00B7 EPISODE 1181", "-34304"}, {"beam", "Kamehameha!", "Goal for your team", "-11534"},
+                {"arise", "Arise", "Goal for your team", "-8758785"}, {"punch", "One punch", "Goal for your team", "-11476"},
+                {"gear5", "Gear 5", "Goal for your team", "-1"}};
+        for (String[] x : samples) {
+            if (!x[0].equals(type)) continue;
+            return Moments.play(ctx, x[0], x[1], x[2], Integer.parseInt(x[3])) ? ok(true) : fail("Update the den-tv launcher to play moments.");
+        }
+        return fail("Unknown moment");
     }
 
     // ---- paired phones -------------------------------------------------------------------------------------------

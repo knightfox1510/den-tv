@@ -88,7 +88,9 @@ final class Store {
                 if (!force && now - fetchedAt(app) < FanHub.refreshAfter(turns(app), now)) return;
                 Map<String, List<FanHub.Turn>> by = new HashMap<>();
                 List<String> errors = new ArrayList<>();
-                List<FanHub.Turn> all = FanHub.fetch(config(app), now, bySource(app), by, errors);
+                Map<String, List<FanHub.Turn>> before = bySource(app);
+                List<FanHub.Turn> all = FanHub.fetch(config(app), now, before, by, errors);
+                Moments.compare(app, before, by, now);
                 JSONObject j = new JSONObject();
                 for (Map.Entry<String, List<FanHub.Turn>> e : by.entrySet()) {
                     JSONArray a = new JSONArray();
@@ -114,7 +116,29 @@ final class Store {
         FanHub.Config c = readConfig(ctx);
         SharedPreferences p = prefs(ctx);
         if (p.getBoolean("hike_on", false)) c.hike = FanHub.place(p.getString("hike_place", "rajmachi"));
+        c.footballKey = p.getString("key_football", "");
+        c.cricketKey = p.getString("key_cricket", "");
         return c;
+    }
+
+    /** Whether each key is set (never the keys themselves), when the last fetch was, and what failed. */
+    static org.json.JSONObject live(Context ctx) throws JSONException {
+        SharedPreferences p = prefs(ctx);
+        return new org.json.JSONObject().put("football", !p.getString("key_football", "").isEmpty()).put("cricket", !p.getString("key_cricket", "").isEmpty())
+                .put("fetched", fetchedAt(ctx)).put("errors", errors(ctx));
+    }
+
+    /** Saves a key ("" removes it) and fetches again. */
+    static org.json.JSONObject setLive(Context ctx, org.json.JSONObject in) throws JSONException {
+        SharedPreferences.Editor e = prefs(ctx).edit();
+        for (String k : new String[]{"football", "cricket"}) {
+            if (!in.has(k)) continue;
+            String v = in.optString(k).trim();
+            if (v.isEmpty()) e.remove("key_" + k); else if (v.matches("[A-Za-z0-9-]{8,80}")) e.putString("key_" + k, v);
+        }
+        e.apply();
+        refresh(ctx, true);
+        return live(ctx).put("ok", true);
     }
 
     static org.json.JSONObject hike(Context ctx) throws JSONException {

@@ -38,7 +38,9 @@ final class DenLooks {
         }
 
         // Optional parts of the recipe (looks/README.md); empty when the look leaves them to the launcher.
-        String clock = "", icons = "", iconLayout = "", hero = "", scene = "", audience = "everyone";
+        String clock = "", icons = "", iconLayout = "", hero = "", scene = "", audience = "everyone", moment = "none", extras = "auto",
+                figure = "";
+        boolean hud;
 
         boolean hasEyes() { return EYES.contains(watcher); }
     }
@@ -93,6 +95,10 @@ final class DenLooks {
         l.hero = j.optString("hero", "");
         l.scene = j.optString("scene", "");
         l.audience = j.optString("for", "everyone");
+        l.moment = j.optString("moment", "none");
+        l.extras = j.optString("extras", "auto");
+        l.figure = j.optString("figure", "");
+        l.hud = j.optBoolean("hud", false);
         return l;
     }
 
@@ -136,6 +142,10 @@ final class DenLooks {
             t.hero = look.hero;
             t.scene = look.scene;
             t.audience = look.audience;
+            t.moment = look.moment;
+            t.extras = o.optString("extras", look.extras);
+            t.figure = look.figure;
+            t.hud = look.hud;
             return t;
         } catch (JSONException e) {
             return look;

@@ -159,4 +159,28 @@ public class FanHubTest {
         long tue = java.time.ZonedDateTime.of(2026, 11, 3, 18, 0, 0, 0, java.time.ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli();
         assertNull(FanHub.hikeTurn("Rajmachi", r, tue));
     }
+
+    @Test public void momentsFromOneFetchToTheNext() {
+        long now = KICKOFF + 3_600_000L;
+        java.util.function.BiFunction<Integer, String, List<FanHub.Turn>> f = (ours, word) ->
+                Collections.singletonList(new FanHub.Turn("x", word, KICKOFF, KICKOFF + 7_200_000L, 0, true).with(ours, "BAR " + ours + "\u20131 RMA"));
+        assertEquals("goal", Moments.find("team:1", f.apply(1, "Kick-off"), f.apply(2, "Kick-off"), now)[0]);
+        assertNull(Moments.find("team:1", f.apply(2, "Kick-off"), f.apply(2, "Kick-off"), now));
+        assertNull(Moments.find("team:1", null, f.apply(2, "Kick-off"), now));   // first sight of a live match: no moment
+        assertEquals("six", Moments.find("team:2", f.apply(96, "First ball"), f.apply(104, "First ball"), now)[0]);
+        assertNull(Moments.find("team:2", f.apply(104, "First ball"), f.apply(131, "First ball"), now));
+        List<FanHub.Turn> ep = Collections.singletonList(new FanHub.Turn("ONE PIECE", "New episode", now - 60_000L, now + 1_740_000L, 0, false));
+        assertEquals("drop", Moments.find("show:One Piece", null, ep, now)[0]);
+    }
+
+    @Test public void liveFootballFindsTheTeam() throws Exception {
+        JSONObject fd = new JSONObject("{\"matches\":[{\"utcDate\":\"2026-10-31T20:00:00Z\",\"status\":\"IN_PLAY\",\"minute\":67,"
+                + "\"homeTeam\":{\"name\":\"FC Barcelona\",\"shortName\":\"Barça\"},\"awayTeam\":{\"name\":\"Real Madrid CF\",\"shortName\":\"Real Madrid\"},"
+                + "\"score\":{\"fullTime\":{\"home\":2,\"away\":1}}}]}");
+        FanHub.Turn t = FanHub.liveFootball(BARCA, fd, KICKOFF);
+        assertNotNull(t);
+        assertEquals(2, t.ours);
+        assertEquals("BAR 2\u20131 RMA \u00B7 67'", t.topLine);
+        assertNull(FanHub.liveFootball(new FanHub.Team("India", "cricket", "1", 0), fd, KICKOFF));
+    }
 }

@@ -252,6 +252,15 @@
       <button id="speedGo">Run a speed test</button>
       <div id="netMsg" class="msg" role="status"></div>
     </div></details>
+    <details class="card" id="liveCard"><summary><span><b>Live data</b><small id="liveSum">Scores, episodes, moments</small></span></summary><div class="in">
+      <p>Without keys, scores arrive when a match ends. Free keys bring live scores during play, and the goal, six and new-episode moments on Home. Keys stay on the TV.</p>
+      <label for="kFootball">football-data.org key <small id="kfSet"></small></label><input id="kFootball" type="password" autocomplete="off" placeholder="Paste a key">
+      <label for="kCricket">CricketData.org key <small id="kcSet"></small></label><input id="kCricket" type="password" autocomplete="off" placeholder="Paste a key">
+      <div class="row"><button id="saveKeys">Save keys</button><button id="liveRefresh" class="ghost">Fetch now</button></div>
+      <div id="liveMsg" class="msg" role="status"></div>
+      <label>Try a moment on Home</label>
+      <div class="chips" id="momentChips"></div>
+    </div></details>
     <details class="card"><summary><span><b>Memory</b><small id="memSum"></small></span></summary><div class="in">
       <div class="meter"><i id="memBar"></i></div>
       <button id="cleanGo">Close background apps</button>
@@ -709,6 +718,25 @@
       b.onclick = async () => { if (!confirm('Unpair ' + p.name + '?')) return; await api('/api/phones', { forget: p.id }); if (!p.me) loadTv(); };
       row.appendChild(span); row.appendChild(b); pb.appendChild(row); });
   }
+  $('liveCard').addEventListener('toggle', async () => { if ($('liveCard').open) loadLive(); });
+  async function loadLive() {
+    const l = (await api('/api/live')).json;
+    $('kfSet').textContent = l.football ? '· set' : ''; $('kcSet').textContent = l.cricket ? '· set' : '';
+    $('liveSum').textContent = (l.football || l.cricket ? 'Live scores on' : 'No keys yet') + (l.fetched ? ' · updated ' + new Date(l.fetched).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '');
+    say($('liveMsg'), l.errors ? 'Last fetch: ' + l.errors.replace(/\n/g, '; ') : '', !!l.errors);
+    const mc = $('momentChips'); mc.innerHTML = '';
+    [['goal', 'Goal'], ['six', 'Six'], ['drop', 'New episode'], ['beam', 'Kamehameha'], ['arise', 'Arise'], ['punch', 'One punch'], ['gear5', 'Gear 5']].forEach(([k, n]) => {
+      const b = el('button', 'chip', n); b.type = 'button';
+      b.onclick = async () => { const r = await api('/api/moment', { type: k }); say($('liveMsg'), r.json.ok ? 'Playing on Home (if Home is on screen).' : (r.json.error || 'Couldn\'t.'), !r.json.ok); };
+      mc.appendChild(b);
+    });
+  }
+  $('saveKeys').addEventListener('click', async () => {
+    const body = {}; if ($('kFootball').value.trim()) body.football = $('kFootball').value.trim(); if ($('kCricket').value.trim()) body.cricket = $('kCricket').value.trim();
+    if (!Object.keys(body).length) { say($('liveMsg'), 'Paste a key first.', true); return; }
+    await api('/api/live', body); $('kFootball').value = ''; $('kCricket').value = ''; say($('liveMsg'), 'Saved. Fetching…'); setTimeout(loadLive, 4000);
+  });
+  $('liveRefresh').addEventListener('click', async () => { await api('/api/live', { refresh: true }); say($('liveMsg'), 'Fetching…'); setTimeout(loadLive, 4000); });
   $('qCap').addEventListener('input', () => { $('qCapV').textContent = $('qCap').value; });
   $('saveQuiet').addEventListener('click', async () => { const r = await api('/api/timers', { quiet: { on: $('quietOn').checked, from: $('qFrom').value, to: $('qTo').value, cap: +$('qCap').value } }); say($('quietMsg'), r.json.ok ? 'Saved.' : 'Couldn\'t save.', !r.json.ok); loadTv(); });
   $('speedGo').addEventListener('click', async () => {
