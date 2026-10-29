@@ -12,8 +12,8 @@ android {
         applicationId 'tv.den.fanhub'
         minSdk 26
         targetSdk 34
-        versionCode 2
-        versionName '0.2.1'
+        versionCode 3
+        versionName '0.2.2'
     }
 
     def denKeystore = System.getenv('DEN_KEYSTORE')
@@ -50,6 +50,8 @@ android {
 }
 
 dependencies {
+    // The QR code on the Fan Hub screen, so a phone opens the settings page without typing the address.
+    implementation 'com.google.zxing:core:3.5.3'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.json:json:20231013'
     // The phone page's server, run against real sockets (PhoneServerTest); not part of the APK.

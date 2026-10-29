@@ -32,7 +32,7 @@ public class FanHubTest {
                 + "\"strTimestamp\":\"" + ts(KICKOFF) + "\",\"strStatus\":\"Not Started\",\"intHomeScore\":null}");
         FanHub.Turn t = FanHub.nextMatch(BARCA, next, KICKOFF - 3_600_000L);
         assertNotNull(t);
-        assertEquals("BARÇA V REAL MADRID · SPANISH LA LIGA", t.topLine);
+        assertEquals("BARÇA V REAL MADRID · LA LIGA", t.topLine);
         assertEquals("Kick-off", t.word);
         assertEquals(KICKOFF, t.start);
         assertEquals(KICKOFF + 2 * 3_600_000L, t.end);
@@ -115,5 +115,11 @@ public class FanHubTest {
         assertEquals(new ArrayList<>(Collections.singletonList("Naruto")), c.shows);
         assertEquals("123", c.sportsdbKey);
         assertEquals(3, FanHub.Config.from(new JSONObject("{}")).teams.size());
+    }
+
+    @Test public void longLinesUseShortNames() {
+        assertEquals("NEW ZEALAND V INDIA \u00B7 T20I", FanHub.matchLine(FanHub.team("New Zealand Cricket"), FanHub.team("India Cricket"), "Twenty20 International Series"));
+        assertEquals("BARÇA V DEPORTIVO ALAVÉS \u00B7 LA LIGA", FanHub.matchLine("Barcelona", "Deportivo Alavés", "Spanish La Liga"));
+        assertEquals("MI V CSK \u00B7 IPL", FanHub.matchLine("Mumbai Indians", "Chennai Super Kings", "Indian Premier League"));
     }
 }

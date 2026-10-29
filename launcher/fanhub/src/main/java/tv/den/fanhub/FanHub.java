@@ -109,7 +109,7 @@ final class FanHub {
     private static final Map<String, String> SHORT = new HashMap<>();
     static {
         String[][] s = {{"Barcelona", "BAR"}, {"FC Barcelona", "BAR"}, {"Barça", "BAR"}, {"Real Madrid", "RMA"}, {"Atlético Madrid", "ATM"},
-                {"Atletico Madrid", "ATM"}, {"Sevilla", "SEV"}, {"Villarreal", "VIL"}, {"Real Sociedad", "RSO"}, {"Athletic Bilbao", "ATH"},
+                {"Atletico Madrid", "ATM"}, {"Sevilla", "SEV"}, {"Villarreal", "VIL"}, {"Real Sociedad", "RSO"}, {"Athletic Bilbao", "ATH"}, {"Deportivo Alavés", "ALA"}, {"Alavés", "ALA"}, {"Real Betis", "BET"}, {"Celta Vigo", "CEL"},
                 {"India", "IND"}, {"Australia", "AUS"}, {"England", "ENG"}, {"Pakistan", "PAK"}, {"South Africa", "SA"}, {"New Zealand", "NZ"},
                 {"Sri Lanka", "SL"}, {"Bangladesh", "BAN"}, {"West Indies", "WI"}, {"Afghanistan", "AFG"}, {"Mumbai Indians", "MI"},
                 {"Chennai Super Kings", "CSK"}, {"Royal Challengers Bengaluru", "RCB"}, {"Royal Challengers Bangalore", "RCB"},
@@ -131,6 +131,27 @@ final class FanHub {
             return b.toString().toUpperCase(Locale.ROOT);
         }
         return (c.length() > 3 ? c.substring(0, 3) : c).toUpperCase(Locale.ROOT);
+    }
+
+    /** TheSportsDB's cricket sides end in " Cricket" ("New Zealand Cricket"); the name alone reads better. */
+    static String team(String n) {
+        return clean(n).replaceAll("(?i) cricket$", "");
+    }
+
+    /** "Twenty20 International Series" -> "T20I", "Spanish La Liga" -> "La Liga": the panel has one short line. */
+    static String league(String l) {
+        String s = clean(l);
+        if (s.equalsIgnoreCase("Indian Premier League")) return "IPL";
+        return s.replaceAll("(?i)twenty20 international", "T20I").replaceAll("(?i)one day international", "ODI")
+                .replaceAll("(?i)^(spanish|english|italian|german|french) ", "").replaceAll("(?i) series$", "");
+    }
+
+    /** "BARÇA v DEPORTIVO ALAVÉS · LA LIGA", or with short names ("NZ v IND · T20I") when that runs long. */
+    static String matchLine(String home, String away, String leagueName) {
+        String lg = league(leagueName), tail = lg.isEmpty() ? "" : " \u00B7 " + lg;
+        String full = display(home) + " v " + display(away) + tail;
+        String line = full.length() <= 34 ? full : shortName(home) + " v " + shortName(away) + tail;
+        return line.toUpperCase(Locale.ROOT);
     }
 
     static String display(String n) {
@@ -187,7 +208,7 @@ final class FanHub {
             String league = e.optString("strLeague", "");
             long end = start + length(team.sport, league);
             if (end <= now) continue;
-            String home = clean(e.optString("strHomeTeam")), away = clean(e.optString("strAwayTeam"));
+            String home = team(e.optString("strHomeTeam")), away = team(e.optString("strAwayTeam"));
             boolean scored = has(e, "intHomeScore");
             boolean live = start <= now && scored;
             String top;
@@ -197,7 +218,7 @@ final class FanHub {
             } else if (live) {
                 top = shortName(home) + " " + e.optString("intHomeScore") + (has(e, "intAwayScore") ? " · " + shortName(away) + " " + e.optString("intAwayScore") : "");
             } else {
-                top = (display(home) + " v " + display(away)).toUpperCase(Locale.ROOT) + (league.isEmpty() ? "" : " · " + league.toUpperCase(Locale.ROOT));
+                top = matchLine(home, away, league);
             }
             return new Turn(top, "football".equals(team.sport) ? "Kick-off" : "First ball", start, end, team.colour, live);
         }

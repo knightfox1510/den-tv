@@ -93,4 +93,16 @@ public class PhoneServerTest {
         for (int i = 0; i < 5; i++) call("POST", "/api/pair", "{\"code\":\"" + wrong + "\"}", null);
         assertTrue(!first.equals(server.code()) || first.equals(wrong));
     }
+
+    /** Wi-Fi Direct's 192.168.49.1 (casting) was shown instead of the TV's home address; a phone can't reach it. */
+    @Test public void addressSkipsWifiDirect() {
+        java.util.Map<String, String> found = new java.util.LinkedHashMap<>();
+        found.put("p2p0", "192.168.49.1");
+        found.put("wlan0", "192.168.1.23");
+        assertEquals("192.168.1.23", PhoneServer.choose(found));
+        found.remove("wlan0");
+        assertEquals(null, PhoneServer.choose(found));
+        found.put("eth0", "10.0.0.5");
+        assertEquals("10.0.0.5", PhoneServer.choose(found));
+    }
 }

@@ -1,39 +1,29 @@
 package com.gathin.tvhome;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.util.LruCache;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.FrameLayout;
 
 import java.util.List;
 import java.util.Locale;
 
 /**
- * den-tv app icon styles (looks/README.md, "icons"): each Home tile drawn as the mockup's iconInner draws it, with
- * the app's own icon where the mockup has a logo. The look sets the style once (DenLayer); AppAdapter calls
- * style() for every tile it binds. "tiles", an empty or unknown style leave the tile as the launcher draws it.
+ * den-tv app icon styles (looks/README.md, "icons"). Each Home tile keeps the app's own banner, which fills the
+ * card the way TV apps are designed to be shown, and the look's style is a frame drawn over it: glass sheen, neon
+ * edge, Wanted poster border, Dragon Ball stars and so on. The look sets the style once (DenLayer); AppAdapter
+ * calls style() for every tile it binds. "tiles", an empty or unknown style leave the tile as the launcher draws it.
  */
 final class DenIcons {
     static final List<String> STYLES = List.of("white", "dball", "wanted", "manga", "neon", "patch", "pin", "score",
@@ -42,7 +32,6 @@ final class DenIcons {
     private static String style = "";
     private static int accent = 0xffff4d6d;
     private static boolean albiceleste;
-    private static final LruCache<ComponentName, Drawable> ICONS = new LruCache<>(48);
 
     private DenIcons() {}
 
@@ -55,128 +44,164 @@ final class DenIcons {
 
     static boolean active() { return !style.isEmpty(); }
 
-    /** Restyles one bound tile. Leaves it alone when no style is on, so AppAdapter's own drawing stands. */
-    static void style(Context ctx, View card, ImageView banner, ImageView icon, TextView label, ComponentName component,
-                      String name, int position) {
-        if (style.isEmpty() || component == null) return;
-        Drawable app = ICONS.get(component);
-        if (app == null) {
-            try { app = ctx.getPackageManager().getActivityIcon(component); } catch (PackageManager.NameNotFoundException e) { app = null; }
-            if (app != null) ICONS.put(component, app);
-        }
-        card.setBackground(new Tile(style, app, name, position, accent, albiceleste));
-        banner.setImageDrawable(null);
-        banner.setVisibility(View.GONE);
-        icon.setVisibility(View.GONE);
-        label.setVisibility(View.GONE);
+    /** Frames one bound tile; with no style on, takes any frame off so a recycled tile is plain again. */
+    static void style(Context ctx, View card, String name, int position) {
+        if (!(card instanceof FrameLayout)) return;
+        float density = ctx.getResources().getDisplayMetrics().density;
+        ((FrameLayout) card).setForeground(style.isEmpty() ? null : new Frame(style, name, position, accent, albiceleste, density));
     }
 
-    /** The styled tile, drawn in the mockup's 100x100 (or 100x134 for posters) box, centred in the card. */
-    static final class Tile extends Drawable {
+    /** The style's frame over the whole card; the card's outline clips it to the tile's rounded corners. */
+    static final class Frame extends Drawable {
         private final String style, name;
-        private final Drawable app;
         private final int index, accent;
         private final boolean albiceleste;
+        private final float dp;
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint t = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final RectF r = new RectF();
         private final Path path = new Path();
-        private Bitmap pixels;
 
-        Tile(String style, Drawable app, String name, int index, int accent, boolean albiceleste) {
-            this.style = style; this.app = app; this.name = name == null ? "" : name; this.index = index;
-            this.accent = accent; this.albiceleste = albiceleste;
+        Frame(String style, String name, int index, int accent, boolean albiceleste, float density) {
+            this.style = style; this.name = name == null ? "" : name; this.index = index; this.accent = accent;
+            this.albiceleste = albiceleste; this.dp = density;
             t.setTextAlign(Paint.Align.CENTER);
         }
 
+        private void fill(int colour) { p.setShader(null); p.setStyle(Paint.Style.FILL); p.setColor(colour); p.clearShadowLayer(); }
+        private void stroke(int colour, float w) { p.setShader(null); p.setStyle(Paint.Style.STROKE); p.setStrokeWidth(w); p.setColor(colour); p.clearShadowLayer(); }
+
         @Override public void draw(Canvas c) {
             Rect b = getBounds();
-            boolean poster = style.equals("wanted");
-            float boxH = b.height() * 0.94f, boxW = poster ? boxH * 100 / 134f : boxH;
-            float s = boxW / 100f;
+            float w = b.width(), h = b.height(), rad = AppAdapter.cornerRadius(b.width(), dp);
             c.save();
-            c.translate(b.exactCenterX() - boxW / 2, b.exactCenterY() - boxH / 2);
-            c.scale(s, s);
+            c.translate(b.left, b.top);
             switch (style) {
-                case "dball": dball(c); break;
-                case "wanted": wanted(c); break;
-                case "manga": manga(c); break;
-                case "neon": neon(c); break;
-                case "patch": patch(c); break;
-                case "pin": pin(c); break;
-                case "score": score(c); break;
-                case "pixel": pixel(c); break;
-                case "glass": glass(c); break;
-                case "sticker": sticker(c); break;
-                case "hud": hud(c); break;
-                default: logo(c, 15, 15, 70, white()); break;   // white
-            }
-            c.restore();
-        }
-
-        private void fill(int colour) { p.setShader(null); p.setStyle(Paint.Style.FILL); p.setColor(colour); }
-        private void stroke(int colour, float w) { p.setShader(null); p.setStyle(Paint.Style.STROKE); p.setStrokeWidth(w); p.setColor(colour); }
-
-        private static ColorFilter white() { return new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN); }
-        private static ColorFilter tint(int c) { return new PorterDuffColorFilter(c, PorterDuff.Mode.SRC_IN); }
-        private static ColorFilter grey() {
-            ColorMatrix m = new ColorMatrix();
-            m.setSaturation(0);
-            return new ColorMatrixColorFilter(m);
-        }
-
-        /** The app's icon in a size x size square at (x, y), optionally recoloured. */
-        private void logo(Canvas c, float x, float y, float size, ColorFilter f) {
-            logo(c, x, y, size, f, f != null);
-        }
-
-        /**
-         * bare: only the logo, without the icon's own background. Most TV icons are adaptive icons on a solid
-         * square, which a white or neon recolour would turn into a plain block; their foreground layer is the logo.
-         */
-        private void logo(Canvas c, float x, float y, float size, ColorFilter f, boolean bare) {
-            if (app == null) return;
-            Drawable d = app;
-            if (bare && android.os.Build.VERSION.SDK_INT >= 26 && app instanceof android.graphics.drawable.AdaptiveIconDrawable) {
-                Drawable fg = ((android.graphics.drawable.AdaptiveIconDrawable) app).getForeground();
-                if (fg != null) {
-                    // The foreground is 108dp with the logo in the middle 72dp: draw it larger so the logo fills the box.
-                    d = fg;
-                    float grow = size * 0.25f;
-                    x -= grow; y -= grow; size += 2 * grow;
+                case "glass": {
+                    p.setShader(new LinearGradient(0, 0, 0, h * 0.5f, 0x47ffffff, 0x00ffffff, Shader.TileMode.CLAMP));
+                    p.setStyle(Paint.Style.FILL);
+                    r.set(0, 0, w, h * 0.5f);
+                    c.drawRect(r, p);
+                    border(c, w, h, rad, 0x99ffffff, 1.5f * dp);
+                    stroke(0x8cffffff, 2.5f * dp);
+                    p.setStrokeCap(Paint.Cap.ROUND);
+                    path.reset();
+                    path.moveTo(8 * dp, h * 0.42f); path.quadTo(8 * dp, 8 * dp, w * 0.3f, 8 * dp);
+                    c.drawPath(path, p);
+                    break;
                 }
+                case "neon":
+                    stroke(accent, 3 * dp);
+                    p.setShadowLayer(8 * dp, 0, 0, accent);
+                    r.set(2 * dp, 2 * dp, w - 2 * dp, h - 2 * dp);
+                    c.drawRoundRect(r, rad, rad, p);
+                    p.clearShadowLayer();
+                    break;
+                case "white": border(c, w, h, rad, 0xe6ffffff, 2 * dp); break;
+                case "sticker": border(c, w, h, rad, Color.WHITE, 5 * dp); break;
+                case "pin": {
+                    float bw = 5 * dp;
+                    p.setShader(new LinearGradient(0, 0, w, h, new int[]{0xfffff2b0, 0xffd4a636, 0xff6a4608}, new float[]{0, 0.45f, 1}, Shader.TileMode.CLAMP));
+                    p.setStyle(Paint.Style.STROKE);
+                    p.setStrokeWidth(bw);
+                    r.set(bw / 2, bw / 2, w - bw / 2, h - bw / 2);
+                    c.drawRoundRect(r, rad, rad, p);
+                    break;
+                }
+                case "manga": {
+                    // Halftone in the bottom-right corner and a heavy ink border.
+                    fill(0x59000000);
+                    float step = 6 * dp;
+                    for (float y = h * 0.55f; y < h; y += step) for (float x = w * 0.6f; x < w; x += step) {
+                        float k = ((x - w * 0.6f) / (w * 0.4f) + (y - h * 0.55f) / (h * 0.45f)) / 2;
+                        c.drawCircle(x, y, 1.6f * dp * k, p);
+                    }
+                    border(c, w, h, rad, 0xff0a0a0a, 5 * dp);
+                    break;
+                }
+                case "patch": {
+                    int[] pc = albiceleste ? new int[]{0xff75aadb, 0xfff4f8ff} : new int[]{0xffa50044, 0xff004d98};
+                    float band = h * 0.12f, sw = 10 * dp;
+                    for (float x = 0, k = 0; x < w; x += sw, k++) {
+                        fill(pc[(int) k % 2]);
+                        c.drawRect(x, h - band, x + sw, h, p);
+                    }
+                    border(c, w, h, rad, 0xffedbb00, 2.5f * dp);
+                    break;
+                }
+                case "score": {
+                    float band = h * 0.26f;
+                    fill(0xe60b0c10);
+                    c.drawRect(0, h - band, w, h, p);
+                    String n = name.toUpperCase(Locale.ROOT);
+                    t.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+                    float size = band * 0.6f;
+                    t.setTextSize(size);
+                    float tw = t.measureText(n);
+                    if (tw > w * 0.9f) t.setTextSize(size * w * 0.9f / tw);
+                    t.setColor(0xffffc23a);
+                    c.drawText(n, w / 2, h - band / 2 - (t.ascent() + t.descent()) / 2, t);
+                    border(c, w, h, rad, 0xff34343c, 2 * dp);
+                    break;
+                }
+                case "dball": {
+                    border(c, w, h, rad, 0xffff9a1a, 3.5f * dp);
+                    fill(0xffd0140c);
+                    int stars = index % 7 + 1;
+                    for (int j = 0; j < stars; j++) star(c, w - 12 * dp - j * 11 * dp, 12 * dp, 4.5f * dp);
+                    break;
+                }
+                case "wanted": {
+                    float bw = 7 * dp;
+                    stroke(0xfff0dcae, bw);
+                    r.set(bw / 2, bw / 2, w - bw / 2, h - bw / 2);
+                    c.drawRoundRect(r, rad, rad, p);
+                    stroke(0xff9c7a40, 1.2f * dp);
+                    r.set(bw, bw, w - bw, h - bw);
+                    c.drawRect(r, p);
+                    float tabW = w * 0.42f, tabH = h * 0.17f;
+                    fill(0xfff0dcae);
+                    c.drawRect(w / 2 - tabW / 2, 0, w / 2 + tabW / 2, tabH, p);
+                    t.setTypeface(Typeface.create(Typeface.SERIF, Typeface.BOLD));
+                    t.setTextSize(tabH * 0.72f);
+                    t.setColor(0xff3b2610);
+                    c.drawText("WANTED", w / 2, tabH * 0.78f, t);
+                    break;
+                }
+                case "pixel": {
+                    // An 8-bit frame: square blocks round the edge, the corners cut like old sprites.
+                    float s = 5 * dp;
+                    fill(accent);
+                    for (float x = s; x < w - s; x += s * 2) { c.drawRect(x, 0, x + s, s, p); c.drawRect(x, h - s, x + s, h, p); }
+                    for (float y = s; y < h - s; y += s * 2) { c.drawRect(0, y, s, y + s, p); c.drawRect(w - s, y, w, y + s, p); }
+                    break;
+                }
+                case "hud": {
+                    stroke(accent, 3 * dp);
+                    float l = Math.min(w, h) * 0.22f, i = 3 * dp;
+                    path.reset();
+                    path.moveTo(i, i + l); path.lineTo(i, i); path.lineTo(i + l, i);
+                    path.moveTo(w - i - l, i); path.lineTo(w - i, i); path.lineTo(w - i, i + l);
+                    path.moveTo(w - i, h - i - l); path.lineTo(w - i, h - i); path.lineTo(w - i - l, h - i);
+                    path.moveTo(i + l, h - i); path.lineTo(i, h - i); path.lineTo(i, h - i - l);
+                    c.drawPath(path, p);
+                    t.setTypeface(Typeface.MONOSPACE);
+                    t.setTextSize(9 * dp);
+                    t.setColor(accent);
+                    t.setTextAlign(Paint.Align.RIGHT);
+                    c.drawText("APP_" + String.format(Locale.ROOT, "%02d", index), w - 8 * dp, h - 8 * dp, t);
+                    t.setTextAlign(Paint.Align.CENTER);
+                    break;
+                }
+                default: break;
             }
-            d.setBounds(Math.round(x), Math.round(y), Math.round(x + size), Math.round(y + size));
-            d.setColorFilter(f);
-            d.draw(c);
-            d.setColorFilter(null);
-        }
-
-        private void label(Canvas c, String s, float x, float y, float size, Typeface face, int colour) {
-            t.setTypeface(face);
-            t.setTextSize(size);
-            t.setColor(colour);
-            c.drawText(s, x, y, t);
-        }
-
-        private void dball(Canvas c) {
-            p.setShader(new RadialGradient(36, 30, 80, new int[]{0xfffff6c8, 0xffffb21f, 0xffe66a00, 0xff7a3000},
-                    new float[]{0, 0.3f, 0.72f, 1}, Shader.TileMode.CLAMP));
-            p.setStyle(Paint.Style.FILL);
-            c.drawCircle(50, 50, 47, p);
-            fill(0xffd0140c);
-            int stars = index % 7 + 1;
-            for (int j = 0; j < stars; j++) {
-                double g = j / (double) stars * 6.283 - 1.571;
-                star(c, 50 + (float) Math.cos(g) * 36, 50 + (float) Math.sin(g) * 36, 5);
-            }
-            logo(c, 30, 30, 40, null);
-            fill(0x73ffffff);
-            c.save();
-            c.rotate(-30, 34, 24);
-            r.set(20, 17, 48, 31);
-            c.drawOval(r, p);
             c.restore();
+        }
+
+        private void border(Canvas c, float w, float h, float rad, int colour, float width) {
+            stroke(colour, width);
+            r.set(width / 2, width / 2, w - width / 2, h - width / 2);
+            c.drawRoundRect(r, rad, rad, p);
         }
 
         private void star(Canvas c, float cx, float cy, float rr) {
@@ -189,151 +214,6 @@ final class DenIcons {
             }
             path.close();
             c.drawPath(path, p);
-        }
-
-        private void wanted(Canvas c) {
-            fill(0xfff0dcae);
-            r.set(2, 2, 98, 132);
-            c.drawRoundRect(r, 2, 2, p);
-            stroke(0xff9c7a40, 2);
-            c.drawRoundRect(r, 2, 2, p);
-            stroke(0x596e4614, 1);
-            c.drawRect(6, 6, 94, 128, p);
-            label(c, "WANTED", 50, 22, 19, Typeface.create(Typeface.SERIF, Typeface.BOLD), 0xff3b2610);
-            fill(0xffe2c890);
-            c.drawRect(14, 29, 86, 87, p);
-            stroke(0xff5a3a14, 2);
-            c.drawRect(14, 29, 86, 87, p);
-            logo(c, 27, 35, 46, null);
-            String n = name.toUpperCase(Locale.ROOT);
-            label(c, n.length() > 14 ? n.substring(0, 14) : n, 50, 104, 15, Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD), 0xff3b2610);
-            long bounty = ((index * 7919L) % 900 + 100) * 1_000_000L;
-            label(c, "฿ " + String.format(Locale.US, "%,d", bounty) + "-", 50, 122, 10, Typeface.create(Typeface.SERIF, Typeface.BOLD), 0xff3b2610);
-        }
-
-        private void manga(Canvas c) {
-            fill(Color.WHITE);
-            c.drawRect(4, 4, 96, 96, p);
-            fill(0x4d000000);
-            for (int y = 7; y < 96; y += 6) for (int x = 7; x < 96; x += 6) c.drawCircle(x, y, 1.1f, p);
-            stroke(0xff0a0a0a, 6);
-            c.drawRect(4, 4, 96, 96, p);
-            logo(c, 19, 19, 62, grey());
-        }
-
-        private void neon(Canvas c) {
-            fill(0x59000000);
-            r.set(5, 5, 95, 95);
-            c.drawRoundRect(r, 22, 22, p);
-            stroke(accent, 2.5f);
-            p.setShadowLayer(6, 0, 0, accent);
-            c.drawRoundRect(r, 22, 22, p);
-            p.clearShadowLayer();
-            logo(c, 20, 20, 60, tint(accent));
-        }
-
-        private void patch(Canvas c) {
-            int[] pc = albiceleste ? new int[]{0xff75aadb, 0xfff4f8ff} : new int[]{0xffa50044, 0xff004d98};
-            path.reset();
-            path.moveTo(50, 3); path.lineTo(93, 15); path.lineTo(93, 50);
-            path.cubicTo(93, 75, 74, 89, 50, 97);
-            path.cubicTo(26, 89, 7, 75, 7, 50);
-            path.lineTo(7, 15); path.close();
-            c.save();
-            c.clipPath(path);
-            for (int x = 0; x < 100; x += 24) {
-                fill(pc[0]); c.drawRect(x, 0, x + 12, 100, p);
-                fill(pc[1]); c.drawRect(x + 12, 0, x + 24, 100, p);
-            }
-            c.restore();
-            stroke(0xffedbb00, 3.5f);
-            c.drawPath(path, p);
-            logo(c, 27, 24, 46, null);
-        }
-
-        private void pin(Canvas c) {
-            p.setShader(new LinearGradient(0, 0, 100, 100, new int[]{0xfffff2b0, 0xffd4a636, 0xff6a4608}, new float[]{0, 0.45f, 1}, Shader.TileMode.CLAMP));
-            p.setStyle(Paint.Style.FILL);
-            c.drawCircle(50, 50, 47, p);
-            fill(0xff1c1c22);
-            c.drawCircle(50, 50, 39, p);
-            stroke(0x59000000, 1.5f);
-            c.drawCircle(50, 50, 39, p);
-            logo(c, 25, 25, 50, null);
-            stroke(0x59ffffff, 5);
-            p.setStrokeCap(Paint.Cap.ROUND);
-            r.set(20, 20, 80, 80);
-            c.drawArc(r, 200, 70, false, p);
-            p.setStrokeCap(Paint.Cap.BUTT);
-        }
-
-        private void score(Canvas c) {
-            fill(0xff0b0c10);
-            r.set(3, 12, 97, 88);
-            c.drawRoundRect(r, 8, 8, p);
-            stroke(0xff34343c, 3);
-            c.drawRoundRect(r, 8, 8, p);
-            // The whole name, smaller when it is long, over the app's icon: no made-up overs, it read like a score.
-            String n = name.toUpperCase(Locale.ROOT);
-            Typeface bold = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
-            t.setTypeface(bold);
-            t.setTextSize(19);
-            float w = t.measureText(n);
-            label(c, n, 50, 38, w > 86 ? Math.max(10, 19 * 86 / w) : 19, bold, 0xffffc23a);
-            stroke(0xff2a2a30, 2);
-            c.drawLine(10, 46, 90, 46, p);
-            logo(c, 33, 51, 34, null);
-        }
-
-        private void pixel(Canvas c) {
-            if (pixels == null) {
-                pixels = Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888);
-                Canvas pc = new Canvas(pixels);
-                pc.drawColor(0xff22222a);
-                if (app != null) { app.setBounds(3, 3, 17, 17); app.draw(pc); }
-            }
-            Paint crisp = new Paint();
-            crisp.setFilterBitmap(false);
-            c.drawBitmap(pixels, null, new RectF(0, 0, 100, 100), crisp);
-        }
-
-        private void glass(Canvas c) {
-            r.set(4, 4, 96, 96);
-            p.setShader(new LinearGradient(0, 4, 0, 96, 0x57ffffff, 0x0fffffff, Shader.TileMode.CLAMP));
-            p.setStyle(Paint.Style.FILL);
-            c.drawRoundRect(r, 24, 24, p);
-            stroke(0x99ffffff, 1.5f);
-            c.drawRoundRect(r, 24, 24, p);
-            stroke(0x8cffffff, 3);
-            p.setStrokeCap(Paint.Cap.ROUND);
-            path.reset();
-            path.moveTo(14, 32); path.quadTo(14, 13, 33, 13); path.lineTo(70, 13);
-            c.drawPath(path, p);
-            p.setStrokeCap(Paint.Cap.BUTT);
-            logo(c, 21, 21, 58, null);
-        }
-
-        private void sticker(Canvas c) {
-            // A white die-cut edge: the icon's shape in white, a little larger, behind the icon.
-            for (int k = 0; k < 8; k++) {
-                double a = k * Math.PI / 4;
-                logo(c, 8 + (float) Math.cos(a) * 4, 8 + (float) Math.sin(a) * 4, 84, white());
-            }
-            logo(c, 8, 8, 84, null, true);
-        }
-
-        private void hud(Canvas c) {
-            stroke(accent, 4);
-            path.reset();
-            path.moveTo(4, 24); path.lineTo(4, 4); path.lineTo(24, 4);
-            path.moveTo(76, 4); path.lineTo(96, 4); path.lineTo(96, 24);
-            path.moveTo(96, 76); path.lineTo(96, 96); path.lineTo(76, 96);
-            path.moveTo(24, 96); path.lineTo(4, 96); path.lineTo(4, 76);
-            c.drawPath(path, p);
-            logo(c, 25, 20, 50, null);
-            t.setLetterSpacing(0.1f);
-            label(c, "APP_0" + index, 50, 90, 8, Typeface.MONOSPACE, accent);
-            t.setLetterSpacing(0);
         }
 
         @Override public void setAlpha(int alpha) { p.setAlpha(alpha); }

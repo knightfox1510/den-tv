@@ -294,20 +294,20 @@ final class DenWatcherView extends View implements DenLayer.Watcher {
                 for (int k = 0; k < 6; k++) {
                     double a = k / 6.0 * 6.283 + random.nextFloat() * 0.6;
                     actors.get(k).moveTo(wx + (float) Math.cos(a) * (70 + random.nextFloat() * 60),
-                            660 + dy + (float) Math.sin(a) * 70 - random.nextFloat() * 40, 0, 1, jump ? 0 : 1000, k * 80L, smooth, now);
+                            below(ay, 660 + dy + (float) Math.sin(a) * 70 - random.nextFloat() * 40), 0, 1, jump ? 0 : 1000, k * 80L, smooth, now);
                 }
                 break;
             case "chidori": actors.get(0).moveTo(ax, 640 + dy, 0, 1, jump ? 0 : 350, 0, new DecelerateInterpolator(2), now); break;
             case "crows":
                 for (int k = 0; k < 7; k++)
                     actors.get(k).moveTo(wx + (k - 3) * 70 + (random.nextFloat() - 0.5f) * 30,
-                            650 + dy - Math.abs(k - 3) * 22 - random.nextFloat() * 40, 0, 1, jump ? 0 : 900, k * 70L, smooth, now);
+                            below(ay, 650 + dy - Math.abs(k - 3) * 22 - random.nextFloat() * 40), 0, 1, jump ? 0 : 900, k * 70L, smooth, now);
                 break;
             case "room": actors.get(0).moveTo(ax, ay, actors.get(0).rot, 1, jump ? 0 : 500, 0, spring, now); break;
             case "hearts":
                 for (int k = 0; k < 6; k++) {
                     Actor h = actors.get(k);
-                    h.moveTo(wx - 30 + (random.nextFloat() - 0.5f) * 220, 560 + dy + random.nextFloat() * 140, 0, h.tsx,
+                    h.moveTo(wx - 30 + (random.nextFloat() - 0.5f) * 220, below(ay, 560 + dy + random.nextFloat() * 140), 0, h.tsx,
                             jump ? 0 : 1000, k * 100L, smooth, now);
                 }
                 break;
@@ -373,6 +373,12 @@ final class DenWatcherView extends View implements DenLayer.Watcher {
             default: break;
         }
     }
+
+    /**
+     * Swarms (butterflies, crows, hearts) stay close over the row and never climb into the panel under the clock:
+     * at most 140 grid pixels above the focused tile's centre.
+     */
+    private static float below(float tileY, float y) { return Math.max(tileY - 140, y); }
 
     /** The angle closest to from that points the same way as to, so a pointer never spins the long way round. */
     private static float nearest(float from, float to) {

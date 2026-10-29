@@ -72,16 +72,49 @@ final class PhoneServer {
         wrong = 0;
     }
 
-    /** The TV's address on the home network, for the screen to show; null when it has none. */
-    static String address() {
+    /**
+     * The TV's address on the home network, for the screen to show; null when it has none. Android's own idea of
+     * the network it is using comes first. Interfaces are the fallback, and never Wi-Fi Direct's p2p0
+     * (192.168.49.x, used for casting), a hotspot, mobile data or a VPN: a phone at home can't reach those.
+     */
+    static String address(Context ctx) {
+        try {
+            android.net.ConnectivityManager cm = (android.net.ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+            android.net.LinkProperties lp = cm == null ? null : cm.getLinkProperties(cm.getActiveNetwork());
+            if (lp != null && usable(lp.getInterfaceName())) {
+                for (android.net.LinkAddress la : lp.getLinkAddresses()) {
+                    InetAddress a = la.getAddress();
+                    if (a instanceof Inet4Address && a.isSiteLocalAddress()) return "http://" + a.getHostAddress() + ":" + PORT;
+                }
+            }
+        } catch (RuntimeException ignored) { }
+        java.util.Map<String, String> found = new java.util.LinkedHashMap<>();
         try {
             for (NetworkInterface n : Collections.list(NetworkInterface.getNetworkInterfaces())) {
                 if (!n.isUp() || n.isLoopback()) continue;
                 for (InetAddress a : Collections.list(n.getInetAddresses())) {
-                    if (a instanceof Inet4Address && a.isSiteLocalAddress()) return "http://" + a.getHostAddress() + ":" + PORT;
+                    if (a instanceof Inet4Address && a.isSiteLocalAddress()) found.put(n.getName(), a.getHostAddress());
                 }
             }
         } catch (SocketException ignored) { }
+        String ip = choose(found);
+        return ip == null ? null : "http://" + ip + ":" + PORT;
+    }
+
+    /** Interfaces a phone on the home network can't reach the TV through. */
+    static boolean usable(String name) {
+        if (name == null) return true;
+        String n = name.toLowerCase(Locale.ROOT);
+        return !(n.startsWith("p2p") || n.startsWith("ap") || n.startsWith("swlan") || n.startsWith("rmnet")
+                || n.startsWith("ccmni") || n.startsWith("tun") || n.startsWith("dummy") || n.startsWith("v4-"));
+    }
+
+    /** From interface name to IPv4 address: Wi-Fi (wlan) or Ethernet (eth) first, then anything usable. */
+    static String choose(java.util.Map<String, String> found) {
+        for (String prefix : new String[]{"wlan", "eth"}) {
+            for (java.util.Map.Entry<String, String> e : found.entrySet()) if (e.getKey().startsWith(prefix)) return e.getValue();
+        }
+        for (java.util.Map.Entry<String, String> e : found.entrySet()) if (usable(e.getKey())) return e.getValue();
         return null;
     }
 

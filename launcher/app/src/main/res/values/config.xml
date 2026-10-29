@@ -292,10 +292,12 @@
     <!-- Every app in one row: the dock apps first, the rest after them, and the row scrolls sideways when focus
          reaches its edge. No grid below; rows_below_dock is ignored. Needs dock_row. Can also be set with
          "single_row" in a theme. -->
-    <bool name="single_row">false</bool>
+    <!-- den-tv: default changed (one long row, apps hidden with Remove from Home, back from the library). -->
+    <bool name="single_row">true</bool>
     <!-- With single_row, the band runs behind every app in the row, apps installed later included, instead of
          the dock apps only. Can also be set with "dock_band_all" in a theme. -->
-    <bool name="dock_band_all">false</bool>
+    <!-- den-tv: default changed (one long row, apps hidden with Remove from Home, back from the library). -->
+    <bool name="dock_band_all">true</bool>
     <!-- The dock band's padding equals the gap between its tiles on all four sides (as far as the grid's edges leave room),
          so its corners are concentric with the tiles' and the spacing reads even. false (the default) keeps the fixed
          14dp above and below, up to 22dp at the sides and 26dp corners. Can also be set with "dock_even_padding": true in a theme's config.json. -->
@@ -321,11 +323,13 @@
          of white for both. Can also be set with "wifi_status_warnings": true in a theme's config.json. -->
     <bool name="wifi_status_warnings">false</bool>
     <!-- The app library as a round button in the top bar, beside Settings (app_library must be on too). -->
-    <bool name="library_button">false</bool>
+    <!-- den-tv: default changed (one long row, apps hidden with Remove from Home, back from the library). -->
+    <bool name="library_button">true</bool>
     <!-- The App library pill after the last Home row. false hides it while library_button is on, so the top-bar
          button stays the way in, and Down from the last row stays put as with app_library off. Can also be set
          with "show_library_pill": false in a theme's config.json. -->
-    <bool name="show_library_pill">true</bool>
+    <!-- den-tv: default changed (one long row, apps hidden with Remove from Home, back from the library). -->
+    <bool name="show_library_pill">false</bool>
     <!-- With icon_only_buttons: keep the network name on the Wi-Fi pill up to this width in dp, cut with an ellipsis.
          0 leaves the Wi-Fi pill as an icon. -->
     <integer name="wifi_label_width">0</integer>
@@ -366,7 +370,8 @@
     <!-- Hold OK on a tile opens a small menu: Move (picks the tile up for reordering), Remove from Home (only with
          app_library) and App info. false keeps the old behaviour: holding OK opens the app's App info page.
          Can also be set with "tile_menu": true in a theme's config.json. -->
-    <bool name="tile_menu">false</bool>
+    <!-- den-tv: default changed (one long row, apps hidden with Remove from Home, back from the library). -->
+    <bool name="tile_menu">true</bool>
 
     <!-- Grid rows left visible under the dock on the home screen. 0 = dock sits at the very bottom. Tiles shrink if
          the dock, its title and this many rows would not otherwise fit the screen height. -->
@@ -374,7 +379,8 @@
 
     <!-- The focused dock app's name in large type above the dock. false keeps only the glow, which leaves room
          for bigger tiles when rows_below_dock is 2 or 3. -->
-    <bool name="dock_title">true</bool>
+    <!-- den-tv: default changed (one long row, apps hidden with Remove from Home, back from the library). -->
+    <bool name="dock_title">false</bool>
 
     <!-- Tiles per row in the grid; the dock always has this many slots. Tiles are 180dp wide at 4 columns and
          shrink to fit from 5 up (about 144dp at 5, 117dp at 6 on a 1080p TV). -->
@@ -389,7 +395,8 @@
     <bool name="show_home_settings_shortcut">false</bool>
 
     <!-- Installed launchable apps, including ordinary Android apps. Also settable in config.json. -->
-    <bool name="app_library">false</bool>
+    <!-- den-tv: default changed (one long row, apps hidden with Remove from Home, back from the library). -->
+    <bool name="app_library">true</bool>
     <!-- Every app tile is its icon on a card tinted from that icon, name only under the focused tile,
          instead of each app's own banner. Off by default; a theme can set "uniform_tiles": true. -->
     <bool name="uniform_tiles">false</bool>

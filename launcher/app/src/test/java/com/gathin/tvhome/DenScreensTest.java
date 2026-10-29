@@ -88,16 +88,18 @@ public class DenScreensTest {
 
     @Test public void icons() throws IOException {
         Context ctx = RuntimeEnvironment.getApplication();
-        android.graphics.drawable.Drawable app = ctx.getApplicationInfo().loadIcon(ctx.getPackageManager());
+        Bitmap banner = BitmapFactory.decodeFile("src/main/res/drawable-xhdpi/den_looks_banner.png");
         List<String> styles = DenIcons.STYLES;
-        Bitmap b = Bitmap.createBitmap(1920, ((styles.size() + 5) / 6) * 300, Bitmap.Config.ARGB_8888);
+        Bitmap b = Bitmap.createBitmap(1920, ((styles.size() + 5) / 6) * 220, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
         c.drawColor(0xff1a1d2a);
+        float density = ctx.getResources().getDisplayMetrics().density;
         for (int i = 0; i < styles.size(); i++) {
-            DenIcons.Tile t = new DenIcons.Tile(styles.get(i), app, "YouTube", i, 0xff4dd2ff, false);
-            int x = 40 + (i % 6) * 310, y = 40 + (i / 6) * 300;
-            t.setBounds(x, y, x + 270, y + 152);   // a dock tile, 16:9
-            t.draw(c);
+            int x = 40 + (i % 6) * 310, y = 40 + (i / 6) * 220;
+            if (banner != null) c.drawBitmap(banner, null, new android.graphics.Rect(x, y, x + 270, y + 152), null);
+            DenIcons.Frame f = new DenIcons.Frame(styles.get(i), "Prime Video", i, 0xff4dd2ff, false, density);
+            f.setBounds(x, y, x + 270, y + 152);   // a dock tile, 16:9
+            f.draw(c);
         }
         save(b, "icons");
     }

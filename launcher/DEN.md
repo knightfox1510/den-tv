@@ -15,16 +15,17 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   first) and the rest. Their pictures are rendered from the mockup (`tools/watchers`).
 - **Clock styles.** Each look's clock (`thin`, `brush`, `board`, `flap`, `hud`, `term`, `analog`, `ring`, `neon`,
   `crt`, `roll`, `over`, `words`) replaces Home's clock; the date beside it stays.
-- **App icon styles.** Each look's icon style redraws the dock tiles with the app's own icon: Wanted posters,
-  Dragon Balls, manga ink, neon, jersey patches, enamel pins, scorecards, pixel art, glass, stickers, HUD brackets.
+- **App icon styles.** Tiles keep each app's own banner, full size, and the look's style is a frame over it:
+  Wanted poster border, Dragon Ball stars, manga ink, neon edge, jersey stripes, enamel-pin gold, a scorecard
+  name strip, pixel blocks, glass sheen, sticker edge, HUD brackets.
 - **Wake animation.** When the TV switches on, Home fades up from a soft flash and settles from a slight zoom.
   It is off when Launcher settings has animations off or reduced motion on.
 - **Fan Hub add-on** (`fanhub/`, its own app, `tv.den.fanhub`). It fetches each team's next match from
   TheSportsDB (with the score while it is live) and each show's next episode from AniList, and Home shows them
   in the panel under the clock, a countdown before and LIVE during. The launcher stays offline; only the add-on
   goes online. Open **Fan Hub** on the TV to see the list; OK fetches again.
-- **Phone settings.** While the Fan Hub screen is open on the TV, a phone on the same Wi-Fi can open the address
-  it shows, pair with the 4-digit code once, then switch looks and change the teams and shows. The page is gone
+- **Phone settings.** While the Fan Hub screen is open on the TV, a phone on the same Wi-Fi can scan its QR code
+  (or open the address it shows), pair with the 4-digit code once, then switch looks and change the teams and shows. The page is gone
   when you leave that screen; Menu on that screen forgets every paired phone. If the page doesn't load, check the phone
   isn't on a guest network, and that the router doesn't keep Wi-Fi devices apart ("AP isolation" or "client
   isolation"); the phone has to reach the TV directly.

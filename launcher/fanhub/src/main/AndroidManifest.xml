@@ -4,6 +4,8 @@
     <!-- The only den-tv app that goes online: TheSportsDB for matches, AniList for episodes, and the phone
          settings page on the home Wi-Fi while the Fan Hub screen is open. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- To show the TV's address on the home network for the phone page. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- The phone page changes the look through the launcher, which allows only den-tv's own apps. -->
     <uses-permission android:name="tv.den.permission.LOOKS" />
 
