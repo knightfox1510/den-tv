@@ -38,7 +38,7 @@ final class DenLooks {
         }
 
         // Optional parts of the recipe (looks/README.md); empty when the look leaves them to the launcher.
-        String clock = "", icons = "", iconLayout = "";
+        String clock = "", icons = "", iconLayout = "", hero = "", scene = "", audience = "everyone";
 
         boolean hasEyes() { return EYES.contains(watcher); }
     }
@@ -90,6 +90,9 @@ final class DenLooks {
         l.clock = j.optString("clock", "");
         l.icons = j.optString("icons", "");
         l.iconLayout = j.optString("icon_layout", "");
+        l.hero = j.optString("hero", "");
+        l.scene = j.optString("scene", "");
+        l.audience = j.optString("for", "everyone");
         return l;
     }
 
@@ -130,6 +133,9 @@ final class DenLooks {
             t.clock = o.optString("clock", look.clock);
             t.icons = o.optString("icons", look.icons);
             t.iconLayout = look.iconLayout;
+            t.hero = look.hero;
+            t.scene = look.scene;
+            t.audience = look.audience;
             return t;
         } catch (JSONException e) {
             return look;
@@ -149,6 +155,7 @@ final class DenLooks {
         if (look == null) e.remove(Config.WALLPAPER_CHOICE_KEY); else e.putString(Config.WALLPAPER_CHOICE_KEY, look.wallpaper);
         e.putLong(Config.SETTINGS_REVISION_KEY, choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY_LOOK, look == null ? ROTATE : look.id).apply();
+        DenPeople.remember(ctx, look == null ? ROTATE : look.id);   // each person keeps the look they chose
     }
 
     private static String read(Context ctx, String asset) throws IOException {

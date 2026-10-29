@@ -24,6 +24,8 @@ public final class DenLooksProvider extends ContentProvider {
         if ("apps".equals(path)) return apps();
         if ("override".equals(path)) return override();
         if ("photos".equals(path)) return photos();
+        if ("people".equals(path)) return people();
+        if ("characters".equals(path)) return characters();
         if (!"looks".equals(uri.getLastPathSegment())) return null;
         DenTheme.ensure(getContext());
         List<DenLooks.Look> looks = DenLooks.load(getContext());
@@ -40,6 +42,8 @@ public final class DenLooksProvider extends ContentProvider {
         if ("apps".equals(path) && values != null) return saveApp(values);
         if ("override".equals(path) && values != null) return saveOverride(values);
         if ("photos".equals(path) && values != null) return photo(values);
+        if ("people".equals(path) && values != null) return person(values);
+        if ("characters".equals(path) && values != null) return character(values);
         if (!"current".equals(uri.getLastPathSegment()) || values == null) return 0;
         String id = values.getAsString("look");
         if (id == null) return 0;
@@ -64,6 +68,8 @@ public final class DenLooksProvider extends ContentProvider {
         c.addRow(new Object[]{DenSettings.IDLE_CLOCK, String.valueOf(p.getInt(DenSettings.IDLE_CLOCK, -1))});
         android.content.SharedPreferences choices = getContext().getSharedPreferences(Config.SETTINGS_NAME, android.content.Context.MODE_PRIVATE);
         c.addRow(new Object[]{"animations", choices.getBoolean("animations", true) ? "1" : "0"});
+        c.addRow(new Object[]{"facts", p.getBoolean("facts", false) ? "1" : "0"});
+        c.addRow(new Object[]{"stats", p.getBoolean("stats", false) ? "1" : "0"});
         return c;
     }
 
@@ -90,7 +96,7 @@ public final class DenLooksProvider extends ContentProvider {
             n++;
         }
         for (String k : new String[]{DenSettings.GREETING, DenSettings.PANEL, DenSettings.WATCHER, DenSettings.SETUP_DONE,
-                DenSettings.WAKE, DenSettings.REDUCED_MOTION}) {
+                DenSettings.WAKE, DenSettings.REDUCED_MOTION, "facts", "stats"}) {
             if (!v.containsKey(k)) continue;
             e.putBoolean(k, "1".equals(v.getAsString(k)) || Boolean.TRUE.equals(v.getAsBoolean(k)));
             n++;
@@ -224,6 +230,7 @@ public final class DenLooksProvider extends ContentProvider {
     /** photos/new opens a fresh photo file to write (the Fan Hub saves a resized JPEG); photos/NAME reads one. */
     @Override public android.os.ParcelFileDescriptor openFile(Uri uri, String mode) throws java.io.FileNotFoundException {
         java.util.List<String> seg = uri.getPathSegments();
+        if (seg.size() == 2 && "characters".equals(seg.get(0))) return characterFile(seg.get(1), mode);
         if (seg.size() != 2 || !"photos".equals(seg.get(0))) throw new java.io.FileNotFoundException(uri.toString());
         try {
             if ("new".equals(seg.get(1)) && mode.startsWith("w")) {
@@ -240,6 +247,56 @@ public final class DenLooksProvider extends ContentProvider {
             throw new java.io.FileNotFoundException(e.getMessage());
         }
         throw new java.io.FileNotFoundException(uri.toString());
+    }
+
+    // ---- people ----------------------------------------------------------------------------------------------------
+
+    private Cursor people() {
+        MatrixCursor c = new MatrixCursor(new String[]{"id", "name", "colour", "look", "guest", "on"});
+        DenPeople.Person cur = DenPeople.current(getContext());
+        for (DenPeople.Person p : DenPeople.all(getContext())) {
+            c.addRow(new Object[]{p.id, p.name, p.colour, p.look, p.guest ? "1" : "0", cur != null && cur.id.equals(p.id) ? "1" : "0"});
+        }
+        return c;
+    }
+
+    /** use=id switches; id with name/colour/guest edits (a new id adds); remove=id removes. */
+    private int person(ContentValues v) {
+        if (v.containsKey("use")) return DenPeople.use(getContext(), v.getAsString("use")) ? 1 : 0;
+        if (v.containsKey("remove")) return DenPeople.edit(getContext(), v.getAsString("remove"), null, null, null, true) ? 1 : 0;
+        String id = v.getAsString("id");
+        Boolean guest = v.containsKey("guest") ? "1".equals(v.getAsString("guest")) : null;
+        return DenPeople.edit(getContext(), id == null ? "" : id, v.getAsString("name"), v.getAsString("colour"), guest, false) ? 1 : 0;
+    }
+
+    // ---- characters ----------------------------------------------------------------------------------------------
+
+    private Cursor characters() {
+        MatrixCursor c = new MatrixCursor(new String[]{"id", "name", "closed", "on", "mode"});
+        String on = DenCharacters.inUse(getContext()), mode = DenCharacters.mode(getContext());
+        for (DenCharacters.Character ch : DenCharacters.all(getContext())) c.addRow(new Object[]{ch.id, ch.name, ch.closed ? "1" : "0", ch.id.equals(on) ? "1" : "0", mode});
+        return c;
+    }
+
+    /** add=id with name (after its picture was written); use=id with mode figure/walker/off; delete=id. */
+    private int character(ContentValues v) {
+        int n = 0;
+        if (v.containsKey("add")) n = DenCharacters.add(getContext(), v.getAsString("add"), v.getAsString("name") == null ? "My character" : v.getAsString("name")) ? 1 : 0;
+        else if (v.containsKey("use")) { DenCharacters.use(getContext(), v.getAsString("use"), v.getAsString("mode")); n = 1; }
+        else if (v.containsKey("delete")) n = DenCharacters.delete(getContext(), v.getAsString("delete")) ? 1 : 0;
+        bump();
+        return n;
+    }
+
+    /** characters/c123.png or c123-closed.png: written by the Fan Hub ("w"), read back for the phone ("r"). */
+    private android.os.ParcelFileDescriptor characterFile(String name, String mode) throws java.io.FileNotFoundException {
+        if (!name.matches("c\\d{1,16}(-closed)?\\.png")) throw new java.io.FileNotFoundException(name);
+        java.io.File d = DenCharacters.dir(getContext());
+        if (d == null || (!d.isDirectory() && !d.mkdirs())) throw new java.io.FileNotFoundException("storage not ready");
+        java.io.File f = new java.io.File(d, name);
+        if (mode.startsWith("w")) return android.os.ParcelFileDescriptor.open(f, android.os.ParcelFileDescriptor.MODE_WRITE_ONLY
+                | android.os.ParcelFileDescriptor.MODE_CREATE | android.os.ParcelFileDescriptor.MODE_TRUNCATE);
+        return android.os.ParcelFileDescriptor.open(f, android.os.ParcelFileDescriptor.MODE_READ_ONLY);
     }
 
     @Override public String getType(Uri uri) { return null; }

@@ -37,6 +37,7 @@ public final class DenLooksActivity extends Activity {
     private static final int COLUMNS = 4;
     private List<DenLooks.Look> looks;
     private DenLooks.Look current;
+    private DenPeople.Person who;
     private File walls;
     private float dp;
     private Typeface font;
@@ -53,6 +54,14 @@ public final class DenLooksActivity extends Activity {
         DenTheme.ensure(this);   // opened before Home ever ran: set the theme up here too
         looks = DenLooks.load(this);
         current = DenLooks.current(this, looks);
+        who = DenPeople.current(this);
+        if (who != null && who.guest) {
+            // A guest sees only the looks meant for everyone.
+            java.util.List<DenLooks.Look> open = new java.util.ArrayList<>();
+            for (DenLooks.Look l : looks) if ("everyone".equals(l.audience)) open.add(l);
+            looks = open;
+            if (current != null && !looks.contains(current)) current = null;
+        }
         File dir = getExternalFilesDir(null);
         walls = dir == null ? null : new File(dir, "wallpapers");
 
@@ -129,8 +138,8 @@ public final class DenLooksActivity extends Activity {
     }
 
     private final class Tiles extends RecyclerView.Adapter<Holder> {
-        // Rotate first, then the looks, then "Set up den-tv" last.
-        @Override public int getItemCount() { return looks.size() + 2; }
+        // Rotate first, then the looks, then "Who's watching" and "Set up den-tv" last.
+        @Override public int getItemCount() { return looks.size() + 3; }
 
         @Override public Holder onCreateViewHolder(ViewGroup parent, int type) {
             FrameLayout card = new FrameLayout(DenLooksActivity.this);
@@ -165,6 +174,23 @@ public final class DenLooksActivity extends Activity {
 
         @Override public void onBindViewHolder(Holder h, int position) {
             if (position == looks.size() + 1) {
+                DenPeople.Person next = DenPeople.next(DenLooksActivity.this);
+                h.name.setText("Watching: " + (who == null ? "you" : who.name));
+                h.meta.setText("OK switches to " + next.name);
+                h.frame.setStroke(0, 0);
+                h.picture.setImageBitmap(null);
+                int c;
+                try { c = Color.parseColor(who == null ? "#ffd36e" : who.colour); } catch (IllegalArgumentException e) { c = 0xffffd36e; }
+                h.picture.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xff15151c, c}));
+                h.want = null;
+                h.itemView.setOnClickListener(v -> {
+                    DenPeople.use(DenLooksActivity.this, next.id);
+                    Toast.makeText(DenLooksActivity.this, "Now watching: " + next.name, Toast.LENGTH_SHORT).show();
+                    recreate();
+                });
+                return;
+            }
+            if (position == looks.size() + 2) {
                 h.name.setText("Set up den-tv");
                 h.meta.setText("Your name, teams, shows and Home");
                 h.frame.setStroke(0, 0);

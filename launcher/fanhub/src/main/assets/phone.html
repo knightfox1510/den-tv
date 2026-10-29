@@ -149,6 +149,28 @@
     <label class="ghost" style="margin-top:10px"><input type="file" id="photoFile" accept="image/jpeg,image/png" hidden>
       <span style="display:block;text-align:center;padding:13px;border:1px dashed var(--line);border-radius:10px;cursor:pointer">Add a photo</span></label>
     <div id="photoMsg" class="msg" role="status"></div>
+    <h2>Your characters</h2>
+    <p>Turn a picture into a character on Home: a big figure on the right that leans toward the app you pick, or a small one that walks to it. A cut-out PNG (see-through background) looks best; add the same picture with the eyes closed and it blinks.</p>
+    <div id="chars"></div>
+    <details class="card"><summary><span><b>Make a character</b><small>A name and a picture</small></span></summary><div class="in">
+      <label for="charName" style="margin-top:0">Name</label><input id="charName" maxlength="24" placeholder="e.g. Luffy">
+      <label>Picture</label><input type="file" id="charBody" accept="image/png,image/jpeg">
+      <label>Eyes closed (optional)</label><input type="file" id="charClosed" accept="image/png,image/jpeg">
+      <button id="charMake">Make it</button>
+      <div id="charMsg" class="msg" role="status"></div>
+    </div></details>
+  </section>
+
+  <!-- ===== People ===== -->
+  <section id="t-people" data-tab hidden>
+    <p>Who's watching. Each person has their own look and name on Home. A guest sees only looks for everyone, no scores and no name, and the TV goes back to the first person when it sleeps.</p>
+    <div id="people"></div>
+    <details class="card"><summary><span><b>Add someone</b><small>Up to six people</small></span></summary><div class="in">
+      <label for="pName" style="margin-top:0">Name</label><input id="pName" maxlength="20">
+      <div class="row" style="margin-top:10px"><input type="color" id="pColour" class="swatch" value="#ff9ec4" style="flex:none" aria-label="Colour"><label class="toggle" style="border:0;padding:0;flex:1"><span>Guest<small>Only looks for everyone</small></span><input type="checkbox" id="pGuest"></label></div>
+      <button id="pAdd">Add</button>
+      <div id="peopleMsg" class="msg" role="status"></div>
+    </div></details>
   </section>
 
   <!-- ===== Tweak ===== -->
@@ -167,6 +189,13 @@
         <option value="10">10 minutes</option><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="60">An hour</option></select>
       <button id="saveHome">Save</button>
       <div id="homeMsg" class="msg" role="status"></div>
+    </div></details>
+    <details class="card"><summary><span><b>Widgets on Home</b><small>Facts, system line, hike forecast</small></span></summary><div class="in">
+      <div id="widgets"></div>
+      <label class="toggle"><span>Weekend hike forecast<small>From Friday noon, the better of Saturday and Sunday in the match panel</small></span><input type="checkbox" id="hikeOn"></label>
+      <label for="hikePlace">Weather for</label><select id="hikePlace"></select>
+      <button id="saveWidgets">Save</button>
+      <div id="widMsg" class="msg" role="status"></div>
     </div></details>
     <details class="card" id="appsCard"><summary><span><b>Apps on Home</b><small>Hide, show and rename</small></span></summary><div class="in">
       <p>Untick to hide an app from Home (it stays in the App library). Type to rename it.</p>
@@ -259,6 +288,7 @@
   <button role="tab" data-tab="looks" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="8" height="7" rx="2"/><rect x="13" y="4" width="8" height="7" rx="2"/><rect x="3" y="13" width="8" height="7" rx="2"/><rect x="13" y="13" width="8" height="7" rx="2"/></svg>Looks</button>
   <button role="tab" data-tab="tweak" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Tweak</button>
   <button role="tab" data-tab="auto" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>Auto</button>
+  <button role="tab" data-tab="people" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.6c2.6.2 4.4 1.9 5 4.9"/></svg>People</button>
   <button role="tab" data-tab="remote" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="7" y="2.5" width="10" height="19" rx="3"/><circle cx="12" cy="8" r="2.2"/><path d="M10 14h4M10 17h4"/></svg>Remote</button>
   <button role="tab" data-tab="tv" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>TV</button>
 </nav>
@@ -288,13 +318,17 @@
     ['wake', 'Wake animation', 'Home fades up when the TV switches on'],
     ['reduced_motion', 'Reduce motion', 'Calmer: no wake animation, still watchers'],
   ];
+  const WIDGETS = [
+    ['facts', 'Did you know?', 'A fact about the look\'s hero, team or show along the bottom'],
+    ['stats', 'System line', 'Free memory and storage under the clock'],
+  ];
   const on = (settings, k, d) => (settings[k] == null ? (d == null ? true : d) : settings[k] === '1');
   function toggles(box, settings, list) {
     box.innerHTML = '';
     (list || TOGGLES).forEach(([k, title, note]) => {
       const row = el('label', 'toggle');
       const span = el('span', null, title); span.appendChild(el('small', null, note));
-      const cb = el('input'); cb.type = 'checkbox'; cb.dataset.key = k; cb.checked = on(settings, k, k === 'reduced_motion' ? false : true);
+      const cb = el('input'); cb.type = 'checkbox'; cb.dataset.key = k; cb.checked = on(settings, k, !['reduced_motion', 'facts', 'stats'].includes(k));
       row.appendChild(span); row.appendChild(cb); box.appendChild(row);
     });
   }
@@ -410,7 +444,7 @@
     document.querySelectorAll('nav button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
     document.querySelectorAll('section[data-tab]').forEach((s) => { s.hidden = s.id !== 't-' + t; });
     window.scrollTo(0, 0);
-    const fn = { looks: loadLooks, tweak: loadTweak, auto: loadAuto, remote: loadRemote, tv: loadTv }[t];
+    const fn = { looks: loadLooks, tweak: loadTweak, auto: loadAuto, people: loadPeople, remote: loadRemote, tv: loadTv }[t];
     if (fn) fn();
   }
   document.querySelectorAll('nav button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
@@ -426,7 +460,76 @@
     renderLooks($('looks'), $('lookMsg'), list, () => loadPhotos());
   }
   $('lookFind').addEventListener('input', drawLooks);
-  async function loadLooks() { drawLooks(); loadPhotos(); }
+  async function loadLooks() { drawLooks(); loadPhotos(); loadChars(); }
+  async function loadChars() {
+    const r = (await api('/api/characters')).json, box = $('chars'); box.innerHTML = '';
+    if (r.error) { box.appendChild(el('p', null, r.error)); return; }
+    if (!(r.characters || []).length) box.appendChild(el('p', null, 'No characters yet.'));
+    (r.characters || []).forEach((c) => {
+      const card = el('div', 'card'); const row = el('div', 'row');
+      const img = el('img'); img.src = '/api/charimg?id=' + encodeURIComponent(c.id); img.alt = ''; img.style.cssText = 'flex:none;width:64px;height:64px;object-fit:contain;background:#0d0d12;border-radius:10px';
+      const t = el('div'); t.appendChild(el('b', null, c.name)); t.appendChild(el('p', null, c.on ? (c.mode === 'walker' ? 'Walking on Home' : 'Standing on Home') : 'Not on Home'));
+      row.appendChild(img); row.appendChild(t); card.appendChild(row);
+      const btns = el('div', 'row');
+      [['figure', 'Big figure'], ['walker', 'Walker'], ['off', 'Off']].forEach(([m, label]) => {
+        const b = el('button', (c.on && c.mode === m) || (!c.on && m === 'off') ? '' : 'ghost', label);
+        b.onclick = async () => { await api('/api/characters', { use: c.id, mode: m }); loadChars(); }; btns.appendChild(b);
+      });
+      const del = el('button', 'ghost', 'Delete'); del.onclick = async () => { if (confirm('Delete ' + c.name + ' from the TV?')) { await api('/api/characters', { delete: c.id }); loadChars(); } };
+      btns.appendChild(del); card.appendChild(btns); box.appendChild(card);
+    });
+  }
+  async function upload(url, file) {
+    const r = await fetch(url, { method: 'POST', body: file }); let j = {}; try { j = await r.json(); } catch (e) {} return j;
+  }
+  $('charMake').addEventListener('click', async () => {
+    const body = $('charBody').files[0], closed = $('charClosed').files[0];
+    if (!body) { say($('charMsg'), 'Pick a picture first.', true); return; }
+    if (body.size > 15e6 || (closed && closed.size > 15e6)) { say($('charMsg'), 'Pictures over 15 MB are too big.', true); return; }
+    $('charMake').disabled = true; say($('charMsg'), 'Sending to the TV…');
+    const a = await upload('/api/character?name=' + encodeURIComponent($('charName').value.trim() || 'My character'), body);
+    if (!a.ok) { $('charMake').disabled = false; say($('charMsg'), a.error || 'The TV couldn\'t take it.', true); return; }
+    if (closed) await upload('/api/character?closed=1&id=' + encodeURIComponent(a.id), closed);
+    await api('/api/characters', { use: a.id, mode: 'figure' });
+    $('charMake').disabled = false; $('charBody').value = ''; $('charClosed').value = ''; $('charName').value = '';
+    say($('charMsg'), 'On Home now.' + (a.transparent ? '' : ' Tip: a cut-out PNG with a see-through background looks better than a photo.'));
+    loadChars();
+  });
+
+  // ---- People ----
+  async function loadPeople() {
+    const r = (await api('/api/people')).json, box = $('people'); box.innerHTML = '';
+    if (r.error) { box.appendChild(el('p', null, r.error)); return; }
+    const looks = S.looks || [];
+    (r.people || []).forEach((p, i) => {
+      const card = el('div', 'card'); const row = el('div', 'row');
+      const av = el('span', null, (p.name[0] || '?').toUpperCase()); av.style.cssText = 'flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#111;background:' + p.colour;
+      const name = el('input'); name.type = 'text'; name.value = p.name; name.maxLength = 20; name.setAttribute('aria-label', 'Name');
+      name.onchange = async () => { await api('/api/people', { id: p.id, name: name.value.trim() }); };
+      const use = el('button', p.on ? '' : 'ghost', p.on ? 'Watching' : 'Switch'); use.style.cssText = 'flex:none;width:auto;margin:0';
+      use.onclick = async () => { const x = await api('/api/people', { use: p.id }); say($('peopleMsg'), x.json.ok ? 'Now watching: ' + p.name + '.' : 'Couldn\'t switch.', !x.json.ok); loadPeople(); };
+      row.appendChild(av); row.appendChild(name); row.appendChild(use); card.appendChild(row);
+      const look = looks.find((l) => l.id === p.look);
+      card.appendChild(el('p', null, (p.guest ? 'Guest · ' : '') + (look ? 'Look: ' + look.name : p.look === 'rotate' ? 'Looks rotate' : 'No look of their own yet')));
+      const opts = el('div', 'row');
+      const col = el('input'); col.type = 'color'; col.className = 'swatch'; col.value = p.colour; col.style.flex = 'none'; col.setAttribute('aria-label', 'Colour');
+      col.onchange = async () => { await api('/api/people', { id: p.id, colour: col.value }); loadPeople(); };
+      opts.appendChild(col);
+      if (i > 0) {
+        const g = el('label', 'toggle'); g.style.cssText = 'border:0;padding:0;flex:1'; const gs = el('span', null, 'Guest'); const gc = el('input'); gc.type = 'checkbox'; gc.checked = p.guest;
+        gc.onchange = async () => { await api('/api/people', { id: p.id, guest: gc.checked }); loadPeople(); }; g.appendChild(gs); g.appendChild(gc); opts.appendChild(g);
+        const del = el('button', 'ghost', 'Remove'); del.style.cssText = 'flex:none;width:auto;margin:0';
+        del.onclick = async () => { if (confirm('Remove ' + p.name + '?')) { await api('/api/people', { remove: p.id }); loadPeople(); } }; opts.appendChild(del);
+      }
+      card.appendChild(opts); box.appendChild(card);
+    });
+  }
+  $('pAdd').addEventListener('click', async () => {
+    const name = $('pName').value.trim(); if (!name) { say($('peopleMsg'), 'Give them a name.', true); return; }
+    const r = await api('/api/people', { id: '', name, colour: $('pColour').value, guest: $('pGuest').checked });
+    say($('peopleMsg'), r.json.ok ? name + ' is added.' : 'Couldn\'t add: six people is the most.', !r.json.ok);
+    if (r.json.ok) { $('pName').value = ''; loadPeople(); }
+  });
   async function loadPhotos() {
     const r = await api('/api/photos'); const box = $('photos'); box.innerHTML = '';
     if (r.json.error) { say($('photoMsg'), r.json.error, true); return; }
@@ -476,7 +579,15 @@
     toggles($('toggles'), S.settings || {}, TOGGLES.concat(MOTION));
     $('idle').value = String((S.settings || {}).idle_clock || '-1');
     $('teams').value = (S.teams || []).join('\n'); $('shows').value = (S.shows || []).join('\n');
+    toggles($('widgets'), S.settings || {}, WIDGETS);
+    const h = (await api('/api/hike')).json; $('hikeOn').checked = !!h.on; const hp = $('hikePlace'); hp.innerHTML = '';
+    (h.places || []).forEach((x) => { const o = el('option', null, x.name); o.value = x.id; hp.appendChild(o); }); hp.value = h.place || 'rajmachi';
   }
+  $('saveWidgets').addEventListener('click', async () => {
+    const a = await api('/api/settings', readToggles($('widgets')));
+    const b = await api('/api/hike', { on: $('hikeOn').checked, place: $('hikePlace').value });
+    say($('widMsg'), a.json.ok && b.json.ok ? 'Saved. Home shows it now.' : (a.json.error || 'Couldn\'t save.'), !(a.json.ok && b.json.ok));
+  });
   async function setPart(part, value) {
     const r = await api('/api/override', { part, value });
     say($('ovMsg'), r.json.ok ? 'Changed. Home shows it now.' : (r.json.error || 'Couldn\'t.'), !r.json.ok);

@@ -24,6 +24,7 @@ final class DenLayer {
     private final ViewGroup content;
     private final boolean motion;
     private Watcher eyes;
+    private Watcher figure;   // your character, when one is on Home
 
     /** What follows the focused tile: DenEyesView or DenWatcherView. x, y in screen pixels; label is the tile's name. */
     interface Watcher { void lookAt(float x, float y, String label); }
@@ -31,18 +32,23 @@ final class DenLayer {
     private final int[] where = new int[2];
 
     private final ViewTreeObserver.OnGlobalFocusChangeListener focus = (old, now) -> {
-        if (eyes == null || now == null) return;
+        if ((eyes == null && figure == null) || now == null) return;
         now.getLocationOnScreen(where);
         int x = where[0] + now.getWidth() / 2, y = where[1] + now.getHeight() / 2;
-        View v = (View) eyes;
+        View v = (View) (eyes != null ? eyes : figure);
         v.getLocationOnScreen(where);
-        eyes.lookAt(x - where[0], y - where[1], label(now));
+        if (eyes != null) eyes.lookAt(x - where[0], y - where[1], label(now));
+        if (figure != null) figure.lookAt(x - where[0], y - where[1], label(now));
     };
 
     private final List<View> covers = new java.util.ArrayList<>();   // the wake's flash and fade, removed when done
 
     private final BroadcastReceiver screenOn = new BroadcastReceiver() {
         @Override public void onReceive(Context ctx, Intent intent) {
+            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                DenPeople.endGuest(ctx);   // a guest's turn ends when the TV sleeps
+                return;
+            }
             wakePending = true;
             // The broadcast can land after Home has already resumed; then play it now.
             if (activity.hasWindowFocus()) onResume();
@@ -76,9 +82,25 @@ final class DenLayer {
         View watcher = look == null || !DenSettings.watcher(activity) ? null
                 : look.hasEyes() ? new DenEyesView(activity, look.watcher, motion)
                 : DenWatcherView.draws(look.watcher) ? new DenWatcherView(activity, look.watcher, look.accent, motion) : null;
+        // Your character: a walker takes the watcher's place; a figure stands beside it.
+        String charId = DenCharacters.inUse(activity);
+        boolean walker = "walker".equals(DenCharacters.mode(activity));
+        if (!charId.isEmpty() && DenSettings.watcher(activity)) {
+            android.graphics.Bitmap body = DenCharacters.picture(activity, charId, false, walker ? 400 : 800);
+            if (body != null) {
+                DenFigureView f = new DenFigureView(activity, body, DenCharacters.picture(activity, charId, true, walker ? 400 : 800), walker, motion);
+                layer.figure = f;
+                layer.content.addView(f, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                if (walker) watcher = null;
+            }
+        }
         if (watcher != null) {
             layer.eyes = (Watcher) watcher;
             layer.content.addView(watcher, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+        if (DenSettings.facts(activity) && look != null) {
+            DenFactsView facts = DenFactsView.make(activity, look, motion);
+            if (facts != null) layer.content.addView(facts, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
         DenIcons.use(look == null ? "" : look.icons, look == null ? "" : look.accent, look == null ? "" : look.id);
         if (look != null) clock(activity, look);
@@ -86,6 +108,7 @@ final class DenLayer {
         layer.content.post(layer::followFocus);
         activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).registerOnSharedPreferenceChangeListener(layer.revision);   // Home may have focused a tile before the watcher was there
         IntentFilter on = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        on.addAction(Intent.ACTION_SCREEN_OFF);
         if (android.os.Build.VERSION.SDK_INT >= 33) activity.registerReceiver(layer.screenOn, on, Context.RECEIVER_NOT_EXPORTED);
         else activity.registerReceiver(layer.screenOn, on);
         return layer;

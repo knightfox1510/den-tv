@@ -25,9 +25,21 @@ final class DenSettings {
 
     static SharedPreferences prefs(Context ctx) { return ctx.getSharedPreferences(DenLooks.PREFS, Context.MODE_PRIVATE); }
 
-    static String name(Context ctx, String fallback) { return prefs(ctx).getString(NAME, fallback); }
+    /** The greeting's name: the person watching (DenPeople), else the setup's name. */
+    static String name(Context ctx, String fallback) {
+        DenPeople.Person p = DenPeople.current(ctx);
+        if (p != null && !p.guest && !p.name.isEmpty()) return p.name;
+        if (p != null && p.guest) return "";
+        return prefs(ctx).getString(NAME, fallback);
+    }
     static boolean greeting(Context ctx, boolean fallback) { return prefs(ctx).getBoolean(GREETING, fallback); }
-    static boolean panel(Context ctx) { return prefs(ctx).getBoolean(PANEL, true); }
+    /** The match panel; off for a guest, whose games it isn't. */
+    static boolean panel(Context ctx) {
+        DenPeople.Person p = DenPeople.current(ctx);
+        return prefs(ctx).getBoolean(PANEL, true) && (p == null || !p.guest);
+    }
+    static boolean stats(Context ctx, boolean fallback) { return prefs(ctx).getBoolean("stats", fallback); }
+    static boolean facts(Context ctx) { return prefs(ctx).getBoolean("facts", false); }
     static boolean watcher(Context ctx) { return prefs(ctx).getBoolean(WATCHER, true); }
     static boolean wake(Context ctx) { return prefs(ctx).getBoolean(WAKE, true); }
     static boolean reducedMotion(Context ctx, boolean fallback) { return prefs(ctx).getBoolean(REDUCED_MOTION, fallback); }

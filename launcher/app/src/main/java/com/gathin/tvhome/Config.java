@@ -647,6 +647,7 @@ final class Config {
         appLabels.addAll(DenSettings.labels(ctx));   // later entries win in packageMap
         reducedMotion = DenSettings.reducedMotion(ctx, reducedMotion);
         idleClockMinutes = DenSettings.idleClock(ctx, idleClockMinutes);
+        showStats = DenSettings.stats(ctx, showStats);
         File wallpaper = dir != null ? new File(dir, WALLPAPER_NAME) : null;
         if (wallpaper != null && !(wallpaper.isFile() && wallpaper.length() > 0)) wallpaper = null;
         // A theme can also switch the wallpaper off while the file is still there.

@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -82,6 +82,9 @@ final class Api {
             case "/api/screentime": return screenTime();
             case "/api/rules": return in.length() == 0 ? Rules.get(ctx) : Rules.set(ctx, in);
             case "/api/phones": return phones(in, token);
+            case "/api/people": return in.length() == 0 ? people() : person(in);
+            case "/api/characters": return in.length() == 0 ? characters() : characterAction(in);
+            case "/api/hike": return in.length() == 0 ? Store.hike(ctx) : Store.setHike(ctx, in);
             default: return new JSONObject().put("error", "not found");
         }
     }
@@ -442,6 +445,104 @@ final class Api {
             total += ms;
         }
         return new JSONObject().put("apps", list).put("minutes", total / 60_000).put("helper", Helper.on());
+    }
+
+    // ---- people ----------------------------------------------------------------------------------------------------
+
+    private static final Uri PEOPLE = Uri.parse(L + "people"), CHARACTERS = Uri.parse(L + "characters");
+
+    private JSONObject people() throws JSONException {
+        JSONArray list = new JSONArray();
+        try (Cursor c = ctx.getContentResolver().query(PEOPLE, null, null, null, null)) {
+            while (c != null && c.moveToNext()) {
+                list.put(new JSONObject().put("id", c.getString(0)).put("name", c.getString(1)).put("colour", c.getString(2)).put("look", c.getString(3))
+                        .put("guest", "1".equals(c.getString(4))).put("on", "1".equals(c.getString(5))));
+            }
+        } catch (RuntimeException e) {
+            return new JSONObject().put("people", list).put("error", "Update the den-tv launcher to use people.");
+        }
+        return new JSONObject().put("people", list);
+    }
+
+    private JSONObject person(JSONObject in) throws JSONException {
+        ContentValues v = new ContentValues();
+        for (String k : new String[]{"use", "remove", "id", "name", "colour"}) if (in.has(k)) v.put(k, in.optString(k));
+        if (in.has("guest")) v.put("guest", in.optBoolean("guest") ? "1" : "0");
+        try { return ok(ctx.getContentResolver().update(PEOPLE, v, null, null) > 0); }
+        catch (RuntimeException e) { return fail("The launcher didn't accept it."); }
+    }
+
+    // ---- characters ----------------------------------------------------------------------------------------------
+
+    private JSONObject characters() throws JSONException {
+        JSONArray list = new JSONArray();
+        try (Cursor c = ctx.getContentResolver().query(CHARACTERS, null, null, null, null)) {
+            while (c != null && c.moveToNext()) {
+                list.put(new JSONObject().put("id", c.getString(0)).put("name", c.getString(1)).put("closed", "1".equals(c.getString(2)))
+                        .put("on", "1".equals(c.getString(3))).put("mode", c.getString(4)));
+            }
+        } catch (RuntimeException e) {
+            return new JSONObject().put("characters", list).put("error", "Update the den-tv launcher to use characters.");
+        }
+        return new JSONObject().put("characters", list);
+    }
+
+    private JSONObject characterAction(JSONObject in) throws JSONException {
+        ContentValues v = new ContentValues();
+        if (in.has("use")) { v.put("use", in.optString("use")); v.put("mode", in.optString("mode", "figure")); }
+        else if (in.has("delete")) v.put("delete", in.optString("delete"));
+        else return fail("Nothing to do");
+        try { return ok(ctx.getContentResolver().update(CHARACTERS, v, null, null) > 0); }
+        catch (RuntimeException e) { return fail("The launcher didn't accept it."); }
+    }
+
+    /**
+     * A character's picture from the phone, kept as PNG (so a cut-out keeps its see-through background) at most
+     * 900 pixels tall. The body makes a new character (id empty); closed adds the eyes-closed picture to one.
+     */
+    JSONObject saveCharacter(byte[] data, String id, String name, boolean closed) throws JSONException {
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(data, 0, data.length, o);
+        if (o.outWidth <= 0 || o.outHeight <= 0) return fail("That isn't a picture the TV can read (PNG or JPEG).");
+        int sample = 1;
+        while (o.outHeight / (sample * 2) >= 900) sample *= 2;
+        o = new BitmapFactory.Options();
+        o.inSampleSize = sample;
+        Bitmap src = BitmapFactory.decodeByteArray(data, 0, data.length, o);
+        if (src == null) return fail("That picture couldn't be read.");
+        if (src.getHeight() > 900) src = Bitmap.createScaledBitmap(src, Math.round(src.getWidth() * 900f / src.getHeight()), 900, true);
+        boolean fresh = id == null || id.isEmpty();
+        String cid = fresh ? "c" + System.currentTimeMillis() : id;
+        if (!cid.matches("c\\d{1,16}")) return fail("Unknown character.");
+        try (OutputStream os = ctx.getContentResolver().openOutputStream(Uri.parse(L + "characters/" + cid + (closed ? "-closed" : "") + ".png"), "w")) {
+            if (os == null) return fail("The launcher didn't accept it.");
+            src.compress(Bitmap.CompressFormat.PNG, 100, os);
+        } catch (IOException | RuntimeException e) {
+            return fail("Update the den-tv launcher to use characters.");
+        }
+        if (fresh) {
+            ContentValues v = new ContentValues();
+            v.put("add", cid);
+            v.put("name", name == null || name.trim().isEmpty() ? "My character" : name.trim());
+            try { if (ctx.getContentResolver().update(CHARACTERS, v, null, null) == 0) return fail("That's the most characters this TV keeps (8). Delete one first."); }
+            catch (RuntimeException e) { return fail("The launcher didn't accept it."); }
+        }
+        return ok(true).put("id", cid).put("transparent", src.hasAlpha());
+    }
+
+    byte[] characterFile(String id, boolean closed) {
+        if (!id.matches("c\\d{1,16}")) return null;
+        try (InputStream in = ctx.getContentResolver().openInputStream(Uri.parse(L + "characters/" + id + (closed ? "-closed" : "") + ".png"))) {
+            if (in == null) return null;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] b = new byte[64 * 1024];
+            int n;
+            while ((n = in.read(b)) > 0) out.write(b, 0, n);
+            return out.toByteArray();
+        } catch (IOException | RuntimeException e) {
+            return null;
+        }
     }
 
     // ---- paired phones -------------------------------------------------------------------------------------------

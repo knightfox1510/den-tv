@@ -27,6 +27,7 @@ final class Rules {
             {"cricket", "India and IPL", "The same for India and your IPL team"},
             {"episode", "New episode", "A show's look for the evening its new episode comes out"},
             {"late", "Late night", "Midnight Lounge from 11 at night to 5 in the morning"},
+            {"festival", "Festivals", "Diwali Night for the five days of Diwali, Neon City on New Year's Eve"},
     };
     // In order: "mumbai indians" before "india", which it contains.
     private static final Map<String, String> TEAM_LOOK = new java.util.LinkedHashMap<>(), SHOW_LOOK = new HashMap<>();
@@ -40,6 +41,21 @@ final class Rules {
     }
 
     private Rules() {}
+
+    /** Lakshmi Puja, the main night of Diwali (it moves with the lunar calendar), 2025 to 2035. */
+    private static final String[] DIWALI = {"2025-10-20", "2026-11-08", "2027-10-29", "2028-10-17", "2029-11-05", "2030-10-26",
+            "2031-11-14", "2032-11-02", "2033-10-22", "2034-11-10", "2035-10-30"};
+
+    /** "diwali" from two days before Lakshmi Puja to two days after, "newyear" from 6pm on 31 December; else null. */
+    static String festival(java.time.LocalDateTime now) {
+        java.time.LocalDate today = now.toLocalDate();
+        for (String d : DIWALI) {
+            java.time.LocalDate puja = java.time.LocalDate.parse(d);
+            if (!today.isBefore(puja.minusDays(2)) && !today.isAfter(puja.plusDays(2))) return "diwali";
+        }
+        if ((now.getMonthValue() == 12 && now.getDayOfMonth() == 31 && now.getHour() >= 18) || (now.getMonthValue() == 1 && now.getDayOfMonth() == 1 && now.getHour() < 3)) return "newyear";
+        return null;
+    }
 
     /** The look for a team, by name ("FC Barcelona" -> Camp Nou Nights); null for a team without one. */
     static String teamLook(String name) {
@@ -71,6 +87,10 @@ final class Rules {
                 if (look == null || turns == null) continue;
                 for (FanHub.Turn t : turns) if (now >= t.start && now - t.start < 8 * 3_600_000L && hour >= 17) return new String[]{look, "New " + show + " episode"};
             }
+        }
+        if (p.getBoolean("r_festival", true)) {
+            String f = festival(java.time.LocalDateTime.now());
+            if (f != null) return new String[]{f.equals("diwali") ? "diwali" : "neon", f.equals("diwali") ? "Diwali" : "New Year's Eve"};
         }
         if (p.getBoolean("r_late", true)) {
             Calendar c = Calendar.getInstance();

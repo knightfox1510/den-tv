@@ -104,6 +104,27 @@ public class DenScreensTest {
         save(b, "icons");
     }
 
+    @Test public void factsAndFigure() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        DenTheme.ensure(ctx);
+        DenLooks.Look look = DenLooks.byId(DenLooks.load(ctx), "domain");
+        Bitmap wall = BitmapFactory.decodeFile("../../themes/den-mix/wallpapers/" + look.wallpaper);
+        Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        if (wall != null) c.drawBitmap(wall, null, new android.graphics.Rect(0, 0, 1920, 1080), null);
+        View facts = DenFactsView.make(ctx, look, false);
+        layout(facts, 1920, 1080);
+        facts.draw(c);
+        // A stand-in character: one of the code-drawn walker pictures.
+        Bitmap body;
+        try (java.io.InputStream in = ctx.getAssets().open("den/watchers/walk-luffy.webp")) { body = BitmapFactory.decodeStream(in); }
+        DenFigureView fig = new DenFigureView(ctx, body, null, false, false);
+        layout(fig, 1920, 1080);
+        fig.lookAt(600, 860, "Netflix");
+        fig.draw(c);
+        save(b, "facts-figure");
+    }
+
     @Test public void picker() throws IOException {
         DenLooksActivity a = Robolectric.buildActivity(DenLooksActivity.class).setup().get();
         View root = a.getWindow().getDecorView();

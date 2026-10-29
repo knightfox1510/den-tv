@@ -248,11 +248,11 @@ final class PhoneServer {
             if (k.equals("cookie")) r.cookie = v;
         }
         // Only a paired phone may send a photo; anyone else is turned away before 15 MB is read.
-        if (r.path.equals("/api/photo") && length > MAX_BODY && !paired(token(r.cookie))) {
+        if ((r.path.equals("/api/photo") || r.path.equals("/api/character")) && length > MAX_BODY && !paired(token(r.cookie))) {
             send(c, 401, "application/json", "{\"error\":\"pair\"}".getBytes(StandardCharsets.UTF_8), null);
             return;
         }
-        if (length < 0 || length > (r.path.equals("/api/photo") ? MAX_PHOTO : MAX_BODY)) { send(c, 413, "text/plain", "Too large".getBytes(StandardCharsets.UTF_8), null); return; }
+        if (length < 0 || length > (r.path.equals("/api/photo") || r.path.equals("/api/character") ? MAX_PHOTO : MAX_BODY)) { send(c, 413, "text/plain", "Too large".getBytes(StandardCharsets.UTF_8), null); return; }
         r.body = new byte[length];
         int n = 0, got;
         while (n < length && (got = in.read(r.body, n, length - n)) > 0) n += got;
@@ -277,13 +277,19 @@ final class PhoneServer {
                 json(c, 200, state());
                 return;
             }
-            if (r.method.equals("GET") && (r.path.equals("/api/icon") || r.path.equals("/api/photo"))) {
-                byte[] png = r.path.equals("/api/icon") ? api.icon(param(r.query, "pkg")) : api.photoFile(param(r.query, "name"));
-                if (png == null) send(c, 404, "text/plain", "Not found".getBytes(StandardCharsets.UTF_8), null);
-                else send(c, 200, r.path.equals("/api/icon") ? "image/png" : "image/jpeg", png, null);
+            if (r.method.equals("GET") && (r.path.equals("/api/icon") || r.path.equals("/api/photo") || r.path.equals("/api/charimg"))) {
+                byte[] img = r.path.equals("/api/icon") ? api.icon(param(r.query, "pkg"))
+                        : r.path.equals("/api/photo") ? api.photoFile(param(r.query, "name"))
+                        : api.characterFile(param(r.query, "id"), "1".equals(param(r.query, "closed")));
+                if (img == null) send(c, 404, "text/plain", "Not found".getBytes(StandardCharsets.UTF_8), null);
+                else send(c, 200, r.path.equals("/api/photo") ? "image/jpeg" : "image/png", img, null);
                 return;
             }
             if (r.method.equals("POST") && r.path.equals("/api/photo")) { json(c, 200, api.savePhoto(r.body)); return; }
+            if (r.method.equals("POST") && r.path.equals("/api/character")) {
+                json(c, 200, api.saveCharacter(r.body, param(r.query, "id"), param(r.query, "name"), "1".equals(param(r.query, "closed"))));
+                return;
+            }
             if (r.path.startsWith("/api/") && api.handles(r.path)) {
                 JSONObject in = r.method.equals("POST") && r.body.length > 0 ? new JSONObject(new String(r.body, StandardCharsets.UTF_8)) : new JSONObject();
                 json(c, 200, api.call(r.path, in, token));
@@ -432,7 +438,7 @@ final class PhoneServer {
     private JSONObject settings(JSONObject body) throws JSONException {
         ContentValues v = new ContentValues();
         if (body.has("greeting_name")) v.put("greeting_name", body.optString("greeting_name"));
-        for (String k : new String[]{"show_greeting", "fan_panel", "watcher", "wake", "reduced_motion", "animations"}) if (body.has(k)) v.put(k, body.optBoolean(k) ? "1" : "0");
+        for (String k : new String[]{"show_greeting", "fan_panel", "watcher", "wake", "reduced_motion", "animations", "facts", "stats"}) if (body.has(k)) v.put(k, body.optBoolean(k) ? "1" : "0");
         if (body.has("idle_clock")) v.put("idle_clock", String.valueOf(body.optInt("idle_clock", -1)));
         try {
             ctx.getContentResolver().update(SETTINGS, v, null, null);

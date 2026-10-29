@@ -111,6 +111,29 @@ final class Store {
 
     /** config.json in the app's own folder on the TV (the command-line Fan Hub's format), else the defaults. */
     static FanHub.Config config(Context ctx) {
+        FanHub.Config c = readConfig(ctx);
+        SharedPreferences p = prefs(ctx);
+        if (p.getBoolean("hike_on", false)) c.hike = FanHub.place(p.getString("hike_place", "rajmachi"));
+        return c;
+    }
+
+    static org.json.JSONObject hike(Context ctx) throws JSONException {
+        SharedPreferences p = prefs(ctx);
+        org.json.JSONArray places = new org.json.JSONArray();
+        for (FanHub.Place pl : FanHub.PLACES) places.put(new org.json.JSONObject().put("id", pl.id).put("name", pl.name));
+        return new org.json.JSONObject().put("on", p.getBoolean("hike_on", false)).put("place", p.getString("hike_place", "rajmachi")).put("places", places);
+    }
+
+    static org.json.JSONObject setHike(Context ctx, org.json.JSONObject in) throws JSONException {
+        SharedPreferences.Editor e = prefs(ctx).edit();
+        if (in.has("on")) e.putBoolean("hike_on", in.optBoolean("on"));
+        if (in.has("place")) e.putString("hike_place", FanHub.place(in.optString("place")).id);
+        e.apply();
+        refresh(ctx, true);
+        return hike(ctx).put("ok", true);
+    }
+
+    private static FanHub.Config readConfig(Context ctx) {
         File dir = ctx.getExternalFilesDir(null);
         File f = dir == null ? null : new File(dir, "config.json");
         if (f == null || !f.isFile()) return FanHub.Config.defaults();

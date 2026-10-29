@@ -4,7 +4,7 @@ The den-tv home screen for Android TV and Google TV: the [cleanyourtv](https://g
 launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top. It installs as
 `tv.den.launcher`, so it sits beside the cleanyourtv launcher or replaces it.
 
-## What it does (v0.4)
+## What it does (v0.5)
 
 - **Looks tile.** A Looks tile in the dock opens every look with its wallpaper. OK puts a look on Home and
   Back keeps what is on. The first tile, "Rotate every look", goes back to a new wallpaper every 5 minutes.
@@ -40,6 +40,15 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
     watch now for a live match or new episode, and every app.
   - **TV:** Wi-Fi strength and a speed test, memory and closing background apps, storage, screen time, the kids
     timer, quiet hours and paired phones.
+
+  - **People:** who's watching. Each person has a name for the greeting, a colour and their own look; a guest
+    sees only looks for everyone, no match panel and no name, until the TV sleeps. Switch from the phone or from
+    the "Watching" tile on the TV's Looks screen.
+  - **Your characters** (Looks tab): a picture of yours as a big figure that leans toward the app you pick, or a
+    small walker that walks to it; an eyes-closed picture makes it blink. Kept on the TV only.
+  - **Widgets on Home** (Tweak tab): "Did you know?" facts along the bottom, the system line, and the weekend
+    hike forecast (Open-Meteo, from Friday noon) in the match panel.
+  - **Festivals** (Auto tab): Diwali Night for the five days of Diwali, Neon City on New Year's Eve.
 
   Pairing only works while the Fan Hub or setup screen shows the code. Back, Home, sleep, typing, opening apps,
   screen time and the kids timer need the **den-tv helper**: on the TV, Settings → Accessibility → den-tv helper →

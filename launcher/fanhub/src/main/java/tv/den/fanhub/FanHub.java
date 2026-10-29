@@ -46,6 +46,8 @@ final class FanHub {
         final List<Team> teams = new ArrayList<>();
         final List<String> shows = new ArrayList<>();
         String sportsdbKey = "123";
+        /** The weekend hike forecast's place, from the phone; null when the forecast is off. */
+        Place hike;
 
         /** fanhub/config.example.json's defaults: Barça, India, Mumbai Indians and three shows. */
         static Config defaults() {
@@ -321,7 +323,71 @@ final class FanHub {
                 if (prev.containsKey(key)) out.put(key, prev.get(key));
             }
         }
+        if (cfg.hike != null) {
+            try {
+                JSONObject r = get("https://api.open-meteo.com/v1/forecast?latitude=" + cfg.hike.lat + "&longitude=" + cfg.hike.lon
+                        + "&daily=temperature_2m_max,precipitation_probability_max&timezone=auto&forecast_days=7");
+                Turn t = hikeTurn(cfg.hike.name, r, now);
+                out.put("hike", t == null ? Collections.emptyList() : Collections.singletonList(t));
+            } catch (IOException | JSONException e) {
+                errors.add("Weather: " + e.getMessage());
+                if (prev.containsKey("hike")) out.put("hike", prev.get("hike"));
+            }
+        }
         return flatten(out, now);
+    }
+
+    // ---- the weekend hike forecast -------------------------------------------------------------------------------
+
+    static final class Place {
+        final String id, name;
+        final double lat, lon;
+        Place(String id, String name, double lat, double lon) { this.id = id; this.name = name; this.lat = lat; this.lon = lon; }
+    }
+
+    /** The mockup's places in the Sahyadris, and the two cities. */
+    static final Place[] PLACES = {
+            new Place("rajmachi", "Rajmachi", 18.83, 73.4), new Place("lonavala", "Lonavala", 18.75, 73.41),
+            new Place("sinhagad", "Sinhagad", 18.37, 73.76), new Place("harishchandragad", "Harishchandragad", 19.39, 73.78),
+            new Place("kalsubai", "Kalsubai", 19.6, 73.71), new Place("mumbai", "Mumbai", 19.08, 72.88), new Place("pune", "Pune", 18.52, 73.86)};
+
+    static Place place(String id) {
+        for (Place p : PLACES) if (p.id.equals(id)) return p;
+        return PLACES[0];
+    }
+
+    /**
+     * From Friday noon to Sunday noon, the better of Saturday and Sunday for a hike (less chance of rain, then the
+     * cooler), as a turn that counts down to 6 in the morning and is on until noon. Open-Meteo answers in the place's
+     * own time zone (timezone=auto), with its UTC offset.
+     */
+    static Turn hikeTurn(String place, JSONObject r, long now) {
+        JSONObject d = r == null ? null : r.optJSONObject("daily");
+        JSONArray days = d == null ? null : d.optJSONArray("time");
+        JSONArray temp = d == null ? null : d.optJSONArray("temperature_2m_max");
+        JSONArray rain = d == null ? null : d.optJSONArray("precipitation_probability_max");
+        if (days == null || temp == null || rain == null) return null;
+        java.time.ZoneOffset zone = java.time.ZoneOffset.ofTotalSeconds(r.optInt("utc_offset_seconds"));
+        java.time.ZonedDateTime local = Instant.ofEpochMilli(now).atZone(zone);
+        java.time.DayOfWeek dow = local.getDayOfWeek();
+        boolean window = (dow == java.time.DayOfWeek.FRIDAY && local.getHour() >= 12) || dow == java.time.DayOfWeek.SATURDAY
+                || (dow == java.time.DayOfWeek.SUNDAY && local.getHour() < 12);
+        if (!window) return null;
+        int best = -1;
+        for (int i = 0; i < days.length(); i++) {
+            LocalDate day = LocalDate.parse(days.optString(i));
+            if (day.isBefore(local.toLocalDate()) || day.isAfter(local.toLocalDate().plusDays(2))) continue;
+            if (day.getDayOfWeek() != java.time.DayOfWeek.SATURDAY && day.getDayOfWeek() != java.time.DayOfWeek.SUNDAY) continue;
+            long end = day.atTime(12, 0).atZone(zone).toInstant().toEpochMilli();
+            if (end <= now) continue;
+            if (best < 0 || rain.optInt(i) < rain.optInt(best) || (rain.optInt(i) == rain.optInt(best) && temp.optDouble(i) < temp.optDouble(best))) best = i;
+        }
+        if (best < 0) return null;
+        LocalDate day = LocalDate.parse(days.optString(best));
+        String top = ("Hike \u00B7 " + place + " \u00B7 " + day.getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, Locale.ENGLISH) + " "
+                + Math.round(temp.optDouble(best)) + "\u00B0 \u00B7 " + rain.optInt(best) + "% rain").toUpperCase(Locale.ROOT);
+        return new Turn(top, "Set off", day.atTime(6, 0).atZone(zone).toInstant().toEpochMilli(),
+                day.atTime(12, 0).atZone(zone).toInstant().toEpochMilli(), 0xff3ddc84, false);
     }
 
     static List<Turn> flatten(Map<String, List<Turn>> bySource, long now) {

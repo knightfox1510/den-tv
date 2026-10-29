@@ -137,4 +137,26 @@ public class FanHubTest {
         assertEquals("blue-billion", Rules.teamLook("India"));
         assertNull(Rules.teamLook("Arsenal"));
     }
+
+    @Test public void festivalsByDate() {
+        assertEquals("diwali", Rules.festival(java.time.LocalDateTime.of(2026, 11, 8, 20, 0)));
+        assertEquals("diwali", Rules.festival(java.time.LocalDateTime.of(2026, 11, 6, 9, 0)));
+        assertNull(Rules.festival(java.time.LocalDateTime.of(2026, 11, 11, 9, 0)));
+        assertEquals("newyear", Rules.festival(java.time.LocalDateTime.of(2026, 12, 31, 22, 0)));
+        assertNull(Rules.festival(java.time.LocalDateTime.of(2026, 12, 31, 12, 0)));
+    }
+
+    @Test public void hikePicksTheDrierWeekendDay() throws Exception {
+        // Friday 30 October 2026, 18:00 in India.
+        long now = java.time.ZonedDateTime.of(2026, 10, 30, 18, 0, 0, 0, java.time.ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli();
+        JSONObject r = new JSONObject("{\"utc_offset_seconds\":19800,\"daily\":{\"time\":[\"2026-10-30\",\"2026-10-31\",\"2026-11-01\"],"
+                + "\"temperature_2m_max\":[30,27.6,25],\"precipitation_probability_max\":[5,40,10]}}");
+        FanHub.Turn t = FanHub.hikeTurn("Rajmachi", r, now);
+        assertNotNull(t);
+        assertEquals("HIKE \u00B7 RAJMACHI \u00B7 SUN 25\u00B0 \u00B7 10% RAIN", t.topLine);
+        assertEquals(java.time.ZonedDateTime.of(2026, 11, 1, 6, 0, 0, 0, java.time.ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli(), t.start);
+        // Tuesday: no forecast.
+        long tue = java.time.ZonedDateTime.of(2026, 11, 3, 18, 0, 0, 0, java.time.ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli();
+        assertNull(FanHub.hikeTurn("Rajmachi", r, tue));
+    }
 }
