@@ -221,6 +221,13 @@ final class DenLayer {
 
     void onResume() {
         heroWall();
+        DenBadges.refresh(activity, () -> {
+            View grid = activity.findViewById(R.id.grid);
+            if (grid instanceof androidx.recyclerview.widget.RecyclerView) {
+                androidx.recyclerview.widget.RecyclerView.Adapter<?> a = ((androidx.recyclerview.widget.RecyclerView) grid).getAdapter();
+                if (a != null) a.notifyItemRangeChanged(0, a.getItemCount());
+            }
+        });
         content.post(this::followFocus);
         DenMoments.attach(moments);
         content.post(DenMoments::replay);

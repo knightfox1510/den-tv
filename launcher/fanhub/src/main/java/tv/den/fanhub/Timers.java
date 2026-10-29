@@ -35,21 +35,77 @@ final class Timers {
     /** Minutes per app today, as {package: milliseconds}. */
     static synchronized JSONObject screenTime(Context ctx) {
         account(ctx, System.currentTimeMillis());
-        try { return new JSONObject(prefs(ctx).getString("st", "{}")); } catch (JSONException e) { return new JSONObject(); }
+        return json(prefs(ctx), "st");
     }
 
-    /** Adds the time since the last note to the app that was in front, starting a new day at midnight. */
+    /**
+     * Adds the time since the last note to the app that was in front, and to the person watching (DenPeople in the
+     * launcher). At midnight a new day starts, and yesterday's apps go into the week's running total, which fades a
+     * little each day (smart order sorts by it).
+     */
     private static void account(Context ctx, long now) {
         SharedPreferences p = prefs(ctx);
-        JSONObject st;
-        try { st = new JSONObject(p.getString("st", "{}")); } catch (JSONException e) { st = new JSONObject(); }
-        if (!today().equals(p.getString("st_date", ""))) st = new JSONObject();
+        JSONObject st = json(p, "st"), stp = json(p, "stp");
+        SharedPreferences.Editor e = p.edit();
+        if (!today().equals(p.getString("st_date", ""))) {
+            JSONObject wk = json(p, "wk"), next = new JSONObject();
+            try {
+                for (java.util.Iterator<String> it = wk.keys(); it.hasNext(); ) { String k = it.next(); long v = Math.round(wk.optLong(k) * 0.7); if (v > 60_000) next.put(k, v); }
+                for (java.util.Iterator<String> it = st.keys(); it.hasNext(); ) { String k = it.next(); next.put(k, next.optLong(k) + st.optLong(k)); }
+            } catch (JSONException ignored) { }
+            e.putString("wk", next.toString());
+            st = new JSONObject();
+            stp = new JSONObject();
+        }
         String front = p.getString("st_front", "");
         long since = p.getLong("st_since", now);
         if (!front.isEmpty() && now > since && now - since < 10 * 60_000L) {   // a long gap is the TV asleep, not watching
-            try { st.put(front, st.optLong(front) + (now - since)); } catch (JSONException ignored) { }
+            String who = person(ctx);
+            try {
+                st.put(front, st.optLong(front) + (now - since));
+                if (!who.isEmpty() && !front.equals("tv.den.launcher")) stp.put(who, stp.optLong(who) + (now - since));
+            } catch (JSONException ignored) { }
         }
-        p.edit().putString("st", st.toString()).putString("st_date", today()).putLong("st_since", now).apply();
+        e.putString("st", st.toString()).putString("stp", stp.toString()).putString("st_date", today()).putLong("st_since", now).apply();
+    }
+
+    private static JSONObject json(SharedPreferences p, String key) {
+        try { return new JSONObject(p.getString(key, "{}")); } catch (JSONException e) { return new JSONObject(); }
+    }
+
+    private static String person;
+    private static long personAt;
+
+    /** The name of whoever is watching, from the launcher, asked at most once a minute. */
+    private static String person(Context ctx) {
+        long now = System.currentTimeMillis();
+        if (person != null && now - personAt < 60_000L) return person;
+        String who = "";
+        try (android.database.Cursor c = ctx.getContentResolver().query(android.net.Uri.parse("content://tv.den.launcher.looks/people"), null, null, null, null)) {
+            while (c != null && c.moveToNext()) if ("1".equals(c.getString(5))) who = c.getString(1);
+        } catch (RuntimeException ignored) { }
+        person = who;
+        personAt = now;
+        return who;
+    }
+
+    /** Minutes per person today, as {name: milliseconds}. */
+    static synchronized JSONObject byPerson(Context ctx) {
+        account(ctx, System.currentTimeMillis());
+        return json(prefs(ctx), "stp");
+    }
+
+    /** The apps by how much they were watched lately (this week, fading, plus today), most first. */
+    static synchronized java.util.List<String> mostWatched(Context ctx) {
+        account(ctx, System.currentTimeMillis());
+        JSONObject wk = json(prefs(ctx), "wk"), st = json(prefs(ctx), "st");
+        java.util.Map<String, Long> total = new java.util.HashMap<>();
+        for (JSONObject j : new JSONObject[]{wk, st}) for (java.util.Iterator<String> it = j.keys(); it.hasNext(); ) { String k = it.next(); total.merge(k, j.optLong(k), Long::sum); }
+        total.remove("tv.den.launcher");
+        total.remove(ctx.getPackageName());
+        java.util.List<String> out = new java.util.ArrayList<>(total.keySet());
+        out.sort((a, b) -> Long.compare(total.get(b), total.get(a)));
+        return out;
     }
 
     static synchronized void foreground(Context ctx, String pkg) {
@@ -87,6 +143,11 @@ final class Timers {
                 Helper.home();
                 toast(ctx, "That's today's time for these apps");
             }
+        }
+        // Smart order, once a day when it is on: the most watched apps first.
+        if (p.getBoolean("smart_order", false) && !today().equals(p.getString("smart_day", ""))) {
+            p.edit().putString("smart_day", today()).apply();
+            sortApps(ctx);
         }
         // Quiet hours: the volume stays at or under the cap.
         if (p.getBoolean("quiet_on", false) && inside(p.getString("quiet_from", "22:30"), p.getString("quiet_to", "07:00"))) {
@@ -154,6 +215,16 @@ final class Timers {
         }
         e.apply();
         return get(ctx).put("ok", true);
+    }
+
+    /** Sends the most-watched order to the launcher; false when it can't (no launcher, or nothing watched yet). */
+    static boolean sortApps(Context ctx) {
+        java.util.List<String> order = mostWatched(ctx);
+        if (order.isEmpty()) return false;
+        android.content.ContentValues v = new android.content.ContentValues();
+        v.put("order", String.join(",", order));
+        try { return ctx.getContentResolver().update(android.net.Uri.parse("content://tv.den.launcher.looks/order"), v, null, null) > 0; }
+        catch (RuntimeException e) { return false; }
     }
 
     /** Opens an app, through the helper when another app is in front (Android blocks ordinary apps from that). */

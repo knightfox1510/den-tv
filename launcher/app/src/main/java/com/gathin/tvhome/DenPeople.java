@@ -22,14 +22,53 @@ final class DenPeople {
     static final class Person {
         final String id, name, colour, look;
         final boolean guest;
+        /** A private person's PIN, hashed; "" for everyone else. Private photos show only while they watch. */
+        String pin = "";
 
         Person(String id, String name, String colour, String look, boolean guest) {
             this.id = id; this.name = name; this.colour = colour; this.look = look; this.guest = guest;
         }
 
+        boolean isPrivate() { return !pin.isEmpty(); }
+
+        Person withPin(String pin) { this.pin = pin == null ? "" : pin; return this; }
+
         JSONObject json() throws JSONException {
-            return new JSONObject().put("id", id).put("name", name).put("colour", colour).put("look", look).put("guest", guest);
+            return new JSONObject().put("id", id).put("name", name).put("colour", colour).put("look", look).put("guest", guest).put("pin", pin);
         }
+    }
+
+    /** The PIN as kept: hashed with the person's id, never the digits themselves. */
+    static String hash(String id, String pin) {
+        try {
+            byte[] h = java.security.MessageDigest.getInstance("SHA-256").digest((id + ":" + pin).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder b = new StringBuilder();
+            for (byte x : h) b.append(String.format(java.util.Locale.ROOT, "%02x", x));
+            return b.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            return "";
+        }
+    }
+
+    /** Adds the private person (or changes its PIN): 4 to 8 digits. */
+    static boolean makePrivate(Context ctx, String name, String pin) {
+        if (pin == null || !pin.matches("\\d{4,8}")) return false;
+        List<Person> all = all(ctx);
+        for (int i = 0; i < all.size(); i++) {
+            Person p = all.get(i);
+            if (p.isPrivate()) { all.set(i, new Person(p.id, p.name, p.colour, p.look, false).withPin(hash(p.id, pin))); save(ctx, all); return true; }
+        }
+        if (all.size() >= MAX) return false;
+        String id = "private";
+        all.add(new Person(id, name == null || name.trim().isEmpty() ? "Private" : name.trim(), "#ff4d6d", "", false).withPin(hash(id, pin)));
+        save(ctx, all);
+        return true;
+    }
+
+    /** Whoever is watching now is private (their photos may show). */
+    static boolean privateNow(Context ctx) {
+        Person p = current(ctx);
+        return p != null && p.isPrivate();
     }
 
     private DenPeople() {}
@@ -43,7 +82,8 @@ final class DenPeople {
             JSONArray a = new JSONArray(prefs(ctx).getString(KEY, "[]"));
             for (int i = 0; i < a.length(); i++) {
                 JSONObject o = a.getJSONObject(i);
-                out.add(new Person(o.optString("id"), o.optString("name"), o.optString("colour", "#ffd36e"), o.optString("look", ""), o.optBoolean("guest")));
+                out.add(new Person(o.optString("id"), o.optString("name"), o.optString("colour", "#ffd36e"), o.optString("look", ""), o.optBoolean("guest"))
+                        .withPin(o.optString("pin", "")));
             }
         } catch (JSONException ignored) { }
         if (out.isEmpty()) {
@@ -74,9 +114,14 @@ final class DenPeople {
     }
 
     /** Switches to someone, puts their look on, and asks Home to rebuild. */
-    static boolean use(Context ctx, String id) {
+    static boolean use(Context ctx, String id) { return use(ctx, id, null); }
+
+    /** A private person needs their PIN. Leaving a private person takes their photo off Home. */
+    static boolean use(Context ctx, String id, String pin) {
         Person p = byId(ctx, id);
         if (p == null) return false;
+        if (p.isPrivate() && (pin == null || !hash(p.id, pin).equals(p.pin))) return false;
+        if (privateNow(ctx) && !p.isPrivate() && DenPhotos.privateOnHome(ctx)) DenLooks.apply(ctx, null);
         prefs(ctx).edit().putString(WHO, id).apply();
         List<DenLooks.Look> looks = DenLooks.load(ctx);
         if (!p.look.isEmpty()) {
@@ -96,7 +141,12 @@ final class DenPeople {
         List<Person> all = all(ctx);
         Person cur = current(ctx);
         int i = cur == null ? -1 : indexOf(all, cur.id);
-        return all.get((i + 1) % all.size());
+        // The TV's tile never offers the private person: that takes the PIN, from the phone.
+        for (int k = 1; k <= all.size(); k++) {
+            Person p = all.get((i + k) % all.size());
+            if (!p.isPrivate()) return p;
+        }
+        return all.get(0);
     }
 
     private static int indexOf(List<Person> all, String id) {
@@ -111,14 +161,14 @@ final class DenPeople {
         if (cur == null) return;
         int i = indexOf(all, cur.id);
         if (i < 0) return;
-        all.set(i, new Person(cur.id, cur.name, cur.colour, lookId, cur.guest));
+        all.set(i, new Person(cur.id, cur.name, cur.colour, lookId, cur.guest).withPin(cur.pin));
         save(ctx, all);
     }
 
-    /** Back to the first person (the TV went to sleep while a guest was watching). */
+    /** Back to the first person (the TV went to sleep while a guest, or the private person, was watching). */
     static void endGuest(Context ctx) {
         Person cur = current(ctx);
-        if (cur != null && cur.guest) use(ctx, all(ctx).get(0).id);
+        if (cur != null && (cur.guest || cur.isPrivate())) use(ctx, all(ctx).get(0).id);
     }
 
     /** Adds, renames or recolours someone (by id; a new id adds), or removes them; false when it can't. */
@@ -140,7 +190,8 @@ final class DenPeople {
             all.add(new Person("p" + System.currentTimeMillis(), n, c == null ? "#ff9ec4" : c, "", guest != null && guest));
         } else {
             Person p = all.get(i);
-            all.set(i, new Person(p.id, n == null || n.isEmpty() ? p.name : n, c == null ? p.colour : c, p.look, i > 0 && guest != null ? guest : p.guest));
+            all.set(i, new Person(p.id, n == null || n.isEmpty() ? p.name : n, c == null ? p.colour : c, p.look,
+                    i > 0 && guest != null && !p.isPrivate() ? guest : p.guest).withPin(p.pin));
         }
         save(ctx, all);
         bump(ctx);

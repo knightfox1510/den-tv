@@ -4,7 +4,7 @@ The den-tv home screen for Android TV and Google TV: the [cleanyourtv](https://g
 launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top. It installs as
 `tv.den.launcher`, so it sits beside the cleanyourtv launcher or replaces it.
 
-## What it does (v0.5)
+## What it does (v0.6)
 
 - **Looks tile.** A Looks tile in the dock opens every look with its wallpaper. OK puts a look on Home and
   Back keeps what is on. The first tile, "Rotate every look", goes back to a new wallpaper every 5 minutes.
@@ -18,8 +18,25 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
 - **App icon styles.** Tiles keep each app's own banner, full size, and the look's style is a frame over it:
   Wanted poster border, Dragon Ball stars, manga ink, neon edge, jersey stripes, enamel-pin gold, a scorecard
   name strip, pixel blocks, glass sheen, sticker edge, HUD brackets.
-- **Wake animation.** When the TV switches on, Home fades up from a soft flash and settles from a slight zoom.
-  It is off when Launcher settings has animations off or reduced motion on.
+- **Wake animations.** When the TV switches on, the look's wake plays: bloom, a HUD or terminal boot, a CRT
+  switch-on, a sword slash, a storm, a Sharingan spin, ink spreading, a tunnel and the rest (15). They are off when Launcher settings has animations off or reduced
+  motion on.
+- **Icon layouts.** Home's row stays one row (so the D-pad works as always), but each look can shape it:
+  `formation` (two lines on a pitch), `field` (round the boundary), `arc` (islands along the Grand Line route),
+  `shelf` (manga spines, the picked one slides out) and `carousel` (the picked tile big in the middle).
+- **Focus effects and extras.** Moving between apps can throw a spotlight, pass a football, draw a ball-tracking
+  arc, send ripples or pulse an aura. Extras drift over the wallpaper: flags, floodlight flashes, fireworks, crows,
+  petals, embers, confetti, sparks, gold, silver, leaves, wisteria, rain and snow; each scene has its own.
+- **Figures, Hero Wall and HUD.** Looks with a figure show a code-drawn character on the right that leans toward
+  the picked app and blinks. Hero Wall moves to the next hero at most every 5 minutes. The Geek look adds
+  SYSTEM, NETWORK and FEED panels on the right.
+- **Big moments.** With live scores on (football-data.org and CricketData.org keys, entered from the phone's
+  TV tab → Live data; they stay on the TV), a goal, or every fifty runs, plays the look's celebration: GOAL! with
+  confetti, a six sailing out of the ground, a Kamehameha beam, shadow soldiers rising, a punch or Gear 5. A new
+  episode slides its card in. Matches update every 2 minutes while live.
+- **Badges, smart order and the Shows folder.** Tiles show a red LIVE pill (with the score) on FanCode, Hotstar or
+  JioCinema while your match is on, and an orange EP pill on Crunchyroll for a new episode. The phone can sort
+  the row by what you watch (now, or every day), and put apps in a **Shows** folder tile on Home.
 - **Fan Hub add-on** (`fanhub/`, its own app, `tv.den.fanhub`). It fetches each team's next match from
   TheSportsDB (with the score while it is live) and each show's next episode from AniList, and Home shows them
   in the panel under the clock, a countdown before and LIVE during. The launcher stays offline; only the add-on
@@ -49,6 +66,14 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   - **Widgets on Home** (Tweak tab): "Did you know?" facts along the bottom, the system line, and the weekend
     hike forecast (Open-Meteo, from Friday noon) in the match panel.
   - **Festivals** (Auto tab): Diwali Night for the five days of Diwali, Neon City on New Year's Eve.
+  - **More rules** (Auto tab): IPL season (March to May, Wankhede for Mumbai Indians), weekend mornings (Saturday
+    and Sunday, 5 to 10, a dawn trail look) and **Surprise me** (a new random look every morning; off at first).
+  - **Make your own look** (Looks tab): pick any look's wallpaper, then your own watcher, clock, icons, layout,
+    focus effect, wake and extras, and a colour. Up to 20 of your own looks, in the picker under "Mine".
+  - **Private profile** (People tab): a PIN-locked person whose own photos show only while they are watching, and
+    who never comes up when switching to the next person. The PIN is stored hashed; 5 wrong tries lock it for
+    10 minutes. Leaving it (or the TV sleeping) goes back to the first person.
+  - **Screen time per person** (TV tab): today's minutes for each person, next to the minutes for each app.
 
   Pairing only works while the Fan Hub or setup screen shows the code. Back, Home, sleep, typing, opening apps,
   screen time and the kids timer need the **den-tv helper**: on the TV, Settings → Accessibility → den-tv helper →
@@ -61,12 +86,13 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
 - **Everything else from cleanyourtv:** dock and grid, D-pad navigation, Inputs and Wi-Fi pills, Launcher
   settings, the remote-button helpers and the safety checks in the install script.
 
-## Not in yet
+## Not possible
 
-Icon layouts other than the dock row (formation, cricket field, arc, shelf, carousel, rail), big moments (the
-goal and six celebrations), extras (flags, petals, rain and the rest), the figure on the right, and Hero Wall
-rotating its heroes. While looks rotate, no watcher shows, because each wallpaper would want a different one. The
-mockup (`mockups/den-looks.html`) shows where each of these is going.
+- **The rail layout** (a second row of tiles): Home's apps are one sideways row, and a second row would need the
+  launcher's grid and D-pad handling rewritten. Looks with `rail` use the plain row.
+- **Waking the TV from the phone**, the **arrow keys inside other apps** and **clearing other apps' caches**:
+  Android doesn't let an app do these. The Google TV app on your phone does the first two.
+- While looks rotate, no watcher shows, because each wallpaper would want a different one.
 
 ## Build
 
@@ -76,7 +102,9 @@ cd launcher && ./gradlew assembleRelease
 
 The launcher is `launcher/app/build/outputs/apk/release/app-release.apk` (about 9 MB, most of it wallpapers) and
 the Fan Hub is `launcher/fanhub/build/outputs/apk/release/fanhub-release.apk`.
-It needs JDK 17 or newer and the Android SDK (platform 34). Every push that changes the launcher, the looks or
+It needs JDK 17 or newer and the Android SDK (platform 34). `build-and-install.sh` (or `build-and-install.ps1` on
+Windows) builds both, installs them over ADB and makes den-tv the home screen; they use cleanyourtv's `tools/`, so
+clone cleanyourtv next to den-tv first. Every push that changes the launcher, the looks or
 the theme also builds it on GitHub: open the repo's **Actions** tab, then the latest **den-tv launcher** run,
 and download **den-tv-launcher** and **den-tv-fanhub** at the bottom.
 

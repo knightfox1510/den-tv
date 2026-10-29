@@ -28,6 +28,9 @@ final class Rules {
             {"episode", "New episode", "A show's look for the evening its new episode comes out"},
             {"late", "Late night", "Midnight Lounge from 11 at night to 5 in the morning"},
             {"festival", "Festivals", "Diwali Night for the five days of Diwali, Neon City on New Year's Eve"},
+            {"ipl", "IPL season", "March to May: Wankhede Roar in Mumbai Indians blue and gold, if you follow MI"},
+            {"weekend", "Weekend mornings", "Saturday and Sunday before 10: Trail Dawn"},
+            {"surprise", "Surprise me", "A different look every morning at 6 (stays until you change it)"},
     };
     // In order: "mumbai indians" before "india", which it contains.
     private static final Map<String, String> TEAM_LOOK = new java.util.LinkedHashMap<>(), SHOW_LOOK = new HashMap<>();
@@ -92,6 +95,17 @@ final class Rules {
             String f = festival(java.time.LocalDateTime.now());
             if (f != null) return new String[]{f.equals("diwali") ? "diwali" : "neon", f.equals("diwali") ? "Diwali" : "New Year's Eve"};
         }
+        if (p.getBoolean("r_weekend", true)) {
+            Calendar c = Calendar.getInstance();
+            int d = c.get(Calendar.DAY_OF_WEEK);
+            if ((d == Calendar.SATURDAY || d == Calendar.SUNDAY) && c.get(Calendar.HOUR_OF_DAY) >= 5 && c.get(Calendar.HOUR_OF_DAY) < 10) return new String[]{"trail-dawn", "Weekend morning"};
+        }
+        if (p.getBoolean("r_ipl", true)) {
+            int m = Calendar.getInstance().get(Calendar.MONTH);
+            boolean mi = false;
+            for (FanHub.Team t : cfg.teams) if (t.name.toLowerCase().contains("mumbai indians")) mi = true;
+            if (mi && m >= Calendar.MARCH && m <= Calendar.MAY) return new String[]{"wankhede", "IPL season"};
+        }
         if (p.getBoolean("r_late", true)) {
             Calendar c = Calendar.getInstance();
             if (Timers.inside(c.get(Calendar.HOUR_OF_DAY) * 60 + c.get(Calendar.MINUTE), 23 * 60, 5 * 60)) return new String[]{"midnight-lounge", "Late night"};
@@ -103,6 +117,7 @@ final class Rules {
     static synchronized void tick(Context ctx) {
         SharedPreferences p = prefs(ctx);
         if (!p.getBoolean("auto", false)) return;
+        surprise(ctx, p);
         String[] w = want(ctx, System.currentTimeMillis());
         String active = p.getString("active", "");
         String current = current(ctx);
@@ -116,6 +131,24 @@ final class Rules {
             if (active.equals(current)) set(ctx, p.getString("before", "rotate"));
             p.edit().remove("active").remove("before").apply();
         }
+    }
+
+    /** Surprise me: once a day from 6 in the morning, a different look (any but the one on), which then stays. */
+    private static void surprise(Context ctx, SharedPreferences p) {
+        if (!p.getBoolean("r_surprise", false)) return;
+        Calendar c = Calendar.getInstance();
+        String day = c.get(Calendar.YEAR) + "-" + c.get(Calendar.DAY_OF_YEAR);
+        if (c.get(Calendar.HOUR_OF_DAY) < 6 || day.equals(p.getString("surprise_day", ""))) return;
+        p.edit().putString("surprise_day", day).apply();
+        java.util.List<String> ids = new java.util.ArrayList<>();
+        String on = current(ctx);
+        try (Cursor cur = ctx.getContentResolver().query(Uri.parse(LOOKS), null, null, null, null)) {
+            while (cur != null && cur.moveToNext()) { String id = cur.getString(0); if (!"rotate".equals(id) && !id.equals(on)) ids.add(id); }
+        } catch (RuntimeException ignored) { }
+        if (ids.isEmpty()) return;
+        String pick = ids.get(new java.util.Random().nextInt(ids.size()));
+        if (p.getString("active", "").isEmpty()) set(ctx, pick);
+        else p.edit().putString("before", pick).apply();   // a rule's look is on: the surprise comes after it
     }
 
     static String current(Context ctx) {
@@ -134,7 +167,7 @@ final class Rules {
     static JSONObject get(Context ctx) throws JSONException {
         SharedPreferences p = prefs(ctx);
         org.json.JSONArray list = new org.json.JSONArray();
-        for (String[] r : RULES) list.put(new JSONObject().put("id", r[0]).put("name", r[1]).put("note", r[2]).put("on", p.getBoolean("r_" + r[0], true)));
+        for (String[] r : RULES) list.put(new JSONObject().put("id", r[0]).put("name", r[1]).put("note", r[2]).put("on", p.getBoolean("r_" + r[0], !"surprise".equals(r[0]))));
         String[] w = want(ctx, System.currentTimeMillis());
         return new JSONObject().put("auto", p.getBoolean("auto", false)).put("rules", list)
                 .put("now", w == null ? JSONObject.NULL : new JSONObject().put("look", w[0]).put("why", w[1]));

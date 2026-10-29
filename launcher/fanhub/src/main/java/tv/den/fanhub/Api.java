@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -87,6 +87,8 @@ final class Api {
             case "/api/hike": return in.length() == 0 ? Store.hike(ctx) : Store.setHike(ctx, in);
             case "/api/live": return in.length() == 0 ? Store.live(ctx) : in.optBoolean("refresh") ? refreshNow() : Store.setLive(ctx, in);
             case "/api/moment": return testMoment(in.optString("type"));
+            case "/api/mine": return in.length() == 0 ? mine() : mineAction(in);
+            case "/api/order": return order(in);
             default: return new JSONObject().put("error", "not found");
         }
     }
@@ -139,7 +141,7 @@ final class Api {
         try (Cursor c = ctx.getContentResolver().query(APPS, null, null, null, null)) {
             while (c != null && c.moveToNext()) {
                 list.put(new JSONObject().put("pkg", c.getString(0)).put("label", c.getString(1)).put("hidden", "1".equals(c.getString(2)))
-                        .put("renamed", c.getString(3)));
+                        .put("renamed", c.getString(3)).put("folder", c.getColumnCount() > 4 && "1".equals(c.getString(4))));
             }
         } catch (RuntimeException e) {
             PackageManager pm = ctx.getPackageManager();
@@ -157,6 +159,7 @@ final class Api {
         v.put("package", in.optString("pkg"));
         if (in.has("hidden")) v.put("hidden", in.optBoolean("hidden") ? "1" : "0");
         if (in.has("label")) v.put("label", in.optString("label"));
+        if (in.has("folder")) v.put("folder", in.optBoolean("folder") ? "1" : "0");
         try { return ok(ctx.getContentResolver().update(APPS, v, null, null) > 0); }
         catch (RuntimeException e) { return fail("The launcher didn't accept it. Update den-tv."); }
     }
@@ -312,7 +315,7 @@ final class Api {
 
     /** A small copy of a saved photo for the phone's list. */
     byte[] photoFile(String name) {
-        if (!name.matches("photo-\\d+\\.jpg")) return null;
+        if (!name.matches("photo-\\d+(-p)?\\.jpg")) return null;
         try (InputStream in = ctx.getContentResolver().openInputStream(Uri.parse(L + "photos/" + name))) {
             if (in == null) return null;
             BitmapFactory.Options o = new BitmapFactory.Options();
@@ -446,7 +449,11 @@ final class Api {
             list.put(new JSONObject().put("pkg", pkg).put("label", label).put("minutes", ms / 60_000));
             total += ms;
         }
-        return new JSONObject().put("apps", list).put("minutes", total / 60_000).put("helper", Helper.on());
+        JSONObject by = Timers.byPerson(ctx);
+        JSONArray people = new JSONArray();
+        for (Iterator<String> it = by.keys(); it.hasNext(); ) { String n = it.next(); people.put(new JSONObject().put("name", n).put("minutes", by.optLong(n) / 60_000)); }
+        return new JSONObject().put("apps", list).put("people", people).put("minutes", total / 60_000).put("helper", Helper.on())
+                .put("smartOrder", Timers.prefs(ctx).getBoolean("smart_order", false));
     }
 
     // ---- people ----------------------------------------------------------------------------------------------------
@@ -458,7 +465,8 @@ final class Api {
         try (Cursor c = ctx.getContentResolver().query(PEOPLE, null, null, null, null)) {
             while (c != null && c.moveToNext()) {
                 list.put(new JSONObject().put("id", c.getString(0)).put("name", c.getString(1)).put("colour", c.getString(2)).put("look", c.getString(3))
-                        .put("guest", "1".equals(c.getString(4))).put("on", "1".equals(c.getString(5))));
+                        .put("guest", "1".equals(c.getString(4))).put("on", "1".equals(c.getString(5)))
+                        .put("private", c.getColumnCount() > 6 && "1".equals(c.getString(6))));
             }
         } catch (RuntimeException e) {
             return new JSONObject().put("people", list).put("error", "Update the den-tv launcher to use people.");
@@ -466,12 +474,25 @@ final class Api {
         return new JSONObject().put("people", list);
     }
 
+    private int wrongPins;
+    private long wrongSince;
+
     private JSONObject person(JSONObject in) throws JSONException {
+        if (in.has("pin")) {
+            // A few wrong PINs, then a pause: guessing 10,000 PINs from a phone is not practical.
+            long now = System.currentTimeMillis();
+            if (now - wrongSince > 10 * 60_000L) { wrongPins = 0; wrongSince = now; }
+            if (wrongPins >= 5) return fail("Too many wrong PINs. Try again in a few minutes.");
+        }
         ContentValues v = new ContentValues();
-        for (String k : new String[]{"use", "remove", "id", "name", "colour"}) if (in.has(k)) v.put(k, in.optString(k));
+        for (String k : new String[]{"use", "remove", "id", "name", "colour", "pin"}) if (in.has(k)) v.put(k, in.optString(k));
+        if (in.optBoolean("private")) v.put("private", "1");
         if (in.has("guest")) v.put("guest", in.optBoolean("guest") ? "1" : "0");
-        try { return ok(ctx.getContentResolver().update(PEOPLE, v, null, null) > 0); }
-        catch (RuntimeException e) { return fail("The launcher didn't accept it."); }
+        try {
+            boolean done = ctx.getContentResolver().update(PEOPLE, v, null, null) > 0;
+            if (!done && in.has("pin") && in.has("use")) { wrongPins++; return fail("That PIN isn't right."); }
+            return ok(done);
+        } catch (RuntimeException e) { return fail("The launcher didn't accept it."); }
     }
 
     // ---- characters ----------------------------------------------------------------------------------------------
@@ -565,6 +586,39 @@ final class Api {
             return Moments.play(ctx, x[0], x[1], x[2], Integer.parseInt(x[3])) ? ok(true) : fail("Update the den-tv launcher to play moments.");
         }
         return fail("Unknown moment");
+    }
+
+    // ---- your own looks and smart order --------------------------------------------------------------------------
+
+    private static final Uri MINE = Uri.parse(L + "mine");
+
+    private JSONObject mine() throws JSONException {
+        JSONArray list = new JSONArray();
+        JSONObject parts = new JSONObject();
+        try (Cursor c = ctx.getContentResolver().query(MINE, null, null, null, null)) {
+            while (c != null && c.moveToNext()) {
+                if ("parts".equals(c.getString(0))) parts = new JSONObject(c.getString(1));
+                else list.put(new JSONObject(c.getString(1)));
+            }
+        } catch (RuntimeException e) {
+            return new JSONObject().put("mine", list).put("error", "Update the den-tv launcher to make looks.");
+        }
+        return new JSONObject().put("mine", list).put("parts", parts);
+    }
+
+    private JSONObject mineAction(JSONObject in) throws JSONException {
+        ContentValues v = new ContentValues();
+        if (in.has("delete")) v.put("delete", in.optString("delete"));
+        else v.put("json", in.toString());
+        try { return ok(ctx.getContentResolver().update(MINE, v, null, null) > 0); }
+        catch (RuntimeException e) { return fail("The launcher didn't accept it."); }
+    }
+
+    /** Sort now, or switch the daily sort on or off. */
+    private JSONObject order(JSONObject in) throws JSONException {
+        if (in.has("daily")) Timers.prefs(ctx).edit().putBoolean("smart_order", in.optBoolean("daily")).apply();
+        boolean sorted = in.optBoolean("now") && Timers.sortApps(ctx);
+        return ok(true).put("sorted", sorted).put("daily", Timers.prefs(ctx).getBoolean("smart_order", false));
     }
 
     // ---- paired phones -------------------------------------------------------------------------------------------

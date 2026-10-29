@@ -287,7 +287,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
             // The launcher's own entries stay out of the grid, except den-tv's Looks tile.
-            if ((pkg.equals(ctx.getPackageName()) && !ri.activityInfo.name.equals(DenLooksActivity.class.getName())) || !ri.activityInfo.exported
+            if ((pkg.equals(ctx.getPackageName()) && !ri.activityInfo.name.equals(DenLooksActivity.class.getName())
+                    && !ri.activityInfo.name.equals(DenFolderActivity.class.getName())) || !ri.activityInfo.exported
                     || !LibraryApps.visible(tvPackages.contains(pkg), hidden.contains(pkg), added.contains(pkg), removed.contains(pkg))) continue;
             ComponentName component = new ComponentName(pkg, ri.activityInfo.name);
             Cards.Card card = cardByPkg.get(pkg);

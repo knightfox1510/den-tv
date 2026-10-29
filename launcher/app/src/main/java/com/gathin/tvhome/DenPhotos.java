@@ -20,6 +20,10 @@ import java.util.List;
  */
 final class DenPhotos {
     static final int MAX = 12;
+    static final String NAME = "photo-\\d+(-p)?\\.jpg";
+
+    /** The photo on Home is a private one. */
+    static boolean privateOnHome(Context ctx) { return DenSettings.prefs(ctx).getString("photo_name", "").endsWith("-p.jpg"); }
 
     private DenPhotos() {}
 
@@ -31,7 +35,9 @@ final class DenPhotos {
     /** Newest first. */
     static List<File> list(Context ctx) {
         File d = dir(ctx);
-        File[] files = d == null ? null : d.listFiles((f) -> f.getName().endsWith(".jpg"));
+        boolean priv = DenPeople.privateNow(ctx);
+        // Private photos (photo-…-p.jpg) only while the private person watches.
+        File[] files = d == null ? null : d.listFiles((f) -> f.getName().endsWith(".jpg") && (priv || !f.getName().endsWith("-p.jpg")));
         List<File> out = new ArrayList<>();
         if (files == null) return out;
         Arrays.sort(files, (a, b) -> b.getName().compareTo(a.getName()));
@@ -46,13 +52,14 @@ final class DenPhotos {
         List<File> all = list(ctx);
         for (int i = MAX - 1; i < all.size(); i++) //noinspection ResultOfMethodCallIgnored
             all.get(i).delete();
-        return new File(d, "photo-" + System.currentTimeMillis() + ".jpg");
+        return new File(d, "photo-" + System.currentTimeMillis() + (DenPeople.privateNow(ctx) ? "-p" : "") + ".jpg");
     }
 
     /** Puts a saved photo on Home. */
     static boolean use(Context ctx, String name) throws IOException {
         File d = dir(ctx), base = ctx.getExternalFilesDir(null);
-        if (d == null || base == null || !name.matches("photo-\\d+\\.jpg")) return false;
+        if (d == null || base == null || !name.matches(NAME)) return false;
+        if (name.endsWith("-p.jpg") && !DenPeople.privateNow(ctx)) return false;
         File from = new File(d, name);
         if (!from.isFile()) return false;
         File walls = new File(base, "wallpapers"), to = new File(walls, DenSettings.PHOTO_FILE);
@@ -71,7 +78,8 @@ final class DenPhotos {
 
     static boolean delete(Context ctx, String name) {
         File d = dir(ctx);
-        if (d == null || !name.matches("photo-\\d+\\.jpg")) return false;
+        if (d == null || !name.matches(NAME)) return false;
+        if (name.endsWith("-p.jpg") && !DenPeople.privateNow(ctx)) return false;
         if (name.equals(DenSettings.prefs(ctx).getString("photo_name", ""))) clear(ctx);
         return new File(d, name).delete();
     }

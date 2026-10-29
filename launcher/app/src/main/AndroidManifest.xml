@@ -110,6 +110,24 @@
             </intent-filter>
         </activity>
 
+        <!-- den-tv's Shows folder: a tile that holds the streaming apps you put in it (DenFolderActivity). Off until
+             the phone puts the first app in. -->
+        <activity
+            android:name=".DenFolderActivity"
+            android:enabled="false"
+            android:exported="true"
+            android:label="Shows"
+            android:icon="@drawable/den_shows_banner"
+            android:banner="@drawable/den_shows_banner"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

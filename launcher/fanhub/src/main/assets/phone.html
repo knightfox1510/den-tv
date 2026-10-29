@@ -143,6 +143,15 @@
     <div id="lookCats" class="chips" style="margin:10px 0"></div>
     <div id="looks" class="looks"></div>
     <div id="lookMsg" class="msg" role="status"></div>
+    <details class="card" id="mineCard"><summary><span><b>Make your own look</b><small>Any look's wallpaper, with your own parts</small></span></summary><div class="in">
+      <label for="mName" style="margin-top:0">Name</label><input id="mName" maxlength="24" placeholder="e.g. Saturday nights">
+      <label for="mBase">Start from</label><select id="mBase"></select>
+      <div id="mParts"></div>
+      <label>Colour</label><input type="color" id="mAccent" class="swatch" value="#ff4d6d">
+      <button id="mSave">Save and put it on</button>
+      <div id="mMsg" class="msg" role="status"></div>
+      <div id="mList"></div>
+    </div></details>
     <h2>Your photos</h2>
     <p>Put one of your own photos on Home. It stays on the TV only, and never joins the rotating looks.</p>
     <div id="photos" class="photos"></div>
@@ -165,6 +174,11 @@
   <section id="t-people" data-tab hidden>
     <p>Who's watching. Each person has their own look and name on Home. A guest sees only looks for everyone, no scores and no name, and the TV goes back to the first person when it sleeps.</p>
     <div id="people"></div>
+    <details class="card"><summary><span><b>Private profile</b><small>PIN-locked, for your own photos</small></span></summary><div class="in">
+      <p>Photos added while it's on show only while it's on. It needs its PIN to switch to, never shows on the TV's Watching tile, and the TV leaves it when it sleeps.</p>
+      <label for="privPin" style="margin-top:0">PIN (4 to 8 digits)</label><input id="privPin" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password">
+      <button id="privSave">Set the PIN</button>
+    </div></details>
     <details class="card"><summary><span><b>Add someone</b><small>Up to six people</small></span></summary><div class="in">
       <label for="pName" style="margin-top:0">Name</label><input id="pName" maxlength="20">
       <div class="row" style="margin-top:10px"><input type="color" id="pColour" class="swatch" value="#ff9ec4" style="flex:none" aria-label="Colour"><label class="toggle" style="border:0;padding:0;flex:1"><span>Guest<small>Only looks for everyone</small></span><input type="checkbox" id="pGuest"></label></div>
@@ -198,7 +212,9 @@
       <div id="widMsg" class="msg" role="status"></div>
     </div></details>
     <details class="card" id="appsCard"><summary><span><b>Apps on Home</b><small>Hide, show and rename</small></span></summary><div class="in">
-      <p>Untick to hide an app from Home (it stays in the App library). Type to rename it.</p>
+      <p>Untick to hide an app from Home (it stays in the App library). Type to rename it. "Shows" puts it in the Shows folder tile instead.</p>
+      <div class="row"><button id="sortNow" class="ghost">Sort by what you watch</button></div>
+      <label class="toggle"><span>Keep sorted<small>Every morning, the apps you watch most go first</small></span><input type="checkbox" id="sortDaily"></label>
       <div id="applist" class="applist"></div>
       <div id="appMsg" class="msg" role="status"></div>
     </div></details>
@@ -272,6 +288,7 @@
     </div></details>
     <details class="card"><summary><span><b>Screen time</b><small id="stSum"></small></span></summary><div class="in">
       <div id="stBars" class="bars"></div>
+      <label>By person</label><div id="stPeople" class="bars"></div>
     </div></details>
     <details class="card"><summary><span><b>Kids timer</b><small id="kidsSum"></small></span></summary><div class="in">
       <label class="toggle" style="padding-top:0"><span>On<small>Once today's time in these apps is up, they go back Home</small></span><input type="checkbox" id="kidsOn"></label>
@@ -471,6 +488,33 @@
   }
   $('lookFind').addEventListener('input', drawLooks);
   async function loadLooks() { drawLooks(); loadPhotos(); loadChars(); }
+  const MPART = { watcher: 'Watcher', clock: 'Clock', icons: 'App icons', icon_layout: 'Icon layout', focus: 'When you move between apps', wake: 'Wake animation', extras: 'Extras' };
+  $('mineCard').addEventListener('toggle', async () => { if ($('mineCard').open) loadMine(); });
+  async function loadMine() {
+    const r = (await api('/api/mine')).json;
+    if (r.error) { say($('mMsg'), r.error, true); return; }
+    const base = $('mBase'); base.innerHTML = '';
+    (S.looks || []).filter((l) => l.id !== 'rotate' && !l.id.startsWith('mine-')).forEach((l) => { const o = el('option', null, l.name); o.value = l.id; base.appendChild(o); });
+    const box = $('mParts'); box.innerHTML = '';
+    Object.keys(MPART).forEach((k) => {
+      const lab = el('label', null, MPART[k]); const s = el('select'); s.id = 'm-' + k; lab.htmlFor = s.id;
+      const own = el('option', null, 'As the starting look'); own.value = ''; s.appendChild(own);
+      ((r.parts || {})[k] || []).forEach((c) => { const o = el('option', null, nice(c)); o.value = c; s.appendChild(o); });
+      box.appendChild(lab); box.appendChild(s);
+    });
+    const list = $('mList'); list.innerHTML = '';
+    (r.mine || []).forEach((m) => { const row = el('div', 'toggle'); row.appendChild(el('span', null, m.name));
+      const del = el('button', 'ghost', 'Delete'); del.style.cssText = 'width:auto;margin:0';
+      del.onclick = async () => { if (confirm('Delete ' + m.name + '?')) { await api('/api/mine', { delete: m.id }); loadMine(); } };
+      row.appendChild(del); list.appendChild(row); });
+  }
+  $('mSave').addEventListener('click', async () => {
+    const body = { name: $('mName').value.trim() || 'My look', base: $('mBase').value, accent: $('mAccent').value };
+    Object.keys(MPART).forEach((k) => { const v = $('m-' + k).value; if (v) body[k] = v; });
+    const r = await api('/api/mine', body);
+    say($('mMsg'), r.json.ok ? body.name + ' is on Home. It\'s in the Looks tile under My looks.' : (r.json.error || 'Couldn\'t save (20 looks is the most).'), !r.json.ok);
+    if (r.json.ok) { const st = (await api('/api/state')).json; S.looks = st.looks; drawLooks(); loadMine(); }
+  });
   async function loadChars() {
     const r = (await api('/api/characters')).json, box = $('chars'); box.innerHTML = '';
     if (r.error) { box.appendChild(el('p', null, r.error)); return; }
@@ -517,15 +561,18 @@
       const name = el('input'); name.type = 'text'; name.value = p.name; name.maxLength = 20; name.setAttribute('aria-label', 'Name');
       name.onchange = async () => { await api('/api/people', { id: p.id, name: name.value.trim() }); };
       const use = el('button', p.on ? '' : 'ghost', p.on ? 'Watching' : 'Switch'); use.style.cssText = 'flex:none;width:auto;margin:0';
-      use.onclick = async () => { const x = await api('/api/people', { use: p.id }); say($('peopleMsg'), x.json.ok ? 'Now watching: ' + p.name + '.' : 'Couldn\'t switch.', !x.json.ok); loadPeople(); };
+      use.onclick = async () => {
+        const body = { use: p.id };
+        if (p.private) { const pin = prompt('PIN for ' + p.name); if (!pin) return; body.pin = pin; }
+        const x = await api('/api/people', body); say($('peopleMsg'), x.json.ok ? 'Now watching: ' + p.name + '.' : (x.json.error || 'Couldn\'t switch.'), !x.json.ok); loadPeople(); };
       row.appendChild(av); row.appendChild(name); row.appendChild(use); card.appendChild(row);
       const look = looks.find((l) => l.id === p.look);
-      card.appendChild(el('p', null, (p.guest ? 'Guest · ' : '') + (look ? 'Look: ' + look.name : p.look === 'rotate' ? 'Looks rotate' : 'No look of their own yet')));
+      card.appendChild(el('p', null, (p.private ? 'Private · ' : '') + (p.guest ? 'Guest · ' : '') + (look ? 'Look: ' + look.name : p.look === 'rotate' ? 'Looks rotate' : 'No look of their own yet')));
       const opts = el('div', 'row');
       const col = el('input'); col.type = 'color'; col.className = 'swatch'; col.value = p.colour; col.style.flex = 'none'; col.setAttribute('aria-label', 'Colour');
       col.onchange = async () => { await api('/api/people', { id: p.id, colour: col.value }); loadPeople(); };
       opts.appendChild(col);
-      if (i > 0) {
+      if (i > 0 && !p.private) {
         const g = el('label', 'toggle'); g.style.cssText = 'border:0;padding:0;flex:1'; const gs = el('span', null, 'Guest'); const gc = el('input'); gc.type = 'checkbox'; gc.checked = p.guest;
         gc.onchange = async () => { await api('/api/people', { id: p.id, guest: gc.checked }); loadPeople(); }; g.appendChild(gs); g.appendChild(gc); opts.appendChild(g);
         const del = el('button', 'ghost', 'Remove'); del.style.cssText = 'flex:none;width:auto;margin:0';
@@ -534,6 +581,11 @@
       card.appendChild(opts); box.appendChild(card);
     });
   }
+  $('privSave').addEventListener('click', async () => {
+    const pin = $('privPin').value.trim(); if (!/^\d{4,8}$/.test(pin)) { say($('peopleMsg'), 'The PIN is 4 to 8 digits.', true); return; }
+    const r = await api('/api/people', { private: true, name: 'Private', pin }); $('privPin').value = '';
+    say($('peopleMsg'), r.json.ok ? 'The private profile is ready. Switch to it here with its PIN.' : (r.json.error || 'Couldn\'t set it.'), !r.json.ok); loadPeople();
+  });
   $('pAdd').addEventListener('click', async () => {
     const name = $('pName').value.trim(); if (!name) { say($('peopleMsg'), 'Give them a name.', true); return; }
     const r = await api('/api/people', { id: '', name, colour: $('pColour').value, guest: $('pGuest').checked });
@@ -618,9 +670,15 @@
       name.onchange = async () => { const x = await api('/api/app', { pkg: a.pkg, label: name.value.trim() }); say($('appMsg'), x.json.ok ? 'Renamed.' : (x.json.error || 'Couldn\'t.'), !x.json.ok); };
       const cb = el('input'); cb.type = 'checkbox'; cb.checked = !a.hidden; cb.setAttribute('aria-label', 'Show ' + a.label + ' on Home');
       cb.onchange = async () => { const x = await api('/api/app', { pkg: a.pkg, hidden: !cb.checked }); say($('appMsg'), x.json.ok ? (cb.checked ? a.label + ' is back on Home.' : a.label + ' is hidden.') : (x.json.error || 'Couldn\'t.'), !x.json.ok); };
-      row.appendChild(name); row.appendChild(cb); box.appendChild(row);
+      const fold = el('button', 'chip', 'Shows'); fold.type = 'button'; fold.setAttribute('aria-pressed', a.folder ? 'true' : 'false'); fold.style.flex = 'none';
+      fold.onclick = async () => { const on = fold.getAttribute('aria-pressed') !== 'true'; const x = await api('/api/app', { pkg: a.pkg, folder: on });
+        if (x.json.ok) { fold.setAttribute('aria-pressed', on ? 'true' : 'false'); cb.checked = !on; say($('appMsg'), on ? a.label + ' is in the Shows folder.' : a.label + ' is back on the row.'); } };
+      row.appendChild(name); row.appendChild(fold); row.appendChild(cb); box.appendChild(row);
     });
+    const st = (await api('/api/screentime')).json; $('sortDaily').checked = !!st.smartOrder;
   });
+  $('sortNow').addEventListener('click', async () => { const r = await api('/api/order', { now: true }); say($('appMsg'), r.json.sorted ? 'Sorted: the apps you watch most go first.' : 'Nothing to sort by yet: screen time needs the den-tv helper and a little watching.', !r.json.sorted); });
+  $('sortDaily').addEventListener('change', async () => { await api('/api/order', { daily: $('sortDaily').checked }); });
   $('saveHub').addEventListener('click', async () => {
     say($('hubMsg'), 'Saving and looking up the teams…');
     const r = await api('/api/fanhub', { teams: lines('teams'), shows: lines('shows') });
@@ -701,6 +759,9 @@
     const bars = $('stBars'); bars.innerHTML = '';
     const top = Math.max(1, ...(st.apps || []).map((a) => a.minutes));
     (st.apps || []).sort((a, b) => b.minutes - a.minutes).forEach((a) => { const d = el('div'); d.appendChild(el('span', null, a.label)); const i = el('i'); i.style.width = Math.max(4, a.minutes / top * 100) + '%'; d.appendChild(i); d.appendChild(el('span', null, mins(a.minutes))); bars.appendChild(d); });
+    const sp = $('stPeople'); sp.innerHTML = '';
+    const topP = Math.max(1, ...(st.people || []).map((a) => a.minutes));
+    (st.people || []).forEach((a) => { const d = el('div'); d.appendChild(el('span', null, a.name)); const i = el('i'); i.style.width = Math.max(4, a.minutes / topP * 100) + '%'; i.style.background = '#ff9ec4'; d.appendChild(i); d.appendChild(el('span', null, mins(a.minutes))); sp.appendChild(d); });
     if (!(st.apps || []).length) bars.appendChild(el('p', null, st.helper ? 'Nothing yet today.' : 'Switch on the den-tv helper (Settings → Accessibility) to count screen time.'));
     const tm = (await api('/api/timers')).json, apps = (await api('/api/apps')).json.apps || [];
     $('kidsOn').checked = tm.kids.on; $('kidsMin').value = tm.kids.minutes;

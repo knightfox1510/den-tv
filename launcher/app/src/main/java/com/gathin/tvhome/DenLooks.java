@@ -3,6 +3,7 @@ package com.gathin.tvhome;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -82,7 +83,62 @@ final class DenLooks {
             String wall = sceneWall.get(j.optString("scene"));
             if (wall != null) looks.add(look(j, wall));
         }
+        // Your own looks, made on the phone: each starts from a look's wallpaper and scene, with its own parts.
+        try {
+            JSONArray mine = new JSONArray(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(MINE, "[]"));
+            for (int i = 0; i < mine.length(); i++) {
+                JSONObject j = mine.getJSONObject(i);
+                Look base = byId(looks, j.optString("base"));
+                if (base == null) continue;
+                JSONObject recipe = new JSONObject().put("id", j.optString("id")).put("name", j.optString("name", "My look")).put("category", "My looks")
+                        .put("for", "owner").put("scene", base.scene).put("hero", base.hero);
+                for (String k : new String[]{"watcher", "clock", "icons", "icon_layout", "focus", "wake", "extras", "accent", "moment"}) {
+                    if (j.has(k)) recipe.put(k, j.optString(k));
+                }
+                looks.add(look(recipe, base.wallpaper));
+            }
+        } catch (JSONException ignored) { }
         return looks;
+    }
+
+    /** Your own looks, as {"id": "mine-...", "name", "base": a look's id, and any parts}. */
+    static final String MINE = "mine";
+
+    /** Saves a look made on the phone (a new id adds, an existing one replaces); its id, or null. */
+    static String saveMine(Context ctx, JSONObject in) {
+        String id = in.optString("id");
+        if (id.isEmpty()) id = "mine-" + System.currentTimeMillis();
+        if (!id.matches("mine-\\d{1,16}") || in.optString("base").isEmpty()) return null;
+        SharedPreferences p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        try {
+            JSONArray old = new JSONArray(p.getString(MINE, "[]")), out = new JSONArray();
+            for (int i = 0; i < old.length(); i++) if (!id.equals(old.getJSONObject(i).optString("id"))) out.put(old.getJSONObject(i));
+            if (out.length() >= 20) return null;
+            JSONObject j = new JSONObject().put("id", id).put("name", in.optString("name", "My look").trim().isEmpty() ? "My look" : in.optString("name").trim())
+                    .put("base", in.optString("base"));
+            for (String k : new String[]{"watcher", "clock", "icons", "icon_layout", "focus", "wake", "extras", "accent"}) {
+                String v = in.optString(k, "").trim();
+                if (!v.isEmpty() && (k.equals("accent") ? v.matches("#[0-9a-fA-F]{6}") : v.matches("[a-z0-9]{1,20}"))) j.put(k, v);
+            }
+            out.put(j);
+            p.edit().putString(MINE, out.toString()).apply();
+            return id;
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    static boolean deleteMine(Context ctx, String id) {
+        SharedPreferences p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        try {
+            JSONArray old = new JSONArray(p.getString(MINE, "[]")), out = new JSONArray();
+            for (int i = 0; i < old.length(); i++) if (!id.equals(old.getJSONObject(i).optString("id"))) out.put(old.getJSONObject(i));
+            if (out.length() == old.length()) return false;
+            p.edit().putString(MINE, out.toString()).apply();
+            return true;
+        } catch (JSONException e) {
+            return false;
+        }
     }
 
     private static Look look(JSONObject j, String wall) {

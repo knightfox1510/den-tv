@@ -1,6 +1,7 @@
-# Windows version of build-and-install.sh: build the launcher APK and install it on the TV as the
-# default home screen. Uses Android Studio's bundled JDK and the default SDK location unless
-# JAVA_HOME / ANDROID_HOME are set.
+# Windows version of build-and-install.sh: build the den-tv launcher APK (and the Fan Hub) and install it on the TV
+# as the default home screen. It uses cleanyourtv's tools\ (ADB over Wi-Fi, push, batch), so clone cleanyourtv next
+# to den-tv (or set $env:CLEANYOURTV to its folder) and make its tools\venv first. Uses Android Studio's bundled JDK
+# and the default SDK location unless JAVA_HOME / ANDROID_HOME are set.
 #
 # Usage: launcher\build-and-install.ps1 -TvHost 192.168.1.50 [-StockLauncher <package>|none]
 #        The stock launcher is detected from the TV when -StockLauncher is not given.
@@ -21,8 +22,14 @@ $OutputEncoding = New-Object System.Text.UTF8Encoding $false
 if (-not $TvHost) { throw 'pass -TvHost <tv ip> or set $env:TV_HOST' }
 $env:TV_HOST = $TvHost
 Set-Location $PSScriptRoot
+$cyt = if ($env:CLEANYOURTV) { $env:CLEANYOURTV } else { '..\..\cleanyourtv' }
+if (-not (Test-Path "$cyt\tools")) { throw "cleanyourtv's tools\ not found at $cyt; clone https://github.com/Gathin23/cleanyourtv next to den-tv or set `$env:CLEANYOURTV" }
+$tools = (Resolve-Path "$cyt\tools").Path
+# den-tv installs under its own app ID; the activities keep cleanyourtv's class names, so components are written in full.
+$pkg = 'tv.den.launcher'
+$component = "$pkg/com.gathin.tvhome.MainActivity"
 
-# SKIP_BUILD=1 installs the APK already built (tools\docker-build.ps1 builds it in Docker, with no JDK here).
+# SKIP_BUILD=1 installs the APK already built (or download den-tv-launcher from GitHub Actions into that path).
 if ($env:SKIP_BUILD -ne '1') {
     if (-not $env:JAVA_HOME -or -not (Test-Path "$env:JAVA_HOME\bin\java.exe")) {
         $jbr = Get-ChildItem 'C:\Program Files\Android' -Directory -ErrorAction SilentlyContinue |
@@ -38,23 +45,24 @@ if ($env:SKIP_BUILD -ne '1') {
     .\gradlew.bat assembleRelease -q --console=plain
     if ($LASTEXITCODE -ne 0) { throw 'Gradle build failed' }
 } elseif (-not (Test-Path 'app\build\outputs\apk\release\app-release.apk')) {
-    throw 'SKIP_BUILD=1 but there is no app\build\outputs\apk\release\app-release.apk; build it first (tools\docker-build.ps1)'
+    throw 'SKIP_BUILD=1 but there is no app\build\outputs\apk\release\app-release.apk; build it first'
 }
 
-$py = '..\tools\venv\Scripts\python.exe'
+$py = "$tools\venv\Scripts\python.exe"
+if (-not (Test-Path $py)) { throw "run, in ${cyt}: python -m venv tools\venv; tools\venv\Scripts\pip install -r tools\requirements.txt" }
 # Which app owns Home differs by build; ask the TV, but only accept a launcher we recognise (the answer
 # can also be Android's chooser "android", the setup wizard, or another third-party launcher).
 $knownStock = @('com.google.android.tvlauncher', 'com.google.android.apps.tv.launcherx', 'com.google.android.leanbacklauncher', 'com.mitv.tvhome')
 if (-not $StockLauncher) {
-    $homePkg = & $py -I ..\tools\tv.py 'cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME' | Select-Object -Last 1
+    $homePkg = & $py -I "$tools\tv.py" 'cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME' | Select-Object -Last 1
     if ($LASTEXITCODE -ne 0 -or -not $homePkg) { throw 'could not ask the TV which launcher owns Home; check -TvHost and the debugging prompt, or pass -StockLauncher <package>' }
     $homePkg = "$homePkg".Trim().Split('/')[0]
     if ($knownStock -contains $homePkg) { $StockLauncher = $homePkg }
-    elseif ($homePkg -eq 'com.gathin.tvhome') { $StockLauncher = 'none'; Write-Host 'Home already belongs to this launcher; nothing will be disabled.' }
+    elseif ($homePkg -eq $pkg) { $StockLauncher = 'none'; Write-Host 'Home already belongs to this launcher; nothing will be disabled.' }
     elseif ($homePkg -eq 'android') {
         # Android's chooser: launchers tie and no default is set (a restore followed by a re-applied list
         # ends here). Take the one known stock launcher among the HOME claimants, if there is exactly one.
-        $claimants = (& $py -I ..\tools\tv.py 'cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME') -join "`n"
+        $claimants = (& $py -I "$tools\tv.py" 'cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME') -join "`n"
         if ($LASTEXITCODE -ne 0) { throw 'could not query Home claimants; stock launcher was left untouched' }
         $found = @($knownStock | Where-Object { $claimants -match ([regex]::Escape($_) + '/') })
         if ($found.Count -eq 1) { $StockLauncher = $found[0]; Write-Host "Home is Android's chooser; the stock launcher among the candidates is $StockLauncher." }
@@ -66,35 +74,43 @@ Write-Host "Stock launcher: $StockLauncher"
 $disableStock = if ($StockLauncher -eq 'none') { 'echo stock launcher left alone' } else { "pm disable-user --user 0 $StockLauncher" }
 
 $apk = 'app\build\outputs\apk\release\app-release.apk'
-& $py -I ..\tools\b64push.py $apk /data/local/tmp/tvhome.apk
+& $py -I "$tools\b64push.py" $apk /data/local/tmp/dentv.apk
 if ($LASTEXITCODE -ne 0) { throw 'APK upload failed' }
-$out = & $py -I ..\tools\tv.py 'pm install -r /data/local/tmp/tvhome.apk; rm -f /data/local/tmp/tvhome.apk'
+$out = & $py -I "$tools\tv.py" 'pm install -r /data/local/tmp/dentv.apk; rm -f /data/local/tmp/dentv.apk'
 Write-Host $out
 if ($LASTEXITCODE -ne 0 -or "$out" -notmatch 'Success') { throw 'pm install failed; the stock launcher was left untouched' }
+# The Fan Hub (scores, the phone page, the helper) goes on too when it was built; it is an ordinary app.
+$fanhub = 'fanhub\build\outputs\apk\release\fanhub-release.apk'
+if (Test-Path $fanhub) {
+    & $py -I "$tools\b64push.py" $fanhub /data/local/tmp/denfan.apk
+    $fout = & $py -I "$tools\tv.py" 'pm install -r /data/local/tmp/denfan.apk; rm -f /data/local/tmp/denfan.apk'
+    if ("$fout" -match 'Success') { Write-Host 'Fan Hub installed; turn the den-tv helper on from its setup screen.' }
+    else { Write-Warning "Fan Hub install failed: $fout" }
+}
 # Stop the instance Android restarted mid-update, which can come up non-occluding (see build-and-install.sh,
 # #1101), and write back a key helper the force stop took off the list. Through stdin: Windows PowerShell 5.1
 # drops the inner double quotes from a native argument.
-'s=$(settings get secure enabled_accessibility_services); a=$(settings get secure accessibility_enabled); am force-stop com.gathin.tvhome; case "$s" in *com.gathin.tvhome*) settings put secure enabled_accessibility_services ""; settings put secure enabled_accessibility_services "$s"; settings put secure accessibility_enabled "$a" ;; esac' |
-    & $py -I ..\tools\tv.py --batch | Out-Null
+'s=$(settings get secure enabled_accessibility_services); a=$(settings get secure accessibility_enabled); am force-stop tv.den.launcher; case "$s" in *tv.den.launcher*) settings put secure enabled_accessibility_services ""; settings put secure enabled_accessibility_services "$s"; settings put secure accessibility_enabled "$a" ;; esac' |
+    & $py -I "$tools\tv.py" --batch | Out-Null
 # Android 9 only accepts a component here; Android 10+ also takes a bare package name.
-$out = & $py -I ..\tools\tv.py 'cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity'
+$out = & $py -I "$tools\tv.py" "cmd package set-home-activity --user 0 $component"
 Write-Host $out
 if ($LASTEXITCODE -ne 0 -or "$out" -match 'Error') { throw 'could not set the new launcher as home; the stock launcher was left untouched' }
 # Start the launcher on its own, before the stock Home is touched (see build-and-install.sh, #239):
 # in the batch a failed start only prints an Error line and the stock launcher would be disabled anyway.
 # With -StockLauncher none the stock launcher stays Home (stock_home_redirect): a MAIN+HOME start would make this
 # launcher the home process until a restart, and Android then blocks the stock launcher's button launches (#1274).
-$startCmd = if ($StockLauncher -eq 'none') { 'am start -W -n com.gathin.tvhome/.MainActivity' }
-            else { 'am start -W -a android.intent.action.MAIN -c android.intent.category.HOME -n com.gathin.tvhome/.MainActivity' }
-$start = (& $py -I ..\tools\tv.py $startCmd) -join "`n"
+$startCmd = if ($StockLauncher -eq 'none') { "am start -W -n $component" }
+            else { "am start -W -a android.intent.action.MAIN -c android.intent.category.HOME -n $component" }
+$start = (& $py -I "$tools\tv.py" $startCmd) -join "`n"
 Write-Host $start
 if ($LASTEXITCODE -ne 0 -or $start -notmatch 'Status: ok' -or $start -match '(?m)^Error') { throw "the new launcher did not start (see above); $StockLauncher was left enabled" }
 @(
-    'pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted',
-    'cmd package compile -m speed -f com.gathin.tvhome',
+    'pm grant tv.den.launcher android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted',
+    'cmd package compile -m speed -f tv.den.launcher',
     $disableStock,
-    'cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity'
-) | & $py -I ..\tools\tv.py --batch
+    "cmd package set-home-activity --user 0 $component"
+) | & $py -I "$tools\tv.py" --batch
 # A failed batch is not fatal here: the stock launcher may already be disabled, so fall through to the
 # Home check, which rolls back when Home is not ours.
 if ($LASTEXITCODE -ne 0) { Write-Warning "tv.py --batch failed (exit code $LASTEXITCODE); checking where Home ended up" }
@@ -103,7 +119,7 @@ $homeQuery = 'cmd package resolve-activity --brief -a android.intent.action.MAIN
 # Home's owner, or '' when the TV cannot be reached: $null.Trim() would throw past the rollback.
 function Get-HomeNow {
     $ErrorActionPreference = 'Continue'
-    $line = @(& $py -I ..\tools\tv.py $homeQuery 2>$null) | Where-Object { $_ -match '\S' } | Select-Object -Last 1
+    $line = @(& $py -I "$tools\tv.py" $homeQuery 2>$null) | Where-Object { $_ -match '\S' } | Select-Object -Last 1
     if ($LASTEXITCODE -ne 0) { return '' }
     "$line".Trim()
 }
@@ -115,19 +131,19 @@ function Undo-Handover {
         return $false
     }
     $ErrorActionPreference = 'Continue'
-    & $py -I ..\tools\tv.py "pm enable --user 0 $StockLauncher" 2>$null | Out-Null
+    & $py -I "$tools\tv.py" "pm enable --user 0 $StockLauncher" 2>$null | Out-Null
     $enableExit = $LASTEXITCODE
     if ($enableExit -ne 0) { Write-Warning "stock launcher enable failed (exit code $enableExit); checking recovery" }
     # set-home-activity needs pkg/activity on Android 9, so resolve the stock component on the TV.
-    & $py -I ..\tools\tv.py "cmd package set-home-activity --user 0 `$(cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME $StockLauncher | tail -n 1)" 2>$null | Out-Null
+    & $py -I "$tools\tv.py" "cmd package set-home-activity --user 0 `$(cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME $StockLauncher | tail -n 1)" 2>$null | Out-Null
     $setHomeExit = $LASTEXITCODE
     if ($setHomeExit -ne 0) { Write-Warning "stock Home restore failed (exit code $setHomeExit); checking recovery" }
     $back = Get-HomeNow
     if ($enableExit -eq 0 -and $setHomeExit -eq 0 -and $back -like "$StockLauncher/*") { Write-Warning "$StockLauncher owns Home again."; return $true }
     $homeDir = if ($env:USERPROFILE) { $env:USERPROFILE } elseif ($env:HOME) { $env:HOME } else { (Get-Location).Path }
-    $rec = Join-Path $homeDir ("cleanyourtv-handover-" + ($TvHost -replace '[^A-Za-z0-9._-]', '_') + '.txt')
+    $rec = Join-Path $homeDir ("den-tv-handover-" + ($TvHost -replace '[^A-Za-z0-9._-]', '_') + '.txt')
     $lines = @(
-        "# cleanyourtv: the launcher handover on $TvHost did not finish. From the repo root:",
+        "# den-tv: the launcher handover on $TvHost did not finish. From the cleanyourtv folder:",
         "tools\venv\Scripts\python.exe tools\tv.py 'pm enable --user 0 $StockLauncher'   # with `$env:TV_HOST='$TvHost'",
         "tools\venv\Scripts\python.exe tools\tv.py 'cmd package set-home-activity --user 0 `$(cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME $StockLauncher | tail -n 1)'",
         "# then check: tools\venv\Scripts\python.exe tools\tv.py '$homeQuery'"
@@ -141,7 +157,7 @@ function Undo-Handover {
 # Order matters, see build-and-install.sh: start the new launcher, disable the stock one, set the
 # preference last, then check where Home ended up and put the stock launcher back if it is not ours.
 $homeNow = Get-HomeNow
-if ($homeNow -notlike 'com.gathin.tvhome/*') {
+if ($homeNow -notlike "$pkg/*") {
     $reason = if ($homeNow) { "Home resolves to '$homeNow', not to the new launcher" } else { 'the TV stopped answering while Home was being switched, so the outcome is unknown' }
     $restored = Undo-Handover
     $hint = if ($homeNow) { ' On Google TV this usually means com.google.android.tungsten.setupwraith also claims Home: add it to your debloat list (see README, Troubleshooting), apply it, then run this script again.' } else { '' }
@@ -150,17 +166,17 @@ if ($homeNow -notlike 'com.gathin.tvhome/*') {
 Write-Host "Home now resolves to $homeNow"
 # Optional accessibility services, appended to enabled_accessibility_services without dropping others.
 function Enable-Service([string]$Name) {
-    $svc = "com.gathin.tvhome/.$Name"
+    $svc = "$pkg/com.gathin.tvhome.$Name"
     # Through stdin: Windows PowerShell 5.1 drops the inner double quotes from a native argument, and the
     # TV's shell then fails with "no closing quote" while the service stays off.
     # TCL names the op AUTO_START or APP_AUTO_START; without write-settings the grant is lost at the next reboot.
-    ('cmd appops set com.gathin.tvhome AUTO_START allow 2>/dev/null; cmd appops set com.gathin.tvhome APP_AUTO_START allow 2>/dev/null; appops write-settings 2>/dev/null; s=$(settings get secure enabled_accessibility_services); case "$s" in *' + $Name + '*) settings put secure enabled_accessibility_services ""; settings put secure accessibility_enabled 0; sleep 1; settings put secure enabled_accessibility_services "$s" ;; null|"") settings put secure enabled_accessibility_services ' + $svc + ' ;; *) settings put secure enabled_accessibility_services "$s:' + $svc + '" ;; esac; settings put secure accessibility_enabled 1; echo ' + $Name + ' enabled') |
-        & $py -I ..\tools\tv.py --batch
+    ('cmd appops set tv.den.launcher AUTO_START allow 2>/dev/null; cmd appops set tv.den.launcher APP_AUTO_START allow 2>/dev/null; appops write-settings 2>/dev/null; s=$(settings get secure enabled_accessibility_services); case "$s" in *' + $Name + '*) settings put secure enabled_accessibility_services ""; settings put secure accessibility_enabled 0; sleep 1; settings put secure enabled_accessibility_services "$s" ;; null|"") settings put secure enabled_accessibility_services ' + $svc + ' ;; *) settings put secure enabled_accessibility_services "$s:' + $svc + '" ;; esac; settings put secure accessibility_enabled 1; echo ' + $Name + ' enabled') |
+        & $py -I "$tools\tv.py" --batch
     if ($LASTEXITCODE -ne 0) { throw "could not enable $Name (tv.py exit code $LASTEXITCODE); Home is already the new launcher" }
 }
 if ($InputKeyService) { Enable-Service 'InputKeyService' }
 if ($HomeKeyService) { Enable-Service 'HomeKeyService' }
 if ($RestoreKeyServices) {
-    'pm grant com.gathin.tvhome android.permission.WRITE_SECURE_SETTINGS && echo restore-granted' | & $py -I ..\tools\tv.py --batch
+    'pm grant tv.den.launcher android.permission.WRITE_SECURE_SETTINGS && echo restore-granted' | & $py -I "$tools\tv.py" --batch
 }
 Write-Host 'Installed. Press Home on the remote to see it.'

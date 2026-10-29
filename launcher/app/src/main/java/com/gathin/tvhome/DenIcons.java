@@ -48,7 +48,8 @@ final class DenIcons {
     static void style(Context ctx, View card, String name, int position) {
         if (!(card instanceof FrameLayout)) return;
         float density = ctx.getResources().getDisplayMetrics().density;
-        ((FrameLayout) card).setForeground(style.isEmpty() ? null : new Frame(style, name, position, accent, albiceleste, density));
+        String badge = DenBadges.forLabel(name);
+        ((FrameLayout) card).setForeground(style.isEmpty() && badge == null ? null : new Frame(style, name, position, accent, albiceleste, density, badge));
     }
 
     /** The style's frame over the whole card; the card's outline clips it to the tile's rounded corners. */
@@ -62,7 +63,14 @@ final class DenIcons {
         private final RectF r = new RectF();
         private final Path path = new Path();
 
+        private final String badge;
+
         Frame(String style, String name, int index, int accent, boolean albiceleste, float density) {
+            this(style, name, index, accent, albiceleste, density, null);
+        }
+
+        Frame(String style, String name, int index, int accent, boolean albiceleste, float density, String badge) {
+            this.badge = badge;
             this.style = style; this.name = name == null ? "" : name; this.index = index; this.accent = accent;
             this.albiceleste = albiceleste; this.dp = density;
             t.setTextAlign(Paint.Align.CENTER);
@@ -195,7 +203,21 @@ final class DenIcons {
                 }
                 default: break;
             }
+            if (badge != null) badge(c, w);
             c.restore();
+        }
+
+        /** A pill in the top-right corner: red while live, orange for a new episode. */
+        private void badge(Canvas c, float w) {
+            t.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+            t.setTextSize(11 * dp);
+            t.setTextAlign(Paint.Align.CENTER);
+            float tw = t.measureText(badge), ph = 18 * dp, pw = tw + 14 * dp, x = w - pw - 6 * dp, y = 6 * dp;
+            fill(badge.startsWith("LIVE") ? 0xffe0202e : 0xffff7a00);
+            r.set(x, y, x + pw, y + ph);
+            c.drawRoundRect(r, ph / 2, ph / 2, p);
+            t.setColor(Color.WHITE);
+            c.drawText(badge, x + pw / 2, y + ph / 2 - (t.ascent() + t.descent()) / 2, t);
         }
 
         private void border(Canvas c, float w, float h, float rad, int colour, float width) {

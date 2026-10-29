@@ -26,6 +26,7 @@ public final class DenLooksProvider extends ContentProvider {
         if ("photos".equals(path)) return photos();
         if ("people".equals(path)) return people();
         if ("characters".equals(path)) return characters();
+        if ("mine".equals(path)) return mine();
         if (!"looks".equals(uri.getLastPathSegment())) return null;
         DenTheme.ensure(getContext());
         List<DenLooks.Look> looks = DenLooks.load(getContext());
@@ -40,10 +41,25 @@ public final class DenLooksProvider extends ContentProvider {
         if ("settings".equals(uri.getLastPathSegment()) && values != null) return saveSettings(values);
         String path = uri.getPathSegments().isEmpty() ? "" : uri.getPathSegments().get(0);
         if ("apps".equals(path) && values != null) return saveApp(values);
+        if ("order".equals(path) && values != null) { int n = smartOrder(values.getAsString("order")); bump(); return n; }
         if ("override".equals(path) && values != null) return saveOverride(values);
         if ("photos".equals(path) && values != null) return photo(values);
         if ("people".equals(path) && values != null) return person(values);
         if ("characters".equals(path) && values != null) return character(values);
+        if ("mine".equals(path) && values != null) {
+            int n = 0;
+            if (values.containsKey("delete")) n = DenLooks.deleteMine(getContext(), values.getAsString("delete")) ? 1 : 0;
+            else try {
+                String id = DenLooks.saveMine(getContext(), new org.json.JSONObject(values.getAsString("json")));
+                if (id != null) {
+                    n = 1;
+                    DenLooks.Look l = DenLooks.byId(DenLooks.load(getContext()), id);
+                    if (l != null) DenLooks.apply(getContext(), l);
+                }
+            } catch (org.json.JSONException | NullPointerException ignored) { }
+            bump();
+            return n;
+        }
         if ("moment".equals(path) && values != null) {
             Integer colour = values.getAsInteger("colour");
             DenMoments.post(values.getAsString("type"), values.getAsString("title"), values.getAsString("line"), colour == null ? 0 : colour);
@@ -125,14 +141,16 @@ public final class DenLooksProvider extends ContentProvider {
         android.content.pm.PackageManager pm = getContext().getPackageManager();
         java.util.Set<String> removed = LibraryApps.loadRemoved(getContext());
         org.json.JSONObject names = labelsJson();
-        MatrixCursor c = new MatrixCursor(new String[]{"package", "label", "hidden", "renamed"});
+        MatrixCursor c = new MatrixCursor(new String[]{"package", "label", "hidden", "renamed", "folder"});
+        java.util.List<String> folder = DenFolderActivity.members(getContext());
         java.util.Set<String> seen = new java.util.HashSet<>();
         android.content.Intent tv = new android.content.Intent(android.content.Intent.ACTION_MAIN).addCategory(android.content.Intent.CATEGORY_LEANBACK_LAUNCHER);
         for (android.content.pm.ResolveInfo ri : pm.queryIntentActivities(tv, 0)) {
             String pkg = ri.activityInfo.packageName;
             if (!seen.add(pkg) || pkg.equals(getContext().getPackageName())) continue;
             String renamed = names.optString(pkg, "");
-            c.addRow(new Object[]{pkg, renamed.isEmpty() ? String.valueOf(ri.loadLabel(pm)) : renamed, removed.contains(pkg) ? "1" : "0", renamed});
+            c.addRow(new Object[]{pkg, renamed.isEmpty() ? String.valueOf(ri.loadLabel(pm)) : renamed, removed.contains(pkg) && !folder.contains(pkg) ? "1" : "0",
+                    renamed, folder.contains(pkg) ? "1" : "0"});
         }
         return c;
     }
@@ -148,6 +166,7 @@ public final class DenLooksProvider extends ContentProvider {
         if (pkg == null || !pkg.matches("[A-Za-z0-9_.]{1,200}")) return 0;
         int n = 0;
         if (v.containsKey("hidden") && LibraryApps.save(getContext(), pkg, !"1".equals(v.getAsString("hidden")))) n++;
+        if (v.containsKey("folder")) { DenFolderActivity.set(getContext(), pkg, "1".equals(v.getAsString("folder"))); n++; }
         if (v.containsKey("label")) {
             org.json.JSONObject names = labelsJson();
             String label = v.getAsString("label");
@@ -160,6 +179,26 @@ public final class DenLooksProvider extends ContentProvider {
         }
         bump();
         return n;
+    }
+
+    /**
+     * Smart order: the apps you watch most first (the Fan Hub counts it), saved as the launcher's own tile order
+     * (Order), as if you had moved them; apps not in the list keep their place after them.
+     */
+    private int smartOrder(String packages) {
+        if (packages == null) return 0;
+        android.content.pm.PackageManager pm = getContext().getPackageManager();
+        java.util.List<String> keys = new java.util.ArrayList<>();
+        for (String pkg : packages.split(",")) {
+            android.content.Intent i = pm.getLeanbackLaunchIntentForPackage(pkg.trim());
+            if (i == null || i.getComponent() == null) continue;
+            String key = i.getComponent().flattenToShortString();
+            if (!keys.contains(key)) keys.add(key);
+        }
+        Order old = Order.load(Order.file(getContext()));
+        if (old != null) for (String k : old.keys) if (!keys.contains(k)) keys.add(k);
+        java.util.List<String> dock = Config.load(getContext()).dockApps;
+        return Order.save(Order.file(getContext()), new Order(Order.dockKey(dock), keys)) ? 1 : 0;
     }
 
     // ---- the current look's watcher, clock, icons and colour -----------------------------------------------------
@@ -250,7 +289,7 @@ public final class DenLooksProvider extends ContentProvider {
             }
             String name = seg.get(1);
             java.io.File d = DenPhotos.dir(getContext());
-            if (d != null && name.matches("photo-\\d+\\.jpg") && "r".equals(mode)) {
+            if (d != null && name.matches(DenPhotos.NAME) && (!name.endsWith("-p.jpg") || DenPeople.privateNow(getContext())) && "r".equals(mode)) {
                 return android.os.ParcelFileDescriptor.open(new java.io.File(d, name), android.os.ParcelFileDescriptor.MODE_READ_ONLY);
             }
         } catch (java.io.IOException e) {
@@ -259,20 +298,44 @@ public final class DenLooksProvider extends ContentProvider {
         throw new java.io.FileNotFoundException(uri.toString());
     }
 
+    // ---- your own looks ------------------------------------------------------------------------------------------
+
+    /** One row per own look (id, its recipe as JSON), then a "parts" row with every part's choices. */
+    private Cursor mine() {
+        MatrixCursor c = new MatrixCursor(new String[]{"id", "json"});
+        try {
+            org.json.JSONArray a = new org.json.JSONArray(DenSettings.prefs(getContext()).getString(DenLooks.MINE, "[]"));
+            for (int i = 0; i < a.length(); i++) c.addRow(new Object[]{a.getJSONObject(i).optString("id"), a.getJSONObject(i).toString()});
+            java.util.List<String> watchers = new java.util.ArrayList<>(DenLooks.EYES);
+            watchers.addAll(DenWatcherView.KINDS);
+            watchers.add(0, "none");
+            java.util.List<String> icons = new java.util.ArrayList<>(DenIcons.STYLES);
+            icons.add(0, "tiles");
+            org.json.JSONObject parts = new org.json.JSONObject()
+                    .put("watcher", new org.json.JSONArray(watchers)).put("clock", new org.json.JSONArray(DenClockView.STYLES))
+                    .put("icons", new org.json.JSONArray(icons)).put("icon_layout", new org.json.JSONArray(DenLayouts.LAYOUTS))
+                    .put("focus", new org.json.JSONArray(DenFocusFx.KINDS)).put("wake", new org.json.JSONArray(DenWake.STYLES))
+                    .put("extras", new org.json.JSONArray(DenExtras.KINDS));
+            c.addRow(new Object[]{"parts", parts.toString()});
+        } catch (org.json.JSONException ignored) { }
+        return c;
+    }
+
     // ---- people ----------------------------------------------------------------------------------------------------
 
     private Cursor people() {
-        MatrixCursor c = new MatrixCursor(new String[]{"id", "name", "colour", "look", "guest", "on"});
+        MatrixCursor c = new MatrixCursor(new String[]{"id", "name", "colour", "look", "guest", "on", "private"});
         DenPeople.Person cur = DenPeople.current(getContext());
         for (DenPeople.Person p : DenPeople.all(getContext())) {
-            c.addRow(new Object[]{p.id, p.name, p.colour, p.look, p.guest ? "1" : "0", cur != null && cur.id.equals(p.id) ? "1" : "0"});
+            c.addRow(new Object[]{p.id, p.name, p.colour, p.look, p.guest ? "1" : "0", cur != null && cur.id.equals(p.id) ? "1" : "0", p.isPrivate() ? "1" : "0"});
         }
         return c;
     }
 
     /** use=id switches; id with name/colour/guest edits (a new id adds); remove=id removes. */
     private int person(ContentValues v) {
-        if (v.containsKey("use")) return DenPeople.use(getContext(), v.getAsString("use")) ? 1 : 0;
+        if (v.containsKey("use")) return DenPeople.use(getContext(), v.getAsString("use"), v.getAsString("pin")) ? 1 : 0;
+        if (v.containsKey("private")) return DenPeople.makePrivate(getContext(), v.getAsString("name"), v.getAsString("pin")) ? 1 : 0;
         if (v.containsKey("remove")) return DenPeople.edit(getContext(), v.getAsString("remove"), null, null, null, true) ? 1 : 0;
         String id = v.getAsString("id");
         Boolean guest = v.containsKey("guest") ? "1".equals(v.getAsString("guest")) : null;
