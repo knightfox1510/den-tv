@@ -36,6 +36,10 @@ final class DenLayer {
 
     private final ViewTreeObserver.OnGlobalFocusChangeListener focus = (old, now) -> {
         if ((eyes == null && figure == null && others.isEmpty()) || now == null) return;
+        // The row is scrolling the new tile into place: where it is now isn't where it will stop. Wait for the
+        // row to settle (the scroll listener below calls back), or a ball flies to a spot past the screen's edge.
+        View grid = DenLayer.this.activity.findViewById(R.id.grid);
+        if (grid instanceof androidx.recyclerview.widget.RecyclerView && ((androidx.recyclerview.widget.RecyclerView) grid).getScrollState() != androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE) return;
         now.getLocationOnScreen(where);
         int x = where[0] + now.getWidth() / 2, y = where[1] + now.getHeight() / 2;
         View v = (View) (eyes != null ? eyes : figure != null ? figure : others.get(0));
@@ -140,6 +144,15 @@ final class DenLayer {
             DenLayouts.attach(activity.findViewById(R.id.grid), look.iconLayout, accent);
         }
         DenRowHints.attach(activity.findViewById(R.id.grid), accent);
+        View rowView = activity.findViewById(R.id.grid);
+        if (rowView instanceof androidx.recyclerview.widget.RecyclerView) {
+            ((androidx.recyclerview.widget.RecyclerView) rowView).addOnScrollListener(new androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+                @Override public void onScrollStateChanged(@androidx.annotation.NonNull androidx.recyclerview.widget.RecyclerView rv, int state) {
+                    // The row has stopped: the watchers go to the focused tile where it ended up (after the layout's shape too).
+                    if (state == androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE) rv.post(layer::followFocus);
+                }
+            });
+        }
         layer.content.getViewTreeObserver().addOnGlobalFocusChangeListener(layer.focus);
         layer.content.post(layer::followFocus);
         activity.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).registerOnSharedPreferenceChangeListener(layer.revision);   // Home may have focused a tile before the watcher was there

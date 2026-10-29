@@ -106,9 +106,10 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
 - **Sachin and Yamal.** Master Blaster (Sachin at Sharjah, the Desert Storm; his straight drive races to the app and
   the crowd chants), Rocafonda 304 and Wonderkid (Lamine Yamal; a trivela curls in to the app) and Barça Wings
   (Yamal and Raphinha; 11 and 10 play a one-two into it). The bat watcher carries the hero's own number.
-- **One long row.** Every app sits in one row that scrolls sideways, as in the mockup. When there are more apps
-  past an edge, that edge fades and a pill says how many ("‹ 4", "12 ›"); a slim track under the row shows where
-  the focused app is. Watchers that follow the focused app stay on screen at either end of the row. Hold OK on a tile and
+- **One long row.** Every app sits in one row that scrolls sideways, as in the mockup. The picked app scrolls to
+  the middle, and the tiles are sized so the apps either side peek in at both edges. When there are more apps past
+  an edge, that edge fades and a pill says how many ("‹ 4", "12 ›"); a slim track under the row shows where the
+  focused app is. The focus glow follows the tile wherever the look's icon layout lifts, drops or scales it. Watchers that follow the focused app stay on screen at either end of the row. Hold OK on a tile and
   choose **Remove from Home** to hide an app; the App library button in the top bar lists every app and puts
   hidden ones back.
 - **Everything else from cleanyourtv:** dock and grid, D-pad navigation, Inputs and Wi-Fi pills, Launcher

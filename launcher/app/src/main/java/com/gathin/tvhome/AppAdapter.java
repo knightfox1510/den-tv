@@ -113,6 +113,15 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return Math.max(Math.round(80 * density), Math.min(design, fit));
     }
 
+    /**
+     * den-tv: a single row sizes its tiles as if the screen held ROW_PEEK more columns than the theme asks for, so
+     * they come out a little smaller and, with the focused tile scrolled to the middle, the apps either side show
+     * partly at both edges.
+     */
+    static final float ROW_PEEK = 0.6f;
+
+    static int rowInner(int inner, int columns) { return Math.round(inner * columns / (columns + ROW_PEEK)); }
+
     static int tileHeightPx(int tileWidthPx) {
         return Math.round(tileWidthPx * DESIGN_H_DP / DESIGN_W_DP);
     }
@@ -417,6 +426,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         float density = parent.getResources().getDisplayMetrics().density;
         int width = parent.getWidth() > 0 ? parent.getWidth() : parent.getMeasuredWidth();
         int inner = width - parent.getPaddingLeft() - parent.getPaddingRight();
+        if (singleRow) inner = rowInner(inner, dockSize);
         int w = tileWidthPx(inner, parent.getHeight(), dockSize, rowsBelowDock, dockTitle, dockRow, density), h = tileHeightPx(w);
         View card = v.findViewById(R.id.card);
         ViewGroup.LayoutParams cardLp = card.getLayoutParams();

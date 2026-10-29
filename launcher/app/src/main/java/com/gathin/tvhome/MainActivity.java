@@ -248,6 +248,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean dockRow;
     /** config single_row: every app in the dock's row, scrolling sideways, no grid below. */
     private boolean singleRow;
+    /** The icon layout's scale on the focused tile (DenLayouts), for the glass's refit check. */
+    private float glassLayoutScale = 1f;
     /** The highlight springs past its target (config.xml, focus_overshoot); false goes straight there. */
     private boolean focusOvershoot;
     /** Festive skin from the theme (see Festival); applied while it is active today. */
@@ -590,16 +592,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                                                          @NonNull Rect rect, boolean immediate,
                                                          boolean focusedChildVisible) {
                 if (singleRow) {
-                    // Sideways: scroll just enough to bring the tile's cell inside the padding. Cells are a
-                    // column wide, so the row moves a whole tile at a time and the tiles stay on the columns.
-                    // The whole cell, not the card rect passed in: the card is narrower and centred in it.
-                    int left = child.getLeft();
-                    int right = child.getRight();
-                    int dx;
-                    if (left < getPaddingLeft()) dx = left - getPaddingLeft();
-                    else if (right > getWidth() - getPaddingRight()) dx = right - (getWidth() - getPaddingRight());
-                    else dx = 0;
-                    if (dx == 0) return false;
+                    // den-tv: the picked tile scrolls to the middle of the row, so the apps either side of it peek
+                    // in at both edges and show the row goes on. At the ends the row stops scrolling, as before:
+                    // the first and last tiles sit at their edge. The whole cell, not the card rect passed in.
+                    int dx = (child.getLeft() + child.getRight()) / 2 - getWidth() / 2;
+                    if (Math.abs(dx) <= 1) return false;
                     if (immediate || reducedMotion || !animations) parent.scrollBy(dx, 0);
                     else parent.smoothScrollBy(dx, 0);
                     return true;
@@ -660,7 +657,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             int h = b - t;
             // Item height follows the tile size, which follows the columns and the rows that must fit (AppAdapter.tileWidthPx).
             int inner = (r - l) - grid.getPaddingLeft() - grid.getPaddingRight();
-            int tileW = AppAdapter.tileWidthPx(inner, h, COLUMNS, rowsBelowDock, cfg.dockTitle, cfg.dockRow, density);
+            int tileW = AppAdapter.tileWidthPx(singleRow ? AppAdapter.rowInner(inner, COLUMNS) : inner, h, COLUMNS, rowsBelowDock, cfg.dockTitle, cfg.dockRow, density);
             int itemH = AppAdapter.itemHeightPx(AppAdapter.tileHeightPx(tileW), density);
             int dockRow = itemH + (int) (AppAdapter.DOCK_EXTRA_DP * density);   // item height plus DockDecoration offsets
             int gridRows = itemH * rowsBelowDock;
@@ -715,6 +712,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     glassScrollShiftX -= dx;
                     glass.setTranslationX(glass.getTranslationX() - dx);
                 }
+            }
+
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView rv, int state) {
+                // den-tv: an icon layout shapes tiles by where they sit on screen (the arc, the field), so once the
+                // row stops the focused tile's shape is final: fit the glass to it again.
+                if (state != RecyclerView.SCROLL_STATE_IDLE || !glassShown || !DenLayouts.active(grid)) return;
+                View f = grid.getFocusedChild();
+                View card = f == null ? null : f.findViewById(R.id.card);
+                int pos = f == null ? RecyclerView.NO_POSITION : grid.getChildAdapterPosition(f);
+                if (card != null && card.isFocused() && pos != RecyclerView.NO_POSITION) onTileFocused(pos, card);
             }
         });
 
@@ -1721,14 +1729,23 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         r.set(0, 0, card.getWidth(), card.getHeight());
         root.offsetDescendantRectToMyCoords(card, r);
         float pad = 6f * density;        // matches GlassView's glow inset
-        float scale = adapter.focusScale();
+        // den-tv: an icon layout (formation, field, arc, shelf, carousel) lifts, scales and tilts the tile's item;
+        // the glass takes the same shape, scaled about the item's centre as the item is, so it sits on the tile.
+        View shaped = (View) card.getParent();
+        float[] lay = DenLayouts.focused(grid, shaped);
+        Rect ir = new Rect(0, 0, shaped.getWidth(), shaped.getHeight());
+        root.offsetDescendantRectToMyCoords(shaped, ir);
+        float cx = ir.exactCenterX() + (r.exactCenterX() - ir.exactCenterX()) * lay[1];
+        float cy = ir.exactCenterY() + (r.exactCenterY() - ir.exactCenterY()) * lay[1] + lay[0];
+        float scale = adapter.focusScale() * lay[1];
         float w = card.getWidth() * scale + 2 * pad;
         float h = card.getHeight() * scale + 2 * pad;
-        float x = r.exactCenterX() - w / 2f;
+        float x = cx - w / 2f;
         // The 4dp lift only where the tile itself lifts (AppAdapter): dock tiles, and every tile of a single row, stay
         // put, and a lifted glass sat higher than the tile, its rim thick on top and tight at the bottom.
         boolean lifted = advancedEffects && !(dockRow && (singleRow || position < COLUMNS));
-        float y = r.exactCenterY() - h / 2f - (lifted ? 4f * density : 0f);
+        float y = cy - h / 2f - (lifted ? 4f * density : 0f);
+        glass.setRotation(lay[2]);
 
         ViewGroup.LayoutParams lp = glass.getLayoutParams();
         if (lp.width != (int) w || lp.height != (int) h || card.getWidth() != glassCardW) {
@@ -1738,6 +1755,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             // GlassView draws its slab inset by pad, i.e. exactly over the zoomed tile: same corners as the tile.
             glass.setRadius(AppAdapter.cornerRadius(card.getWidth(), density) * scale);
         }
+        glassLayoutScale = lay[1];
         glassCardW = card.getWidth();
         glassTargetX = x;
         glassTargetY = y;
@@ -1798,7 +1816,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View card = vh == null ? null : vh.itemView.findViewById(R.id.card);
         if (card == null || card.getWidth() <= 0 || !card.isFocused()) return;
         float pad = 6f * density;
-        float scale = adapter.focusScale();
+        float scale = adapter.focusScale() * glassLayoutScale;
         int w = (int) (card.getWidth() * scale + 2 * pad);
         int h = (int) (card.getHeight() * scale + 2 * pad);
         if (!glassShown || card.getWidth() != glassCardW || glass.getWidth() != w || glass.getHeight() != h) {

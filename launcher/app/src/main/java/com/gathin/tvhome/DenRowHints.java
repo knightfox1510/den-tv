@@ -22,6 +22,7 @@ final class DenRowHints extends RecyclerView.ItemDecoration {
     private final float dp;
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG), text = new Paint(Paint.ANTI_ALIAS_FLAG), line = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF r = new RectF();
+    private float height = Float.MAX_VALUE;
     private final Path path = new Path();
 
     private DenRowHints(int accent, float dp) {
@@ -37,9 +38,9 @@ final class DenRowHints extends RecyclerView.ItemDecoration {
     /** Only on the sideways row; a grid that scrolls down has its own rows to show it goes on. */
     static void attach(View grid, int accent) {
         if (!(grid instanceof RecyclerView)) return;
+        // Home sets its layout manager after DenLayer attaches, so whether the grid is a sideways row is asked when
+        // drawing, not here (checking here found no row yet, and the hints never showed).
         RecyclerView rv = (RecyclerView) grid;
-        if (!(rv.getLayoutManager() instanceof LinearLayoutManager)
-                || ((LinearLayoutManager) rv.getLayoutManager()).getOrientation() != RecyclerView.HORIZONTAL) return;
         rv.addItemDecoration(new DenRowHints(accent, rv.getResources().getDisplayMetrics().density));
         rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override public void onScrolled(@NonNull RecyclerView r, int dx, int dy) { r.invalidate(); }
@@ -49,7 +50,9 @@ final class DenRowHints extends RecyclerView.ItemDecoration {
 
     @Override public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         RecyclerView.Adapter<?> a = parent.getAdapter();
-        if (a == null || parent.getChildCount() == 0) return;
+        RecyclerView.LayoutManager lm = parent.getLayoutManager();
+        if (a == null || parent.getChildCount() == 0 || !(lm instanceof LinearLayoutManager)
+                || ((LinearLayoutManager) lm).getOrientation() != RecyclerView.HORIZONTAL) return;
         int total = a.getItemCount(), padL = parent.getPaddingLeft(), padR = parent.getWidth() - parent.getPaddingRight();
         int before = 0, after = 0, top = Integer.MAX_VALUE, bottom = 0, first = Integer.MAX_VALUE, last = -1;
         for (int i = 0; i < parent.getChildCount(); i++) {
@@ -58,14 +61,16 @@ final class DenRowHints extends RecyclerView.ItemDecoration {
             if (pos == RecyclerView.NO_POSITION) continue;
             boolean whole = v.getLeft() >= padL - 1 && v.getRight() <= padR + 1;
             if (whole) { first = Math.min(first, pos); last = Math.max(last, pos); }
-            top = Math.min(top, v.getTop());
-            bottom = Math.max(bottom, v.getBottom());
+            // Where the tile is drawn, after an icon layout has lifted or dropped it (DenLayouts).
+            top = Math.min(top, Math.round(v.getTop() + v.getTranslationY()));
+            bottom = Math.max(bottom, Math.round(v.getBottom() + v.getTranslationY()));
         }
         if (last < 0) return;
         before = first;
         after = total - 1 - last;
         View focused = parent.getFocusedChild();
         int at = focused == null ? first : parent.getChildAdapterPosition(focused);
+        height = parent.getHeight();
         draw(c, parent.getWidth(), top, bottom, before, after, at, total);
     }
 
@@ -84,7 +89,7 @@ final class DenRowHints extends RecyclerView.ItemDecoration {
             fill.setShader(null);
             pill(c, width - 34 * dp, top + h / 2, after, false);
         }
-        if (total > 1 && (before > 0 || after > 0)) track(c, width / 2f, bottom + 14 * dp, Math.max(0, Math.min(total - 1, at)), total);
+        if (total > 1 && (before > 0 || after > 0)) track(c, width / 2f, Math.min(bottom + 14 * dp, height - 8 * dp), Math.max(0, Math.min(total - 1, at)), total);
     }
 
     /** A dark pill on the edge: a chevron and the number of apps that way. */

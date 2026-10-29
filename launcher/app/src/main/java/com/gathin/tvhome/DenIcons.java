@@ -84,6 +84,12 @@ final class DenIcons {
             float w = b.width(), h = b.height(), rad = AppAdapter.cornerRadius(b.width(), dp);
             c.save();
             c.translate(b.left, b.top);
+            // Everything inside the tile's own rounded shape: the jersey stripes, the scorecard band and the rest ran
+            // past its right edge and corners where the card doesn't clip its foreground.
+            path.reset();
+            path.addRoundRect(0, 0, w, h, rad, rad, Path.Direction.CW);
+            c.clipPath(path);
+            path.reset();
             switch (style) {
                 case "glass": {
                     p.setShader(new LinearGradient(0, 0, 0, h * 0.5f, 0x47ffffff, 0x00ffffff, Shader.TileMode.CLAMP));

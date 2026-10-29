@@ -25,8 +25,11 @@ final class DenLayouts {
     private DenLayouts() {}
 
     /** Puts the layout on the row; "row", empty or unknown leave it as it is. */
+    private static final java.util.Map<RecyclerView, String> ON = new java.util.WeakHashMap<>();
+
     static void attach(RecyclerView grid, String layout, int accent) {
         if (grid == null || !LAYOUTS.contains(layout) || "row".equals(layout)) return;
+        ON.put(grid, layout);
         Shaper s = new Shaper(grid, layout, accent);
         grid.addItemDecoration(s, 0);   // drawn first, under the launcher's own band and the tiles
         grid.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -34,6 +37,49 @@ final class DenLayouts {
         });
         grid.getViewTreeObserver().addOnGlobalLayoutListener(s::shape);
         grid.getViewTreeObserver().addOnGlobalFocusChangeListener((a, b) -> s.shape());
+    }
+
+    /** Whether a layout other than the plain row shapes this grid. */
+    static boolean active(View grid) { return grid instanceof RecyclerView && ON.containsKey(grid); }
+
+    /**
+     * Where the layout puts a tile when it is focused: {lift (px, + is down), scale, rotation}. MainActivity sizes and
+     * places the focus glass with it, so the glass sits on the tile wherever the layout has moved it. {0, 1, 0} for
+     * the plain row.
+     */
+    static float[] focused(View grid, View item) {
+        String layout = grid instanceof RecyclerView ? ON.get(grid) : null;
+        if (layout == null || item == null) return new float[]{0, 1, 0};
+        RecyclerView rv = (RecyclerView) grid;
+        float[] t = transform(layout, rv.getChildAdapterPosition(item), u(rv, item), item.getHeight(), true);
+        return new float[]{t[0], t[1], t[3]};
+    }
+
+    /** -1 at the left edge of the row's view, 0 in the middle, 1 at the right edge. */
+    private static float u(RecyclerView grid, View v) {
+        float w = grid.getWidth();
+        return w == 0 ? 0 : Math.max(-1.2f, Math.min(1.2f, ((v.getLeft() + v.getRight()) / 2f - w / 2f) / (w / 2f)));
+    }
+
+    /** One tile's shape in the layout: {translationY, scaleX, scaleY, rotation, alpha}. */
+    private static float[] transform(String layout, int pos, float u, float h, boolean on) {
+        float ty = 0, sx = 1, sy = 1, rot = 0, alpha = 1;
+        switch (layout) {
+            case "formation": ty = (pos % 2 == 0 ? -0.22f : 0.16f) * h; break;   // two lines, like players on a pitch
+            case "field": ty = 0.26f * h * (1 - u * u) - 0.08f * h; break;          // around the boundary
+            case "arc": ty = -0.38f * h * (1 - u * u) + 0.14f * h; rot = u * 6; break;   // islands along the route
+            case "shelf":
+                if (!on) { sx = 0.62f; rot = (pos % 3 - 1) * 2.5f; } else ty = -0.18f * h;   // spines; the picked one slides out
+                break;
+            case "carousel": {
+                float d = Math.min(1, Math.abs(u));
+                sx = sy = on ? 1.3f : 1 - 0.28f * d;
+                alpha = on ? 1f : 1 - 0.45f * d;
+                break;
+            }
+            default: break;
+        }
+        return new float[]{ty, sx, sy, rot, alpha};
     }
 
     private static final class Shaper extends RecyclerView.ItemDecoration {
@@ -49,35 +95,14 @@ final class DenLayouts {
             line.setStyle(Paint.Style.STROKE);
         }
 
-        /** -1 at the left edge of the row's view, 0 in the middle, 1 at the right edge. */
-        private float u(View v) {
-            float w = grid.getWidth();
-            return w == 0 ? 0 : ((v.getLeft() + v.getRight()) / 2f - w / 2f) / (w / 2f);
-        }
-
         void shape() {
             View focused = grid.getFocusedChild();
             for (int i = 0; i < grid.getChildCount(); i++) {
                 View v = grid.getChildAt(i);
-                float h = v.getHeight(), u = Math.max(-1.2f, Math.min(1.2f, u(v)));
-                int pos = grid.getChildAdapterPosition(v);
                 boolean on = v == focused;
-                float ty = 0, sx = 1, sy = 1, rot = 0;
-                switch (layout) {
-                    case "formation": ty = (pos % 2 == 0 ? -0.22f : 0.16f) * h; break;   // two lines, like players on a pitch
-                    case "field": ty = 0.26f * h * (1 - u * u) - 0.08f * h; break;          // around the boundary
-                    case "arc": ty = -0.38f * h * (1 - u * u) + 0.14f * h; rot = u * 6; break;   // islands along the route
-                    case "shelf":
-                        if (!on) { sx = 0.62f; rot = (pos % 3 - 1) * 2.5f; } else ty = -0.18f * h;   // spines; the picked one slides out
-                        break;
-                    case "carousel": {
-                        float d = Math.min(1, Math.abs(u));
-                        sx = sy = on ? 1.3f : 1 - 0.28f * d;
-                        v.setAlpha(on ? 1f : 1 - 0.45f * d);
-                        break;
-                    }
-                    default: break;
-                }
+                float[] t = transform(layout, grid.getChildAdapterPosition(v), u(grid, v), v.getHeight(), on);
+                float ty = t[0], sx = t[1], sy = t[2], rot = t[3];
+                if (v.getAlpha() != t[4] && layout.equals("carousel")) v.setAlpha(t[4]);
                 if (v.getTranslationY() != ty) v.setTranslationY(ty);
                 if (v.getScaleX() != sx) v.setScaleX(sx);
                 if (v.getScaleY() != sy) v.setScaleY(sy);
