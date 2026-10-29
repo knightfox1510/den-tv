@@ -1,0 +1,22 @@
+tv.den.fanhub.FanHub:
+    static final java.lang.String ANI_SEARCH
+    private static final long HOUR
+    private static final long MIN
+    static final int TIMEOUT_MS
+    private void <init>()
+    static java.lang.String when(long)
+tv.den.fanhub.R$drawable
+tv.den.fanhub.R
+tv.den.fanhub.Store:
+    static final java.lang.String AUTHORITY
+    private static final java.lang.String PREFS
+    private static final java.lang.String TAG
+    private void <init>()
+tv.den.fanhub.TurnsProvider:
+    static final int TURN_SECONDS
+tv.den.fanhub.FanHub:
+    public static java.lang.String display(java.lang.String)
+tv.den.fanhub.Store:
+    public static long fetchedAt(android.content.Context)
+    public static android.content.SharedPreferences prefs(android.content.Context)
+    public static java.util.ArrayList turns(android.content.Context)

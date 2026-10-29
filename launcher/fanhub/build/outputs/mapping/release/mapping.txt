@@ -1,0 +1,396 @@
+# compiler: R8
+# compiler_version: 8.5.35
+# min_api: 26
+# common_typos_disable
+# {"id":"com.android.tools.r8.mapping","version":"2.2"}
+# pg_map_id: 07f862d
+# pg_map_hash: SHA-256 07f862d46474ecfa08f51a1566ad76dc09cdb3eada2ef4c78f9e2a39338b2189
+tv.den.fanhub.FanHub -> a.e:
+# {"id":"sourceFile","fileName":"FanHub.java"}
+    java.util.regex.Pattern FINISHED -> a
+    java.util.Map SHORT -> b
+      # {"id":"com.android.tools.r8.residualsignature","signature":"Ljava/util/HashMap;"}
+    0:7:void <clinit>():36:36 -> <clinit>
+    8:14:void <clinit>():109:109 -> <clinit>
+    15:264:void <clinit>():111:111 -> <clinit>
+    265:280:void <clinit>():118:118 -> <clinit>
+    2:17:java.lang.String clean(java.lang.String):121:121 -> a
+    0:21:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):279:279 -> b
+      # {"id":"com.android.tools.r8.residualsignature","signature":"(La/b;JLjava/util/HashMap;Ljava/util/HashMap;Ljava/util/ArrayList;)Ljava/util/ArrayList;"}
+    22:37:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):280:280 -> b
+    38:63:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):282:282 -> b
+    64:75:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):283:283 -> b
+    76:79:org.json.JSONObject get(java.lang.String):242:242 -> b
+    76:79:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):282 -> b
+    80:85:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):284:284 -> b
+    86:102:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):285:285 -> b
+    103:129:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):287:287 -> b
+    130:146:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):288:288 -> b
+    147:164:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):291:291 -> b
+    165:178:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):292:292 -> b
+    179:189:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):294:294 -> b
+    190:218:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):295:295 -> b
+    219:228:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):296:296 -> b
+    229:245:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):297:297 -> b
+    246:270:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):299:299 -> b
+    271:287:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):300:300 -> b
+    288:292:java.util.List fetch(tv.den.fanhub.FanHub$Config,long,java.util.Map,java.util.Map,java.util.List):303:303 -> b
+    0:4:java.util.List flatten(java.util.Map,long):307:307 -> c
+      # {"id":"com.android.tools.r8.residualsignature","signature":"(Ljava/util/HashMap;J)Ljava/util/ArrayList;"}
+    5:50:java.util.List flatten(java.util.Map,long):308:308 -> c
+    51:63:java.util.List flatten(java.util.Map,long):309:309 -> c
+    0:21:boolean has(org.json.JSONObject,java.lang.String):161:161 -> d
+    7:15:tv.den.fanhub.FanHub$Turn nextEpisode(java.lang.String,org.json.JSONObject,long):232:232 -> e
+      # {"id":"com.android.tools.r8.residualsignature","signature":"(Ljava/lang/String;Lorg/json/JSONObject;J)La/d;"}
+    16:50:tv.den.fanhub.FanHub$Turn nextEpisode(java.lang.String,org.json.JSONObject,long):234:234 -> e
+    51:104:tv.den.fanhub.FanHub$Turn nextEpisode(java.lang.String,org.json.JSONObject,long):236:236 -> e
+    2:17:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):178:178 -> f
+      # {"id":"com.android.tools.r8.residualsignature","signature":"(La/c;Lorg/json/JSONObject;J)La/d;"}
+    18:23:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):180:180 -> f
+    24:31:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):181:181 -> f
+    32:41:long kickoff(org.json.JSONObject):146:146 -> f
+    32:41:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):183 -> f
+    42:55:long kickoff(org.json.JSONObject):147:147 -> f
+    42:55:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):183 -> f
+    56:69:long kickoff(org.json.JSONObject):148:148 -> f
+    56:69:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):183 -> f
+    70:103:long kickoff(org.json.JSONObject):149:149 -> f
+    70:103:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):183 -> f
+    104:115:long kickoff(org.json.JSONObject):151:151 -> f
+    104:115:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):183 -> f
+    116:128:long kickoff(org.json.JSONObject):152:152 -> f
+    116:128:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):183 -> f
+    129:142:long kickoff(org.json.JSONObject):153:153 -> f
+    129:142:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):183 -> f
+    143:184:long kickoff(org.json.JSONObject):154:154 -> f
+    143:184:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):183 -> f
+    185:196:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):185:185 -> f
+    197:209:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):186:186 -> f
+    210:215:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):187:187 -> f
+    216:233:long length(java.lang.String,java.lang.String):166:166 -> f
+    216:233:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):188 -> f
+    234:237:long length(java.lang.String,java.lang.String):167:167 -> f
+    234:237:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):188 -> f
+    238:250:long length(java.lang.String,java.lang.String):168:168 -> f
+    238:250:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):188 -> f
+    251:287:long length(java.lang.String,java.lang.String):169:169 -> f
+    251:287:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):188 -> f
+    288:307:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):190:190 -> f
+    308:322:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):191:191 -> f
+    323:338:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):194:194 -> f
+    339:367:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):195:195 -> f
+    368:423:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):196:196 -> f
+    424:485:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):198:198 -> f
+    486:495:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):200:200 -> f
+    496:499:java.lang.String display(java.lang.String):137:137 -> f
+    496:499:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):200 -> f
+    500:521:java.lang.String display(java.lang.String):138:138 -> f
+    500:521:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):200 -> f
+    522:529:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):200:200 -> f
+    530:533:java.lang.String display(java.lang.String):137:137 -> f
+    530:533:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):200 -> f
+    534:547:java.lang.String display(java.lang.String):138:138 -> f
+    534:547:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):200 -> f
+    548:595:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):200:200 -> f
+    596:620:tv.den.fanhub.FanHub$Turn nextMatch(tv.den.fanhub.FanHub$Team,org.json.JSONObject,long):202:202 -> f
+    0:10:org.json.JSONObject pickMedia(org.json.JSONObject):213:213 -> g
+    11:20:org.json.JSONObject pickMedia(org.json.JSONObject):214:214 -> g
+    21:28:org.json.JSONObject pickMedia(org.json.JSONObject):215:215 -> g
+    29:38:org.json.JSONObject pickMedia(org.json.JSONObject):216:216 -> g
+    39:44:org.json.JSONObject pickMedia(org.json.JSONObject):219:219 -> g
+    45:51:org.json.JSONObject pickMedia(org.json.JSONObject):220:220 -> g
+    52:66:org.json.JSONObject pickMedia(org.json.JSONObject):222:222 -> g
+    67:76:org.json.JSONObject pickMedia(org.json.JSONObject):223:223 -> g
+    77:99:org.json.JSONObject pickMedia(org.json.JSONObject):224:224 -> g
+    0:39:long refreshAfter(java.util.List,long):315:315 -> h
+      # {"id":"com.android.tools.r8.residualsignature","signature":"(Ljava/util/ArrayList;J)J"}
+    0:14:org.json.JSONObject request(java.lang.String,java.lang.String):246:246 -> i
+    15:17:org.json.JSONObject request(java.lang.String,java.lang.String):247:247 -> i
+    18:20:org.json.JSONObject request(java.lang.String,java.lang.String):248:248 -> i
+    21:27:org.json.JSONObject request(java.lang.String,java.lang.String):249:249 -> i
+    28:36:org.json.JSONObject request(java.lang.String,java.lang.String):250:250 -> i
+    37:42:org.json.JSONObject request(java.lang.String,java.lang.String):253:253 -> i
+    43:45:org.json.JSONObject request(java.lang.String,java.lang.String):254:254 -> i
+    46:50:org.json.JSONObject request(java.lang.String,java.lang.String):255:255 -> i
+    51:82:org.json.JSONObject request(java.lang.String,java.lang.String):256:256 -> i
+    83:91:org.json.JSONObject request(java.lang.String,java.lang.String):258:258 -> i
+    92:95:org.json.JSONObject request(java.lang.String,java.lang.String):259:259 -> i
+    96:102:org.json.JSONObject request(java.lang.String,java.lang.String):260:260 -> i
+    103:104:org.json.JSONObject request(java.lang.String,java.lang.String):261:261 -> i
+    105:111:org.json.JSONObject request(java.lang.String,java.lang.String):263:263 -> i
+    112:114:org.json.JSONObject request(java.lang.String,java.lang.String):264:264 -> i
+    115:134:org.json.JSONObject request(java.lang.String,java.lang.String):265:265 -> i
+    135:145:org.json.JSONObject request(java.lang.String,java.lang.String):267:267 -> i
+    146:148:org.json.JSONObject request(java.lang.String,java.lang.String):268:268 -> i
+    149:154:org.json.JSONObject request(java.lang.String,java.lang.String):270:270 -> i
+    155:163:org.json.JSONObject request(java.lang.String,java.lang.String):259:259 -> i
+    164:202:org.json.JSONObject request(java.lang.String,java.lang.String):258:258 -> i
+    203:205:org.json.JSONObject request(java.lang.String,java.lang.String):270:270 -> i
+    206:206:org.json.JSONObject request(java.lang.String,java.lang.String):271:271 -> i
+    0:3:java.lang.String shortName(java.lang.String):125:125 -> j
+    4:18:java.lang.String shortName(java.lang.String):126:126 -> j
+    19:24:java.lang.String shortName(java.lang.String):127:127 -> j
+    25:29:java.lang.String shortName(java.lang.String):128:128 -> j
+    30:34:java.lang.String shortName(java.lang.String):129:129 -> j
+    35:56:java.lang.String shortName(java.lang.String):130:130 -> j
+    57:67:java.lang.String shortName(java.lang.String):131:131 -> j
+    68:85:java.lang.String shortName(java.lang.String):133:133 -> j
+tv.den.fanhub.FanHub$$ExternalSyntheticLambda0 -> a.a:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    2:4:long tv.den.fanhub.FanHub.lambda$flatten$0(tv.den.fanhub.FanHub$Turn):309:309 -> applyAsLong
+      # {"id":"com.android.tools.r8.residualsignature","signature":"(Ljava/lang/Object;)J"}
+tv.den.fanhub.FanHub$Config -> a.b:
+# {"id":"sourceFile","fileName":"FanHub.java"}
+    java.util.List teams -> a
+      # {"id":"com.android.tools.r8.residualsignature","signature":"Ljava/util/ArrayList;"}
+    java.util.List shows -> b
+      # {"id":"com.android.tools.r8.residualsignature","signature":"Ljava/util/ArrayList;"}
+    java.lang.String sportsdbKey -> c
+    0:2:void <init>():45:45 -> <init>
+    3:9:void <init>():46:46 -> <init>
+    10:16:void <init>():47:47 -> <init>
+    17:21:void <init>():48:48 -> <init>
+    0:4:tv.den.fanhub.FanHub$Config defaults():52:52 -> a
+      # {"id":"com.android.tools.r8.residualsignature","signature":"()La/b;"}
+    5:23:tv.den.fanhub.FanHub$Config defaults():53:53 -> a
+    24:40:tv.den.fanhub.FanHub$Config defaults():54:54 -> a
+    41:55:tv.den.fanhub.FanHub$Config defaults():55:55 -> a
+    56:71:tv.den.fanhub.FanHub$Config defaults():56:56 -> a
+    0:8:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):62:62 -> b
+      # {"id":"com.android.tools.r8.residualsignature","signature":"(Lorg/json/JSONObject;)La/b;"}
+    9:14:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):63:63 -> b
+    15:28:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):64:64 -> b
+    29:34:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):65:65 -> b
+    35:40:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):66:66 -> b
+    41:51:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):67:67 -> b
+    52:75:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):68:68 -> b
+    76:99:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):69:69 -> b
+    100:109:int colour(java.lang.String,int):80:80 -> b
+    100:109:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):69 -> b
+    110:122:int colour(java.lang.String,int):81:81 -> b
+    110:122:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):69 -> b
+    123:125:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):69:69 -> b
+    126:131:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):68:68 -> b
+    132:137:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):71:71 -> b
+    138:147:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):72:72 -> b
+    148:173:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):73:73 -> b
+    174:181:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):74:74 -> b
+    182:198:tv.den.fanhub.FanHub$Config from(org.json.JSONObject):75:75 -> b
+tv.den.fanhub.FanHub$Team -> a.c:
+# {"id":"sourceFile","fileName":"FanHub.java"}
+    java.lang.String name -> a
+    java.lang.String sport -> b
+    java.lang.String sportsdb -> c
+    int colour -> d
+    0:11:void <init>(java.lang.String,java.lang.String,java.lang.String,int):42:42 -> <init>
+tv.den.fanhub.FanHub$Turn -> a.d:
+# {"id":"sourceFile","fileName":"FanHub.java"}
+    java.lang.String topLine -> a
+    java.lang.String word -> b
+    long start -> c
+    long end -> d
+    int colour -> e
+    boolean live -> f
+    0:2:void <init>(java.lang.String,java.lang.String,long,long,int,boolean):92:92 -> <init>
+    3:15:void <init>(java.lang.String,java.lang.String,long,long,int,boolean):93:93 -> <init>
+    0:53:org.json.JSONObject json():97:97 -> a
+tv.den.fanhub.FanHubActivity -> tv.den.fanhub.FanHubActivity:
+# {"id":"sourceFile","fileName":"FanHubActivity.java"}
+    android.widget.LinearLayout list -> a
+    android.widget.TextView status -> b
+    android.database.ContentObserver changed -> c
+      # {"id":"com.android.tools.r8.residualsignature","signature":"La/f;"}
+    int $r8$clinit -> d
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:2:void <init>():26:26 -> <init>
+    3:19:void <init>():29:29 -> <init>
+    1:12:java.util.List tv.den.fanhub.Store.turns(android.content.Context):54:54 -> a
+    1:12:void show():75 -> a
+    13:19:android.content.SharedPreferences tv.den.fanhub.Store.prefs(android.content.Context):42:42 -> a
+    13:19:long tv.den.fanhub.Store.fetchedAt(android.content.Context):57 -> a
+    13:19:void show():76 -> a
+    20:27:long tv.den.fanhub.Store.fetchedAt(android.content.Context):57:57 -> a
+    20:27:void show():76 -> a
+    28:31:android.content.SharedPreferences tv.den.fanhub.Store.prefs(android.content.Context):42:42 -> a
+    28:31:java.lang.String tv.den.fanhub.Store.errors(android.content.Context):59 -> a
+    28:31:void show():77 -> a
+    32:39:java.lang.String tv.den.fanhub.Store.errors(android.content.Context):59:59 -> a
+    32:39:void show():77 -> a
+    40:93:void show():78:78 -> a
+    94:129:void show():79:79 -> a
+    130:132:void show():78:78 -> a
+    133:137:void show():80:80 -> a
+    138:157:void show():81:81 -> a
+    158:161:void show():82:82 -> a
+    162:177:void show():83:83 -> a
+    178:182:void show():84:84 -> a
+    183:187:void show():85:85 -> a
+    188:190:void show():86:86 -> a
+    191:203:void show():87:87 -> a
+    204:214:void show():88:88 -> a
+    215:219:void show():89:89 -> a
+    220:224:void show():90:90 -> a
+    225:232:void show():91:91 -> a
+    233:235:void show():92:92 -> a
+    236:238:void show():93:93 -> a
+    239:260:void show():94:94 -> a
+    261:266:void show():95:95 -> a
+    267:272:void show():96:96 -> a
+    273:279:void show():97:97 -> a
+    280:288:void show():98:98 -> a
+    289:304:void show():99:99 -> a
+    305:366:void show():100:100 -> a
+    367:369:void show():102:102 -> a
+    370:380:void show():103:103 -> a
+    0:4:android.widget.TextView text(java.lang.String,float,int,boolean):108:108 -> b
+    5:8:android.widget.TextView text(java.lang.String,float,int,boolean):109:109 -> b
+    9:11:android.widget.TextView text(java.lang.String,float,int,boolean):110:110 -> b
+    12:16:android.widget.TextView text(java.lang.String,float,int,boolean):111:111 -> b
+    17:25:android.widget.TextView text(java.lang.String,float,int,boolean):112:112 -> b
+    0:2:void onCreate(android.os.Bundle):34:34 -> onCreate
+    3:12:void onCreate(android.os.Bundle):35:35 -> onCreate
+    13:18:void onCreate(android.os.Bundle):36:36 -> onCreate
+    19:24:void onCreate(android.os.Bundle):37:37 -> onCreate
+    25:30:void onCreate(android.os.Bundle):38:38 -> onCreate
+    31:37:void onCreate(android.os.Bundle):39:39 -> onCreate
+    38:51:void onCreate(android.os.Bundle):40:40 -> onCreate
+    52:63:void onCreate(android.os.Bundle):41:41 -> onCreate
+    64:77:void onCreate(android.os.Bundle):42:42 -> onCreate
+    78:80:void onCreate(android.os.Bundle):43:43 -> onCreate
+    81:85:void onCreate(android.os.Bundle):44:44 -> onCreate
+    86:92:void onCreate(android.os.Bundle):45:45 -> onCreate
+    93:95:void onCreate(android.os.Bundle):46:46 -> onCreate
+    96:107:void onCreate(android.os.Bundle):47:47 -> onCreate
+    108:112:void onCreate(android.os.Bundle):48:48 -> onCreate
+    113:122:void onCreate(android.os.Bundle):49:49 -> onCreate
+    123:126:void onCreate(android.os.Bundle):50:50 -> onCreate
+    13:17:boolean onKeyUp(int,android.view.KeyEvent):71:71 -> onKeyUp
+    18:25:boolean onKeyUp(int,android.view.KeyEvent):67:67 -> onKeyUp
+    26:29:boolean onKeyUp(int,android.view.KeyEvent):68:68 -> onKeyUp
+    0:8:void onPause():61:61 -> onPause
+    9:12:void onPause():62:62 -> onPause
+    0:2:void onResume():54:54 -> onResume
+    3:14:void onResume():55:55 -> onResume
+    15:17:void onResume():56:56 -> onResume
+    18:21:void onResume():57:57 -> onResume
+tv.den.fanhub.FanHubActivity$1 -> a.f:
+# {"id":"sourceFile","fileName":"FanHubActivity.java"}
+    tv.den.fanhub.FanHubActivity this$0 -> a
+    0:5:void <init>(tv.den.fanhub.FanHubActivity,android.os.Handler):29:29 -> <init>
+    0:7:void onChange(boolean):30:30 -> onChange
+tv.den.fanhub.Store -> a.i:
+# {"id":"sourceFile","fileName":"Store.java"}
+    android.net.Uri TURNS -> a
+    android.os.HandlerThread thread -> b
+    android.os.Handler worker -> c
+    boolean running -> d
+    0:8:void <clinit>():33:33 -> <clinit>
+    0:4:java.util.Map bySource(android.content.Context):62:62 -> a
+      # {"id":"com.android.tools.r8.residualsignature","signature":"(Landroid/content/Context;)Ljava/util/HashMap;"}
+    5:6:java.util.Map bySource(android.content.Context):64:64 -> a
+    7:15:android.content.SharedPreferences prefs(android.content.Context):42:42 -> a
+    7:15:java.util.Map bySource(android.content.Context):64 -> a
+    16:26:java.util.Map bySource(android.content.Context):64:64 -> a
+    27:36:java.util.Map bySource(android.content.Context):65:65 -> a
+    37:42:java.util.Map bySource(android.content.Context):66:66 -> a
+    43:46:java.util.Map bySource(android.content.Context):67:67 -> a
+    47:52:java.util.Map bySource(android.content.Context):68:68 -> a
+    53:62:java.util.Map bySource(android.content.Context):69:69 -> a
+    63:110:tv.den.fanhub.FanHub$Turn tv.den.fanhub.FanHub$Turn.of(org.json.JSONObject):101:101 -> a
+    63:110:java.util.Map bySource(android.content.Context):69 -> a
+    111:119:java.util.Map bySource(android.content.Context):69:69 -> a
+    120:124:java.util.Map bySource(android.content.Context):70:70 -> a
+    125:132:java.util.Map bySource(android.content.Context):73:73 -> a
+    1:7:tv.den.fanhub.FanHub$Config config(android.content.Context):114:114 -> b
+      # {"id":"com.android.tools.r8.residualsignature","signature":"(Landroid/content/Context;)La/b;"}
+    8:16:tv.den.fanhub.FanHub$Config config(android.content.Context):115:115 -> b
+    17:23:tv.den.fanhub.FanHub$Config config(android.content.Context):116:116 -> b
+    24:28:tv.den.fanhub.FanHub$Config config(android.content.Context):117:117 -> b
+    29:48:tv.den.fanhub.FanHub$Config config(android.content.Context):118:118 -> b
+    49:58:tv.den.fanhub.FanHub$Config config(android.content.Context):120:120 -> b
+    59:74:tv.den.fanhub.FanHub$Config config(android.content.Context):121:121 -> b
+    75:82:tv.den.fanhub.FanHub$Config config(android.content.Context):122:122 -> b
+    83:91:tv.den.fanhub.FanHub$Config config(android.content.Context):117:117 -> b
+    92:98:tv.den.fanhub.FanHub$Config config(android.content.Context):123:123 -> b
+    99:103:tv.den.fanhub.FanHub$Config config(android.content.Context):124:124 -> b
+    104:108:tv.den.fanhub.FanHub$Config config(android.content.Context):116:116 -> b
+    0:3:void refresh(android.content.Context,boolean):80:80 -> c
+    4:16:void refresh(android.content.Context,boolean):81:81 -> c
+    3:6:android.os.Handler worker():45:45 -> d
+    7:15:android.os.Handler worker():46:46 -> d
+    16:18:android.os.Handler worker():47:47 -> d
+    19:34:android.os.Handler worker():48:48 -> d
+    35:40:android.os.Handler worker():50:50 -> d
+tv.den.fanhub.Store$$ExternalSyntheticLambda0 -> a.g:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    boolean tv.den.fanhub.Store$$InternalSyntheticLambda$1$97fd2ce36f4d34efe0a2cd59a413ae979e14a0cbac5501c5cb15486d3bd9d308$0.f$0 -> a
+      # {"id":"com.android.tools.r8.synthesized"}
+    android.content.Context tv.den.fanhub.Store$$InternalSyntheticLambda$1$97fd2ce36f4d34efe0a2cd59a413ae979e14a0cbac5501c5cb15486d3bd9d308$0.f$1 -> b
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:7:void a.Store$$ExternalSyntheticLambda0.<init>(android.content.Context,boolean):0:0 -> <init>
+      # {"id":"com.android.tools.r8.synthesized"}
+    4:6:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):82:82 -> run
+      # {"id":"com.android.tools.r8.residualsignature","signature":"()V"}
+    7:17:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):83:83 -> run
+    18:19:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):84:84 -> run
+    20:21:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):85:85 -> run
+    22:27:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):87:87 -> run
+    28:33:android.content.SharedPreferences tv.den.fanhub.Store.prefs(android.content.Context):42:42 -> run
+    28:33:long tv.den.fanhub.Store.fetchedAt(android.content.Context):57 -> run
+    28:33:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):88 -> run
+    34:43:long tv.den.fanhub.Store.fetchedAt(android.content.Context):57:57 -> run
+    34:43:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):88 -> run
+    44:55:java.util.List tv.den.fanhub.Store.turns(android.content.Context):54:54 -> run
+    44:55:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):88 -> run
+    56:63:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):88:88 -> run
+    64:74:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):107:107 -> run
+    75:79:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):89:89 -> run
+    80:84:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):90:90 -> run
+    85:99:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):91:91 -> run
+    100:104:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):92:92 -> run
+    105:124:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):93:93 -> run
+    125:129:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):94:94 -> run
+    130:163:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):95:95 -> run
+    164:173:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):96:96 -> run
+    174:179:android.content.SharedPreferences tv.den.fanhub.Store.prefs(android.content.Context):42:42 -> run
+    174:179:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):98 -> run
+    180:203:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):98:98 -> run
+    204:214:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):99:99 -> run
+    215:224:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):100:100 -> run
+    225:235:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):102:102 -> run
+    236:247:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):103:103 -> run
+    248:257:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):107:107 -> run
+    258:264:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):105:105 -> run
+    265:280:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):107:107 -> run
+    281:282:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):108:108 -> run
+    283:284:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):107:107 -> run
+    285:286:void tv.den.fanhub.Store.lambda$refresh$1(boolean,android.content.Context):85:85 -> run
+tv.den.fanhub.Store$$ExternalSyntheticLambda1 -> a.h:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    android.content.Context tv.den.fanhub.Store$$InternalSyntheticLambda$2$6b5a6fc2e90623f806d49ca6689f46a59327dde3a86fdb2bd8f55484f48726d0$0.f$0 -> a
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:5:void a.Store$$ExternalSyntheticLambda1.<init>(android.content.Context):0:0 -> <init>
+      # {"id":"com.android.tools.r8.synthesized"}
+    1:6:void tv.den.fanhub.Store.lambda$refresh$0(android.content.Context):103:103 -> run
+      # {"id":"com.android.tools.r8.residualsignature","signature":"()V"}
+tv.den.fanhub.TurnsProvider -> tv.den.fanhub.TurnsProvider:
+# {"id":"sourceFile","fileName":"TurnsProvider.java"}
+    java.lang.String[] COLUMNS -> a
+    0:20:void <clinit>():14:14 -> <clinit>
+    0:3:void <init>():13:13 -> <init>
+    0:5:int delete(android.net.Uri,java.lang.String,java.lang.String[]):32:32 -> delete
+    0:2:java.lang.String getType(android.net.Uri):30:30 -> getType
+    0:5:android.net.Uri insert(android.net.Uri,android.content.ContentValues):31:31 -> insert
+    0:13:android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String):20:20 -> query
+    14:20:android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String):21:21 -> query
+    21:24:android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String):22:22 -> query
+    25:36:java.util.List tv.den.fanhub.Store.turns(android.content.Context):54:54 -> query
+    25:36:android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String):22 -> query
+    37:52:android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String):22:22 -> query
+    53:89:android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String):23:23 -> query
+    90:100:android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String):25:25 -> query
+    101:109:android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String):26:26 -> query
+    0:5:int update(android.net.Uri,android.content.ContentValues,java.lang.String,java.lang.String[]):33:33 -> update

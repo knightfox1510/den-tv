@@ -1,0 +1,81 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="tv.den.fanhub"
+4    android:versionCode="1"
+5    android:versionName="0.2" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="34" />
+10
+11    <!-- The only den-tv app that goes online: TheSportsDB for matches, AniList for episodes. -->
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:5:5-67
+12-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:5:22-64
+13
+14    <uses-feature
+14-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:7:5-87
+15        android:name="android.software.leanback"
+15-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:7:19-59
+16        android:required="false" />
+16-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:7:60-84
+17    <uses-feature
+17-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:8:5-90
+18        android:name="android.hardware.touchscreen"
+18-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:8:19-62
+19        android:required="false" />
+19-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:8:63-87
+20
+21    <application
+21-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:10:5-34:19
+22        android:allowBackup="false"
+22-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:14:9-36
+23        android:banner="@drawable/fanhub_banner"
+23-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:13:9-49
+24        android:extractNativeLibs="false"
+25        android:icon="@drawable/fanhub_banner"
+25-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:12:9-47
+26        android:label="Fan Hub"
+26-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:11:9-32
+27        android:supportsRtl="true"
+27-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:15:9-35
+28        android:theme="@android:style/Theme.DeviceDefault.NoActionBar" >
+28-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:16:9-71
+29
+30        <!-- The launcher's game_day contract: Home reads this provider's turns (GameDay.META). -->
+31        <meta-data
+31-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:19:9-97
+32            android:name="com.gathin.tvhome.games"
+32-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:19:20-58
+33            android:value="tv.den.fanhub.games" />
+33-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:19:59-94
+34
+35        <provider
+35-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:21:9-24:39
+36            android:name="tv.den.fanhub.TurnsProvider"
+36-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:22:13-42
+37            android:authorities="tv.den.fanhub.games"
+37-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:23:13-54
+38            android:exported="true" />
+38-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:24:13-36
+39
+40        <activity
+40-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:26:9-33:20
+41            android:name="tv.den.fanhub.FanHubActivity"
+41-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:27:13-43
+42            android:exported="true" >
+42-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:28:13-36
+43            <intent-filter>
+43-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:29:13-32:29
+44                <action android:name="android.intent.action.MAIN" />
+44-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:30:17-69
+44-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:30:25-66
+45
+46                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+46-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:31:17-86
+46-->/home/user/dev-tv/launcher/fanhub/src/main/AndroidManifest.xml:31:27-83
+47            </intent-filter>
+48        </activity>
+49    </application>
+50
+51</manifest>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- The only den-tv app that goes online: TheSportsDB for matches, AniList for episodes. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <application
+        android:label="Fan Hub"
+        android:icon="@drawable/fanhub_banner"
+        android:banner="@drawable/fanhub_banner"
+        android:allowBackup="false"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+
+        <!-- The launcher's game_day contract: Home reads this provider's turns (GameDay.META). -->
+        <meta-data android:name="com.gathin.tvhome.games" android:value="tv.den.fanhub.games" />
+
+        <provider
+            android:name=".TurnsProvider"
+            android:authorities="tv.den.fanhub.games"
+            android:exported="true" />
+
+        <activity
+            android:name=".FanHubActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

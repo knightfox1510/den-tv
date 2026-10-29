@@ -443,7 +443,8 @@
          of an add-on that publishes them (the Game Day add-on: io.github.justinnewman.gameday; contract in docs/modules.md).
          Empty = off: nothing is read or watched. The launcher only reads what the add-on publishes and never goes
          online. A theme can set "game_day". -->
-    <string name="game_day" translatable="false"></string>
+    <!-- den-tv: the Fan Hub add-on (launcher/fanhub). Nothing shows until it is installed. -->
+    <string name="game_day" translatable="false">tv.den.fanhub</string>
 
     <!-- Time-of-day backdrop behind everything: a dark gradient that follows the clock, with a warm
          horizon glow around sunrise and sunset. 0 keeps the plain background (the default); 1 to 100

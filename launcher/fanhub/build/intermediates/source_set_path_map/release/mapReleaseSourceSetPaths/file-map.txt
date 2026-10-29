@@ -1,0 +1,7 @@
+tv.den.fanhub-pngs-0 /home/user/dev-tv/launcher/fanhub/build/generated/res/pngs/release
+tv.den.fanhub-resValues-1 /home/user/dev-tv/launcher/fanhub/build/generated/res/resValues/release
+tv.den.fanhub-packageReleaseResources-2 /home/user/dev-tv/launcher/fanhub/build/intermediates/incremental/release/packageReleaseResources/merged.dir
+tv.den.fanhub-packageReleaseResources-3 /home/user/dev-tv/launcher/fanhub/build/intermediates/incremental/release/packageReleaseResources/stripped.dir
+tv.den.fanhub-release-4 /home/user/dev-tv/launcher/fanhub/build/intermediates/merged_res/release/mergeReleaseResources
+tv.den.fanhub-main-5 /home/user/dev-tv/launcher/fanhub/src/main/res
+tv.den.fanhub-release-6 /home/user/dev-tv/launcher/fanhub/src/release/res

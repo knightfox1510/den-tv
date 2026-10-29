@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+}
+
+// den-tv Fan Hub: the add-on that fetches scores and episodes and hands them to Home through the launcher's
+// game_day contract (GameDay.java). The launcher itself stays offline; only this app uses the internet.
+android {
+    namespace 'tv.den.fanhub'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'tv.den.fanhub'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '0.2'
+    }
+
+    def denKeystore = System.getenv('DEN_KEYSTORE')
+    signingConfigs {
+        if (denKeystore) {
+            den {
+                storeFile file(denKeystore)
+                storePassword System.getenv('DEN_KEYSTORE_PASSWORD')
+                keyAlias 'den-tv'
+                keyPassword System.getenv('DEN_KEYSTORE_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            signingConfig denKeystore ? signingConfigs.den : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20231013'
+}
