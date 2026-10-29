@@ -93,6 +93,10 @@ public final class DenLooksProvider extends ContentProvider {
         c.addRow(new Object[]{"facts", p.getBoolean("facts", false) ? "1" : "0"});
         c.addRow(new Object[]{"stats", p.getBoolean("stats", false) ? "1" : "0"});
         c.addRow(new Object[]{"hud", p.getBoolean("hud", false) ? "1" : "0"});
+        c.addRow(new Object[]{DenSettings.MOTION, p.getString(DenSettings.MOTION, "")});
+        c.addRow(new Object[]{DenLaunch.OPEN_KEY, p.getString(DenLaunch.OPEN_KEY, "look")});
+        c.addRow(new Object[]{DenLaunch.BACK_KEY, p.getString(DenLaunch.BACK_KEY, "look")});
+        c.addRow(new Object[]{"screen_care", p.getBoolean("screen_care", false) ? "1" : "0"});
         return c;
     }
 
@@ -119,10 +123,18 @@ public final class DenLooksProvider extends ContentProvider {
             n++;
         }
         for (String k : new String[]{DenSettings.GREETING, DenSettings.PANEL, DenSettings.WATCHER, DenSettings.SETUP_DONE,
-                DenSettings.WAKE, DenSettings.REDUCED_MOTION, "facts", "stats", "hud"}) {
+                DenSettings.WAKE, DenSettings.REDUCED_MOTION, "facts", "stats", "hud", "screen_care"}) {
             if (!v.containsKey(k)) continue;
             e.putBoolean(k, "1".equals(v.getAsString(k)) || Boolean.TRUE.equals(v.getAsBoolean(k)));
             n++;
+        }
+        // Choices by name: motion (full, calm or "" for the TV's default), the opening and back animations.
+        String[][] named = {{DenSettings.MOTION, "|full|calm"}, {DenLaunch.OPEN_KEY, "look|random|off|" + String.join("|", DenLaunch.OPEN)},
+                {DenLaunch.BACK_KEY, "look|random|off|" + String.join("|", DenLaunch.BACK)}};
+        for (String[] k : named) {
+            if (!v.containsKey(k[0])) continue;
+            String val = v.getAsString(k[0]);
+            if (val != null && java.util.Arrays.asList(k[1].split("\\|", -1)).contains(val)) { e.putString(k[0], val); n++; }
         }
         e.apply();
         android.content.SharedPreferences choices = getContext().getSharedPreferences(Config.SETTINGS_NAME, android.content.Context.MODE_PRIVATE);

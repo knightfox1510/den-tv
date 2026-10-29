@@ -520,7 +520,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             h.label.setVisibility(uniformTiles ? View.GONE : View.VISIBLE);
         }
         DenIcons.style(ctx, h.card, e.kind == Entry.APP ? e.label : "", position, e.banner != null);   // den-tv: the look's frame over the tile
-        h.card.setOnClickListener(v -> launch(e));
+        h.card.setOnClickListener(v -> launch(e, h.card));
         h.card.setOnLongClickListener(v -> {
             if (tileMenu) {
                 int pos = h.getBindingAdapterPosition();
@@ -538,7 +538,9 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /** Opens the tile's activity by explicit component, with no extras: a card can name nothing else. */
-    private void launch(Entry e) {
+    private void launch(Entry e) { launch(e, null); }
+
+    private void launch(Entry e, View tile) {
         if (e.kind == Entry.HOME_SETTINGS) {
             ctx.startActivity(new Intent(ctx, HomeSettingsActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -562,6 +564,16 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Intent byAction = LaunchActions.intent(e.pkg, action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             if (ctx.getPackageManager().resolveActivity(byAction, 0) != null) i = byAction;
         }
+        Intent target = i;
+        // den-tv: the look's opening animation (DenLaunch); without one, Home opens the app as before.
+        if (ctx instanceof Activity && DenLaunch.open((Activity) ctx, tile, (options) -> {
+            try {
+                ctx.startActivity(target, options);
+                if (cinematic) LastOpened.record(ctx, e.pkg);
+            } catch (Exception ex) {
+                Toast.makeText(ctx, ctx.getString(R.string.cant_open, e.label), Toast.LENGTH_SHORT).show();
+            }
+        })) return;
         try {
             ctx.startActivity(i);
             if (cinematic) LastOpened.record(ctx, e.pkg);

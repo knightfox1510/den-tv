@@ -384,6 +384,32 @@ public class DenScreensTest {
         }
     }
 
+    /** Every opening and back animation half way, over Camp Nou with a tile picked at the bottom: one sheet. */
+    @Test public void launches() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        Bitmap wall = BitmapFactory.decodeFile("../../themes/den-mix/wallpapers/01-camp-nou.jpg");
+        java.util.List<String[]> all = new java.util.ArrayList<>();
+        for (String o : DenLaunch.OPEN) if (!o.equals("zoom") && !o.equals("portal")) all.add(new String[]{o, "open"});
+        for (String b : DenLaunch.BACK) all.add(new String[]{b, "back"});
+        Bitmap sheet = Bitmap.createBitmap(1920, ((all.size() + 2) / 3) * 360, Bitmap.Config.ARGB_8888);
+        Canvas sc = new Canvas(sheet);
+        android.graphics.Paint label = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        label.setColor(0xffffffff);
+        label.setTextSize(28);
+        for (int i = 0; i < all.size(); i++) {
+            Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(b);
+            if (wall != null) c.drawBitmap(wall, 0, 0, null);
+            DenLaunch.Fx fx = new DenLaunch.Fx(ctx, all.get(i)[0], all.get(i)[1].equals("back"), new android.graphics.RectF(760, 800, 1160, 1025), 0xffedbb00);
+            layout(fx, 1920, 1080);
+            fx.freeze(0.5f);
+            fx.draw(c);
+            c.drawText(all.get(i)[1] + ": " + all.get(i)[0], 30, 60, label);
+            sc.drawBitmap(Bitmap.createScaledBitmap(b, 640, 360, true), (i % 3) * 640, (i / 3) * 360, null);
+        }
+        save(sheet, "launches");
+    }
+
     private static void layout(View v, int w, int h) {
         v.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY));
         v.layout(0, 0, w, h);

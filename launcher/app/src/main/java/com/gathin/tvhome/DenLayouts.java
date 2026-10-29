@@ -39,6 +39,27 @@ final class DenLayouts {
         grid.getViewTreeObserver().addOnGlobalFocusChangeListener((a, b) -> s.shape());
     }
 
+    /**
+     * Where a key moves focus in this layout, or -1 for the row's ordinary move: the carousel wraps round (Right on
+     * the last app goes to the first, Left on the first to the last), and the formation's two lines take Up and
+     * Down (from the lower line Up goes to the next app on the upper line, and from the upper line Down to the next
+     * on the lower). Up from the upper line still goes to the top bar.
+     */
+    static int move(View grid, int keyCode, int pos, int count) {
+        String layout = grid instanceof RecyclerView ? ON.get(grid) : null;
+        if (layout == null || count < 2) return -1;
+        if ("carousel".equals(layout)) {
+            if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_RIGHT && pos == count - 1) return 0;
+            if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_LEFT && pos == 0) return count - 1;
+        }
+        if ("formation".equals(layout)) {
+            boolean upper = pos % 2 == 0;
+            if ((keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP && !upper) || (keyCode == android.view.KeyEvent.KEYCODE_DPAD_DOWN && upper))
+                return pos + 1 < count ? pos + 1 : pos - 1;
+        }
+        return -1;
+    }
+
     /** Whether a layout other than the plain row shapes this grid. */
     static boolean active(View grid) { return grid instanceof RecyclerView && ON.containsKey(grid); }
 

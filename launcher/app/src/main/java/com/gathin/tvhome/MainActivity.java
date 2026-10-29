@@ -1361,6 +1361,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 return true;
             }
         }
+        // den-tv: the icon layouts' own moves (DenLayouts.move): the carousel wraps round at its ends, and the
+        // formation's two lines take Up and Down.
+        if (!reordering && openPopup == null && cardPrompt == null && event.getAction() == KeyEvent.ACTION_DOWN) {
+            int pos = focusedTilePosition();
+            if (pos >= 0 && pos < adapter.appCount()) {
+                int to = DenLayouts.move(grid, event.getKeyCode(), pos, adapter.appCount());
+                if (to >= 0 && to != pos) { focusTile(to); return true; }
+            }
+        }
         if (!reordering) return super.dispatchKeyEvent(event);
         if (dockEditing) return dispatchDockEdit(event);
         boolean down = event.getAction() == KeyEvent.ACTION_DOWN;

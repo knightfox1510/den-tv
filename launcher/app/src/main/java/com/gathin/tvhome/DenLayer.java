@@ -122,9 +122,10 @@ final class DenLayer {
         if (look != null) {
             int accent;
             try { accent = android.graphics.Color.parseColor(look.accent); } catch (RuntimeException e) { accent = 0xffff4d6d; }
-            DenExtras extras = DenExtras.make(activity, look, motion);
+            boolean calm = DenSettings.calm(activity);   // Calm motion: no extras, no focus effects
+            DenExtras extras = calm ? null : DenExtras.make(activity, look, motion);
             if (extras != null) layer.content.addView(extras, 1, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            if (DenFocusFx.draws(look.focus)) {
+            if (!calm && DenFocusFx.draws(look.focus)) {
                 DenFocusFx fx = new DenFocusFx(activity, look.focus, accent, motion);
                 layer.others.add(fx);
                 layer.content.addView(fx, 1, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -206,7 +207,7 @@ final class DenLayer {
             t = look.moment;
             title = java.util.Map.of("beam", "Kamehameha!", "arise", "Arise", "punch", "One punch", "gear5", "Gear 5").get(t);
         }
-        DenMomentView v = new DenMomentView(activity, t, title, line, colour, motion);
+        DenMomentView v = new DenMomentView(activity, t, title, line, colour, motion && !DenSettings.calm(activity));   // Calm: the card only
         content.addView(v, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         return true;
     }
@@ -247,8 +248,9 @@ final class DenLayer {
         DenMoments.attach(moments);
         content.post(DenMoments::replay);
         DenSettings.offerSetupOnce(activity);
-        if (!wakePending) return;
+        if (!wakePending) { DenLaunch.back(activity, content.findFocus()); return; }   // back from an app: the back animation
         wakePending = false;
+        DenLaunch.forget();   // a wake plays instead
         if (motion && DenSettings.wake(activity)) wake();
     }
 
@@ -268,7 +270,7 @@ final class DenLayer {
     private void wake() {
         View home = content.getChildAt(0);
         if (home == null) return;
-        if (look != null && !"bloom".equals(look.wake)) {
+        if (look != null && !"bloom".equals(look.wake) && !DenSettings.calm(activity)) {   // Calm: the plain bloom
             int accent;
             try { accent = android.graphics.Color.parseColor(look.accent); } catch (RuntimeException e) { accent = 0xffff4d6d; }
             if (DenWake.play(content, home, look.wake, accent)) return;

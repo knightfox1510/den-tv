@@ -47,6 +47,24 @@ final class DenSettings {
     }
     static boolean watcher(Context ctx) { return prefs(ctx).getBoolean(WATCHER, true); }
     static boolean wake(Context ctx) { return prefs(ctx).getBoolean(WAKE, true); }
+    /** Motion level: "full", "calm" or unset (calm on a TV with under 1.3 GB of memory, full otherwise). Off is reduced motion. */
+    static final String MOTION = "motion";
+
+    /**
+     * Calm: watchers still follow the app, but no extras, no focus effects, no idle movement, the wake and the big
+     * moments as a short card, and only the plain zoom and fade for opening apps and coming back.
+     */
+    static boolean calm(Context ctx) {
+        String m = prefs(ctx).getString(MOTION, "");
+        if ("calm".equals(m)) return true;
+        if ("full".equals(m)) return false;
+        android.app.ActivityManager am = (android.app.ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+        if (am == null) return false;
+        android.app.ActivityManager.MemoryInfo mi = new android.app.ActivityManager.MemoryInfo();
+        am.getMemoryInfo(mi);
+        return mi.totalMem > 0 && mi.totalMem < 1_300_000_000L;
+    }
+
     static boolean reducedMotion(Context ctx, boolean fallback) { return prefs(ctx).getBoolean(REDUCED_MOTION, fallback); }
     /** Minutes on Home before the idle clock; the theme's when not set here. */
     static int idleClock(Context ctx, int fallback) { return prefs(ctx).getInt(IDLE_CLOCK, fallback); }
