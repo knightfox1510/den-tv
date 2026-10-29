@@ -304,6 +304,8 @@
       <label for="kFootball">football-data.org key <small id="kfSet"></small></label><input id="kFootball" type="password" autocomplete="off" placeholder="Paste a key">
       <label for="kCricket">CricketData.org key <small id="kcSet"></small></label><input id="kCricket" type="password" autocomplete="off" placeholder="Paste a key">
       <label for="kGemini">Gemini API key <small id="kgSet"></small></label><input id="kGemini" type="password" autocomplete="off" placeholder="Paste a key from aistudio.google.com">
+      <label for="kgModel">Gemini model</label>
+      <select id="kgModel"><option value="gemini-flash-latest">Flash, newest (default)</option><option value="gemini-2.5-flash">Gemini 2.5 Flash</option><option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite (fastest)</option><option value="gemini-2.5-pro">Gemini 2.5 Pro (slower, smartest)</option></select>
       <div class="hint">Gemini turns a sentence into a look (Looks → Describe a look). The key stays on the TV; this page can't read it back. Your description goes to Google to answer it. <a href="#" id="kgForget">Remove the Gemini key</a></div>
       <div class="row"><button id="saveKeys">Save keys</button><button id="liveRefresh" class="ghost">Fetch now</button></div>
       <div id="liveMsg" class="msg" role="status"></div>
@@ -893,6 +895,8 @@
     const l = (await api('/api/live')).json;
     $('kfSet').textContent = l.football ? '· set' : ''; $('kcSet').textContent = l.cricket ? '· set' : ''; $('kgSet').textContent = l.gemini ? '· set' : '';
     $('kgForget').hidden = !l.gemini;
+    const ms = $('kgModel'); if (l.geminiModel && ![...ms.options].some((o) => o.value === l.geminiModel)) { const o = el('option', null, l.geminiModel); o.value = l.geminiModel; ms.appendChild(o); }
+    ms.value = l.geminiModel || 'gemini-flash-latest';
     $('liveSum').textContent = (l.football || l.cricket ? 'Live scores on' : 'No keys yet') + (l.fetched ? ' · updated ' + new Date(l.fetched).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '');
     say($('liveMsg'), l.errors ? 'Last fetch: ' + l.errors.replace(/\n/g, '; ') : '', !!l.errors);
     const mc = $('momentChips'); mc.innerHTML = '';
@@ -911,6 +915,8 @@
     if (r.json.ok === false) { say($('liveMsg'), r.json.error || 'Couldn\'t save.', true); return; }
     say($('liveMsg'), (r.json.geminiCheck ? r.json.geminiCheck + ' ' : '') + 'Saved. Fetching…'); setTimeout(loadLive, 6000);
   });
+  // A new model is tried with the saved key at once (a key pasted with it is tried with that model).
+  $('kgModel').addEventListener('change', async () => { const r = await api('/api/live', { geminiModel: $('kgModel').value }); say($('liveMsg'), r.json.ok === false ? (r.json.error || 'Couldn\'t.') : 'Gemini model set.', r.json.ok === false); });
   $('kgForget').addEventListener('click', async (ev) => { ev.preventDefault(); await api('/api/live', { gemini: '' }); say($('liveMsg'), 'Gemini key removed from the TV.'); loadLive(); });
   $('liveRefresh').addEventListener('click', async () => { await api('/api/live', { refresh: true }); say($('liveMsg'), 'Fetching…'); setTimeout(loadLive, 4000); });
   $('qCap').addEventListener('input', () => { $('qCapV').textContent = $('qCap').value; });

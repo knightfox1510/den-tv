@@ -519,7 +519,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             h.label.setText(e.label);
             h.label.setVisibility(uniformTiles ? View.GONE : View.VISIBLE);
         }
-        DenIcons.style(ctx, h.card, e.kind == Entry.APP ? e.label : "", position);   // den-tv: the look's frame over the tile
+        DenIcons.style(ctx, h.card, e.kind == Entry.APP ? e.label : "", position, e.banner != null);   // den-tv: the look's frame over the tile
         h.card.setOnClickListener(v -> launch(e));
         h.card.setOnLongClickListener(v -> {
             if (tileMenu) {

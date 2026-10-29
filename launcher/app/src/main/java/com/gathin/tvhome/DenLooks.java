@@ -125,11 +125,15 @@ final class DenLooks {
         SharedPreferences p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         try {
             JSONArray old = new JSONArray(p.getString(MINE, "[]")), out = new JSONArray();
-            for (int i = 0; i < old.length(); i++) if (!id.equals(old.getJSONObject(i).optString("id"))) out.put(old.getJSONObject(i));
+            String keptPhoto = "";
+            for (int i = 0; i < old.length(); i++) {
+                if (!id.equals(old.getJSONObject(i).optString("id"))) out.put(old.getJSONObject(i));
+                else keptPhoto = old.getJSONObject(i).optString("photo", "");   // editing a photo look keeps its photo
+            }
             if (out.length() >= 20) return null;
             JSONObject j = new JSONObject().put("id", id).put("name", in.optString("name", "My look").trim().isEmpty() ? "My look" : in.optString("name").trim())
                     .put("base", in.optString("base"));
-            String photo = in.optString("photo", "");
+            String photo = in.has("photo") ? in.optString("photo", "") : keptPhoto;
             if (!photo.isEmpty()) {
                 // Only your everyday photos: a private one (-p) never becomes a look anyone can pick.
                 if (!photo.matches(DenPhotos.NAME) || photo.endsWith("-p.jpg")) return null;

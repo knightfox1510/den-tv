@@ -45,11 +45,16 @@ final class DenIcons {
     static boolean active() { return !style.isEmpty(); }
 
     /** Frames one bound tile; with no style on, takes any frame off so a recycled tile is plain again. */
-    static void style(Context ctx, View card, String name, int position) {
+    static void style(Context ctx, View card, String name, int position) { style(ctx, card, name, position, true); }
+
+    /** banner: the tile shows the app's own banner (which usually has its name); false for an icon tile. */
+    static void style(Context ctx, View card, String name, int position, boolean banner) {
         if (!(card instanceof FrameLayout)) return;
         float density = ctx.getResources().getDisplayMetrics().density;
         String badge = DenBadges.forLabel(name);
-        ((FrameLayout) card).setForeground(style.isEmpty() && badge == null ? null : new Frame(style, name, position, accent, albiceleste, density, badge));
+        Frame f = style.isEmpty() && badge == null ? null : new Frame(style, name, position, accent, albiceleste, density, badge);
+        if (f != null) f.banner = banner;
+        ((FrameLayout) card).setForeground(f);
     }
 
     /** The style's frame over the whole card; the card's outline clips it to the tile's rounded corners. */
@@ -64,6 +69,8 @@ final class DenIcons {
         private final Path path = new Path();
 
         private final String badge;
+        /** Whether the tile is the app's banner (its name is on it) rather than an icon with a name under it. */
+        boolean banner = true;
 
         Frame(String style, String name, int index, int accent, boolean albiceleste, float density) {
             this(style, name, index, accent, albiceleste, density, null);
@@ -144,17 +151,31 @@ final class DenIcons {
                     break;
                 }
                 case "score": {
-                    float band = h * 0.26f;
+                    // A scorecard strip: batting order on the left and the over on the right over a banner (it has the
+                    // app's name already, which read twice); an icon tile, with its name under the icon, gets the name.
+                    float band = h * (banner ? 0.2f : 0.26f);
                     fill(0xe60b0c10);
                     c.drawRect(0, h - band, w, h, p);
-                    String n = name.toUpperCase(Locale.ROOT);
                     t.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
-                    float size = band * 0.6f;
-                    t.setTextSize(size);
-                    float tw = t.measureText(n);
-                    if (tw > w * 0.9f) t.setTextSize(size * w * 0.9f / tw);
-                    t.setColor(0xffffc23a);
-                    c.drawText(n, w / 2, h - band / 2 - (t.ascent() + t.descent()) / 2, t);
+                    if (!banner && !name.isEmpty()) {
+                        String n = name.toUpperCase(Locale.ROOT);
+                        float size = band * 0.6f;
+                        t.setTextSize(size);
+                        float tw = t.measureText(n);
+                        if (tw > w * 0.9f) t.setTextSize(size * w * 0.9f / tw);
+                        t.setColor(0xffffc23a);
+                        c.drawText(n, w / 2, h - band / 2 - (t.ascent() + t.descent()) / 2, t);
+                    } else {
+                        t.setTextSize(band * 0.58f);
+                        float base = h - band / 2 - (t.ascent() + t.descent()) / 2;
+                        t.setColor(0xffffc23a);
+                        t.setTextAlign(Paint.Align.LEFT);
+                        c.drawText((index + 1) + ".", band * 0.45f, base, t);
+                        t.setTextAlign(Paint.Align.RIGHT);
+                        t.setColor(0xffffd98a);
+                        c.drawText("OV " + (index * 3 + 4) + "." + (index % 6), w - band * 0.45f, base, t);
+                        t.setTextAlign(Paint.Align.CENTER);
+                    }
                     border(c, w, h, rad, 0xff34343c, 2 * dp);
                     break;
                 }

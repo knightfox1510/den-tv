@@ -73,7 +73,9 @@ final class DenLayouts {
                 break;
             case "carousel": {
                 float d = Math.min(1, Math.abs(u));
-                sx = sy = on ? 1.3f : 1 - 0.28f * d;
+                // The picked app grows upward, not down past the dock band and over the row's track.
+                sx = sy = on ? 1.18f : 1 - 0.28f * d;
+                if (on) ty = -0.12f * h;
                 alpha = on ? 1f : 1 - 0.45f * d;
                 break;
             }
