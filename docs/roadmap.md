@@ -10,6 +10,9 @@ A fork of the cleanyourtv launcher (Java, Android 8+), with its safety and insta
   den-tv draws the style around them (13 styles), places them (7 layouts) and adds live badges. Each
   style is drawn once into a bitmap; only the selected icon animates. No brand logos in the repo.
   Smart order, folders, renamed apps, picture icons and per-person hidden apps live on the TV.
+- **Remote navigation:** rows, spines and the rail move one step at a time, the carousel wraps
+  round, and the formation, cricket field and arc move to the nearest app in the pressed direction.
+  Watchers aim at the selected app's real position, whatever the layout.
 - **Watchers:** eyes that follow the selected app and blink, Dragon Balls that gather over it, the
   Power Pole that extends to it, Nami's thundercloud, Shinobu's butterflies, Luffy's hat and Zoro's
   swords. Each is a small vector view, with no images or video.
