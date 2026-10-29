@@ -20,10 +20,10 @@ and replaces its ad-filled home screen. den-tv adds the looks on top.
 |---|---|
 | [`themes/den-mix/`](themes/den-mix/) | **Works now.** Every scene as a wallpaper for the cleanyourtv launcher, a new one every 5 minutes |
 | [`looks/`](looks/) | **Done.** 57 looks as small JSON files, the format the launcher will read |
-| [`mockups/den-looks.html`](mockups/den-looks.html) | **Works now.** Open it in a browser: the full experience, with the phone settings page driving a TV preview |
+| [`mockups/den-looks.html`](mockups/den-looks.html) | **Works now.** Open it in a browser: the full experience, with the phone settings page driving a TV preview, first-time setup with phone pairing, and live data from `fanhub/` (sample data where it can't reach the internet) |
 | den-tv launcher (look engine, watchers, wake animations, moments) | Planned, see [docs/roadmap.md](docs/roadmap.md) |
 | Phone settings page served by the TV | Planned |
-| Fan Hub add-on (live scores, anime schedule, trail weather) | Planned |
+| [`fanhub/`](fanhub/) | **Works now.** Real fixtures, results, the La Liga table, anime episode dates and the hike forecast; `node fanhub/cli.js` prints them. Live in-match scores need two free keys |
 
 ## Set up a TV
 

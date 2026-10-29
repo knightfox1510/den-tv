@@ -1,0 +1,12 @@
+{
+  "tz": "Asia/Kolkata",
+  "teams": [
+    { "name": "FC Barcelona", "sport": "football", "sportsdb": "133739", "footballData": 81 },
+    { "name": "India", "sport": "cricket", "sportsdb": "137143", "cricketName": "India" },
+    { "name": "Mumbai Indians", "sport": "cricket", "sportsdb": "135795", "cricketName": "Mumbai Indians" }
+  ],
+  "table": { "sportsdb": "4335", "name": "La Liga" },
+  "shows": ["One Piece", "Jujutsu Kaisen", "Demon Slayer"],
+  "place": { "name": "Rajmachi", "lat": 18.83, "lon": 73.4 },
+  "keys": { "sportsdb": "123", "footballData": "", "cricketData": "" }
+}

@@ -42,11 +42,18 @@ Served by the TV on the home Wi-Fi, opened by scanning a QR code on the TV, with
 - Upload your own photos as heroes or wallpapers.
 - Share a look with a friend as a file or a QR code.
 - No network debugging needed after setup.
+- **First-time setup and pairing** (in the mockup): the TV shows welcome, Wi-Fi and a QR code with a
+  6-digit code that works once and changes every 5 minutes; the phone scans it, gets its own key, then
+  sets names, teams, shows, the hike location, optional score keys and the first look while the TV
+  mirrors each step. Paired phones are listed in the TV tab and can be unpaired one by one.
 - TV health: memory meter, close background apps, keep-running list. See [tv-health.md](tv-health.md).
 
-## 4. Fan Hub add-on
-Live scores (Barça, India, Mumbai Indians, La Liga, EPL), the anime airing schedule (AniList),
+## 4. Fan Hub add-on (data done in `fanhub/`)
+Live scores (Barça, India, Mumbai Indians, La Liga), the anime airing schedule (AniList),
 weekend trail weather (Open-Meteo), and a "next 72 hours" list. It sets off moments and auto rules.
+The data side works now in [`fanhub/`](../fanhub/README.md): TheSportsDB, AniList and Open-Meteo need
+no key, and football-data.org and CricketData.org add live in-match scores with free keys. Left to do:
+port it to the launcher and add EPL.
 It opens from its dock tile in the current look's colours, and the phone page chooses which cards
 show and which teams, leagues and shows they follow.
 

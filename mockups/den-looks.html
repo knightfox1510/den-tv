@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Den Looks</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -449,6 +450,32 @@ textarea.prm { width: 100%; min-height: 110px; font: 12.5px/1.45 var(--mono); co
 .iapp .search { padding: 6px 10px; font-size: 13.5px; }
 .iapp .btn { padding: 6px 10px; font-size: 12px; }
 label.btn { display: inline-block; }
+/* First-time setup on the TV */
+.setup { position: absolute; inset: 0; z-index: 26; display: grid; place-items: center; color: #fff; background: radial-gradient(ellipse at 50% 30%, #241c46, #06060c 70%); }
+.setup[hidden], .tabs[hidden] { display: none; }
+.setup .dots { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); display: flex; gap: 16px; }
+.setup .dots i { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,.2); }
+.setup .dots i.done { background: rgba(255,255,255,.7); } .setup .dots i.on { background: var(--hot); box-shadow: 0 0 14px var(--hot); }
+.su { width: 1400px; display: grid; gap: 28px; justify-items: center; text-align: center; }
+.su h1 { margin: 0; font-size: 80px; font-weight: 700; letter-spacing: -.01em; text-wrap: balance; }
+.su .brand { font-family: "Bebas Neue", var(--f); font-size: 230px; line-height: .85; letter-spacing: .04em; }
+.su .brand b { color: var(--hot); font-weight: 400; }
+.su p { margin: 0; max-width: 1150px; font-size: 34px; line-height: 1.35; color: rgba(255,255,255,.75); }
+.su .hint { padding: 12px 32px; border-radius: 999px; border: 2px solid rgba(255,255,255,.3); font-size: 28px; }
+.su .pair { display: grid; grid-template-columns: 380px 1fr; gap: 80px; align-items: center; justify-items: start; text-align: left; }
+.su .qr { width: 380px; height: 380px; display: grid; place-items: center; border-radius: 28px; background: #fff; }
+.su .qr img, .su .qr canvas { width: 320px !important; height: 320px !important; }
+.su .code { font-family: var(--mono); font-size: 120px; font-weight: 600; letter-spacing: .12em; }
+.su .url { font-family: var(--mono); font-size: 36px; color: #9fd8ff; }
+.su .ok { color: var(--ok); }
+.su .tags2 { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+.su .tags2 span { padding: 10px 24px; border-radius: 999px; background: rgba(255,255,255,.1); font-size: 28px; }
+.su ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; font-size: 34px; text-align: left; }
+.su li::before { content: "✓  "; color: var(--ok); font-weight: 700; }
+.su .look { width: 640px; height: 360px; border-radius: 22px; background: #000 center / cover no-repeat; box-shadow: 0 0 0 4px rgba(255,255,255,.8), 0 30px 60px rgba(0,0,0,.6); }
+.sucode { font: 600 22px var(--mono); letter-spacing: .25em; text-align: center; }
+.pill { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); font-size: 11.5px; white-space: nowrap; }
+.pill.ok { color: var(--ok); } .pill.bad { color: var(--hot); } .pill.off { color: var(--dim); }
 @media (prefers-reduced-motion: reduce) { .amb *, .app .ic, .beam, .pool { animation: none !important; transition-duration: .01s !important; } }
 </style>
 
@@ -477,11 +504,12 @@ label.btn { display: inline-block; }
             <div class="dock" id="dock"></div>
             <div class="hub" id="hub"></div>
           </div>
+          <div class="setup" id="setup" hidden></div>
           <div class="toast" id="toast"></div>
         </div>
       </div>
       <div class="tvfoot" aria-hidden="true"></div>
-      <div class="tvbar"><span>On the TV: <b id="tvLook">Camp Nou Nights</b></span><span class="row"><button class="btn" id="hubTv">Fan Hub</button><button class="btn hot" id="momentTv">Play the moment</button><button class="btn" id="wakeTv">Preview wake</button></span></div>
+      <div class="tvbar"><span>On the TV: <b id="tvLook">Camp Nou Nights</b></span><span class="row"><button class="btn" id="setupTv">First-time setup</button><button class="btn" id="hubTv">Fan Hub</button><button class="btn hot" id="momentTv">Play the moment</button><button class="btn" id="wakeTv">Preview wake</button></span></div>
       <div class="tvbar"><span class="dpad" role="group" aria-label="TV remote"><button class="btn" data-nav="left" aria-label="Left">◀</button><button class="btn" data-nav="up" aria-label="Up">▲</button><button class="btn" data-nav="down" aria-label="Down">▼</button><button class="btn" data-nav="right" aria-label="Right">▶</button><button class="btn" data-nav="ok" aria-label="OK">OK</button><button class="btn" data-nav="back" aria-label="Back">Back</button></span><span>Or click the TV and use the arrow keys, Enter and Esc</span></div>
     </div>
 
@@ -548,6 +576,9 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="../fanhub/fanhub.js"></script>
+<script>if (!window.denFanHub) { var fh = document.createElement('script'); fh.src = 'fanhub.js'; fh.onload = function () { dispatchEvent(new Event('denfanhub')); }; document.head.appendChild(fh); }</script>
 <script>
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -1416,6 +1447,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   const NAMES0 = (() => { try { return JSON.parse(localStorage.getItem('den2.names')) || {}; } catch (e) { return {}; } })();
   Object.keys(NAMES0).forEach((k) => { if (PEOPLE[k] && NAMES0[k]) PEOPLE[k].name = NAMES0[k]; });
   const PARTNER_OPTS = ['K-drama', 'Bollywood', 'Travel', 'Cooking', 'Plants', 'Music', 'F1', 'Yoga', 'Pets', 'Art', 'Cricket', 'Football', 'Anime'];
+  const FRESH = (() => { try { return localStorage.getItem('den2.look') === null; } catch (e) { return false; } })(); // first visit: start the setup
   const S = {
     tab: 'looks', cat: 'All', q: '', who: store.get('who', 'G'), look: store.get('look', 'camp-nou'), over: store.get('over', {}),
     favs: store.get('favs', ['camp-nou', 'hero-wall', 'super-saiyan', 'three-sword', 'crimson-moon', 'wankhede']), mine: store.get('mine', []), partner: store.get('partner', ['K-drama', 'Travel', 'Plants']),
@@ -1428,9 +1460,11 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     open: store.get('open', ['look']),
     art: store.get('art', 'detailed'),
     rules: store.get('rules', { match: true, india: true, ipl: true, episode: true, weekend: true, late: true, fest: true, surprise: false }),
+    live: Object.assign({ place: 'rajmachi', fdSet: false, cdSet: false }, store.get('live', {})),
+    setup: Object.assign({ done: false, phones: [] }, store.get('setup', {})),
     ic: Object.assign({ badges: { ep: true, score: true, cont: true, st: false }, smart: true, folder: false, names: {}, pics: {}, hidden: { G: [], P: [], X: [] } }, store.get('ic', {})),
   };
-  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules', 'wid', 'hub', 'anim', 'health', 'sys', 'open', 'art', 'ic'].forEach((k) => store.set(k, S[k]));
+  const save = () => ['who', 'look', 'over', 'favs', 'mine', 'partner', 'toggles', 'rules', 'wid', 'hub', 'anim', 'health', 'sys', 'open', 'art', 'ic', 'live', 'setup'].forEach((k) => store.set(k, S[k]));
   const allLooks = () => LOOKS.concat(S.mine);
   const base = () => allLooks().find((l) => l.id === S.look) || LOOKS[0];
   const eff = () => Object.assign({}, base(), S.over);
@@ -1529,7 +1563,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     if (sty === 'patch') { const pc = e.scene === 'albiceleste' ? ['#75aadb', '#f4f8ff', '#0b2a4a'] : ['#a50044', '#004d98', '#fff'];
       return V + '<defs><pattern id="ps' + i + '" width="24" height="100" patternUnits="userSpaceOnUse"><rect width="12" height="100" fill="' + pc[0] + '"/><rect x="12" width="12" height="100" fill="' + pc[1] + '"/></pattern></defs><path d="M50 3 93 15V50C93 75 74 89 50 97 26 89 7 75 7 50V15Z" fill="url(#ps' + i + ')" stroke="#edbb00" stroke-width="3.5"/><path d="M50 10 86 20V50C86 70 70 82 50 89 30 82 14 70 14 50V20Z" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-dasharray="3 2.5"/>' + at(.46, 27, 24) + logo(a, pc[2]) + '</g></svg>'; }
     if (sty === 'pin') return V + '<defs><linearGradient id="pg' + i + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".45" stop-color="#d4a636"/><stop offset="1" stop-color="#6a4608"/></linearGradient></defs><circle cx="50" cy="50" r="47" fill="url(#pg' + i + ')"/><circle cx="50" cy="50" r="39" fill="' + t + '" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>' + at(.5, 25, 25) + logo(a, '#fff') + '</g><path d="M22 38A30 30 0 0 1 62 18" stroke="#fff" stroke-width="5" fill="none" opacity=".35" stroke-linecap="round"/></svg>';
-    if (sty === 'score') return V + '<rect x="3" y="12" width="94" height="76" rx="8" fill="#0b0c10" stroke="#34343c" stroke-width="3"/><text x="50" y="40" text-anchor="middle" font-family="Bebas Neue" font-size="21" letter-spacing="1" fill="#ffc23a">' + escH(n.toUpperCase().slice(0, 10)) + '</text><line x1="10" y1="48" x2="90" y2="48" stroke="#2a2a30" stroke-width="2"/>' + at(.26, 12, 53) + logo(a, '#ffc23a') + '</g><text x="88" y="77" text-anchor="end" font-family="Bebas Neue" font-size="20" fill="#ffd98a">' + (k === 'hotstar' || k === 'fancode' ? '● LIVE' : 'OV ' + (i * 3 + 4) + '.' + (i % 6)) + '</text></svg>';
+    if (sty === 'score') return V + '<rect x="3" y="12" width="94" height="76" rx="8" fill="#0b0c10" stroke="#34343c" stroke-width="3"/><text x="50" y="40" text-anchor="middle" font-family="Bebas Neue" font-size="21" letter-spacing="1" fill="#ffc23a">' + escH(n.toUpperCase().slice(0, 10)) + '</text><line x1="10" y1="48" x2="90" y2="48" stroke="#2a2a30" stroke-width="2"/>' + at(.26, 12, 53) + logo(a, '#ffc23a') + '</g><text x="88" y="77" text-anchor="end" font-family="Bebas Neue" font-size="20" fill="#ffd98a">' + (liveFor(k) ? '● LIVE' : 'OV ' + (i * 3 + 4) + '.' + (i % 6)) + '</text></svg>';
     if (sty === 'pixel') return '<canvas class="pxc" width="20" height="20"></canvas>';
     if (sty === 'glass') return V + '<defs><linearGradient id="gg' + i + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".34"/><stop offset="1" stop-color="#fff" stop-opacity=".06"/></linearGradient></defs><rect x="4" y="4" width="92" height="92" rx="24" fill="' + c + '" opacity=".16"/><rect x="4" y="4" width="92" height="92" rx="24" fill="url(#gg' + i + ')" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/><path d="M14 32Q14 13 33 13H70" stroke="#fff" stroke-width="3" fill="none" opacity=".55" stroke-linecap="round"/>' + at(.58, 21, 21) + logo(a, '#fff') + '</g></svg>';
     if (sty === 'sticker') { const sc = c === '#ffffff' ? '#3a3a44' : c; return V + '<g fill="' + sc + '" stroke="#fff" stroke-width="9" stroke-linejoin="round" paint-order="stroke">' + at(.84, 8, 8) + logo(a, sc) + '</g></g></svg>'; }
@@ -1541,8 +1575,9 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">' + logo(a, '#fff') + '</svg>'); }
   function badgeHTML(a) {
     const b = S.ic.badges, k = a[1], ks = a.kids ? a.kids.map((x) => x[1]) : [k], mine = S.who !== 'X'; let h = '';
-    if (b.ep && mine && ks.includes('crunchy')) h += '<b class="bdg ep">EP 14</b>';
-    if (b.score && mine && (k === 'hotstar' || k === 'fancode')) h += '<b class="bdg sc"><i></i>' + (k === 'hotstar' ? 'IND 187/3' : 'BAR 2–1') + '</b>';
+    const ep = FEED && FH.newEpisode(FEED, Date.now(), 48), lv = liveFor(k);
+    if (b.ep && mine && ep && ks.includes('crunchy')) h += '<b class="bdg ep">EP ' + ep.episode + '</b>';
+    if (b.score && mine && lv && lv.score) h += '<b class="bdg sc"><i></i>' + escH(k === 'fancode' ? FH.short(lv.home) + ' ' + lv.score : lv.score.split(' (')[0]) + '</b>';
     const cp = ks.map((x) => ({ yt: .62, nf: .35, prime: .8 })[x]).find((v) => v != null);
     if (b.cont && cp != null) h += '<svg class="ring" viewBox="0 0 140 140"><circle cx="70" cy="70" r="64" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="5"/><circle cx="70" cy="70" r="64" fill="none" stroke="var(--acc)" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + (402 * cp).toFixed(0) + ' 402"/></svg>';
     const m = ks.reduce((s2, x) => s2 + (({ yt: 52, crunchy: 41, hotstar: 28, nf: 13 })[x] || 0), 0), lim = +S.sys.kidsMin || 60;
@@ -1567,14 +1602,168 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     dock.innerHTML = '<div class="dkdeco">' + decoHTML(lay, APPS.length) + '</div>';
     appEls = APPS.map((a, i) => { const [n, k, c, t] = a, d = document.createElement('div'); d.className = 'app'; d.style.setProperty('--tile', t); d.style.setProperty('--c', c); d.style.setProperty('--rot', ((i * 37) % 11 - 5) + 'deg');
       d.innerHTML = '<div class="ic">' + iconInner(a, i, sty) + badgeHTML(a) + '</div><div class="nm"><span>' + escH(n) + '</span></div>' +
-        '<div class="bn"><svg viewBox="0 0 100 100">' + logo(a, '#fff') + '</svg><em>' + (k === 'hotstar' || k === 'fancode' ? '● LIVE' : a.kids ? 'FOLDER' : 'FEATURED') + '</em><b>' + escH(n) + '</b><span>' + BANNER[k] + '</span></div>' +
+        '<div class="bn"><svg viewBox="0 0 100 100">' + logo(a, '#fff') + '</svg><em>' + (liveFor(k) ? '● LIVE' : a.kids ? 'FOLDER' : 'FEATURED') + '</em><b>' + escH(n) + '</b><span>' + escH(bannerText(k)) + '</span></div>' +
         '<div class="sp"><svg viewBox="0 0 100 100">' + logo(a, '#fff') + '</svg><b>' + escH(n) + '</b><small>VOL. ' + (i + 1) + '</small></div>';
       const cv = d.querySelector('canvas.pxc'); if (cv) drawPixel(cv, a);
-      d.addEventListener('click', () => { if (foc !== i) focusTo(i); else if (k === 'hub') openHub(true); else if (a.kids) openFolder(i); else openApp(i); }); dock.appendChild(d); return d; });
+      d.addEventListener('click', () => { navHold = Date.now(); if (foc !== i) focusTo(i); else if (k === 'hub') openHub(true); else if (a.kids) openFolder(i); else openApp(i); }); dock.appendChild(d); return d; });
     placeApps(true);
     $('factcard').style.left = lay === 'rail' ? '210px' : '';
   }
   const redock = () => { buildDock(); renderFocus(true); };
+
+  /* ===================== Live data (fanhub/fanhub.js) ===================== */
+  // The page tries the real sources first; where it can't reach them (this preview, offline) it uses the module's sample feed and says so.
+  const PLACES = { rajmachi: ['Rajmachi', 18.83, 73.4], lonavala: ['Lonavala', 18.75, 73.41], sinhagad: ['Sinhagad', 18.37, 73.76], harishchandragad: ['Harishchandragad', 19.39, 73.78], kalsubai: ['Kalsubai', 19.6, 73.71], mumbai: ['Mumbai', 19.08, 72.88], pune: ['Pune', 18.52, 73.86] };
+  const SRC_INFO = [['Fixtures, results, La Liga table', 'TheSportsDB · free, no sign-up'], ['Anime episodes', 'AniList · free, no key'], ['Weather', 'Open-Meteo · free, no key'], ['Live football scores', 'football-data.org · free key'], ['Live cricket scores', 'CricketData.org · free key, 100 calls a day']];
+  let FH = null, FEED = null, FEED_NOTE = 'Loading the Fan Hub data module', feedTimer = 0;
+  function hubConfig() { const pl = PLACES[S.live.place] || PLACES.rajmachi; return { place: { name: pl[0], lat: pl[1], lon: pl[2] }, shows: S.hub.shows.slice() }; } // keys stay on the TV, never in this page
+  async function refreshFeed(manual) {
+    if (!FH) return; const prev = FEED;
+    try { const f = await FH.fetchFeed(hubConfig(), Date.now(), FEED && !FEED.sample ? FEED : null); if (!f.sources.some((x) => x.ok)) throw new Error((f.sources.find((x) => x.error && !x.off) || {}).error || 'no source answered');
+      FEED = f; FEED_NOTE = 'Live data · updated ' + FH.fmtTime(f.updated, f.tz); if (prev && !prev.sample) FH.momentsBetween(prev, f).forEach(playLiveMoment);
+    } catch (e) { if (!FEED || FEED.sample) { FEED = FH.sampleFeed(Date.now()); FEED_NOTE = 'Sample data: this preview can\'t reach the sports, anime and weather sites. Open mockups/den-looks.html from the repo to see live data.'; } else FEED_NOTE = 'Couldn\'t refresh (' + e.message + '). Showing data from ' + FH.fmtTime(FEED.updated, FEED.tz); }
+    feedChanged(); if (manual) toast(FEED.sample ? 'Still sample data' : 'Live data updated');
+    clearTimeout(feedTimer); feedTimer = setTimeout(() => refreshFeed(false), FEED.matches.some((m) => m.status === 'live') && !FEED.sample ? 60e3 : 15 * 60e3);
+  }
+  function feedChanged() { renderChips(); renderSys(); if ($('hub').classList.contains('on')) renderHub(); if (APPS.length) redock(); const a = document.activeElement; if (!SU && !(a && a.closest && a.closest('.phone input, .phone select'))) keepRender(); }
+  function initHub() { if (FH || !window.denFanHub) return; FH = window.denFanHub; FEED = FH.sampleFeed(Date.now()); FEED_NOTE = 'Sample data while live data loads'; feedChanged(); refreshFeed(false); }
+  window.addEventListener('denfanhub', initHub);
+  function playLiveMoment(m) { toast(m.moment === 'goal' ? 'Goal! ' + m.why : m.why); moment(m.moment, m.why); }
+  // Runs the real detection (momentsBetween) on a copy of the feed with one goal or one episode added.
+  function simulate(kind) {
+    if (!FH || !FEED) return; const a = JSON.parse(JSON.stringify(FEED)), b = JSON.parse(JSON.stringify(FEED));
+    if (kind === 'goal') { const m0 = FH.liveOf(FEED, 'FC Barcelona') || FH.nextOf(FEED, 'FC Barcelona') || { home: 'Barcelona', away: 'Real Madrid', league: 'La Liga' }, g = m0.goals || [0, 0];
+      const m = Object.assign({}, m0, { id: 'sim', sport: 'football', team: 'FC Barcelona', status: 'live', goals: g, score: g.join('–'), minute: m0.minute || "58'" }), g2 = g.slice(); g2[FH.short(m.home) === 'BAR' ? 0 : 1]++;
+      a.matches.push(m); b.matches.push(Object.assign({}, m, { goals: g2, score: g2.join('–') })); }
+    else { const ep = FH.nextEpisodes(FEED)[0] || { show: 'One Piece', episode: 1150 }, e = { show: ep.show, episode: ep.episode, airingAt: new Date().toISOString() }; a.episodes.push(Object.assign({}, e, { status: 'upcoming' })); b.episodes.push(Object.assign({}, e, { status: 'out' })); }
+    FH.momentsBetween(a, b).forEach(playLiveMoment);
+  }
+  // The scoreboard clock on Camp Nou Nights and the India looks shows the real score, or the next match.
+  function liveBoard() {
+    const team = { 'camp-nou': 'FC Barcelona', 'chase-master': 'India', 'blue-billion': 'India' }[base().id]; if (!team || !FEED || FEED.sample || S.who === 'X') return '';
+    const m = FH.liveOf(FEED, team) || FH.nextOf(FEED, team), up = (x) => FH.displayName(x).toUpperCase(); if (!m) return '';
+    if (m.status === 'live') return (m.sport === 'football' ? up(m.home) + ' ' + (m.score || 'v') + ' ' + up(m.away) : m.score || up(m.home) + ' v ' + up(m.away)) + (m.minute ? ' · ' + m.minute : '');
+    return up(m.home) + ' v ' + up(m.away) + ' · ' + FH.fmtDay(m.start, FEED.tz).toUpperCase() + ' ' + FH.fmtTime(m.start, FEED.tz);
+  }
+  const liveIn = (sport) => FEED && FEED.matches.find((m) => m.status === 'live' && m.sport === sport && (sport !== 'football' || m.team === 'FC Barcelona'));
+  function liveFor(k) { return k === 'hotstar' ? liveIn('cricket') : k === 'fancode' ? liveIn('football') : null; }
+  function bannerText(k) {
+    if (!FEED) return BANNER[k]; const now = Date.now();
+    if (k === 'hotstar' || k === 'fancode') { const sp = k === 'hotstar' ? 'cricket' : 'football', lv = liveFor(k); if (lv) return 'Live: ' + FH.scoreLine(lv); const nx = FEED.matches.find((m) => m.status === 'upcoming' && m.sport === sp); if (nx) return 'Next: ' + FH.displayName(nx.home) + ' v ' + FH.displayName(nx.away) + ' · ' + FH.fmtDay(nx.start, FEED.tz, now); }
+    if (k === 'crunchy' || k === 'folder') { const ep = FH.newEpisode(FEED, now, 48); if (ep) return 'New: ' + ep.show + ' Ep ' + ep.episode; }
+    return BANNER[k];
+  }
+  function hudFeedRows() {
+    if (!FEED) return []; const now = Date.now(), r = [];
+    ['FC Barcelona', 'India', 'Mumbai Indians'].forEach((t) => { const m = FH.liveOf(FEED, t) || FH.nextOf(FEED, t, now); if (m) r.push([FH.short(m.home) + ' v ' + FH.short(m.away), m.status === 'live' ? (m.score || 'LIVE') : 'T-' + FH.fmtIn(m.start, now).replace('in ', '')]); });
+    const ep = FH.newEpisode(FEED, now, 48) || FH.nextEpisodes(FEED)[0]; if (ep) r.push([ep.show.toUpperCase().slice(0, 14) + ' ' + ep.episode, ep.status === 'out' ? 'OUT NOW' : FH.fmtDay(ep.airingAt, FEED.tz, now).toUpperCase()]);
+    if (FEED.weather) { const d = FEED.weather.days[0]; r.push([FEED.weather.place.toUpperCase(), d.max + '° ' + d.text.toUpperCase()]); }
+    return r.slice(0, 5);
+  }
+  function watchNow(F) {
+    if (!FEED) return ''; const rows = [], now = Date.now();
+    FEED.matches.filter((m) => m.status === 'live').forEach((m) => rows.push(F('', escH(FH.scoreLine(m)), 'Live · opens ' + (m.sport === 'cricket' ? 'JioHotstar' : 'FanCode'), '<button class="btn" data-rb="Opening ' + escH(FH.displayName(m.home) + ' v ' + FH.displayName(m.away)) + '">Open</button>')));
+    const ep = FH.newEpisode(FEED, now, 72); if (ep) rows.push(F('', escH(ep.show + ' · Ep ' + ep.episode), 'Out ' + FH.fmtIn(ep.airingAt, now) + ' · Crunchyroll', '<button class="btn" data-rb="Opening ' + escH(ep.show) + '">Open</button>'));
+    return rows.join('') || '<p class="note" style="margin-top:8px">Nothing live right now. Matches and new episodes show up here.</p>';
+  }
+
+  /* ===================== First-time setup and pairing ===================== */
+  // The TV shows the steps it owns (welcome, Wi-Fi, the pairing code, done); once paired, the phone drives the rest and the TV mirrors it.
+  const SU_STEPS = ['welcome', 'wifi', 'pair', 'people', 'interests', 'data', 'look', 'done'];
+  const SU_TEAMS = ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'Real Madrid', 'Argentina', 'RCB'], SU_SHOWS = ['One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Naruto', 'Dragon Ball', 'Solo Leveling'];
+  const TV_ADDR = '192.168.1.50:8642';
+  let SU = null, suTimer = 0;
+  const newCode = () => String(Math.floor(100000 + Math.random() * 900000));
+  const lookName = (id) => (allLooks().find((l) => l.id === id) || base()).name;
+  function startSetup(onlyPair) {
+    SU = { step: onlyPair ? 'pair' : 'welcome', onlyPair: !!onlyPair, code: newCode(), expires: Date.now() + 5 * 60e3, typed: '', phone: (PEOPLE.G.name || 'My') + '\'s phone', paired: false, err: '',
+      name: PEOPLE.G.name, partner: S.setup.done && PEOPLE.P.name !== 'Partner' ? PEOPLE.P.name : '', teams: S.hub.teams.slice(), shows: S.hub.shows.slice(), place: S.live.place, look: S.look };
+    openHub(false); clearInterval(suTimer); suTimer = setInterval(suTick, 1000); renderSetupTV(); render(); $('tv').focus();
+  }
+  function suTick() {
+    if (!SU) return;
+    if (SU.step === 'pair' && !SU.paired && Date.now() > SU.expires) { SU.code = newCode(); SU.expires = Date.now() + 5 * 60e3; SU.typed = ''; renderSetupTV(); keepRender(); return; }
+    const cd = $('sucd'); if (cd) { const t = Math.max(0, Math.round((SU.expires - Date.now()) / 1000)); cd.textContent = Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+  }
+  function suGo(step) { SU.step = step; SU.err = ''; renderSetupTV(); keepRender(); body.scrollTop = 0; }
+  function suKey(k) {
+    if (k === 'ok') { if (SU.step === 'welcome') suGo('wifi'); else if (SU.step === 'wifi') suGo('pair'); else if (SU.step === 'done') finishSetup(); else toast(SU.step === 'pair' ? 'Pair from your phone: scan the code' : 'Carry on on your phone'); }
+    if (k === 'back') { if (SU.step === 'wifi') suGo('welcome'); else if (SU.step === 'pair' && !SU.onlyPair && !SU.paired) suGo('wifi'); else closeSetup(true); }
+  }
+  function closeSetup(skipped) { SU = null; clearInterval(suTimer); $('setup').hidden = true; render(); if (skipped) toast('Setup closed. Run it again from the button under the TV'); }
+  function suPair() {
+    const v = (SU.typed || '').replace(/\D/g, '');
+    if (v !== SU.code) { SU.err = v.length < 6 ? 'Enter all 6 digits from the TV' : 'That code doesn\'t match the TV. Check the TV and try again'; keepRender(); return; }
+    const name = (SU.phone || 'My phone').trim().slice(0, 24) || 'My phone'; SU.phone = name; SU.paired = true;
+    S.setup.phones = S.setup.phones.filter((x) => x.name !== name).concat([{ name, when: new Date().toISOString() }]); save();
+    renderSetupTV(); keepRender(); setTimeout(() => { if (!SU) return; if (SU.onlyPair) { closeSetup(false); toast(name + ' is paired'); } else suGo('people'); }, 1400);
+  }
+  function finishSetup() {
+    const s = SU; PEOPLE.G.name = s.name.trim() || 'Me'; NAMES0.G = PEOPLE.G.name; if (s.partner.trim()) { PEOPLE.P.name = s.partner.trim(); NAMES0.P = PEOPLE.P.name; }
+    try { localStorage.setItem('den2.names', JSON.stringify(NAMES0)); } catch (e) {}
+    S.hub.teams = s.teams; S.hub.shows = s.shows; S.live.place = s.place; S.setup.done = true; S.look = s.look || S.look; S.over = {}; S.who = 'G'; S.tab = 'looks'; save();
+    SU = null; clearInterval(suTimer); $('setup').hidden = true; applyTV(true); render(); tick(); refreshFeed(false); toast('den-tv is ready');
+  }
+  function suSuggest() {
+    const m = { 'FC Barcelona': ['camp-nou', 'goat'], Argentina: ['albiceleste'], 'Real Madrid': ['clasico'], India: ['blue-billion', 'king-kohli'], 'Mumbai Indians': ['wankhede', 'hitman'], RCB: ['king-kohli'], 'One Piece': ['straw-hat', 'grand-line'], 'Jujutsu Kaisen': ['domain'], 'Demon Slayer': ['water-breathing'], Naruto: ['nine-tails'], 'Dragon Ball': ['super-saiyan'], 'Solo Leveling': ['arise'] };
+    const ids = [...new Set(SU.teams.concat(SU.shows).flatMap((x) => m[x] || []).concat(['trail-dawn', 'neon']))].slice(0, 6); if (!ids.includes(SU.look)) SU.look = ids[0]; return ids;
+  }
+  function renderSetupTV() {
+    const el = $('setup'); if (!SU) { el.hidden = true; return; } el.hidden = false; const st = SU.step, i = SU_STEPS.indexOf(st);
+    const chips = (a) => '<div class="tags2">' + a.map((x) => '<span>' + escH(x) + '</span>').join('') + '</div>';
+    let h = '';
+    if (st === 'welcome') h = '<div class="brand">den<b>·</b>tv</div><h1>Let\'s make this TV yours</h1><p>Looks, heroes and live scores, set up from your phone in about two minutes.</p><div class="hint">Press OK to start</div>';
+    else if (st === 'wifi') h = '<h1>Connected to Den_5G <span class="ok">✓</span></h1><p>Keep your phone on this Wi-Fi. The settings page runs on this TV and never leaves your home network.</p><div class="hint">Press OK to pair your phone</div>';
+    else if (st === 'pair') h = SU.paired ? '<h1><span class="ok">✓</span> ' + escH(SU.phone) + ' is paired</h1><p>' + (SU.onlyPair ? 'It can now change looks and settings on this TV.' : 'Carry on on your phone.') + '</p>'
+      : '<div class="pair"><div class="qr" id="suqr"></div><div style="display:grid;gap:20px"><h1 style="font-size:64px">Pair your phone</h1><p style="font-size:30px">Scan the code with your phone\'s camera, or open</p><div class="url">http://' + TV_ADDR + '</div><p style="font-size:30px">and enter</p><div class="code">' + SU.code.slice(0, 3) + ' ' + SU.code.slice(3) + '</div><p style="font-size:26px">Works once · changes in <b id="sucd">5:00</b> · only on this Wi-Fi</p></div></div>';
+    else if (st === 'done') h = '<h1>You\'re all set, ' + escH(SU.name || 'friend') + '</h1><ul><li>' + escH(SU.phone) + ' paired</li><li>' + SU.teams.length + ' teams and leagues, ' + SU.shows.length + ' shows</li><li>Look: ' + escH(lookName(SU.look)) + '</li><li>Network debugging is off, so only den-tv can change this TV</li></ul><div class="hint">Press OK to go Home</div>';
+    else { const l = allLooks().find((x) => x.id === SU.look);
+      h = '<h1>Carry on on your phone</h1><p>' + ({ people: 'Who watches this TV?', interests: 'Pick your teams and shows', data: 'Live scores, episodes and the hike forecast', look: 'Choose your first look' })[st] + '</p>' +
+        (SU.name ? '<p>' + escH(SU.name) + (SU.partner ? ' and ' + escH(SU.partner) : '') + '</p>' : '') + (st !== 'people' ? chips(SU.teams.concat(SU.shows)) : '') +
+        (st === 'data' ? '<p>Hike forecast for ' + escH(PLACES[SU.place][0]) + '</p>' : '') + (st === 'look' && l ? '<div class="look" style="background-image:url(' + thumbOf(l) + ')"></div><p>' + escH(l.name) + '</p>' : ''); }
+    el.innerHTML = '<div class="dots">' + SU_STEPS.map((x, k) => '<i class="' + (k < i ? 'done' : k === i ? 'on' : '') + '"></i>').join('') + '</div><div class="su">' + h + '</div>';
+    const q = $('suqr');
+    if (q) { if (window.QRCode) new QRCode(q, { text: 'http://' + TV_ADDR + '/pair?code=' + SU.code, width: 320, height: 320, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); else q.innerHTML = '<p style="color:#111;font-size:26px;padding:24px">The QR code needs the internet in this preview. Use the address and code.</p>'; }
+    suTick();
+  }
+  function vSetup() {
+    const st = SU.step, F = Fd, inpt = (id, v, w, extra) => '<input class="search" id="' + id + '" value="' + escH(v) + '" style="width:' + w + 'px;padding:6px 10px"' + (extra || '') + '>';
+    const nx = (label) => '<div class="row" style="margin-top:4px"><button class="btn" id="suBack">Back</button><button class="btn hot" id="suNext">' + label + '</button></div>';
+    if (st === 'welcome' || st === 'wifi') return '<div class="box" style="padding:16px"><b>Waiting for the TV</b><p class="note" style="margin-top:6px">Follow the steps on the TV with its remote: the ◀ ▲ ▼ ▶ OK buttons under the TV, or the arrow keys and Enter. When it shows a code, scan it with this phone\'s camera.</p></div><p class="note">This phone isn\'t connected yet. The settings page you get after pairing is served by the TV itself, over your Wi-Fi.</p>';
+    if (st === 'pair') return SU.paired ? '<div class="box" style="padding:16px"><b>Paired ✓</b><p class="note" style="margin-top:6px">' + escH(SU.phone) + ' can now change this TV.</p></div>'
+      : '<div class="box" style="padding:14px 16px"><b>Pair with Living room TV</b><p class="note" style="margin-top:4px">' + TV_ADDR + ' · on Den_5G</p></div>' +
+        '<div class="row"><button class="btn hot" id="suScan">Scan the code on the TV</button></div><p class="note">Scanning fills in the code for you. You can also type it.</p>' +
+        '<div class="box">' + F('suCode', 'Code on the TV', '6 digits', '<input class="search sucode" id="suCode" inputmode="numeric" maxlength="7" autocomplete="one-time-code" value="' + escH(SU.typed) + '" style="width:150px;padding:6px 8px">') +
+        F('suPhone', 'Name this phone', 'Shown in the TV\'s list of paired phones', inpt('suPhone', SU.phone, 150, ' maxlength="24"')) + '</div>' +
+        (SU.err ? '<p class="note" style="color:var(--hot)">' + escH(SU.err) + '</p>' : '') + '<div class="row"><button class="btn hot" id="suPair">Pair</button></div>' +
+        '<p class="note">The code works once and changes every 5 minutes. This phone then gets its own key, which you can remove from the TV at any time.</p>';
+    if (st === 'people') return '<div class="sec"><h3>Who watches this TV?</h3><div class="box">' + F('suName', 'Your name', 'Used in the greeting', inpt('suName', SU.name, 140, ' maxlength="20"')) + F('suPartner', 'Partner\'s name', 'Optional. They get their own profile and looks', inpt('suPartner', SU.partner, 140, ' maxlength="20" placeholder="Optional"')) + '</div></div><p class="note">A Guest profile is always there. It hides scores and personal rows.</p>' + nx('Next');
+    if (st === 'interests') return '<div class="sec"><h3>Teams and leagues</h3><div class="tags">' + SU_TEAMS.map((x) => '<button data-suteam="' + x + '" class="' + (SU.teams.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div></div>' +
+      '<div class="sec"><h3>Shows</h3><div class="tags">' + SU_SHOWS.map((x) => '<button data-sushow="' + x + '" class="' + (SU.shows.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div></div><p class="note">These pick the Fan Hub cards, the live badges and which looks switch on by themselves.</p>' + nx('Next');
+    if (st === 'data') return '<div class="sec"><h3>Live data</h3><div class="box">' + F('suPlace', 'Hike forecast for', 'Weekend weather from Open-Meteo', sel('suPlace', Object.fromEntries(Object.entries(PLACES).map(([k, v]) => [k, v[0]])), SU.place)) +
+      F('', 'Fixtures, results, episodes', 'TheSportsDB and AniList: free, no sign-up', '<span class="pill ok">Ready</span>') +
+      F('suFd', 'Live football scores', 'Optional free key from football-data.org', '<input class="search" id="suFd" type="password" autocomplete="off" placeholder="Skip for now" style="width:130px;padding:6px 10px">') +
+      F('suCd', 'Live cricket scores', 'Optional free key from cricketdata.org', '<input class="search" id="suCd" type="password" autocomplete="off" placeholder="Skip for now" style="width:130px;padding:6px 10px">') + '</div></div>' +
+      '<p class="note">Keys are saved on the TV only. Without them, scores update when a match ends. You can add them later in Customise → Live data.</p>' + nx('Next');
+    if (st === 'look') { const ids = suSuggest();
+      return '<div class="sec"><h3>Pick your first look</h3><div class="cards">' + ids.map((id) => { const l = allLooks().find((x) => x.id === id); return '<div class="card' + (SU.look === id ? ' on' : '') + '" role="button" tabindex="0" data-sulook="' + id + '"><div class="thumb" data-tid="' + id + '"></div><div class="meta"><b>' + l.name + '</b><span>' + l.cat + '</span></div></div>'; }).join('') + '</div></div>' +
+        '<p class="note">Auto rules still switch looks on match days and episode days.</p>' + nx('Finish'); }
+    return '<div class="box" style="padding:16px"><b>All set ✓</b><p class="note" style="margin-top:6px">Your TV is ready. This page stays at ' + TV_ADDR + ' on your Wi-Fi.</p></div><div class="row"><button class="btn hot" id="suDone">Go Home</button></div>';
+  }
+  function bindSetup() {
+    const on = (id, f) => { const el = $(id); if (el) el.addEventListener('click', f); }, back = { people: 'pair', interests: 'people', data: 'interests', look: 'data' };
+    on('suBack', () => (back[SU.step] === 'pair' ? toast('This phone is already paired') : suGo(back[SU.step])));
+    on('suNext', () => { if (SU.step === 'people' && !SU.name.trim()) { toast('Add your name first'); return; } suGo(SU_STEPS[SU_STEPS.indexOf(SU.step) + 1]); });
+    on('suScan', () => { SU.typed = SU.code; SU.err = ''; keepRender(); toast('Code read from the TV'); });
+    on('suPair', suPair); on('suDone', finishSetup);
+    [['suCode', 'typed'], ['suPhone', 'phone'], ['suName', 'name', 1], ['suPartner', 'partner', 1]].forEach(([id, k, tv]) => { const el = $(id); if (el) el.addEventListener('input', () => { SU[k] = el.value; if (tv) renderSetupTV(); }); });
+    const sc = $('suCode'); if (sc) sc.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') suPair(); });
+    const pl = $('suPlace'); if (pl) pl.addEventListener('change', () => { SU.place = pl.value; renderSetupTV(); });
+    ['suFd', 'suCd'].forEach((id) => { const el = $(id); if (el) el.addEventListener('change', () => { if (!el.value.trim()) return; S.live[id === 'suFd' ? 'fdSet' : 'cdSet'] = true; save(); el.value = ''; toast('On the TV this key is saved on the TV only. This preview doesn\'t keep it'); }); });
+    body.querySelectorAll('[data-suteam]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.suteam; SU.teams = SU.teams.includes(x) ? SU.teams.filter((y) => y !== x) : SU.teams.concat(x); keepRender(); renderSetupTV(); }));
+    body.querySelectorAll('[data-sushow]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.sushow; SU.shows = SU.shows.includes(x) ? SU.shows.filter((y) => y !== x) : SU.shows.concat(x); keepRender(); renderSetupTV(); }));
+    body.querySelectorAll('[data-sulook]').forEach((c) => { const go = () => { SU.look = c.dataset.sulook; keepRender(); renderSetupTV(); }; c.addEventListener('click', go); c.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); go(); } }); });
+  }
   // A folder unrolls like a scroll; picking an app rolls it back up and opens the app.
   function openFolder(i) {
     const a = APPS[i], sty = styNow(), s2 = sty === 'white' ? 'tiles' : sty, D = (eff().motion || 'full') === 'full' ? 750 : 1, ez = 'cubic-bezier(.5,0,.2,1)';
@@ -1751,7 +1940,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     const n = new Date(), e = eff(), hm = $('hm'); if (!hm) return;
     hm.textContent = pad(n.getHours()) + ':' + pad(n.getMinutes());
     if (e.clock === 'roll') { const s = n.getSeconds(), t = Math.floor(s / 10), o = s % 10; if (o !== last.o) { roll($('s1'), o, last.o, 9); last.o = o; } if (t !== last.t) { roll($('s10'), t, last.t, 5); last.t = t; } }
-    if (e.clock === 'board') $('bs').textContent = e.board || 'KICK-OFF 20:45';
+    if (e.clock === 'board') $('bs').textContent = liveBoard() || e.board || 'KICK-OFF 20:45';
     if (e.clock === 'analog') { const hh = n.getHours() % 12 + n.getMinutes() / 60, mm = n.getMinutes() + n.getSeconds() / 60; $('ah').setAttribute('transform', 'rotate(' + hh * 30 + ' 115 115)'); $('am').setAttribute('transform', 'rotate(' + mm * 6 + ' 115 115)'); $('as').setAttribute('transform', 'rotate(' + n.getSeconds() * 6 + ' 115 115)'); }
     if (e.clock === 'hud') { $('hsb').style.width = (n.getSeconds() / 59 * 100) + '%'; }
     if (e.clock === 'flap') { const str = pad(n.getHours()) + pad(n.getMinutes()); for (let k = 0; k < 4; k++) { const el = $('f' + k); if (el.textContent !== str[k]) { el.textContent = str[k]; el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip'); } } }
@@ -1804,17 +1993,21 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     if (hudOn) { const mem = 62 + Math.round(Math.sin(Date.now() / 4000) * 4);
       hd.innerHTML = '<div class="hp" style="left:' + (layNow() === 'rail' ? 210 : 110) + 'px;top:390px"><h4>SYSTEM</h4><div class="r"><span>CPU</span><span>' + cpu + '%  · 48°C</span></div><div class="g"><i style="width:' + cpu + '%"></i></div><div class="r"><span>MEMORY</span><span>930 MB / 1.5 GB</span></div><div class="g"><i style="width:' + mem + '%"></i></div><div class="r"><span>STORAGE</span><span>5.1 / 8 GB</span></div><div class="g"><i style="width:64%"></i></div><div class="r"><span>UPTIME</span><span>3d 04:12</span></div></div>' +
         '<div class="hp" style="right:110px;top:300px"><h4>NETWORK</h4><div class="r"><span>WI-FI</span><span>Den_5G · -52 dBm</span></div><div class="r"><span>DOWN / UP</span><span>' + net.d + ' / ' + net.u + ' Mbps</span></div><div class="r"><span>PING</span><span>' + net.p + ' ms</span></div><div class="r"><span>IP</span><span>192.168.1.50</span></div></div>' +
-        '<div class="hp" style="right:110px;top:530px"><h4>FEED</h4><div class="r"><span>BARÇA v SEV</span><span>T-2d 23h</span></div><div class="r"><span>IND v AUS</span><span>T-2h 18m</span></div><div class="r"><span>JJK EP 14</span><span>OUT NOW</span></div><div class="r"><span>RAJMACHI</span><span>27° CLEAR</span></div><div class="r"><span>SCREEN TIME</span><span>2h 14m</span></div></div>'; }
+        '<div class="hp" style="right:110px;top:530px"><h4>FEED' + (FEED && FEED.sample ? ' · SAMPLE' : '') + '</h4>' + hudFeedRows().concat([['SCREEN TIME', '2h 14m']]).map(([a, b]) => '<div class="r"><span>' + escH(a) + '</span><span>' + escH(b) + '</span></div>').join('') + '</div>'; }
   }
   setInterval(() => { cpu = Math.max(6, Math.min(78, cpu + Math.round((Math.random() - .5) * 10))); if (S.sys.stats || S.sys.hud || eff().hud) renderSys(); }, 2000);
   function renderChips() {
-    const t = S.toggles, out = []; const y = S.sys;
+    const t = S.toggles, out = [], y = S.sys, now = Date.now(), chip = (c, txt) => out.push('<div class="chip"><i style="background:' + c + '"></i>' + escH(txt) + '</div>');
     if (y.wifi) out.push('<div class="chip"><span class="wbars">' + [8, 12, 16, 20].map((h, i) => '<i class="' + (i < 3 ? 'on' : '') + '" style="height:' + h + 'px"></i>').join('') + '</span>' + (y.wifiName ? 'Den_5G' : '') + '</div>');
-    if (y.sleep !== 'off') out.push('<div class="chip"><i style="background:#9c8cff"></i>Sleeping in ' + y.sleep + ' min</div>');
-    if (y.stChip && S.who !== 'X') out.push('<div class="chip"><i style="background:#ffd36e"></i>Screen time today · 2h 14m</div>');
-    if (S.who === 'G' && S.wid.countdown) out.push('<div class="chip"><i style="background:#edbb00"></i>Barça v Sevilla · Sat 20:45 · in 2d 23h</div>');
-    if (S.who === 'G') { if (t.scores) out.push('<div class="chip"><i style="background:#ff4d5e"></i>Barça 2–1 Real · 67\'</div>'); if (t.anime) out.push('<div class="chip"><i style="background:#ff9ec4"></i>New: Jujutsu Kaisen Ep 14</div>'); if (t.trail) out.push('<div class="chip"><i style="background:#7fe8a8"></i>Sunday hike: clear, 27°</div>'); }
-    if (S.who === 'P' && S.partner.length) out.push('<div class="chip"><i style="background:#ff9ec4"></i>For you: ' + S.partner.slice(0, 2).join(' · ') + '</div>');
+    if (y.sleep !== 'off') chip('#9c8cff', 'Sleeping in ' + y.sleep + ' min');
+    if (y.stChip && S.who !== 'X') chip('#ffd36e', 'Screen time today · 2h 14m');
+    if (S.who === 'G' && FEED) { let data = 0;
+      const nx = FH.nextOf(FEED, 'FC Barcelona', now); if (S.wid.countdown && nx) { data++; chip('#edbb00', FH.displayName(nx.home) + ' v ' + FH.displayName(nx.away) + ' · ' + FH.fmtDay(nx.start, FEED.tz, now) + ' ' + FH.fmtTime(nx.start, FEED.tz) + ' · ' + FH.fmtIn(nx.start, now)); }
+      if (t.scores) { const lv = FEED.matches.filter((m) => m.status === 'live'), l = FH.lastOf(FEED, 'FC Barcelona'); lv.forEach((m) => chip('#ff4d5e', FH.scoreLine(m) + (m.minute ? ' · ' + m.minute : ''))); if (!lv.length && l) chip('#ff4d5e', FH.scoreLine(l) + ' · FT'); data += lv.length || (l ? 1 : 0); }
+      if (t.anime) { const ep = FH.newEpisode(FEED, now, 48), ne = FH.nextEpisodes(FEED)[0]; if (ep) chip('#ff9ec4', 'New: ' + ep.show + ' Ep ' + ep.episode); else if (ne) chip('#ff9ec4', ne.show + ' Ep ' + ne.episode + ' · ' + FH.fmtDay(ne.airingAt, FEED.tz, now)); data += ep || ne ? 1 : 0; }
+      if (t.trail) { const hk = FH.weekendHike(FEED, now); if (hk) { data++; chip('#7fe8a8', hk.go ? hk.wd + ' hike: ' + hk.text.toLowerCase() + ', ' + hk.max + '°' : 'Weekend: rain likely, skip the hike'); } }
+      if (data && FEED.sample) chip('#77778a', 'Sample data'); }
+    if (S.who === 'P' && S.partner.length) chip('#ff9ec4', 'For you: ' + S.partner.slice(0, 2).join(' · '));
     $('chips').innerHTML = out.join('');
   }
   function applyTV(withWake) {
@@ -1830,13 +2023,19 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   function renderHub() {
     const h = S.hub, cards = [];
     const team = (n) => h.teams.includes(n);
-    if (h.cricket && (team('India') || team('Mumbai Indians'))) cards.push('<div class="hc"><small><i></i>Cricket · next up</small><div class="big">' + (team('India') ? 'IND v AUS' : 'MI v CSK') + '</div><p>' + (team('India') ? '3rd T20I · Wankhede · toss in 2h 18m' : 'IPL returns in March') + '</p>' + (team('Mumbai Indians') && team('India') ? '<p style="opacity:.6">Mumbai Indians: IPL returns in March</p>' : '') + '</div>');
-    if (h.football && (team('FC Barcelona') || team('La Liga') || team('EPL'))) cards.push('<div class="hc"><small><i style="background:#ff4d5e"></i>Football · live</small><div class="big">BAR 2–1 RMA</div><p>67\' · Lewandowski, Yamal · Mbappé</p>' + (team('EPL') ? '<div class="rowt"><span>EPL · Liverpool v Man City</span><span>Sun 21:00</span></div>' : '') + (team('La Liga') ? '<div class="rowt"><span>La Liga · 1 Barcelona</span><span>25 pts</span></div>' : '') + '</div>');
-    if (h.anime && h.shows.length) cards.push('<div class="hc"><small><i style="background:#ff9ec4"></i>Anime · this week</small>' + h.shows.map((sh, i) => '<div class="rowt"><span>' + sh + '</span><span>' + ['Sun 21:30', 'Thu 22:00', 'Fri 23:00', 'Sat 20:00'][i % 4] + '</span></div>').join('') + '</div>');
-    if (h.trails) cards.push('<div class="hc"><small><i style="background:#7fe8a8"></i>Trails · this weekend</small><div class="big">GO SUNDAY</div><p>Rajmachi Fort · clear, 27° · leave by 06:00</p></div>');
-    if (h.next) cards.push('<div class="hc"><small><i style="background:#9c8cff"></i>Your next 72 hours</small><div class="rowt"><span>Toss · IND v AUS</span><span>Today</span></div><div class="rowt"><span>' + (h.shows[0] || 'One Piece') + ' new episode</span><span>Sun</span></div><div class="rowt"><span>Barça v Sevilla</span><span>Sat</span></div><div class="rowt"><span>Rajmachi hike</span><span>Sun 06:00</span></div></div>');
+    const now = Date.now(), X = FH, FD = FEED, when = (iso) => X.fmtDay(iso, FD.tz, now) + ' ' + X.fmtTime(iso, FD.tz);
+    if (FD && h.cricket && (team('India') || team('Mumbai Indians'))) { const ts = ['India', 'Mumbai Indians'].filter(team), m = ts.map((t) => X.liveOf(FD, t) || X.nextOf(FD, t, now)).filter(Boolean)[0], l = ts.map((t) => X.lastOf(FD, t)).filter(Boolean)[0];
+      cards.push('<div class="hc"><small><i></i>Cricket · ' + (m && m.status === 'live' ? 'live' : 'next up') + '</small><div class="big">' + (m ? escH(X.short(m.home) + ' v ' + X.short(m.away)) : 'NO MATCH YET') + '</div><p>' + escH(m ? (m.status === 'live' ? (m.score || 'Live') + (m.detail ? ' · ' + m.detail : '') : m.league + ' · ' + when(m.start) + ' · ' + X.fmtIn(m.start, now)) : 'Nothing scheduled yet') + '</p>' + (l ? '<p style="opacity:.6">Last: ' + escH(X.scoreLine(l) + (l.detail ? ' · ' + l.detail : '')) + '</p>' : '') + '</div>'); }
+    if (FD && h.football && (team('FC Barcelona') || team('La Liga'))) { const m = X.liveOf(FD, 'FC Barcelona') || X.nextOf(FD, 'FC Barcelona', now), l = X.lastOf(FD, 'FC Barcelona');
+      cards.push('<div class="hc"><small><i style="background:#ff4d5e"></i>Football · ' + (m && m.status === 'live' ? 'live' : 'next up') + '</small><div class="big">' + (m ? escH(X.short(m.home) + ' ' + (m.status === 'live' && m.score ? m.score : 'v') + ' ' + X.short(m.away)) : 'NO MATCH YET') + '</div><p>' + escH(m ? (m.status === 'live' ? (m.minute || 'Live') + ' · ' + m.league : m.league + ' · ' + when(m.start) + ' · ' + X.fmtIn(m.start, now)) : '') + '</p>' +
+        (l ? '<div class="rowt"><span>Last: ' + escH(X.scoreLine(l)) + '</span><span>FT</span></div>' : '') + (team('La Liga') ? FD.table.slice(0, 3).map((r) => '<div class="rowt"><span>' + r.rank + ' · ' + escH(X.displayName(r.team)) + '</span><span>' + r.points + ' pts</span></div>').join('') : '') + '</div>'); }
+    if (FD && h.anime && h.shows.length) cards.push('<div class="hc"><small><i style="background:#ff9ec4"></i>Anime · episodes</small>' + h.shows.map((sh) => { const eps = FD.episodes.filter((e) => e.show === sh), out = eps.find((e) => e.status === 'out'), nx = eps.find((e) => e.status === 'upcoming');
+      return '<div class="rowt"><span>' + escH(sh) + '</span><span>' + escH(out && now - Date.parse(out.airingAt) < 3 * 864e5 ? 'Ep ' + out.episode + ' out' : nx ? 'Ep ' + nx.episode + ' · ' + X.fmtDay(nx.airingAt, FD.tz, now) : eps.length ? 'On a break' : 'Checking') + '</span></div>'; }).join('') + '</div>');
+    if (FD && h.trails) { const hk = X.weekendHike(FD, now); cards.push('<div class="hc"><small><i style="background:#7fe8a8"></i>Trails · this weekend</small><div class="big">' + (hk ? (hk.go ? 'GO ' + hk.wd.toUpperCase() : 'SKIP IT') : 'NO FORECAST') + '</div><p>' + escH(hk ? hk.place + ' · ' + hk.text.toLowerCase() + ', ' + hk.max + '° · rain ' + hk.rain + '%' : (FD.sample ? 'The forecast is still loading' : 'Couldn\'t get the forecast. It tries again soon')) + '</p></div>'); }
+    if (FD && h.next) { const ev = [], lim = now + 72 * 3600e3; FD.matches.filter((m) => m.status === 'upcoming' && Date.parse(m.start) < lim).forEach((m) => ev.push([m.start, X.short(m.home) + ' v ' + X.short(m.away)])); FD.episodes.filter((e) => e.status === 'upcoming' && Date.parse(e.airingAt) < lim).forEach((e) => ev.push([e.airingAt, e.show + ' Ep ' + e.episode]));
+      cards.push('<div class="hc"><small><i style="background:#9c8cff"></i>Your next 72 hours</small>' + (ev.sort((a, b) => Date.parse(a[0]) - Date.parse(b[0])).slice(0, 5).map(([t, l]) => '<div class="rowt"><span>' + escH(l) + '</span><span>' + escH(when(t)) + '</span></div>').join('') || '<p>Nothing in the next three days.</p>') + '</div>'); }
     if (h.facts) { const pool = factPool(); cards.push('<div class="hc"><small><i></i>Did you know?</small><p style="font-size:25px">' + pool[(factI + 1) % pool.length] + '</p></div>'); }
-    $('hub').innerHTML = '<h2><i></i>Fan Hub<small>In the ' + base().name + ' look · Back returns Home</small></h2><div class="hubgrid">' + (cards.join('') || '<p style="font-size:26px;opacity:.7">Every card is switched off. Turn some on in Customise → Fan Hub on your phone.</p>') + '</div>';
+    $('hub').innerHTML = '<h2><i></i>Fan Hub<small>In the ' + base().name + ' look' + (FEED && FEED.sample ? ' · sample data' : '') + ' · Back returns Home</small></h2><div class="hubgrid">' + (cards.join('') || '<p style="font-size:26px;opacity:.7">Every card is switched off. Turn some on in Customise → Fan Hub on your phone.</p>') + '</div>';
   }
   function openHub(on) { const hb = $('hub'); if (on === undefined) on = !hb.classList.contains('on'); if (on) renderHub(); hb.classList.toggle('on', on); }
   $('hub').addEventListener('click', () => openHub(false));
@@ -1971,11 +2170,11 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     const A = { ink: [[{ clipPath: 'polygon(0 0, 0 0, -20% 100%, -20% 100%)' }, { clipPath: 'polygon(0 0, 120% 0, 100% 100%, -20% 100%)' }], 1200], crt: [[{ transform: 'scale(0,.004)', filter: 'brightness(4)' }, { transform: 'scale(1,.004)', filter: 'brightness(4)', offset: .35 }, { transform: 'scale(1,1)', filter: 'brightness(1.4)', offset: .7 }, { transform: 'none', filter: 'none' }], 1100], bloom: [[{ opacity: 0, filter: 'brightness(3) saturate(0)', transform: 'scale(1.06)' }, { opacity: 1, filter: 'brightness(1.8) saturate(.6)', offset: .4 }, { opacity: 1, filter: 'none', transform: 'none' }], 1500] };
     const a = A[e.wake]; home.animate(a[0], { duration: a[1], easing: ease });
   }
-  function moment() {
-    const e = eff(); if (e.moment === 'none') return;
+  function moment(kind, why) {
+    const e = Object.assign({}, eff(), typeof kind === 'string' ? { moment: kind, goalText: why, dropText: why } : {}); if (e.moment === 'none') return;
     const o = overlay(), R = Math.random;
     if (e.moment === 'goal') {
-      o.innerHTML = '<div style="position:absolute;inset:0;background:#fff" id="mf"></div><div class="moment-t" id="mt" style="color:#fff;text-shadow:10px 10px 0 #a50044,-10px -10px 0 #004d98,0 0 60px rgba(237,187,0,.6)">GOOOOOL!</div><div class="moment-s" id="ms" style="color:#edbb00">' + (e.goalText || 'Lewandowski 67\' · Barça 3–1 Real') + '</div>';
+      o.innerHTML = '<div style="position:absolute;inset:0;background:#fff" id="mf"></div><div class="moment-t" id="mt" style="color:#fff;text-shadow:10px 10px 0 #a50044,-10px -10px 0 #004d98,0 0 60px rgba(237,187,0,.6)">GOOOOOL!</div><div class="moment-s" id="ms" style="color:#edbb00">' + escH(e.goalText || 'Lewandowski 67\' · Barça 3–1 Real') + '</div>';
       for (let i = 0; i < 160; i++) { const c = ['#a50044', '#004d98', '#edbb00', '#fff'][i % 4]; o.insertAdjacentHTML('beforeend', '<span class="pt" style="left:' + R() * 1920 + 'px;top:-30px;width:' + (10 + R() * 12) + 'px;height:' + (6 + R() * 6) + 'px;border-radius:2px;background:' + c + ';--dx:' + (R() - .5) * 300 + 'px;animation:fall ' + (2.4 + R() * 2) + 's ' + R() * 1.2 + 's linear forwards"></span>'); }
       $('amb').classList.add('frenzy');
       $('mf').animate([{ opacity: .9 }, { opacity: 0 }], { duration: 500, fill: 'forwards' });
@@ -2010,7 +2209,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
       home.animate([{ transform: 'none' }, { transform: 'none', offset: .45 }, { transform: 'translate(-14px,8px)', offset: .5 }, { transform: 'translate(12px,-8px)', offset: .55 }, { transform: 'translate(-10px,6px)', offset: .6 }, { transform: 'none', offset: .7 }, { transform: 'none' }], { duration: 3200 });
     } else {
       const shows = { 'domain': 'Jujutsu Kaisen · Ep 14', 'grand-line': 'One Piece · Ep 1149', 'straw-hat': 'One Piece · Ep 1149', 'three-sword': 'One Piece · Ep 1149', 'water-breathing': 'Demon Slayer · Ep 9', 'nine-tails': 'Naruto Shippuden · next in your list', 'navigator': 'One Piece · Ep 1149', 'fire-fist': 'One Piece · Ep 1149', 'room': 'One Piece · Ep 1149', 'black-leg': 'One Piece · Ep 1149', 'hana-hana': 'One Piece · Ep 1149', 'drum-island': 'One Piece · Ep 1149', 'copy-ninja': 'Naruto Shippuden · next in your list', 'wanted': 'One Piece · Ep 1149', 'king-of-hell': 'One Piece · Ep 1149', 'lost-again': 'One Piece · Ep 1149', 'avenger': 'Naruto Shippuden · next in your list', 'strongest': 'Attack on Titan · rewatch', 'bankai': 'Bleach: Thousand-Year Blood War', 'set-ablaze': 'Demon Slayer · Ep 9', 'king-of-curses': 'Jujutsu Kaisen · Ep 14', 'crow-genjutsu': 'Naruto Shippuden · next in your list', 'butterfly-mansion': 'Demon Slayer · Ep 9', 'sage-mode': 'Naruto Shippuden · next in your list' };
-      o.innerHTML = '<div style="position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 45%, rgba(255,255,255,.5) 0 1.5deg, transparent 1.5deg 6deg);-webkit-mask-image:radial-gradient(circle at 50% 45%, transparent 14%, #000 60%);mask-image:radial-gradient(circle at 50% 45%, transparent 14%, #000 60%)" id="mf"></div><div class="moment-t" id="mt" style="font-family:\'Kaushan Script\',cursive;font-size:190px;color:#fff;text-shadow:8px 8px 0 ' + e.acc + '">New episode!</div><div class="moment-s" id="ms" style="color:' + e.acc + '">' + (shows[base().id] || 'Jujutsu Kaisen · Ep 14') + ' · out now on Crunchyroll</div>';
+      o.innerHTML = '<div style="position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 45%, rgba(255,255,255,.5) 0 1.5deg, transparent 1.5deg 6deg);-webkit-mask-image:radial-gradient(circle at 50% 45%, transparent 14%, #000 60%);mask-image:radial-gradient(circle at 50% 45%, transparent 14%, #000 60%)" id="mf"></div><div class="moment-t" id="mt" style="font-family:\'Kaushan Script\',cursive;font-size:190px;color:#fff;text-shadow:8px 8px 0 ' + e.acc + '">New episode!</div><div class="moment-s" id="ms" style="color:' + e.acc + '">' + (e.dropText ? escH(e.dropText) : (shows[base().id] || 'Jujutsu Kaisen · Ep 14')) + ' · out now on Crunchyroll</div>';
       $('mf').animate([{ opacity: 0, transform: 'scale(1.4)' }, { opacity: 1, transform: 'scale(1)', offset: .2 }, { opacity: .8 }, { opacity: 0 }], { duration: 3000, fill: 'forwards' });
     }
     $('mt').animate([{ transform: 'scale(.2) rotate(-8deg)', opacity: 0 }, { transform: 'scale(1.15) rotate(2deg)', opacity: 1, offset: .15 }, { transform: 'scale(1)', opacity: 1, offset: .25 }, { transform: 'scale(1)', opacity: 1, offset: .8 }, { transform: 'scale(1.3)', opacity: 0 }], { duration: 3400, fill: 'forwards' });
@@ -2020,6 +2219,7 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   $('momentTv').addEventListener('click', moment);
   $('wakeTv').addEventListener('click', wake);
   $('hubTv').addEventListener('click', () => openHub());
+  $('setupTv').addEventListener('click', () => startSetup(false));
   // Remote control: arrows move to the nearest app in that direction, OK opens it, Back closes the Fan Hub or a folder.
   // Rows and spines move one step, the carousel wraps round, the rail goes up and down, the other layouts go by position.
   function navDir(dx, dy) {
@@ -2037,11 +2237,12 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   function navOk() { const sc = stage.querySelector('.scrollov'); if (sc) { (sc.querySelector('.fitem.f') || sc.querySelector('.fitem')).click(); return; } if ($('hub').classList.contains('on')) { openHub(false); return; } if (appEls[foc]) appEls[foc].click(); }
   function navBack() { const sc = stage.querySelector('.scrollov'); if (sc) sc.click(); else openHub(false); }
   const NAV = { left: () => navDir(-1, 0), right: () => navDir(1, 0), up: () => navDir(0, -1), down: () => navDir(0, 1), ok: navOk, back: navBack };
-  document.querySelectorAll('[data-nav]').forEach((b) => b.addEventListener('click', () => { navHold = Date.now(); NAV[b.dataset.nav](); }));
+  const press = (k) => (SU ? suKey(k) : NAV[k]());
+  document.querySelectorAll('[data-nav]').forEach((b) => b.addEventListener('click', () => { navHold = Date.now(); press(b.dataset.nav); }));
   document.addEventListener('keydown', (ev) => {
     const t = ev.target, k = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', Enter: 'ok', ' ': 'ok', Escape: 'back', Backspace: 'back' }[ev.key];
     if (!k || ev.altKey || ev.ctrlKey || ev.metaKey || (t.closest && (t.closest('input, textarea, select, [contenteditable], .phone') || (k === 'ok' && t.closest('button, a'))))) return;
-    ev.preventDefault(); navHold = Date.now(); NAV[k]();
+    ev.preventDefault(); navHold = Date.now(); press(k);
   });
   let toastT; function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1700); }
 
@@ -2144,6 +2345,17 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
         '<div class="sub">Teams and leagues</div><div class="tags">' + ['FC Barcelona', 'India', 'Mumbai Indians', 'La Liga', 'EPL', 'Real Madrid', 'Argentina', 'RCB'].map((x) => '<button data-hteam="' + x + '" class="' + (S.hub.teams.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>' +
         '<div class="sub">Shows</div><div class="tags">' + ['One Piece', 'Jujutsu Kaisen', 'Demon Slayer', 'Naruto', 'Dragon Ball', 'Solo Leveling'].map((x) => '<button data-hshow="' + x + '" class="' + (S.hub.shows.includes(x) ? 'on' : '') + '">' + x + '</button>').join('') + '</div>' +
         '<div class="row" style="margin-top:10px"><button class="btn hot" id="openHub">Open Fan Hub on the TV</button></div>') +
+      acc('live', '📡', 'Live data', FEED ? (FEED.sample ? 'Sample data' : 'Live · ' + FEED.sources.filter((x) => x.ok).length + ' working' + (FEED.sources.some((x) => x.off) ? ' · ' + FEED.sources.filter((x) => x.off).length + ' need a key' : '')) : 'Loading',
+        '<p class="note" style="margin-top:12px">' + escH(FEED_NOTE) + '</p>' +
+        '<div class="sub">Sources</div>' + (FEED && FEED.sources.length ? FEED.sources.map((x) => F('', escH(x.label), x.ok ? x.count + ' item' + (x.count === 1 ? '' : 's') : escH(x.error || '') + (x.stale ? ' · showing the last good data' : ''), '<span class="pill ' + (x.ok ? 'ok' : x.off ? 'off' : 'bad') + '">' + (x.ok ? 'Working' : x.off ? 'Off' : 'Failed') + '</span>')).join('')
+          : SRC_INFO.map(([a, b]) => F('', a, b, '<span class="pill off">Not reached</span>')).join('')) +
+        '<div class="sub">Hike forecast</div>' + F('l-place', 'Weather for', 'The weekend hike card and the Trail Dawn rule', sel('l-place', Object.fromEntries(Object.entries(PLACES).map(([k, v]) => [k, v[0]])), S.live.place)) +
+        '<div class="sub">Live scores during a match</div>' +
+        F('l-fd', 'football-data.org key', S.live.fdSet ? 'Added on the TV' : 'Free. Live Barça scores', '<input class="search" id="l-fd" type="password" autocomplete="off" placeholder="' + (S.live.fdSet ? 'Replace' : 'Paste key') + '" style="width:120px;padding:6px 10px">') +
+        F('l-cd', 'CricketData.org key', S.live.cdSet ? 'Added on the TV' : 'Free. Live India and MI scores', '<input class="search" id="l-cd" type="password" autocomplete="off" placeholder="' + (S.live.cdSet ? 'Replace' : 'Paste key') + '" style="width:120px;padding:6px 10px">') +
+        '<p class="note" style="margin-top:6px">Keys are saved on the TV only, never in the repo or this preview. Without them, scores arrive when a match ends.</p>' +
+        '<div class="row" style="margin-top:10px"><button class="btn hot" id="l-refresh">Refresh now</button><button class="btn" id="l-goal">Simulate a Barça goal</button><button class="btn" id="l-ep">Simulate a new episode</button></div>' +
+        '<p class="note" style="margin-top:8px">Checks every 15 minutes, and every minute while a followed team is playing. A Barça goal plays the goal moment and a new episode plays its moment, whatever look is on.</p>') +
       acc('chars', '🧑‍🎨', 'Your characters', PUPPETS.length ? PUPPETS.length + ' made · tap to add more' : 'Turn your pictures into a living character',
         (PUPPETS.length ? PUPPETS.map((p) => '<div class="pcard2"><img src="' + p.body + '" alt=""><div><b>' + p.name.replace(/</g, '') + '</b><div class="row"><button class="btn" data-pfig="' + p.id + '">Big figure</button><button class="btn" data-pwalk="' + p.id + '">Walker</button>' + (p.builtin ? '' : '<button class="btn" data-pdel="' + p.id + '">Delete</button>') + '</div></div></div>').join('') : '<p class="note" style="margin-top:12px">No characters yet. Try the sample, or make your own below.</p>') +
         '<div class="row" style="margin-top:10px"><button class="btn" id="pSample">Add the sample (Luffy)</button></div>' +
@@ -2164,7 +2376,9 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   }
   const RULES = [['match', 'Barça match day', '2 hours before kickoff → Camp Nou Nights, goals play the moment'], ['india', 'India playing', 'From the toss → Blue Billion, sixes play the moment'], ['ipl', 'IPL season', 'March to May → Wankhede Roar in Mumbai Indians blue and gold'], ['episode', 'New episode out', 'One Piece → Grand Line, Jujutsu Kaisen → Domain Expansion, Demon Slayer → Water Breathing'], ['weekend', 'Weekend mornings', 'Saturday and Sunday before 10:00 → Trail Dawn with the hike forecast'], ['late', 'Late night', 'After 23:00 → calm motion, no moments'], ['fest', 'Festivals', 'Diwali and other festival looks switch on and off by date'], ['surprise', 'Surprise me every morning', 'A different favourite each day at 06:00']];
   function vAuto() {
-    return '<div class="sec"><h3>Rules</h3><div class="box">' + RULES.map(([k, t, d]) => '<div class="field"><label for="r-' + k + '">' + t + '<small>' + d + '</small></label>' + sw('r-' + k, S.rules[k]) + '</div>').join('') + '</div></div>' +
+    const r = FEED && FH.whatToShow(FEED, Date.now(), S.rules);
+    return '<div class="sec"><h3>Right now' + (FEED && FEED.sample ? ' · sample data' : '') + '</h3><div class="box"><div class="field"><label>' + (r ? escH(r.why) : 'No rule applies') + '<small>' + (r ? (r.look ? 'The TV switches to ' + escH(lookName(r.look)) : 'Motion goes calm and moments wait') : 'Your own look stays on') + '</small></label>' + (r && r.look && r.look !== S.look ? '<button class="btn hot" data-golook="' + r.look + '">Switch now</button>' : '') + '</div></div></div>' +
+      '<div class="sec"><h3>Rules</h3><div class="box">' + RULES.map(([k, t, d]) => '<div class="field"><label for="r-' + k + '">' + t + '<small>' + d + '</small></label>' + sw('r-' + k, S.rules[k]) + '</div>').join('') + '</div></div>' +
       '<div class="sec"><h3>When the TV wakes</h3><div class="box"><div class="field"><label for="g-askwho">Ask who\'s watching<small>Each person gets their own look and Home rows</small></label>' + sw('g-askwho', S.toggles.askwho) + '</div></div></div>' +
       '<button class="btn" id="addRule">+ Add a rule</button><p class="note">The first rule that matches wins. A look you pick by hand stays on until the next rule starts.</p>';
   }
@@ -2179,9 +2393,13 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     const apps = [['YouTube', 52], ['Crunchyroll', 41], ['JioHotstar', 28], ['Netflix', 13]], who = [[PEOPLE.G.name, 94], [PEOPLE.P.name, 40]];
     const store2 = [['YouTube', '1.2 GB'], ['JioHotstar', '860 MB'], ['Netflix', '640 MB'], ['Crunchyroll', '410 MB'], ['den-tv wallpapers', '14 MB']];
     const mins = (m) => (m >= 60 ? Math.floor(m / 60) + 'h ' : '') + (m % 60) + 'm';
-    return acc('remote', '🎮', 'Remote', 'Sleep, volume, inputs, watch now, type',
+    return acc('phones', '📱', 'Paired phones', S.setup.phones.length ? S.setup.phones.length + ' paired' : 'Pair a phone to control this TV',
+        (S.setup.phones.length ? S.setup.phones.map((x, i) => F('', escH(x.name), 'Paired ' + new Date(x.when).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), '<button class="btn" data-unpair="' + i + '">Unpair</button>')).join('') : '<p class="note" style="margin-top:12px">No phones paired yet. Run the first-time setup, or pair one here.</p>') +
+        '<div class="row" style="margin-top:10px"><button class="btn hot" id="pairNew">Pair another phone</button><button class="btn" id="setupAgain">Run setup again</button></div>' +
+        '<p class="note" style="margin-top:8px">Pairing works only on your home Wi-Fi. A code works once and changes every 5 minutes, and each phone gets its own key, so unpairing one never affects the others.</p>') +
+      acc('remote', '🎮', 'Remote', 'Sleep, volume, inputs, watch now, type',
         '<div class="remote" style="margin-top:12px">' + ['⏻ Sleep', 'Wake', 'Mute', 'Vol −', 'Vol +', 'Bedtime', 'PlayStation 5', 'Set-top box', 'Live TV'].map((b) => '<button class="btn" data-rb="' + b + '">' + b + '</button>').join('') + '</div>' +
-        '<div class="sub">Watch now</div>' + F('', 'Barça vs Real Madrid', 'Live · opens your streaming app', '<button class="btn" data-rb="Opening the match">Open</button>') + F('', 'Jujutsu Kaisen · Ep 14', 'New today · Crunchyroll', '<button class="btn" data-rb="Opening Jujutsu Kaisen">Open</button>') +
+        '<div class="sub">Watch now</div>' + watchNow(F) +
         '<div class="sub">Type on the TV</div><div class="row" style="margin-top:6px"><input class="search" id="typeBox" placeholder="Search text goes to the TV" style="flex:1;min-width:0"><button class="btn hot" id="sendType">Send</button></div><p class="note" style="margin-top:8px">For the arrow keys inside apps, use the Google TV or Google Home app.</p>') +
       acc('health', '🩺', 'Memory and background apps', '930 MB used · 11 apps in the background',
         '<div class="meter" style="margin-top:12px"><i id="memi" style="width:62%"></i></div><p class="note" id="memt" style="margin-top:6px">930 MB used of 1.5 GB · 11 apps in the background</p><div class="row" style="margin:10px 0"><button class="btn hot" id="cleanNow">Close background apps</button></div>' +
@@ -2210,6 +2428,9 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
         F('b-sys-burn', 'Burn-in care', 'The idle clock moves a little every minute', bsw('sys.burn')) + F('b-sys-idle', 'Show the idle clock after', '', bsel('sys.idle', { 5: '5 minutes', 10: '10 minutes', 20: '20 minutes', 30: '30 minutes', 0: 'Never' })));
   }
   function render() {
+    const tabs = document.querySelector('.tabs');
+    if (SU) { $('tabTitle').textContent = 'Set up den-tv'; $('tabSub').textContent = 'Step ' + (SU_STEPS.indexOf(SU.step) + 1) + ' of ' + SU_STEPS.length; tabs.hidden = true; body.innerHTML = vSetup(); bindSetup(); thumbQueue = [...body.querySelectorAll('[data-tid]')]; fillThumbs(); return; }
+    tabs.hidden = false;
     const [t, s] = TITLES[S.tab]; $('tabTitle').textContent = t; $('tabSub').textContent = s;
     document.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === S.tab)));
     const p = PEOPLE[S.who]; $('whoName').textContent = p.name; $('whoAv').textContent = p.name[0]; $('whoAv').style.background = p.av;
@@ -2295,8 +2516,14 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     ['style', 'topics'].forEach((k) => { const el = $('w-' + k); if (el) el.addEventListener('change', () => { S.wid[k] = el.value; save(); renderFacts(false); }); });
     ['cricket', 'football', 'anime', 'trails', 'next', 'facts'].forEach((k) => { const el = $('h-' + k); if (el) el.addEventListener('change', () => { S.hub[k] = el.checked; save(); openHub(true); }); });
     body.querySelectorAll('[data-hteam]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.hteam; S.hub.teams = S.hub.teams.includes(x) ? S.hub.teams.filter((y) => y !== x) : S.hub.teams.concat(x); save(); render(); openHub(true); }));
-    body.querySelectorAll('[data-hshow]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.hshow; S.hub.shows = S.hub.shows.includes(x) ? S.hub.shows.filter((y) => y !== x) : S.hub.shows.concat(x); save(); render(); openHub(true); }));
+    body.querySelectorAll('[data-hshow]').forEach((b) => b.addEventListener('click', () => { const x = b.dataset.hshow; S.hub.shows = S.hub.shows.includes(x) ? S.hub.shows.filter((y) => y !== x) : S.hub.shows.concat(x); save(); render(); openHub(true); refreshFeed(false); }));
     on('openHub', () => openHub(true));
+    on('l-refresh', () => refreshFeed(true)); on('l-goal', () => simulate('goal')); on('l-ep', () => simulate('episode'));
+    const lp = $('l-place'); if (lp) lp.addEventListener('change', () => { S.live.place = lp.value; save(); refreshFeed(true); });
+    ['l-fd', 'l-cd'].forEach((id) => { const el = $(id); if (el) el.addEventListener('change', () => { if (!el.value.trim()) return; S.live[id === 'l-fd' ? 'fdSet' : 'cdSet'] = true; save(); el.value = ''; keepRender(); toast('On the TV this key is saved on the TV only. This preview doesn\'t keep it'); }); });
+    body.querySelectorAll('[data-golook]').forEach((b) => b.addEventListener('click', () => setLook(b.dataset.golook)));
+    on('pairNew', () => startSetup(true)); on('setupAgain', () => startSetup(false));
+    body.querySelectorAll('[data-unpair]').forEach((b) => b.addEventListener('click', () => { const x = S.setup.phones[+b.dataset.unpair]; S.setup.phones = S.setup.phones.filter((y) => y !== x); save(); keepRender(); toast(x.name + ' is unpaired'); }));
     ['ep', 'score', 'cont', 'st'].forEach((k) => { const el = $('i-' + k); if (el) el.addEventListener('change', () => { S.ic.badges[k] = el.checked; save(); redock(); keepRender(); }); });
     ['smart', 'folder'].forEach((k) => { const el = $('i-' + k); if (el) el.addEventListener('change', () => { S.ic[k] = el.checked; save(); redock(); keepRender(); if (k === 'folder' && el.checked) toast('Select Shows on the TV and press it to unroll'); }); });
     body.querySelectorAll('[data-iname]').forEach((inp) => inp.addEventListener('change', () => { const k = inp.dataset.iname, v = inp.value.trim(), def = ALL_APPS.find((x) => x[1] === k)[0]; if (!v || v === def) delete S.ic.names[k]; else S.ic.names[k] = v; save(); redock(); keepRender(); }));
@@ -2323,6 +2550,6 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
   document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { S.tab = b.dataset.tab; render(); body.scrollTop = 0; }));
 
   window.__den = { SCENES, HEROES, LOOKS, drawHero, W, H };
-  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { painted = ''; curHero = null; applyTV(true); render(); });
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { painted = ''; curHero = null; applyTV(true); render(); initHub(); if (FRESH && !S.setup.done) startSetup(false); });
 })();
 </script>
