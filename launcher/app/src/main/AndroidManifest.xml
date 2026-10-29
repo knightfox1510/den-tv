@@ -24,6 +24,12 @@
 
     <!-- Android 11+ package visibility: lets the launcher list the TV apps it shows as tiles, and the
          apps that declare a module card (docs/specs/card.md). -->
+    <!-- den-tv: only apps signed with den-tv's key (the Fan Hub's phone page) may read and change the look. -->
+    <permission
+        android:name="tv.den.permission.LOOKS"
+        android:label="Change the den-tv look"
+        android:protectionLevel="signature" />
+
     <queries>
         <!-- The standard settings handlers, so package visibility doesn't hide them and send the pills to a vendor fallback by mistake. -->
         <intent>
@@ -79,6 +85,13 @@
         android:theme="@style/Theme.TvHome"
         android:allowBackup="false"
         android:localeConfig="@xml/locales_config">
+
+        <!-- den-tv: the looks for the phone settings page (DenLooksProvider). -->
+        <provider
+            android:name=".DenLooksProvider"
+            android:authorities="${applicationId}.looks"
+            android:exported="true"
+            android:permission="tv.den.permission.LOOKS" />
 
         <!-- den-tv's look picker. Leanback-launchable so Home shows it as the Looks tile (AppAdapter lets it through);
              its own task, so it opens over Home and Back returns there. -->

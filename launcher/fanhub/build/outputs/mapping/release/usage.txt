@@ -5,6 +5,11 @@ tv.den.fanhub.FanHub:
     static final int TIMEOUT_MS
     private void <init>()
     static java.lang.String when(long)
+tv.den.fanhub.PhoneServer:
+    private static final int MAX_BODY
+    private static final int MAX_TRIES
+    static final int PORT
+    private static final java.lang.String TAG
 tv.den.fanhub.R$drawable
 tv.den.fanhub.R
 tv.den.fanhub.Store:
@@ -16,6 +21,21 @@ tv.den.fanhub.TurnsProvider:
     static final int TURN_SECONDS
 tv.den.fanhub.FanHub:
     public static java.lang.String display(java.lang.String)
+tv.den.fanhub.FanHubActivity:
+    public static synthetic void lambda$onCreate$0()
+tv.den.fanhub.PhoneServer$Request-IA
+tv.den.fanhub.PhoneServer$Request
+tv.den.fanhub.PhoneServer:
+    public static java.lang.String code()
+    public static void forgetPhones()
+    public static byte[] page()
+    public static boolean paired()
+    public static int pairedPhones()
+    public final android.content.SharedPreferences prefs()
+    public static void route()
+    public static void serve()
+    public final synchronized void start()
+    public final synchronized void stop()
 tv.den.fanhub.Store:
     public static long fetchedAt(android.content.Context)
     public static android.content.SharedPreferences prefs(android.content.Context)

@@ -21,7 +21,7 @@ and replaces its ad-filled home screen. den-tv adds the looks on top.
 | [`themes/den-mix/`](themes/den-mix/) | **Works now.** Every scene as a wallpaper for the cleanyourtv launcher, a new one every 5 minutes |
 | [`looks/`](looks/) | **Done.** 57 looks as small JSON files, the format the launcher will read |
 | [`mockups/den-looks.html`](mockups/den-looks.html) | **Works now.** Open it in a browser: the full experience, with the phone settings page driving a TV preview, first-time setup with phone pairing, and live data from `fanhub/` (sample data where it can't reach the internet) |
-| [`launcher/`](launcher/DEN.md) | **v0.1.** cleanyourtv's launcher with den-tv's looks: a Looks tile, the den-mix wallpapers built in, eye watchers that follow the focused tile, a wake animation. Install steps for a Vu 4K Google TV in [launcher/DEN.md](launcher/DEN.md). Other watchers, moments and icon styles are next |
+| [`launcher/`](launcher/DEN.md) | **v0.2.** cleanyourtv's launcher with den-tv's looks: a Looks tile, the den-mix wallpapers built in, every watcher, the clock and icon styles, a wake animation, and the Fan Hub add-on with live matches, new episodes and the phone settings page. Install steps for a Vu 4K Google TV in [launcher/DEN.md](launcher/DEN.md). Icon layouts and moments are next |
 | Phone settings page served by the TV | Planned |
 | [`fanhub/`](fanhub/) | **Works now.** Real fixtures, results, the La Liga table, anime episode dates and the hike forecast; `node fanhub/cli.js` prints them. Live in-match scores need two free keys |
 

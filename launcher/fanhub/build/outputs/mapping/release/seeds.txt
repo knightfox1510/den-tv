@@ -1,4 +1,4 @@
-tv.den.fanhub.FanHubActivity
 tv.den.fanhub.TurnsProvider
-tv.den.fanhub.TurnsProvider: TurnsProvider()
+tv.den.fanhub.FanHubActivity
 tv.den.fanhub.FanHubActivity: FanHubActivity()
+tv.den.fanhub.TurnsProvider: TurnsProvider()

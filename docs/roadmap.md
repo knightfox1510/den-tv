@@ -3,11 +3,11 @@
 ## 1. Wallpapers on the cleanyourtv launcher (done)
 `themes/den-mix/` works on any TV that runs the cleanyourtv launcher.
 
-## 2. den-tv launcher (v0.1 built, see [launcher/DEN.md](../launcher/DEN.md))
+## 2. den-tv launcher (v0.2 built, see [launcher/DEN.md](../launcher/DEN.md))
 A fork of the cleanyourtv launcher (Java, Android 8+), with its safety and install scripts kept.
-v0.1 has the Looks tile and picker, the den-mix theme built in, eye watchers that follow focus and the
-bloom wake. Next: the other watchers, moments, clock styles, icon styles and layouts, then the Fan Hub add-on
-that hands Home its live data the way cleanyourtv's Game Day add-on does.
+v0.2 has the Looks tile and picker, the den-mix theme built in, every watcher, the clock styles, the app icon
+styles, the bloom wake, the Fan Hub add-on (matches and episodes under the clock, through cleanyourtv's game_day
+contract) and the phone settings page. Next: icon layouts, moments, extras and the figure.
 - **Look engine:** reads `looks/*.json` and draws the scene, hero, clock, icons and extras.
 - **App icons:** each app's real icon and banner come from the installed app (PackageManager), and
   den-tv draws the style around them (13 styles), places them (7 layouts) and adds live badges. Each
@@ -55,8 +55,9 @@ Served by the TV on the home Wi-Fi, opened by scanning a QR code on the TV, with
 Live scores (Barça, India, Mumbai Indians, La Liga), the anime airing schedule (AniList),
 weekend trail weather (Open-Meteo), and a "next 72 hours" list. It sets off moments and auto rules.
 The data side works now in [`fanhub/`](../fanhub/README.md): TheSportsDB, AniList and Open-Meteo need
-no key, and football-data.org and CricketData.org add live in-match scores with free keys. Left to do:
-port it to the launcher and add EPL.
+no key, and football-data.org and CricketData.org add live in-match scores with free keys. The TV side
+is the add-on in `launcher/fanhub/` (matches and episodes so far). Left to do: the keyed live sources, the
+weather, and EPL.
 It opens from its dock tile in the current look's colours, and the phone page chooses which cards
 show and which teams, leagues and shows they follow.
 

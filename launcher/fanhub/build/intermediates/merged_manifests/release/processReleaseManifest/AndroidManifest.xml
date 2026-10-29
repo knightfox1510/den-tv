@@ -8,8 +8,17 @@
         android:minSdkVersion="26"
         android:targetSdkVersion="34" />
 
-    <!-- The only den-tv app that goes online: TheSportsDB for matches, AniList for episodes. -->
+    <!--
+         The only den-tv app that goes online: TheSportsDB for matches, AniList for episodes, and the phone
+         settings page on the home Wi-Fi while the Fan Hub screen is open.
+    -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- The phone page changes the look through the launcher, which allows only den-tv's own apps. -->
+    <uses-permission android:name="tv.den.permission.LOOKS" />
+
+    <queries>
+        <provider android:authorities="tv.den.launcher.looks" />
+    </queries>
 
     <uses-feature
         android:name="android.software.leanback"

@@ -25,7 +25,9 @@ import java.util.List;
  */
 public final class FanHubActivity extends Activity {
     private LinearLayout list;
-    private TextView status;
+    private TextView status, phone;
+    private PhoneServer server;
+    private final Handler main = new Handler(Looper.getMainLooper());
     private final ContentObserver changed = new ContentObserver(new Handler(Looper.getMainLooper())) {
         @Override public void onChange(boolean self) { show(); }
     };
@@ -41,6 +43,10 @@ public final class FanHubActivity extends Activity {
         page.addView(text("Fan Hub", 30, Color.WHITE, true));
         status = text("", 14, 0xffa09dac, false);
         page.addView(status);
+        phone = text("", 16, 0xffffd98a, false);
+        phone.setPadding(0, Math.round(12 * dp), 0, 0);
+        page.addView(phone);
+        server = new PhoneServer(this, () -> main.post(this::showPhone));
         ScrollView scroll = new ScrollView(this);
         list = new LinearLayout(this);
         list.setOrientation(LinearLayout.VERTICAL);
@@ -55,9 +61,12 @@ public final class FanHubActivity extends Activity {
         getContentResolver().registerContentObserver(Store.TURNS, false, changed);
         show();
         Store.refresh(this, false);
+        server.start();
+        showPhone();
     }
 
     @Override protected void onPause() {
+        server.stop();
         getContentResolver().unregisterContentObserver(changed);
         super.onPause();
     }
@@ -68,7 +77,21 @@ public final class FanHubActivity extends Activity {
             Store.refresh(this, true);
             return true;
         }
+        if (code == KeyEvent.KEYCODE_MENU) {
+            server.forgetPhones();
+            showPhone();
+            return true;
+        }
         return super.onKeyUp(code, e);
+    }
+
+    /** Where the phone page is, its pairing code, and how many phones are paired. Only while this screen is open. */
+    private void showPhone() {
+        String at = PhoneServer.address();
+        int n = server.pairedPhones();
+        phone.setText(at == null ? "Phone settings: connect the TV to Wi-Fi first."
+                : "Phone settings: on a phone on this Wi-Fi, open " + at + " and enter " + server.code() + ". It works while this screen is open."
+                + (n > 0 ? " " + n + (n == 1 ? " phone is" : " phones are") + " paired; Menu forgets them." : ""));
     }
 
     private void show() {
