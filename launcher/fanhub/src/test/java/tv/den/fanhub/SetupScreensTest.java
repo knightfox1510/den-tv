@@ -103,6 +103,14 @@ public class SetupScreensTest {
         long now = java.time.ZonedDateTime.of(2026, 10, 29, 11, 13, 0, 0, z).toInstant().toEpochMilli(), h = 3_600_000L;
         for (int k = 0; k < 3; k++) {
             HubView.Data d = new HubView.Data();
+            if (k == 1) {
+                d.widgets.add(new String[]{"MARKETS", "SENSEX 74,314 ▲0.22%"});
+                d.widgets.add(new String[]{"MARKETS", "NIFTY 50 22,983 ▲0.20%"});
+                d.widgets.add(new String[]{"MARKETS", "RELIANCE 1,162.50 ▼0.42%"});
+                d.widgets.add(new String[]{"WEATHER", "Mumbai  31°  Partly cloudy  ·  33° / 26°"});
+                d.widgets.add(new String[]{"WORLD CLOCK", "London 6:43 AM   ·   New York 2:43 AM"});
+                d.widgets.add(new String[]{"STOCK MARKET", "Sensex ends 300 points higher as IT stocks rally - The Hindu"});
+            }
             d.lookName = "Camp Nou Nights";
             d.accent = 0xffedbb00;
             d.wallpaper = android.graphics.BitmapFactory.decodeFile("../../themes/den-mix/wallpapers/01-camp-nou.jpg");

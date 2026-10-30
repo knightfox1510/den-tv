@@ -50,6 +50,7 @@ public final class FanHubActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         getContentResolver().registerContentObserver(Store.TURNS, false, changed);
+        getContentResolver().registerContentObserver(WidgetsProvider.HOME, false, changed);   // a widget fetched
         show();
         Store.refresh(this, false);
         PhoneService.start(this);
@@ -120,6 +121,7 @@ public final class FanHubActivity extends Activity {
         d.code = server.code();
         d.paired = server.pairedPhones();
         d.qr = qr(d.address);
+        d.widgets = Widgets.lines(this, "hub", System.currentTimeMillis());
         String waiting = Updater.waiting(this);
         d.notice = waiting.isEmpty() ? "" : "Update ready: " + waiting + "  ·  OK installs it now";
         look(d);

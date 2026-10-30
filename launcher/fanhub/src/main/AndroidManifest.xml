@@ -65,6 +65,12 @@
             android:authorities="tv.den.fanhub.stats"
             android:exported="true" />
 
+        <!-- Your widgets' lines for den-tv's Home; only an app with den-tv's key may read them. -->
+        <provider
+            android:name=".WidgetsProvider"
+            android:authorities="tv.den.fanhub.widgets"
+            android:exported="true" />
+
         <service
             android:name=".PhoneService"
             android:exported="false"

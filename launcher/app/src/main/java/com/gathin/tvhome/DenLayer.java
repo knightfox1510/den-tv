@@ -149,8 +149,9 @@ final class DenLayer {
                 layer.content.addView(fx, 1, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             }
         }
-        if (DenSettings.facts(activity) && look != null) {
-            DenFactsView facts = DenFactsView.make(activity, look, motion);
+        {
+            // The line along the bottom: the look's facts (if on), taking turns with your widgets (DenWidgets).
+            DenFactsView facts = DenFactsView.make(activity, look, motion, DenSettings.facts(activity), true);
             if (facts != null) layer.content.addView(facts, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
         layer.look = look;

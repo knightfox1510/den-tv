@@ -44,6 +44,8 @@ final class HubView extends View {
         String lookName = "", place = "", errors = "", address, code = "";
         /** A line for the footer in place of the key hints, such as an update that is waiting. */
         String notice = "";
+        /** Your widgets' lines for the Fan Hub (Widgets): {label, text}. */
+        List<String[]> widgets = new ArrayList<>();
         int accent = 0xffff4d6d, paired;
         boolean h24 = true, running = true;
         Bitmap wallpaper, qr;
@@ -108,8 +110,12 @@ final class HubView extends View {
         hero(c, 90, 200, 1010, 400, teams.isEmpty() ? null : teams.get(0), now);
         later(c, 1130, 200, 700, 400, teams.size() > 1 ? teams.subList(1, teams.size()) : new ArrayList<>(), now);
         week(c, 90, 630, 780, 330, now);
-        trails(c, 900, 630, 500, 330, now);
+        // Your widgets take the trails' place while weekend weather is off, otherwise the next 72 hours'.
+        boolean widgets = !data.widgets.isEmpty(), trailsOff = data.place.isEmpty();
+        if (widgets && trailsOff) widgets(c, 900, 630, 500, 330);
+        else trails(c, 900, 630, 500, 330, now);
         if (data.paired == 0 && data.address != null && data.running) pair(c, 1430, 630, 400, 330);
+        else if (widgets && !trailsOff) widgets(c, 1430, 630, 400, 330);
         else next72(c, 1430, 630, 400, 330, now);
         footer(c, now);
         c.restore();
@@ -426,6 +432,24 @@ final class HubView extends View {
     }
 
     /** No phone yet: a big code to scan, the address and the pairing code. */
+    /** Your widgets: each line under its small label (MARKETS, WEATHER, a headline's topic). */
+    private void widgets(Canvas c, float x, float y, float w, float h) {
+        card(c, x, y, w, h, false);
+        label(c, "YOUR WIDGETS", x + 32, y + 52, data.accent);
+        float ty = y + 96;
+        String last = "";
+        for (String[] line : data.widgets) {
+            if (ty > y + h - 24) break;
+            if (!line[0].equals(last)) {
+                text(c, fit(line[0], w - 64, 15, semi), x + 32, ty, 15, semi, lift(data.accent));
+                ty += 26;
+                last = line[0];
+            }
+            text(c, fit(line[1], w - 64, 21, regular), x + 32, ty, 21, regular, 0xffe8e6ef);
+            ty += 34;
+        }
+    }
+
     private void pair(Canvas c, float x, float y, float w, float h) {
         card(c, x, y, w, h, false);
         label(c, "PAIR YOUR PHONE", x + 32, y + 52, data.accent);

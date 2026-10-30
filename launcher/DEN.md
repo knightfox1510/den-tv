@@ -155,6 +155,20 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   an update or a look is picked.
 - **Updates wait 3 days** after a release (`version.json` carries its date), except on a TV set to get releases
   first from the phone, or when someone presses Check now.
+- **Describe a look, designed whole.** With a Gemini key, Looks → Describe a look has Gemini design a new look
+  (name, parts, colours, a title and subtitle, a shirt number, facts and a scene), then paints its wallpaper: Gemini's
+  image model where the key allows it, or a poster drawn by the Fan Hub in the look's colours (`LookArt`), with the
+  title and number in the hero-wall style. Saved, it's one of My looks with its own "Did you know?" facts. Without a
+  key, the words are matched to the looks (filler words ignored, small misspellings and nicknames forgiven).
+- **Your widgets** (phone: Tweak → Your widgets). Markets (indices, shares, gold, currencies, crypto; search any
+  share by name), weather now, world clocks, a countdown, headlines on a topic, or a note. Home shows them along the
+  bottom, taking turns with "Did you know?"; the Fan Hub shows them in a card. The Fan Hub fetches them while the TV
+  is on (prices every 5 minutes from Yahoo Finance's public data, which can be a little late; weather from
+  Open-Meteo; headlines from Google News) and Home reads them from `tv.den.fanhub.widgets`.
+- **Readable text.** A soft shade behind Home's clock and panel, shadows under its text, and hero titles in the
+  wallpapers with a dark glow and outline. Tweak → Text contrast: Normal, Strong or Off.
+- **Speed-up status** (phone: TV → Speed up): this TV's tested list with each app On or Off, and a button that
+  opens Speed up on the TV.
 - **Everything else from cleanyourtv:** dock and grid, D-pad navigation, Inputs and Wi-Fi pills, Launcher
   settings, the remote-button helpers and the safety checks in the install script.
 

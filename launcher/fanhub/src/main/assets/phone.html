@@ -259,6 +259,16 @@
       <button id="saveWidgets">Save</button>
       <div id="widMsg" class="msg" role="status"></div>
     </div></details>
+    <details class="card" id="ywCard"><summary><span><b>Your widgets</b><small>Markets, weather, clocks, a countdown, headlines, a note</small></span></summary><div class="in">
+      <p>They show along the bottom of Home, taking turns with "Did you know?", and on the Fan Hub. Up to 8.</p>
+      <div id="ywList"></div>
+      <label for="ywKind">Add a widget</label>
+      <select id="ywKind"><option value="markets">Markets: indices, shares, gold, currencies, crypto</option><option value="weather">Weather now</option><option value="clocks">World clocks</option><option value="countdown">Countdown to a day</option><option value="headlines">Headlines on a topic</option><option value="note">A note</option></select>
+      <div id="ywForm"></div>
+      <label for="ywWhere">Show it on</label><select id="ywWhere"><option value="both">Home and the Fan Hub</option><option value="home">Home</option><option value="hub">The Fan Hub</option></select>
+      <button id="ywAdd">Add the widget</button><div id="ywMsg" class="msg" role="status"></div>
+      <p class="hint" style="margin-top:8px">Prices come from Yahoo Finance's public data and can be a few minutes late; weather from Open-Meteo; headlines from Google News.</p>
+    </div></details>
     <details class="card" id="appsCard"><summary><span><b>Apps on Home</b><small>Hide, show and rename</small></span></summary><div class="in">
       <p>Untick to hide an app from Home (it stays in the App library). Type to rename it. "Shows" puts it in the Shows folder tile instead.</p>
       <div class="row"><button id="sortNow" class="ghost">Sort by what you watch</button></div>
@@ -810,7 +820,74 @@
   // ---- Tweak ----
   const PART = { watcher: 'Watcher', clock: 'Clock', icons: 'App icons', layout: 'Icon layout', focus: 'When you move between apps', wake: 'Wake animation', extras: 'Extras', accent: 'Colour' };
   const nice = (s) => s.replace(/^walk/, 'walking ').replace(/([a-z])([A-Z])/g, '$1 $2');
+  // Your widgets: a short form per kind; markets and places are searched through the TV (Widgets.java).
+  const YW_MARKETS = [['^BSESN', 'Sensex'], ['^NSEI', 'Nifty 50'], ['^NSEBANK', 'Bank Nifty'], ['^GSPC', 'S&P 500'], ['^IXIC', 'Nasdaq'], ['GC=F', 'Gold'], ['INR=X', 'USD/INR'], ['BTC-USD', 'Bitcoin']];
+  const YW_TOPICS = ['Stock market', 'Cricket', 'Football', 'Technology', 'Bollywood', 'World news'];
+  let yw = { symbols: [], place: null, zones: [] };
+  function chip(text, on, click) { const b = el('button', 'chip', text); if (on) b.style.cssText = 'background:var(--acc);color:#111;border-color:transparent'; b.onclick = click; return b; }
+  function ywForm() {
+    const kind = $('ywKind').value, f = $('ywForm'); f.innerHTML = '';
+    const results = el('div', 'chips'); results.style.marginTop = '8px';
+    const search = (ph, path, pick, label) => {
+      const row = el('div', 'row'); row.style.marginTop = '8px'; const q = el('input'); q.placeholder = ph; const go = el('button', 'ghost', 'Search'); go.style.cssText = 'flex:none;width:auto;margin:0';
+      go.onclick = async () => { results.innerHTML = ''; const r = (await api(path, { q: q.value.trim() })).json; if (!r.ok) { say($('ywMsg'), r.error, true); return; }
+        if (!(r.results || []).length) results.appendChild(el('small', 'hint', 'Nothing found.'));
+        (r.results || []).forEach((x) => results.appendChild(chip(label(x), false, () => { pick(x); ywForm(); }))); };
+      row.appendChild(q); row.appendChild(go); f.appendChild(row); f.appendChild(results);
+    };
+    if (kind === 'markets') {
+      f.appendChild(el('small', 'hint', 'Tap to add or remove (up to 6), or search for any share, fund or index.'));
+      const pre = el('div', 'chips'); pre.style.marginTop = '8px';
+      YW_MARKETS.forEach(([sym, name]) => pre.appendChild(chip(name, yw.symbols.includes(sym), () => { yw.symbols = yw.symbols.includes(sym) ? yw.symbols.filter((x) => x !== sym) : yw.symbols.concat([sym]).slice(0, 6); ywForm(); })));
+      f.appendChild(pre);
+      search('A company or index, e.g. Tata Motors', '/api/symbols', (x) => { if (!yw.symbols.includes(x.symbol)) yw.symbols = yw.symbols.concat([x.symbol]).slice(0, 6); }, (x) => x.name + ' · ' + x.symbol + (x.exchange ? ' (' + x.exchange + ')' : ''));
+      const own = yw.symbols.filter((sym) => !YW_MARKETS.some(([m]) => m === sym));
+      if (own.length) { const mine = el('div', 'chips'); mine.style.marginTop = '8px'; own.forEach((sym) => mine.appendChild(chip(sym + ' ✕', true, () => { yw.symbols = yw.symbols.filter((x) => x !== sym); ywForm(); }))); f.appendChild(mine); }
+    } else if (kind === 'weather') {
+      f.appendChild(el('small', 'hint', yw.place ? 'Weather for ' + yw.place.place + ', ' + yw.place.where + '.' : 'Search for your town or city.'));
+      search('A town or city', '/api/places', (x) => { yw.place = x; }, (x) => x.place + ', ' + x.where);
+    } else if (kind === 'clocks') {
+      f.appendChild(el('small', 'hint', yw.zones.length ? 'Clocks: ' + yw.zones.map((z) => z.label).join(', ') + ' (tap a city again to add more, up to 4)' : 'Search for a city to add its clock (up to 4).'));
+      if (yw.zones.length) { const z = el('div', 'chips'); z.style.marginTop = '8px'; yw.zones.forEach((x) => z.appendChild(chip(x.label + ' ✕', true, () => { yw.zones = yw.zones.filter((y) => y !== x); ywForm(); }))); f.appendChild(z); }
+      search('A city, e.g. London', '/api/places', (x) => { if (x.tz && yw.zones.length < 4) yw.zones = yw.zones.concat([{ label: x.place, tz: x.tz }]); }, (x) => x.place + ', ' + x.where);
+    } else if (kind === 'countdown') {
+      const l = el('input'); l.id = 'ywLabel'; l.placeholder = 'What for, e.g. Goa trip'; l.maxLength = 40; f.appendChild(l);
+      const d = el('input'); d.id = 'ywDate'; d.type = 'date'; d.style.marginTop = '8px'; f.appendChild(d);
+    } else if (kind === 'headlines') {
+      const t = el('input'); t.id = 'ywTopic'; t.placeholder = 'A topic, e.g. Sensex'; t.maxLength = 60; f.appendChild(t);
+      const pre = el('div', 'chips'); pre.style.marginTop = '8px'; YW_TOPICS.forEach((x) => pre.appendChild(chip(x, false, () => { t.value = x; }))); f.appendChild(pre);
+    } else {
+      const t = el('input'); t.id = 'ywText'; t.placeholder = 'A line of your own'; t.maxLength = 140; f.appendChild(t);
+    }
+  }
+  async function loadWidgets(r) {
+    r = r || (await api('/api/widgets')).json; const box = $('ywList'); box.innerHTML = '';
+    const KIND = { markets: 'Markets', weather: 'Weather', clocks: 'World clocks', countdown: 'Countdown', headlines: 'Headlines', note: 'Note' };
+    const WHERE = { both: 'Home and Fan Hub', home: 'Home', hub: 'Fan Hub' };
+    (r.widgets || []).forEach((w) => {
+      const row = el('div', 'approw'); const t = el('div'); t.appendChild(el('b', null, KIND[w.kind] + (w.kind === 'headlines' ? ': ' + w.topic : ''))); t.appendChild(el('small', 'hint', ' · ' + WHERE[w.where]));
+      t.appendChild(el('div', 'hint', (w.shows || []).length ? w.shows[0] : (w.kind === 'markets' || w.kind === 'weather' || w.kind === 'headlines' ? 'Fetching…' : '')));
+      const del = el('button', 'ghost', 'Remove'); del.style.cssText = 'flex:none;width:auto;margin:0';
+      del.onclick = async () => loadWidgets((await api('/api/widgets', { remove: w.id })).json);
+      row.appendChild(t); row.appendChild(del); box.appendChild(row);
+    });
+  }
+  $('ywKind').addEventListener('change', ywForm);
+  $('ywAdd').addEventListener('click', async () => {
+    const kind = $('ywKind').value, add = { kind, where: $('ywWhere').value };
+    if (kind === 'markets') add.symbols = yw.symbols;
+    if (kind === 'weather') { if (!yw.place) { say($('ywMsg'), 'Search for a place first.', true); return; } add.place = yw.place.place; add.lat = yw.place.lat; add.lon = yw.place.lon; }
+    if (kind === 'clocks') add.zones = yw.zones;
+    if (kind === 'countdown') { add.label = $('ywLabel').value.trim(); add.date = $('ywDate').value; }
+    if (kind === 'headlines') add.topic = $('ywTopic').value.trim();
+    if (kind === 'note') add.text = $('ywText').value.trim();
+    const r = (await api('/api/widgets', { add })).json;
+    say($('ywMsg'), r.ok ? 'Added. Home shows it within a minute.' : (r.error || 'Couldn\'t add it.'), !r.ok);
+    if (r.ok) { yw = { symbols: [], place: null, zones: [] }; ywForm(); loadWidgets(r); setTimeout(() => loadWidgets(), 8000); }
+  });
+  ywForm();
   async function loadTweak() {
+    loadWidgets();
     const o = (await api('/api/override')).json, box = $('ovBox'); box.innerHTML = '';
     if (o.error || !o.lookId) { say($('ovFor'), o.error || 'Pick a single look first: these change the look on Home'); $('ovReset').hidden = true; $('ovSave').hidden = true; }
     else {

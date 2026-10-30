@@ -24,9 +24,11 @@ import java.util.List;
  * (assets/den/facts.json, from the mockup), a new one every 30 seconds. Off unless switched on from the phone.
  */
 final class DenFactsView extends View {
-    private static final long TURN_MS = 30_000, FADE_MS = 600;
+    private static final long TURN_MS = 30_000, WIDGET_TURN_MS = 20_000, FADE_MS = 600;
     private final List<String> facts;
     private final boolean motion;
+    /** Your widgets take turns with the facts (DenWidgets); with no facts, the line is all widgets. */
+    private boolean widgets;
     private final Paint text = new Paint(Paint.ANTI_ALIAS_FLAG), label = new Paint(Paint.ANTI_ALIAS_FLAG), shade = new Paint();
     private final long start = SystemClock.uptimeMillis();
     private final int accent;
@@ -43,6 +45,21 @@ final class DenFactsView extends View {
     }
 
     /** The facts for this look; null when it has none (a look without a hero, team or show). */
+    /**
+     * The line along the bottom: the look's facts (when facts are on and it has some) taking turns with your widgets;
+     * null when there are no facts and widgets are off.
+     */
+    static DenFactsView make(Context ctx, DenLooks.Look look, boolean motion, boolean facts, boolean widgets) {
+        DenFactsView v = facts && look != null ? make(ctx, look, motion) : null;
+        if (v == null && widgets) {
+            int accent;
+            try { accent = android.graphics.Color.parseColor(look == null ? "#ff4d6d" : look.accent); } catch (RuntimeException e) { accent = 0xffff4d6d; }
+            v = new DenFactsView(ctx, new ArrayList<>(), accent, motion);
+        }
+        if (v != null) v.widgets = widgets;
+        return v;
+    }
+
     static DenFactsView make(Context ctx, DenLooks.Look look, boolean motion) {
         if (!look.facts.isEmpty()) {
             // A described look's own facts.
@@ -78,9 +95,21 @@ final class DenFactsView extends View {
     @Override protected void onDraw(Canvas c) {
         float s = getWidth() / 1920f;
         long t = SystemClock.uptimeMillis() - start;
-        int i = (int) (t / TURN_MS) % facts.size();
-        long in = t % TURN_MS;
-        float alpha = !motion ? 1 : Math.min(1, Math.min(in, TURN_MS - in) / (float) FADE_MS);
+        List<String[]> w = widgets ? DenWidgets.now(getContext()) : java.util.Collections.emptyList();
+        if (facts.isEmpty() && w.isEmpty()) { postInvalidateDelayed(WIDGET_TURN_MS); return; }   // nothing to show yet
+        long turnMs = w.isEmpty() ? TURN_MS : WIDGET_TURN_MS;
+        int turn = (int) (t / turnMs);
+        String title, said;
+        if (w.isEmpty() || (!facts.isEmpty() && turn % 2 == 0)) {
+            title = "DID YOU KNOW";
+            said = facts.get((w.isEmpty() ? turn : turn / 2) % facts.size());
+        } else {
+            String[] x = w.get((facts.isEmpty() ? turn : turn / 2) % w.size());
+            title = x[0];
+            said = x[1];
+        }
+        long in = t % turnMs;
+        float alpha = !motion ? 1 : Math.min(1, Math.min(in, turnMs - in) / (float) FADE_MS);
         c.save();
         c.scale(s, s);
         shade.setShader(new LinearGradient(0, 990, 0, 1080, 0x00000000, 0xcc000000, Shader.TileMode.CLAMP));
@@ -89,15 +118,15 @@ final class DenFactsView extends View {
         label.setLetterSpacing(0.2f);
         label.setColor(accent);
         label.setAlpha(Math.round(255 * alpha));
-        c.drawText("DID YOU KNOW", 110, 1050, label);
-        float x = 110 + label.measureText("DID YOU KNOW") + 24;
+        c.drawText(title, 110, 1050, label);
+        float x = 110 + label.measureText(title) + 24;
         text.setTextSize(24);
         text.setColor(0xffeeeeee);
         text.setAlpha(Math.round(230 * alpha));
-        CharSequence line = TextUtils.ellipsize(facts.get(i), new android.text.TextPaint(text), 1810 - x, TextUtils.TruncateAt.END);
+        CharSequence line = TextUtils.ellipsize(said, new android.text.TextPaint(text), 1810 - x, TextUtils.TruncateAt.END);
         c.drawText(line, 0, line.length(), x, 1051, text);
         c.restore();
-        long wait = !motion ? TURN_MS - in : in < FADE_MS || TURN_MS - in < FADE_MS ? 33 : TURN_MS - FADE_MS - in;
+        long wait = !motion ? turnMs - in : in < FADE_MS || turnMs - in < FADE_MS ? 33 : turnMs - FADE_MS - in;
         postInvalidateDelayed(Math.max(16, wait));
     }
 }

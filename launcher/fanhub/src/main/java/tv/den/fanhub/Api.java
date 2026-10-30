@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart", "/api/widgets", "/api/symbols", "/api/places"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -99,6 +99,13 @@ final class Api {
                     ? ok(true) : fail(helperNeeded());
             case "/api/speedup": return Speedup.status(ctx);
             case "/api/lookart": return lookArt(in);
+            case "/api/widgets": return widgets(in);
+            case "/api/symbols":
+                try { return ok(true).put("results", Widgets.symbols(in.optString("q"))); }
+                catch (IOException e) { return fail("Couldn't search the markets: " + e.getMessage()); }
+            case "/api/places":
+                try { return ok(true).put("results", Widgets.places(in.optString("q"))); }
+                catch (IOException e) { return fail("Couldn't search places: " + e.getMessage()); }
             default: return new JSONObject().put("error", "not found");
         }
     }
@@ -806,6 +813,17 @@ final class Api {
         JSONArray list = photos().optJSONArray("photos");
         if (list == null || list.length() == 0) return fail("The wallpaper wasn't saved");
         return ok(true).put("photo", list.getJSONObject(0).optString("name")).put("by", picture == null ? "drawn" : "gemini").put("note", note);
+    }
+
+    /** GET lists the widgets with what each shows; {add: {...}} adds one; {remove: id} removes one. */
+    private JSONObject widgets(JSONObject in) throws JSONException {
+        if (in.has("add")) {
+            JSONObject w = Widgets.add(ctx, in.getJSONObject("add"));
+            if (w == null) return fail(Widgets.list(ctx).length() >= Widgets.MAX ? "That's the most widgets (" + Widgets.MAX + "). Remove one first."
+                    : "That widget is missing something.");
+        }
+        if (in.has("remove")) Widgets.remove(ctx, in.optString("remove"));
+        return Widgets.status(ctx).put("ok", true);
     }
 
     private JSONObject mineAction(JSONObject in) throws JSONException {
