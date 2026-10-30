@@ -14,7 +14,7 @@ const out = path.resolve(__dirname, '../../../themes/den-mix/wallpapers');
   await p.addInitScript(() => { try { localStorage.setItem('den2.setup', JSON.stringify({ done: true, phones: [] })); } catch (e) {} });
   await p.goto('file://' + mock);
   await p.waitForFunction(() => window.denPaint);
-  await p.evaluate(async () => { await document.fonts.load('900 100px Outfit'); await document.fonts.load('800 96px Outfit'); await document.fonts.load('500 26px Outfit'); await document.fonts.ready; });
+  await p.evaluate(async () => { await document.fonts.load('900 100px Outfit'); await document.fonts.load('800 96px Outfit'); await document.fonts.load('500 26px Outfit'); await document.fonts.load('700 28px Outfit'); await document.fonts.ready; });
   for (const arg of process.argv.slice(2)) {
     const [name, spec] = arg.split('=');
     const [scene, hero] = spec.split(':');

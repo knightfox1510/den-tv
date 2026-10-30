@@ -20,7 +20,9 @@ final class DenTheme {
     private static final String TAG = "DenTheme";
     private static final String ASSET_DIR = "den/theme";
     /** Raise when themes/den-mix/config.json changes: TVs set up by an older version get the new settings. */
-    static final int VERSION = 3;
+    static final int VERSION = 4;
+    /** The bundled wallpapers were last redrawn in this version (4: hero titles readable over any scene). */
+    private static final int WALLS_VERSION = 4;
     private static final String KEY_VERSION = "theme_version";
 
     private DenTheme() {}
@@ -30,7 +32,8 @@ final class DenTheme {
         if (dir == null) return;   // storage not mounted yet: the launcher starts with config.xml, we try again next time
         File config = new File(dir, Config.FILE_NAME);
         android.content.SharedPreferences den = ctx.getSharedPreferences(DenLooks.PREFS, Context.MODE_PRIVATE);
-        if (config.exists() && den.getInt(KEY_VERSION, 1) >= VERSION) return;
+        int had = config.exists() ? den.getInt(KEY_VERSION, 1) : VERSION;
+        if (config.exists() && had >= VERSION) return;
         AssetManager assets = ctx.getAssets();
         try {
             File walls = new File(dir, "wallpapers");
@@ -38,7 +41,8 @@ final class DenTheme {
             String[] names = assets.list(ASSET_DIR + "/wallpapers");
             if (names != null) for (String n : names) {
                 File to = new File(walls, n);
-                if (!to.exists()) copy(assets, ASSET_DIR + "/wallpapers/" + n, to);
+                // New ones always; ones already there again when they were redrawn since (your photos live elsewhere).
+                if (!to.exists() || had < WALLS_VERSION) copy(assets, ASSET_DIR + "/wallpapers/" + n, to);
             }
             // config.json last: an interrupted copy has no config.json, so the next start finishes it.
             copy(assets, ASSET_DIR + "/" + Config.FILE_NAME, config);

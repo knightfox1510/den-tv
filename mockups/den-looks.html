@@ -1444,9 +1444,14 @@ ground shadow, no text. Portrait 9:16, high resolution.</pre>
     else if (h.emb === 'flamering') { g.globalCompositeOperation = 'lighter'; for (let k = 0; k < 24; k++) { const a = k / 24 * 6.283; const gr = g.createLinearGradient(1450 + Math.cos(a) * 120, 430 + Math.sin(a) * 120, 1450 + Math.cos(a) * 260, 430 + Math.sin(a) * 260); gr.addColorStop(0, 'rgba(255,200,60,.6)'); gr.addColorStop(1, 'rgba(255,60,0,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(1450 + Math.cos(a - .1) * 120, 430 + Math.sin(a - .1) * 120); g.lineTo(1450 + Math.cos(a) * 270, 430 + Math.sin(a) * 270); g.lineTo(1450 + Math.cos(a + .1) * 120, 430 + Math.sin(a + .1) * 120); g.fill(); } g.globalCompositeOperation = 'source-over'; g.strokeStyle = '#ffb020'; g.lineWidth = 26; g.beginPath(); g.arc(1450, 430, 110, 0, 7); g.stroke(); }
     else if (h.emb === 'marks') { g.globalAlpha = .95; g.fillStyle = '#c0140c'; g.beginPath(); g.arc(1450, 430, 200, 0, 7); g.fill(); g.strokeStyle = '#0a0000'; g.lineWidth = 12; g.lineCap = 'round'; [[1330, 360, 1420, 380], [1480, 380, 1570, 360], [1340, 440, 1400, 450], [1500, 450, 1560, 440], [1450, 300, 1450, 340]].forEach(([a, b, c2, d]) => { g.beginPath(); g.moveTo(a, b); g.lineTo(c2, d); g.stroke(); }); g.beginPath(); g.arc(1450, 520, 40, 0, Math.PI); g.stroke(); }
     else if (h.emb === 'swords') { g.globalAlpha = .95; [[-.6, '#f4f4f4'], [0, '#7a1a1a'], [.6, '#151515']].forEach(([a, hc]) => { g.save(); g.translate(1450, 430); g.rotate(a - Math.PI / 2); swordPath(g, hc); g.restore(); }); }
-    g.restore(); g.save(); g.textAlign = 'right'; g.shadowColor = 'rgba(0,0,0,.8)'; g.shadowBlur = 24;
+    g.restore(); g.save();
+    // A soft dark band behind the name, so it reads over any scene (floodlights, clouds, a bright pitch).
+    const band = g.createRadialGradient(1600, 750, 60, 1600, 750, 560); band.addColorStop(0, 'rgba(0,0,0,.5)'); band.addColorStop(.6, 'rgba(0,0,0,.28)'); band.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = band; g.fillRect(0, 0, 1920, 1080);   // the whole frame: the gradient fades to nothing, with no edge
+    g.textAlign = 'right'; g.lineJoin = 'round'; g.shadowColor = 'rgba(0,0,0,.85)'; g.shadowBlur = 24;
     g.font = '800 96px Outfit, sans-serif'; g.fillStyle = '#fff'; g.letterSpacing = '14px'; g.fillText(h.big, 1830, 735);
-    g.font = '500 26px Outfit, sans-serif'; g.letterSpacing = '8px'; g.fillStyle = h.ac; g.fillText(h.sub, 1820, 778); g.restore();
+    g.font = '700 28px Outfit, sans-serif'; g.letterSpacing = '8px'; g.shadowBlur = 10;
+    g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.8)'; g.strokeText(h.sub, 1820, 780); g.fillStyle = h.ac; g.fillText(h.sub, 1820, 780); g.restore();
   }
 
   /* ===================== LOOKS ===================== */

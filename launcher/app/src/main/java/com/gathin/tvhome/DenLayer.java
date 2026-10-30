@@ -180,6 +180,7 @@ final class DenLayer {
         on.addAction(Intent.ACTION_SCREEN_OFF);
         if (android.os.Build.VERSION.SDK_INT >= 33) activity.registerReceiver(layer.screenOn, on, Context.RECEIVER_NOT_EXPORTED);
         else activity.registerReceiver(layer.screenOn, on);
+        DenContrast.apply(activity);   // text readable over any wallpaper
         return layer;
     }
 

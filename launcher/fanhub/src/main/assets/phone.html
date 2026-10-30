@@ -236,6 +236,8 @@
       <label for="name" style="margin-top:0">Your name</label>
       <input id="name" maxlength="24">
       <div id="toggles" style="margin-top:8px"></div>
+      <label for="contrast">Text contrast</label>
+      <select id="contrast"><option value="">Normal: a soft shade behind the clock and panel</option><option value="strong">Strong: easier to read over bright wallpapers</option><option value="off">Off: the wallpaper as it is</option></select>
       <label for="motionLevel">Motion</label>
       <select id="motionLevel"><option value="">Full, or Calm on a TV with little memory (default)</option><option value="full">Full</option><option value="calm">Calm: watchers move, no extras or effects</option></select>
       <label for="openAnim">Opening an app</label>
@@ -812,7 +814,7 @@
     $('name').value = (S.settings || {}).greeting_name || '';
     toggles($('toggles'), S.settings || {}, TOGGLES.concat(MOTION));
     $('idle').value = String((S.settings || {}).idle_clock || '-1');
-    $('motionLevel').value = (S.settings || {}).motion || ''; $('openAnim').value = (S.settings || {}).open_anim || 'look'; $('backAnim').value = (S.settings || {}).back_anim || 'look';
+    $('motionLevel').value = (S.settings || {}).motion || ''; $('contrast').value = (S.settings || {}).contrast || ''; $('openAnim').value = (S.settings || {}).open_anim || 'look'; $('backAnim').value = (S.settings || {}).back_anim || 'look';
     $('teams').value = (S.teams || []).join('\n'); $('shows').value = (S.shows || []).join('\n');
     toggles($('widgets'), S.settings || {}, WIDGETS);
     const h = (await api('/api/hike')).json; $('hikeOn').checked = !!h.on; const hp = $('hikePlace'); hp.innerHTML = '';
@@ -843,7 +845,7 @@
     loadTweak();
   });
   $('saveHome').addEventListener('click', async () => {
-    const body = Object.assign({ greeting_name: $('name').value.trim(), idle_clock: +$('idle').value, motion: $('motionLevel').value, open_anim: $('openAnim').value, back_anim: $('backAnim').value }, readToggles($('toggles')));
+    const body = Object.assign({ greeting_name: $('name').value.trim(), idle_clock: +$('idle').value, motion: $('motionLevel').value, contrast: $('contrast').value, open_anim: $('openAnim').value, back_anim: $('backAnim').value }, readToggles($('toggles')));
     const r = await api('/api/settings', body);
     say($('homeMsg'), r.json.ok ? 'Saved. Home shows it now.' : (r.json.error || 'Couldn\'t save.'), !r.json.ok);
   });

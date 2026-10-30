@@ -243,6 +243,23 @@ public class DenScreensTest {
         save(b, "home-domain");
     }
 
+    /** Master Blaster with text contrast off, normal and strong (the shade and shadows behind Home's text). */
+    @Test public void contrast() throws IOException {
+        Context ctx = RuntimeEnvironment.getApplication();
+        DenTheme.ensure(ctx);
+        DenLooks.apply(ctx, DenLooks.byId(DenLooks.load(ctx), "master-blaster"));
+        DenSettings.prefs(ctx).edit().putBoolean(DenSettings.WAKE, false).apply();   // the picture, not the first frame of a wake
+        for (String level : new String[]{"off", "", "strong"}) {
+            DenSettings.prefs(ctx).edit().putString(DenContrast.KEY, level).commit();
+            MainActivity a = Robolectric.buildActivity(MainActivity.class).setup().get();
+            View root = a.getWindow().getDecorView();
+            layout(root, 1920, 1080);
+            Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+            root.draw(new Canvas(b));
+            save(b, "contrast-" + (level.isEmpty() ? "normal" : level));
+        }
+    }
+
     /**
      * The last app of a long row focused: the cloud stays on screen, and the row fades at the left with a pill
      * saying 14 more apps that way, and the track under it at the end. Stand-in tiles; the wallpaper is real.
