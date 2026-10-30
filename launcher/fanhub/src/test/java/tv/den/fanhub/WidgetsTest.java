@@ -71,4 +71,93 @@ public class WidgetsTest {
         Widgets.remove(app, s.getJSONArray("widgets").getJSONObject(0).getString("id"));
         assertEquals(1, Widgets.list(app).length());
     }
+
+    // ---- the newer kinds, on real answers (trimmed) from their sources ---------------------------------------------
+
+    private static final ZoneId IST = ZoneId.of("Asia/Kolkata");
+    private static final long FRI_1130_IST = ZonedDateTime.of(2026, 10, 30, 11, 30, 0, 0, IST).toInstant().toEpochMilli();
+
+    private JSONObject res(String name) throws Exception {
+        try (java.io.InputStream in = getClass().getResourceAsStream("/widgets/" + name)) {
+            return new JSONObject(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
+        }
+    }
+
+    @Test public void newKindsAreCheckedToo() throws Exception {
+        assertEquals("[\"BTC\",\"ETH\"]", Widgets.clean(new JSONObject("{\"kind\":\"crypto\",\"coins\":[\"btc\",\"eth\",\"$$\"]}")).getJSONArray("coins").toString());
+        assertEquals("INR", Widgets.clean(new JSONObject("{\"kind\":\"crypto\",\"coins\":[\"btc\"],\"currency\":\"XYZ\"}")).getString("currency"));
+        assertNotNull(Widgets.clean(new JSONObject("{\"kind\":\"fixtures\",\"sport\":\"soccer\",\"league\":\"esp.1\",\"team\":\"83\",\"name\":\"Barcelona\"}")));
+        assertNotNull(Widgets.clean(new JSONObject("{\"kind\":\"fixtures\",\"sport\":\"cricket\",\"team\":\"6\",\"name\":\"India\"}")));
+        assertNull(Widgets.clean(new JSONObject("{\"kind\":\"fixtures\",\"sport\":\"soccer\",\"league\":\"../x\",\"team\":\"83\",\"name\":\"B\"}")));
+        assertNull(Widgets.clean(new JSONObject("{\"kind\":\"fixtures\",\"sport\":\"curling\",\"team\":\"1\",\"name\":\"B\"}")));
+        JSONObject hol = Widgets.clean(new JSONObject("{\"kind\":\"calendar\",\"country\":\"in\"}"));
+        assertEquals("India holidays", hol.getString("label"));
+        assertTrue(hol.getString("url").contains("en.indian%23holiday"));
+        assertEquals("https://example.com/a.ics", Widgets.clean(new JSONObject("{\"kind\":\"calendar\",\"url\":\"webcal://example.com/a.ics\"}")).getString("url"));
+        assertNull(Widgets.clean(new JSONObject("{\"kind\":\"calendar\",\"url\":\"http://example.com/a.ics\"}")));
+        assertNull(Widgets.clean(new JSONObject("{\"kind\":\"air\",\"place\":\"Delhi\"}")));
+        assertNotNull(Widgets.clean(new JSONObject("{\"kind\":\"f1\"}")));
+    }
+
+    @Test public void aTeamsFixturesAndLastResult() throws Exception {
+        JSONArray f = Widgets.schedule(res("espn-past.json"), res("espn-next.json"), "83", FRI_1130_IST, IST);
+        // Barça v Alavés, Sat 31 Oct 20:00 UTC: early Sunday in India.
+        assertEquals("Sun 1 Nov, 1:30 AM  ·  Barça v Alavés", f.getString(0));
+        assertEquals(4, f.length());   // three to come and the last result
+        assertEquals("Last: Barça 1–2 Real Madrid", f.getString(3));   // the latest, though ESPN lists newest first
+    }
+
+    @Test public void aLiveMatchShowsItsScore() throws Exception {
+        JSONObject live = new JSONObject("{\"events\":[{\"date\":\"2026-10-30T06:00Z\",\"competitions\":[{\"status\":{\"type\":{\"state\":\"in\",\"shortDetail\":\"34'\"}},"
+                + "\"competitors\":[{\"homeAway\":\"home\",\"team\":{\"shortDisplayName\":\"Barcelona\"},\"score\":\"1\"},{\"homeAway\":\"away\",\"team\":{\"shortDisplayName\":\"Alavés\"},\"score\":\"0\"}]}]}]}");
+        assertEquals("LIVE  Barça 1–0 Alavés  ·  34'", Widgets.schedule(null, live, "83", FRI_1130_IST, IST).getString(0));
+    }
+
+    @Test public void cricketOnNowAndToday() throws Exception {
+        JSONArray c = Widgets.cricket(res("espn-cricket.json"), "India", FRI_1130_IST, IST);
+        assertEquals(2, c.length());   // not India Women or India A
+        assertEquals("Today 11:45 AM  ·  India v Pakistan (Group C)", c.getString(0));
+        assertEquals("Today 12:30 PM  ·  New Zealand v India (4th T20I)", c.getString(1));
+        JSONObject live = new JSONObject("{\"sports\":[{\"leagues\":[{\"events\":[{\"status\":\"in\",\"competitors\":[{\"displayName\":\"New Zealand\",\"score\":\"\"},{\"displayName\":\"India\",\"score\":\"145/3 (16.2/20 ov)\"}]}]}]}]}");
+        assertEquals("LIVE  New Zealand  ·  India 145/3 (16.2/20 ov)", Widgets.cricket(live, "india", FRI_1130_IST, IST).getString(0));
+    }
+
+    @Test public void theNextGrandPrix() throws Exception {
+        assertTrue(Widgets.f1(res("f1.json"), IST).getString(0).startsWith("Mexico City GP  ·  "));
+    }
+
+    @Test public void airAndHistoryRead() throws Exception {
+        assertEquals("Delhi air 176, unhealthy  ·  PM2.5 98", Widgets.airLine("Delhi", 176, 98.2));
+        assertEquals("Pune air 42, good", Widgets.airLine("Pune", 42, Double.NaN));
+        JSONArray h = Widgets.parseOnThisDay(new JSONObject("{\"selected\":[{\"year\":2020,\"text\":\"A long one about an earthquake in the Aegean Sea between Greece and Turkey.\"},{\"year\":1961,\"text\":\"Tsar Bomba is tested.\"}]}"));
+        assertEquals("1961: Tsar Bomba is tested.", h.getString(0));
+    }
+
+    @Test public void calendarsRepeatAndReadNow() throws Exception {
+        String ics = "BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART;VALUE=DATE:20261108\r\nSUMMARY:Diwali\r\nEND:VEVENT\r\n"
+                + "BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:19900131\r\nRRULE:FREQ=YEARLY\r\nSUMMARY:Mum's birthday\r\nEND:VEVENT\r\n"
+                + "BEGIN:VEVENT\r\nDTSTART:20261031T043000Z\r\nSUMMARY:Dentist\\, Dr\r\n  Rao\r\nEND:VEVENT\r\n"
+                + "BEGIN:VEVENT\r\nDTSTART;TZID=Asia/Kolkata:20260101T190000\r\nRRULE:FREQ=WEEKLY;UNTIL=20260301T000000Z\r\nSUMMARY:Over\r\nEND:VEVENT\r\n"
+                + "BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:20250101\r\nSUMMARY:Long gone\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
+        JSONArray ev = Widgets.events(ics, FRI_1130_IST, IST);
+        assertEquals(2, ev.length());   // the birthday is in January, past the next 60 days
+        List<String> lines = Widgets.upcoming(ev, FRI_1130_IST, IST);
+        assertEquals("Dentist, Dr Rao  ·  Tomorrow 10:00 AM", lines.get(0));
+        assertEquals("Diwali  ·  Sun 8 Nov", lines.get(1));
+        long dec20 = ZonedDateTime.of(2026, 12, 20, 9, 0, 0, 0, IST).toInstant().toEpochMilli();
+        assertEquals("Mum's birthday  ·  Sun 31 Jan", Widgets.upcoming(Widgets.events(ics, dec20, IST), dec20, IST).get(0));
+    }
+
+    @Test public void yearlyCountdownsAndPrivateCalendars() throws Exception {
+        Widgets.prefs(app).edit().clear().commit();
+        java.time.LocalDate today = java.time.LocalDate.now(ZoneId.systemDefault());
+        String lastYearsIn5 = today.plusDays(5).minusYears(3).toString();
+        Widgets.add(app, new JSONObject("{\"kind\":\"countdown\",\"label\":\"Riya's birthday\",\"yearly\":true,\"date\":\"" + lastYearsIn5 + "\"}"));
+        Widgets.add(app, new JSONObject("{\"kind\":\"calendar\",\"label\":\"Family\",\"url\":\"https://calendar.google.com/calendar/ical/secret/basic.ics\"}"));
+        List<String[]> lines = Widgets.lines(app, "home", System.currentTimeMillis());
+        assertEquals("COMING UP", lines.get(0)[0]);
+        assertEquals("Riya's birthday in 5 days", lines.get(0)[1]);
+        // The phone never gets a calendar's secret address back.
+        assertTrue(!Widgets.status(app).toString().contains("secret"));
+    }
 }

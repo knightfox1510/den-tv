@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart", "/api/widgets", "/api/symbols", "/api/places", "/api/keys"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart", "/api/widgets", "/api/symbols", "/api/places", "/api/teams", "/api/keys"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -104,6 +104,9 @@ final class Api {
             case "/api/symbols":
                 try { return ok(true).put("results", Widgets.symbols(in.optString("q"))); }
                 catch (IOException e) { return fail("Couldn't search the markets: " + e.getMessage()); }
+            case "/api/teams":
+                try { return ok(true).put("results", Widgets.teams(in.optString("q"))); }
+                catch (IOException e) { return fail("Couldn't search teams: " + e.getMessage()); }
             case "/api/places":
                 try { return ok(true).put("results", Widgets.places(in.optString("q"))); }
                 catch (IOException e) { return fail("Couldn't search places: " + e.getMessage()); }

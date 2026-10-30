@@ -160,11 +160,22 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   image model where the key allows it, or a poster drawn by the Fan Hub in the look's colours (`LookArt`), with the
   title and number in the hero-wall style. Saved, it's one of My looks with its own "Did you know?" facts. Without a
   key, the words are matched to the looks (filler words ignored, small misspellings and nicknames forgiven).
-- **Your widgets** (phone: Tweak → Your widgets). Markets (indices, shares, gold, currencies, crypto; search any
-  share by name), weather now, world clocks, a countdown, headlines on a topic, or a note. Home shows them along the
-  bottom, taking turns with "Did you know?"; the Fan Hub shows them in a card. The Fan Hub fetches them while the TV
-  is on (prices every 5 minutes from Yahoo Finance's public data, which can be a little late; weather from
-  Open-Meteo; headlines from Google News) and Home reads them from `tv.den.fanhub.widgets`.
+- **Your widgets** (phone: Tweak → Your widgets), up to 8, none needing a key:
+  - Money: markets (indices, shares, gold, currencies; search any share by name) and crypto (Bitcoin, Ether, any
+    ticker, in rupees, dollars, euros, pounds or dirhams).
+  - Sport: a team's next three matches, live score and last result (football, cricket, basketball, American
+    football, hockey, baseball; search any team), and the next Formula 1 race.
+  - Around you: weather now, air quality (US AQI and PM2.5), world clocks.
+  - Days: a countdown, or a yearly one for birthdays; a country's holidays, or your own calendar (Google Calendar's
+    secret iCal address, kept on the TV and never sent back to the phone).
+  - Reading: headlines on a topic, three things from "on this day", or a note.
+
+  Home shows them along the bottom, taking turns with "Did you know?"; the Fan Hub shows them in a card that takes
+  turns a page at a time when there are more than fit. The Fan Hub fetches them while the TV is on (prices every 5
+  minutes, fixtures every 10, weather, air and headlines every 30, calendars hourly) and Home reads them from
+  `tv.den.fanhub.widgets`. Sources: Yahoo Finance's public data (can be a little late), ESPN's public scoreboards,
+  Jolpica (Formula 1), Open-Meteo, Google Calendar's holiday calendars, Google News and Wikipedia. The Yahoo and
+  ESPN ones aren't official APIs and may change.
 - **Readable text.** A soft shade behind Home's clock and panel, shadows under its text, and hero titles in the
   wallpapers with a dark glow and outline. Tweak → Text contrast: Normal, Strong or Off.
 - **Speed-up status** (phone: TV → Speed up): this TV's tested list with each app On or Off, and a button that

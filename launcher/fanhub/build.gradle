@@ -12,8 +12,8 @@ android {
         applicationId 'tv.den.fanhub'
         minSdk 26
         targetSdk 34
-        versionCode 18
-        versionName '1.3.2'
+        versionCode 19
+        versionName '1.4.0'
     }
 
     def denKeystore = System.getenv('DEN_KEYSTORE')

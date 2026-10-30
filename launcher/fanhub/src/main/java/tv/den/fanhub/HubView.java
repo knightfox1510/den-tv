@@ -112,10 +112,10 @@ final class HubView extends View {
         week(c, 90, 630, 780, 330, now);
         // Your widgets take the trails' place while weekend weather is off, otherwise the next 72 hours'.
         boolean widgets = !data.widgets.isEmpty(), trailsOff = data.place.isEmpty();
-        if (widgets && trailsOff) widgets(c, 900, 630, 500, 330);
+        if (widgets && trailsOff) widgets(c, 900, 630, 500, 330, now);
         else trails(c, 900, 630, 500, 330, now);
         if (data.paired == 0 && data.address != null && data.running) pair(c, 1430, 630, 400, 330);
-        else if (widgets && !trailsOff) widgets(c, 1430, 630, 400, 330);
+        else if (widgets && !trailsOff) widgets(c, 1430, 630, 400, 330, now);
         else next72(c, 1430, 630, 400, 330, now);
         footer(c, now);
         c.restore();
@@ -432,15 +432,37 @@ final class HubView extends View {
     }
 
     /** No phone yet: a big code to scan, the address and the pairing code. */
-    /** Your widgets: each line under its small label (MARKETS, WEATHER, a headline's topic). */
-    private void widgets(Canvas c, float x, float y, float w, float h) {
+    /**
+     * Your widgets: each line under its small label (MARKETS, WEATHER, a headline's topic). More than fit take turns,
+     * a page every 12 seconds; a widget's lines stay together where they fit on one page.
+     */
+    private void widgets(Canvas c, float x, float y, float w, float h, long now) {
         card(c, x, y, w, h, false);
-        label(c, "YOUR WIDGETS", x + 32, y + 52, data.accent);
-        float ty = y + 96;
+        float top = y + 96, bottom = y + h - 24;
+        // Pages of whole widgets: a label (26) and its lines (34 each).
+        List<List<String[]>> pages = new ArrayList<>();
+        List<String[]> page = new ArrayList<>();
+        float used = 0;
+        int i = 0;
+        while (i < data.widgets.size()) {
+            int j = i;
+            while (j < data.widgets.size() && data.widgets.get(j)[0].equals(data.widgets.get(i)[0])) j++;
+            float need = 26 + 34 * (j - i);
+            if (!page.isEmpty() && top + used + need > bottom + 34) { pages.add(page); page = new ArrayList<>(); used = 0; }
+            for (int k = i; k < j; k++) page.add(data.widgets.get(k));
+            used += need;
+            i = j;
+        }
+        if (!page.isEmpty()) pages.add(page);
+        int n = pages.size(), at = n == 0 ? 0 : (int) (now / 12_000 % n);
+        label(c, "YOUR WIDGETS" + (n > 1 ? "  " + (at + 1) + "/" + n : ""), x + 32, y + 52, data.accent);
+        if (n == 0) return;
+        float ty = top;
         String last = "";
-        for (String[] line : data.widgets) {
-            if (ty > y + h - 24) break;
+        for (String[] line : pages.get(at)) {
+            if (ty > bottom) break;
             if (!line[0].equals(last)) {
+                if (ty + 26 > bottom) break;
                 text(c, fit(line[0], w - 64, 15, semi), x + 32, ty, 15, semi, lift(data.accent));
                 ty += 26;
                 last = line[0];

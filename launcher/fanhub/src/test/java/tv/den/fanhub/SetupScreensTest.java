@@ -107,6 +107,9 @@ public class SetupScreensTest {
                 d.widgets.add(new String[]{"MARKETS", "SENSEX 74,314 ▲0.22%"});
                 d.widgets.add(new String[]{"MARKETS", "NIFTY 50 22,983 ▲0.20%"});
                 d.widgets.add(new String[]{"MARKETS", "RELIANCE 1,162.50 ▼0.42%"});
+                d.widgets.add(new String[]{"BARCELONA", "Tomorrow 8:00 PM  ·  Barça v Alavés"});
+                d.widgets.add(new String[]{"BARCELONA", "Last: Barça 1–2 Real Madrid"});
+                d.widgets.add(new String[]{"CRYPTO", "BTC ₹74,80,498 ▲1.06%"});
                 d.widgets.add(new String[]{"WEATHER", "Mumbai  31°  Partly cloudy  ·  33° / 26°"});
                 d.widgets.add(new String[]{"WORLD CLOCK", "London 6:43 AM   ·   New York 2:43 AM"});
                 d.widgets.add(new String[]{"STOCK MARKET", "Sensex ends 300 points higher as IT stocks rally - The Hindu"});

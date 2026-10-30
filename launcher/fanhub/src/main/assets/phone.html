@@ -28,7 +28,7 @@
   .np button[aria-pressed="true"] { background: var(--accent, #ff4d6d); color: #111; }
   .vol { height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); margin-top: 12px; overflow: hidden; }
   .vol i { display: block; height: 100%; background: var(--accent, #ff4d6d); width: 0; transition: width .3s; }
-  input[type=text], input[type=password], input[type=search], input[type=time], input[type=number], input:not([type]), textarea, select {
+  input[type=text], input[type=password], input[type=url], input[type=search], input[type=time], input[type=number], input:not([type]), textarea, select {
     width: 100%; background: var(--card2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: inherit; }
   input.code { font-size: 32px; letter-spacing: .4em; text-align: center; }
   button { appearance: none; border: 0; border-radius: 10px; background: var(--acc); color: #fff; font: 600 16px/1 inherit; padding: 13px 16px; margin-top: 10px; width: 100%; cursor: pointer; }
@@ -259,15 +259,20 @@
       <button id="saveWidgets">Save</button>
       <div id="widMsg" class="msg" role="status"></div>
     </div></details>
-    <details class="card" id="ywCard"><summary><span><b>Your widgets</b><small>Markets, weather, clocks, a countdown, headlines, a note</small></span></summary><div class="in">
+    <details class="card" id="ywCard"><summary><span><b>Your widgets</b><small>Markets, crypto, fixtures, F1, weather, air, calendars, and more</small></span></summary><div class="in">
       <p>They show along the bottom of Home, taking turns with "Did you know?", and on the Fan Hub. Up to 8.</p>
       <div id="ywList"></div>
       <label for="ywKind">Add a widget</label>
-      <select id="ywKind"><option value="markets">Markets: indices, shares, gold, currencies, crypto</option><option value="weather">Weather now</option><option value="clocks">World clocks</option><option value="countdown">Countdown to a day</option><option value="headlines">Headlines on a topic</option><option value="note">A note</option></select>
+      <select id="ywKind">
+        <optgroup label="Money"><option value="markets">Markets: indices, shares, gold, currencies</option><option value="crypto">Crypto: Bitcoin, Ether and more</option></optgroup>
+        <optgroup label="Sport"><option value="fixtures">A team's fixtures and results</option><option value="f1">Formula 1: the next race</option></optgroup>
+        <optgroup label="Around you"><option value="weather">Weather now</option><option value="air">Air quality</option><option value="clocks">World clocks</option></optgroup>
+        <optgroup label="Days"><option value="countdown">Countdown, or a birthday every year</option><option value="calendar">Holidays, or your own calendar</option></optgroup>
+        <optgroup label="Reading"><option value="headlines">Headlines on a topic</option><option value="onthisday">On this day in history</option><option value="note">A note</option></optgroup></select>
       <div id="ywForm"></div>
       <label for="ywWhere">Show it on</label><select id="ywWhere"><option value="both">Home and the Fan Hub</option><option value="home">Home</option><option value="hub">The Fan Hub</option></select>
       <button id="ywAdd">Add the widget</button><div id="ywMsg" class="msg" role="status"></div>
-      <p class="hint" style="margin-top:8px">Prices come from Yahoo Finance's public data and can be a few minutes late; weather from Open-Meteo; headlines from Google News.</p>
+      <p class="hint" style="margin-top:8px">None of these need a key. Prices come from Yahoo Finance's public data and can be a few minutes late; fixtures from ESPN; Formula 1 from Jolpica; weather and air from Open-Meteo; holidays from Google Calendar; headlines from Google News; "on this day" from Wikipedia.</p>
     </div></details>
     <details class="card" id="appsCard"><summary><span><b>Apps on Home</b><small>Hide, show and rename</small></span></summary><div class="in">
       <p>Untick to hide an app from Home (it stays in the App library). Type to rename it. "Shows" puts it in the Shows folder tile instead.</p>
@@ -821,7 +826,12 @@
   // Your widgets: a short form per kind; markets and places are searched through the TV (Widgets.java).
   const YW_MARKETS = [['^BSESN', 'Sensex'], ['^NSEI', 'Nifty 50'], ['^NSEBANK', 'Bank Nifty'], ['^GSPC', 'S&P 500'], ['^IXIC', 'Nasdaq'], ['GC=F', 'Gold'], ['INR=X', 'USD/INR'], ['BTC-USD', 'Bitcoin']];
   const YW_TOPICS = ['Stock market', 'Cricket', 'Football', 'Technology', 'Bollywood', 'World news'];
-  let yw = { symbols: [], place: null, zones: [] };
+  const YW_COINS = [['BTC', 'Bitcoin'], ['ETH', 'Ether'], ['SOL', 'Solana'], ['XRP', 'XRP'], ['BNB', 'BNB'], ['DOGE', 'Dogecoin'], ['ADA', 'Cardano'], ['USDT', 'Tether']];
+  const YW_TEAMS = ['Barcelona', 'Real Madrid', 'Manchester United', 'Liverpool', 'India', 'Australia', 'Los Angeles Lakers'];
+  const YW_HOLIDAYS = [['in', 'India'], ['us', 'USA'], ['gb', 'UK'], ['au', 'Australia'], ['ca', 'Canada'], ['sg', 'Singapore'], ['nz', 'New Zealand'], ['ie', 'Ireland'], ['ae', 'UAE'], ['pk', 'Pakistan']];
+  const YW_SPORT = { soccer: 'football', football: 'American football', basketball: 'basketball', cricket: 'cricket', hockey: 'hockey', baseball: 'baseball' };
+  const ywNew = () => ({ symbols: [], coins: [], place: null, zones: [], team: null });
+  let yw = ywNew();
   function chip(text, on, click) { const b = el('button', 'chip', text); if (on) b.style.cssText = 'background:var(--acc);color:#111;border-color:transparent'; b.onclick = click; return b; }
   function ywForm() {
     const kind = $('ywKind').value, f = $('ywForm'); f.innerHTML = '';
@@ -841,8 +851,42 @@
       search('A company or index, e.g. Tata Motors', '/api/symbols', (x) => { if (!yw.symbols.includes(x.symbol)) yw.symbols = yw.symbols.concat([x.symbol]).slice(0, 6); }, (x) => x.name + ' · ' + x.symbol + (x.exchange ? ' (' + x.exchange + ')' : ''));
       const own = yw.symbols.filter((sym) => !YW_MARKETS.some(([m]) => m === sym));
       if (own.length) { const mine = el('div', 'chips'); mine.style.marginTop = '8px'; own.forEach((sym) => mine.appendChild(chip(sym + ' ✕', true, () => { yw.symbols = yw.symbols.filter((x) => x !== sym); ywForm(); }))); f.appendChild(mine); }
-    } else if (kind === 'weather') {
-      f.appendChild(el('small', 'hint', yw.place ? 'Weather for ' + yw.place.place + ', ' + yw.place.where + '.' : 'Search for your town or city.'));
+    } else if (kind === 'crypto') {
+      f.appendChild(el('small', 'hint', 'Tap to add or remove (up to 6), or type a coin\'s ticker, e.g. LINK.'));
+      const pre = el('div', 'chips'); pre.style.marginTop = '8px';
+      const toggle = (c) => { yw.coins = yw.coins.includes(c) ? yw.coins.filter((x) => x !== c) : yw.coins.concat([c]).slice(0, 6); ywForm(); };
+      YW_COINS.forEach(([c, name]) => pre.appendChild(chip(name, yw.coins.includes(c), () => toggle(c))));
+      yw.coins.filter((c) => !YW_COINS.some(([x]) => x === c)).forEach((c) => pre.appendChild(chip(c + ' ✕', true, () => toggle(c))));
+      f.appendChild(pre);
+      const row = el('div', 'row'); row.style.marginTop = '8px'; const q = el('input'); q.placeholder = 'Another ticker'; q.maxLength = 10;
+      const add = el('button', 'ghost', 'Add'); add.style.cssText = 'flex:none;width:auto;margin:0';
+      add.onclick = () => { const c = q.value.trim().toUpperCase(); if (/^[A-Z0-9]{2,10}$/.test(c) && !yw.coins.includes(c)) toggle(c); };
+      row.appendChild(q); row.appendChild(add); f.appendChild(row);
+      const cur = el('select'); cur.id = 'ywCurrency'; cur.style.marginTop = '8px';
+      [['INR', 'In rupees (₹)'], ['USD', 'In US dollars ($)'], ['EUR', 'In euros (€)'], ['GBP', 'In pounds (£)'], ['AED', 'In dirhams']].forEach(([v, t]) => { const o = el('option', null, t); o.value = v; cur.appendChild(o); });
+      f.appendChild(cur);
+    } else if (kind === 'fixtures') {
+      f.appendChild(el('small', 'hint', yw.team ? yw.team.name + ' (' + YW_SPORT[yw.team.sport] + ')' + (yw.team.sport === 'cricket' ? ': matches on now and in the next day or so, with live scores.' : ': the next three matches, live scores, and the last result.')
+        : 'Search for a team: football, cricket, basketball, American football, hockey or baseball.'));
+      const pre = el('div', 'chips'); pre.style.marginTop = '8px'; f.appendChild(pre);
+      search('A team, e.g. Barcelona', '/api/teams', (x) => { yw.team = x; }, (x) => x.name + ' · ' + YW_SPORT[x.sport] + (x.where ? ' (' + x.where + ')' : ''));
+      const box = f.querySelector('input'); YW_TEAMS.forEach((t) => pre.appendChild(chip(t, false, () => { box.value = t; box.nextSibling.click(); })));
+    } else if (kind === 'f1') {
+      f.appendChild(el('small', 'hint', 'The next Grand Prix and when it starts, in your time.'));
+    } else if (kind === 'onthisday') {
+      f.appendChild(el('small', 'hint', 'Three things that happened on today\'s date, from Wikipedia. New every day.'));
+    } else if (kind === 'calendar') {
+      f.appendChild(el('small', 'hint', 'A country\'s holidays and festivals:'));
+      const pre = el('div', 'chips'); pre.style.marginTop = '8px';
+      YW_HOLIDAYS.forEach(([c, n]) => pre.appendChild(chip(n, yw.country === c, () => { yw.country = yw.country === c ? null : c; ywForm(); })));
+      f.appendChild(pre);
+      if (!yw.country) {
+        f.appendChild(el('small', 'hint', 'Or your own calendar: in Google Calendar on a computer, open Settings → your calendar → "Secret address in iCal format", and paste it here. It stays on the TV; anyone who sees the TV sees your next events.'));
+        const u = el('input'); u.id = 'ywUrl'; u.type = 'url'; u.placeholder = 'https://calendar.google.com/calendar/ical/…/basic.ics'; u.style.marginTop = '8px'; f.appendChild(u);
+        const l = el('input'); l.id = 'ywCalName'; l.placeholder = 'Its name, e.g. Family'; l.maxLength = 30; l.style.marginTop = '8px'; f.appendChild(l);
+      }
+    } else if (kind === 'weather' || kind === 'air') {
+      f.appendChild(el('small', 'hint', yw.place ? (kind === 'air' ? 'Air quality for ' : 'Weather for ') + yw.place.place + ', ' + yw.place.where + '.' : 'Search for your town or city.'));
       search('A town or city', '/api/places', (x) => { yw.place = x; }, (x) => x.place + ', ' + x.where);
     } else if (kind === 'clocks') {
       f.appendChild(el('small', 'hint', yw.zones.length ? 'Clocks: ' + yw.zones.map((z) => z.label).join(', ') + ' (tap a city again to add more, up to 4)' : 'Search for a city to add its clock (up to 4).'));
@@ -851,6 +895,7 @@
     } else if (kind === 'countdown') {
       const l = el('input'); l.id = 'ywLabel'; l.placeholder = 'What for, e.g. Goa trip'; l.maxLength = 40; f.appendChild(l);
       const d = el('input'); d.id = 'ywDate'; d.type = 'date'; d.style.marginTop = '8px'; f.appendChild(d);
+      const y = el('label', 'toggle'); y.innerHTML = '<span>Every year<small>A birthday or an anniversary: counts to the next one</small></span><input type="checkbox" id="ywYearly">'; f.appendChild(y);
     } else if (kind === 'headlines') {
       const t = el('input'); t.id = 'ywTopic'; t.placeholder = 'A topic, e.g. Sensex'; t.maxLength = 60; f.appendChild(t);
       const pre = el('div', 'chips'); pre.style.marginTop = '8px'; YW_TOPICS.forEach((x) => pre.appendChild(chip(x, false, () => { t.value = x; }))); f.appendChild(pre);
@@ -860,11 +905,12 @@
   }
   async function loadWidgets(r) {
     r = r || (await api('/api/widgets')).json; const box = $('ywList'); box.innerHTML = '';
-    const KIND = { markets: 'Markets', weather: 'Weather', clocks: 'World clocks', countdown: 'Countdown', headlines: 'Headlines', note: 'Note' };
+    const KIND = { markets: 'Markets', crypto: 'Crypto', fixtures: 'Fixtures', f1: 'Formula 1', weather: 'Weather', air: 'Air quality', clocks: 'World clocks', countdown: 'Countdown', calendar: 'Calendar', headlines: 'Headlines', onthisday: 'On this day', note: 'Note' };
+    const FETCHED = ['markets', 'crypto', 'fixtures', 'f1', 'weather', 'air', 'calendar', 'headlines', 'onthisday'];
     const WHERE = { both: 'Home and Fan Hub', home: 'Home', hub: 'Fan Hub' };
     (r.widgets || []).forEach((w) => {
-      const row = el('div', 'approw'); const t = el('div'); t.appendChild(el('b', null, KIND[w.kind] + (w.kind === 'headlines' ? ': ' + w.topic : ''))); t.appendChild(el('small', 'hint', ' · ' + WHERE[w.where]));
-      t.appendChild(el('div', 'hint', (w.shows || []).length ? w.shows[0] : (w.kind === 'markets' || w.kind === 'weather' || w.kind === 'headlines' ? 'Fetching…' : '')));
+      const row = el('div', 'approw'); const t = el('div'); t.appendChild(el('b', null, (KIND[w.kind] || w.kind) + (w.kind === 'headlines' ? ': ' + w.topic : w.kind === 'fixtures' ? ': ' + w.name : w.kind === 'calendar' ? ': ' + w.label : (w.kind === 'weather' || w.kind === 'air') ? ': ' + w.place : ''))); t.appendChild(el('small', 'hint', ' · ' + WHERE[w.where]));
+      t.appendChild(el('div', 'hint', (w.shows || []).length ? w.shows[0] : (FETCHED.includes(w.kind) ? (w.kind === 'fixtures' || w.kind === 'calendar' ? 'Fetching… (nothing shows when there\'s nothing coming up)' : 'Fetching…') : '')));
       const del = el('button', 'ghost', 'Remove'); del.style.cssText = 'flex:none;width:auto;margin:0';
       del.onclick = async () => loadWidgets((await api('/api/widgets', { remove: w.id })).json);
       row.appendChild(t); row.appendChild(del); box.appendChild(row);
@@ -874,14 +920,17 @@
   $('ywAdd').addEventListener('click', async () => {
     const kind = $('ywKind').value, add = { kind, where: $('ywWhere').value };
     if (kind === 'markets') add.symbols = yw.symbols;
-    if (kind === 'weather') { if (!yw.place) { say($('ywMsg'), 'Search for a place first.', true); return; } add.place = yw.place.place; add.lat = yw.place.lat; add.lon = yw.place.lon; }
+    if (kind === 'weather' || kind === 'air') { if (!yw.place) { say($('ywMsg'), 'Search for a place first.', true); return; } add.place = yw.place.place; add.lat = yw.place.lat; add.lon = yw.place.lon; }
+    if (kind === 'crypto') { if (!yw.coins.length) { say($('ywMsg'), 'Pick a coin first.', true); return; } add.coins = yw.coins; add.currency = $('ywCurrency').value; }
+    if (kind === 'fixtures') { if (!yw.team) { say($('ywMsg'), 'Search for a team first.', true); return; } Object.assign(add, { sport: yw.team.sport, league: yw.team.league, team: yw.team.team, name: yw.team.name }); }
+    if (kind === 'calendar') { if (yw.country) add.country = yw.country; else { add.url = $('ywUrl').value.trim(); add.label = $('ywCalName').value.trim(); if (!add.url) { say($('ywMsg'), 'Pick a country, or paste your calendar\'s address.', true); return; } } }
     if (kind === 'clocks') add.zones = yw.zones;
-    if (kind === 'countdown') { add.label = $('ywLabel').value.trim(); add.date = $('ywDate').value; }
+    if (kind === 'countdown') { add.label = $('ywLabel').value.trim(); add.date = $('ywDate').value; add.yearly = $('ywYearly').checked; }
     if (kind === 'headlines') add.topic = $('ywTopic').value.trim();
     if (kind === 'note') add.text = $('ywText').value.trim();
     const r = (await api('/api/widgets', { add })).json;
     say($('ywMsg'), r.ok ? 'Added. Home shows it within a minute.' : (r.error || 'Couldn\'t add it.'), !r.ok);
-    if (r.ok) { yw = { symbols: [], place: null, zones: [] }; ywForm(); loadWidgets(r); setTimeout(() => loadWidgets(), 8000); }
+    if (r.ok) { yw = ywNew(); ywForm(); loadWidgets(r); setTimeout(() => loadWidgets(), 8000); }
   });
   ywForm();
   async function loadTweak() {
