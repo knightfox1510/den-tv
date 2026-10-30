@@ -401,6 +401,87 @@ public class DenScreensTest {
         }
     }
 
+    /**
+     * Home as it looks on a real TV, for the website: a row of apps with tiles of their own (plain colour and name, no
+     * logos), the look's watcher following the picked one, and a name in the greeting.
+     */
+    @Test public void showcase() throws Exception {
+        Context ctx = RuntimeEnvironment.getApplication();
+        org.robolectric.shadows.ShadowPackageManager pm = org.robolectric.Shadows.shadowOf(ctx.getPackageManager());
+        String[][] apps = {{"YouTube", "#c4302b"}, {"Netflix", "#141414"}, {"Prime Video", "#1a98ff"}, {"Hotstar", "#0c1a4b"}, {"FanCode", "#f05a28"},
+                {"Crunchyroll", "#f47521"}, {"JioCinema", "#c2185b"}, {"Spotify", "#1db954"}, {"Live TV", "#37474f"}, {"Play Store", "#01875f"}};
+        DenApps.pictureDir(ctx).mkdirs();
+        android.graphics.Paint name = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        name.setColor(0xffffffff);
+        name.setTextSize(64);
+        name.setFakeBoldText(true);
+        name.setTextAlign(android.graphics.Paint.Align.CENTER);
+        for (int i = 0; i < apps.length; i++) {
+            String pkg = "com.example.show" + (char) ('a' + i);
+            android.content.pm.PackageInfo pi = new android.content.pm.PackageInfo();
+            pi.packageName = pkg;
+            pi.applicationInfo = new android.content.pm.ApplicationInfo();
+            pi.applicationInfo.packageName = pkg;
+            pi.applicationInfo.nonLocalizedLabel = apps[i][0];
+            pm.installPackage(pi);
+            android.content.ComponentName cn = new android.content.ComponentName(pkg, pkg + ".Main");
+            android.content.pm.ActivityInfo ai = new android.content.pm.ActivityInfo();
+            ai.packageName = pkg;
+            ai.name = cn.getClassName();
+            ai.exported = true;
+            ai.enabled = true;
+            ai.applicationInfo = pi.applicationInfo;
+            ai.nonLocalizedLabel = apps[i][0];
+            pm.addOrUpdateActivity(ai);
+            android.content.IntentFilter f = new android.content.IntentFilter(android.content.Intent.ACTION_MAIN);
+            f.addCategory(android.content.Intent.CATEGORY_LEANBACK_LAUNCHER);
+            f.addCategory(android.content.Intent.CATEGORY_LAUNCHER);
+            pm.addIntentFilterForActivity(cn, f);
+            // The tile: the app's colour and its name, as a picture set from the phone would be.
+            Bitmap tile = Bitmap.createBitmap(640, 360, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(tile);
+            int col = android.graphics.Color.parseColor(apps[i][1]);
+            android.graphics.Paint bg = new android.graphics.Paint();
+            bg.setShader(new android.graphics.LinearGradient(0, 0, 640, 360, col, android.graphics.Color.rgb(
+                    android.graphics.Color.red(col) / 2, android.graphics.Color.green(col) / 2, android.graphics.Color.blue(col) / 2), android.graphics.Shader.TileMode.CLAMP));
+            c.drawRect(0, 0, 640, 360, bg);
+            c.drawText(apps[i][0], 320, 205, name);
+            try (FileOutputStream out = new FileOutputStream(DenApps.pictureFile(ctx, pkg))) { tile.compress(Bitmap.CompressFormat.PNG, 100, out); }
+        }
+        DenTheme.ensure(ctx);
+        DenSettings.prefs(ctx).edit().putBoolean(DenSettings.WAKE, false).putString(DenSettings.NAME, "Riya").apply();
+        ctx.getSharedPreferences(com.gathin.tvhome.Config.SETTINGS_NAME, Context.MODE_PRIVATE).edit().putBoolean("animations", false).apply();
+        for (String[] run : new String[][]{{"crow-genjutsu", "3"}, {"crimson-moon", "4"}, {"master-blaster", "4"}, {"camp-nou", "2"}, {"super-saiyan", "5"}, {"straw-hat", "3"}}) {
+            DenLooks.apply(ctx, DenLooks.byId(DenLooks.load(ctx), run[0]));
+            // Itachi's crimson moon with the Sharingan following the picked app: a watcher change any phone can make.
+            if (run[0].equals("crow-genjutsu")) DenSettings.prefs(ctx).edit().putString(DenLooks.OVERRIDE + run[0], new org.json.JSONObject().put("watcher", "sharingan").toString()).apply();
+            int target = Integer.parseInt(run[1]);
+            org.robolectric.android.controller.ActivityController<MainActivity> ctl = Robolectric.buildActivity(MainActivity.class).setup();
+            MainActivity a = ctl.get();
+            View root = a.getWindow().getDecorView();
+            androidx.recyclerview.widget.RecyclerView grid = a.findViewById(R.id.grid);
+            grid.setLayoutAnimation(null);
+            for (int k = 0; k < 4; k++) { layout(root, 1920, 1080); org.robolectric.shadows.ShadowLooper.idleMainLooper(); }
+            for (int c = 0; c < grid.getChildCount(); c++) grid.getChildAt(c).clearAnimation();
+            View start = grid.getChildAt(0).findViewById(R.id.card);
+            start.requestFocusFromTouch();
+            for (int k = 0; k < 3; k++) { org.robolectric.shadows.ShadowLooper.idleMainLooper(2, java.util.concurrent.TimeUnit.SECONDS); layout(root, 1920, 1080); }
+            int at = grid.getChildAdapterPosition((View) start.getParent());
+            while (at != target) {
+                at += at < target ? 1 : -1;
+                androidx.recyclerview.widget.RecyclerView.ViewHolder vh = grid.findViewHolderForAdapterPosition(at);
+                if (vh == null) { grid.scrollToPosition(at); layout(root, 1920, 1080); vh = grid.findViewHolderForAdapterPosition(at); }
+                if (vh != null) vh.itemView.findViewById(R.id.card).requestFocus();
+                for (int k = 0; k < 4; k++) { org.robolectric.shadows.ShadowLooper.idleMainLooper(2, java.util.concurrent.TimeUnit.SECONDS); layout(root, 1920, 1080); }
+            }
+            for (int k = 0; k < 6; k++) { org.robolectric.shadows.ShadowLooper.idleMainLooper(1, java.util.concurrent.TimeUnit.SECONDS); layout(root, 1920, 1080); }
+            Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+            root.draw(new Canvas(b));
+            save(b, "showcase-" + run[0]);
+            ctl.pause().stop().destroy();
+        }
+    }
+
     /** Every opening and back animation half way, over Camp Nou with a tile picked at the bottom: one sheet. */
     @Test public void launches() throws IOException {
         Context ctx = RuntimeEnvironment.getApplication();

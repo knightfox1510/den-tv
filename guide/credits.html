@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>den-tv Credits</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="den-tv is built on cleanyourtv. The projects, data sources and fonts it uses.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="index.html">den<span>·</span>tv</a>
+  <nav aria-label="Pages"><ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="setup.html">Setup</a></li>
+    <li><a href="looks.html">Looks</a></li>
+    <li><a href="fanhub.html">Fan Hub</a></li>
+    <li><a href="phone.html">Phone app</a></li>
+    <li><a href="keys.html">Keys</a></li>
+    <li><a href="help.html">Help</a></li>
+    <li><a href="credits.html" aria-current="page">Credits</a></li>
+  </ul></nav>
+</div></header>
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">Credits</div>
+    <h1>Built on cleanyourtv</h1>
+    <p class="lede">den-tv stands on other people's work. This page says whose, and what each part does.</p>
+  </header>
+
+  <section class="part" aria-labelledby="cyt">
+    <div class="feat" style="gap:14px;padding:24px">
+      <span class="eyebrow">The foundation</span>
+      <h2 id="cyt">cleanyourtv, by Gathin</h2>
+      <p style="color:var(--fg)"><a href="https://github.com/Gathin23/cleanyourtv">cleanyourtv</a> cleans up an Android TV safely and replaces its ad-filled home screen with a clean, fast one. den-tv started as a fork of it, and kept these parts as they are:</p>
+      <ul class="plain" style="color:var(--fg)">
+        <li><b>The launcher</b> underneath den-tv's looks: the dock and grid, D-pad navigation, the Inputs and Wi-Fi pills, Launcher settings and the remote-button helpers. den-tv's own code sits in separate files with small hooks, so cleanyourtv's later fixes can come in.</li>
+        <li><b>The safety rules in setup</b>: which core packages are never touched, the checks for the setup wizard, inputs and Settings, and switching the home screen over without leaving the TV without one.</li>
+        <li><b>The speed-up lists</b> for over 350 TV models, each tested on that model by its owner. They're cleanyourtv's work and its contributors'.</li>
+      </ul>
+      <p style="color:var(--fg)">If you only want a clean, fast TV without den-tv's looks, use cleanyourtv. If your TV isn't on its lists yet, its guide shows how to test and add it, and den-tv picks it up in a later release.</p>
+      <p class="dim small">MIT licence, Copyright (c) 2026 Gathin. Code from cleanyourtv keeps its licence notice; see NOTICE.md in den-tv's repository.</p>
+      <div class="ctas"><a class="cta" href="https://github.com/Gathin23/cleanyourtv">cleanyourtv on GitHub</a></div>
+    </div>
+  </section>
+
+  <section class="part" id="sources" aria-labelledby="src">
+    <h2 id="src">Data sources</h2>
+    <p class="col dim">The Fan Hub asks these services directly from your TV. Thank you to everyone who runs them.</p>
+    <div class="tablewrap"><table class="t">
+      <thead><tr><th scope="col">Service</th><th scope="col">Used for</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://www.thesportsdb.com/">TheSportsDB</a></td><td>Fixtures, results and form for the teams you follow</td></tr>
+        <tr><td><a href="https://anilist.co/">AniList</a></td><td>Anime episode dates</td></tr>
+        <tr><td><a href="https://www.football-data.org/">football-data.org</a></td><td>Live football scores and league tables (with your key)</td></tr>
+        <tr><td><a href="https://cricketdata.org/">CricketData.org</a></td><td>Live cricket scores (with your key)</td></tr>
+        <tr><td><a href="https://open-meteo.com/">Open-Meteo</a></td><td>Weather, trail forecasts, air quality and place search</td></tr>
+        <tr><td>ESPN's public scoreboards</td><td>Team fixtures widgets, live cricket</td></tr>
+        <tr><td>Yahoo Finance's public data</td><td>Market and crypto prices</td></tr>
+        <tr><td><a href="https://jolpi.ca/">Jolpica</a></td><td>Formula 1 calendar</td></tr>
+        <tr><td>Google Calendar, Google News</td><td>Public holidays, headlines</td></tr>
+        <tr><td><a href="https://www.wikipedia.org/">Wikipedia</a></td><td>"On this day"</td></tr>
+        <tr><td><a href="https://ai.google.dev/">Google Gemini</a></td><td>Describe a look (with your key)</td></tr>
+        <tr><td>GitHub Releases</td><td>Updates</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="part" aria-labelledby="tools">
+    <h2 id="tools">Tools and type</h2>
+    <ul class="plain col">
+      <li><b>Downloader</b> by AFTVnews, for installing on the TV with the code 3476905.</li>
+      <li><b>Bugjaeger</b>, for installing from an Android phone.</li>
+      <li>Typefaces under the SIL Open Font License: <b>Outfit</b> (den-tv and the Fan Hub), <b>Bebas Neue</b> (Dharma Type), <b>VT323</b> (Peter Hull) and <b>Kaushan Script</b> (Impallari Type) for the clock styles. This site also uses <b>Atkinson Hyperlegible</b> and <b>JetBrains Mono</b>.</li>
+    </ul>
+  </section>
+
+  <section class="part" aria-labelledby="fans">
+    <h2 id="fans">Fan tributes</h2>
+    <p class="col">Every scene, poster and watcher in den-tv is drawn in code. Players' and characters' names label fan tributes; den-tv isn't affiliated with or endorsed by any club, league, broadcaster, studio or publisher, and ships no photos or official artwork. Photos you add stay on your own TV.</p>
+  </section>
+
+  <section class="part" aria-labelledby="lic">
+    <h2 id="lic">Licence</h2>
+    <p class="col">den-tv is MIT licensed. The code, releases and the full written install guide are at <a href="https://github.com/knightfox1510/den-tv">github.com/knightfox1510/den-tv</a>.</p>
+  </section>
+</div>
+<div class="wrap">
+  <footer>
+    <p>den-tv is free and open source, built on <a href="https://github.com/Gathin23/cleanyourtv">cleanyourtv</a> by Gathin (MIT). <a href="credits.html">Credits</a> · <a href="https://github.com/knightfox1510/den-tv">Code and releases on GitHub</a></p>
+    <p>Not made by or connected to Google, any TV maker, club, league, broadcaster or studio. Players' and characters' names label fan tributes drawn in code; den-tv ships no photos or official artwork.</p>
+  </footer>
+</div>
+</body>
+</html>

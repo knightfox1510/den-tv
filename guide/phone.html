@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>den-tv Phone App</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Everything the den-tv phone page does: looks, tweaks, widgets, people, the remote and the TV's health.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="index.html">den<span>·</span>tv</a>
+  <nav aria-label="Pages"><ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="setup.html">Setup</a></li>
+    <li><a href="looks.html">Looks</a></li>
+    <li><a href="fanhub.html">Fan Hub</a></li>
+    <li><a href="phone.html" aria-current="page">Phone app</a></li>
+    <li><a href="keys.html">Keys</a></li>
+    <li><a href="help.html">Help</a></li>
+    <li><a href="credits.html">Credits</a></li>
+  </ul></nav>
+</div></header>
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">Phone app</div>
+    <h1>Your TV, from your phone</h1>
+    <p class="lede">The TV serves a web page to any phone on your Wi-Fi. There's nothing to install from an app store: pair once, add it to your home screen, and it opens like an app whenever the TV is on.</p>
+  </header>
+
+  <section class="part" aria-labelledby="pair">
+    <h2 id="pair">Pair a phone</h2>
+    <div class="cols">
+      <ol class="do">
+        <li>Open the <b>Fan Hub</b> on the TV.</li>
+        <li>Scan its QR code with the phone's camera, or type the address shown under it into the browser.</li>
+        <li>Enter the 6-digit code from the TV (it changes every 5 minutes) and give the phone a name.</li>
+        <li>Add the page to your home screen: <b>Share › Add to Home Screen</b> on iPhone, <b>⋮ › Add to Home screen</b> on Android.</li>
+      </ol>
+      <figure><a class="tv" href="img/hub-pair.jpg" target="_blank" rel="noopener"><img src="img/hub-pair.jpg" width="1280" height="720" alt="The Fan Hub's Pair your phone card with a QR code, the address and the code." loading="lazy"></a><figcaption>The pairing card, bottom right of the Fan Hub.</figcaption></figure>
+    </div>
+    <p class="dim small col">Only phones on the same Wi-Fi can reach the page, and only after pairing. The TV's <b>Menu</b> button on the Fan Hub forgets every paired phone; the phone's <b>TV tab › Paired phones</b> removes one.</p>
+  </section>
+
+  <section class="part" aria-labelledby="tabs">
+    <h2 id="tabs">Six tabs</h2>
+    <div class="phones">
+      <figure><div class="phone"><img src="img/phone-looks.jpg" alt="The Looks tab: a search box, Surprise me, category chips and the looks." loading="lazy"></div><figcaption>Looks</figcaption></figure>
+      <figure><div class="phone"><img src="img/phone-tweak.jpg" alt="The Tweak tab: This look, Home, Widgets on Home, Your widgets, Apps on Home and Fan Hub." loading="lazy"></div><figcaption>Tweak</figcaption></figure>
+      <figure><div class="phone"><img src="img/phone-remote.jpg" alt="The Remote tab: now playing, Back, Home, Sleep, volume, play controls, the sleep timer and typing." loading="lazy"></div><figcaption>Remote</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="part" aria-labelledby="looksh">
+    <h3 id="looksh" style="font-size:1.4rem">Looks</h3>
+    <ul class="plain col">
+      <li>Every look, by category or search, with a star for favourites. <b>Surprise me</b> puts on a random one.</li>
+      <li><b>Describe a look</b> in words; with a <a href="keys.html#gemini">Gemini key</a>, Gemini designs it and paints its wallpaper.</li>
+      <li><b>Make your own look</b> from any look's wallpaper and your own parts, or <b>Save a photo as a look</b>.</li>
+      <li><b>Your photos</b> as the wallpaper, and <b>Your characters</b>: a picture that becomes a figure watching the row.</li>
+      <li><b>Add a shared look</b> from a friend's code or file, and share yours.</li>
+    </ul>
+  </section>
+
+  <section class="part" aria-labelledby="tweakh">
+    <h3 id="tweakh" style="font-size:1.4rem">Tweak</h3>
+    <ul class="plain col">
+      <li><b>This look:</b> its watcher, clock, app icons, layout, focus effect, wake animation, extras and colour. <b>Restore to default look</b> or <b>Save as my own look</b>.</li>
+      <li><b>Home:</b> your name in the greeting, the match panel, motion (Full, Calm or Off), animations for opening apps, text contrast, the idle clock and screen care.</li>
+      <li><b>Widgets on Home</b> and <b><a href="fanhub.html#widgets">Your widgets</a></b>.</li>
+      <li><b>Apps on Home:</b> hide, show and rename apps, your own picture for any app, a Shows folder, badges, and sorting the row by what you watch.</li>
+      <li><b>Fan Hub:</b> the teams and shows you follow.</li>
+    </ul>
+  </section>
+
+  <section class="part" aria-labelledby="autoh">
+    <h3 id="autoh" style="font-size:1.4rem">Auto</h3>
+    <p class="col">Looks that change by themselves and come back to yours after: your team's match day, India and IPL games, a new episode, late night, Diwali and New Year's Eve, weekend mornings, and <b>Surprise me</b> each morning.</p>
+  </section>
+
+  <section class="part" id="people" aria-labelledby="peopleh">
+    <h3 id="peopleh" style="font-size:1.4rem">People</h3>
+    <div class="cols">
+      <ul class="plain">
+        <li>Who's watching: each person has a name for the greeting, a colour and their own look. Switch from the phone or the TV's Looks screen.</li>
+        <li><b>Guest:</b> only looks for everyone, no scores and no name, until the TV sleeps.</li>
+        <li><b>Private profile:</b> PIN-locked, with photos that show only while that person is watching. Five wrong tries lock it for 10 minutes.</li>
+        <li>Hide an app for one person only, and see screen time per person.</li>
+      </ul>
+      <figure style="max-width:280px"><div class="phone"><img src="img/phone-people.jpg" alt="The People tab with Riya watching, Dad, and a guest switch." loading="lazy"></div><figcaption>People</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="part" aria-labelledby="remoteh">
+    <h3 id="remoteh" style="font-size:1.4rem">Remote</h3>
+    <ul class="plain col">
+      <li>What's on the TV now, for how long, and who's watching.</li>
+      <li>Volume, mute, play and pause, Back, Home and sleep, plus a sleep timer.</li>
+      <li><b>Type on the TV:</b> select a search box on the TV, type on the phone, send.</li>
+      <li>Switch HDMI inputs, open any app, and <b>Watch now</b> for a live match or a new episode.</li>
+    </ul>
+  </section>
+
+  <section class="part" aria-labelledby="tvh">
+    <h3 id="tvh" style="font-size:1.4rem">TV</h3>
+    <div class="cols">
+      <ul class="plain">
+        <li><b>Wi-Fi and network:</b> signal strength and a speed test.</li>
+        <li><b><a href="keys.html">Keys and live data</a>:</b> add the free keys, see whether each works, and try a moment on Home.</li>
+        <li><b>Memory and storage:</b> close background apps (except ones you keep running) and see what's using space.</li>
+        <li><b>Screen time</b> per app and per person, a <b>kids timer</b>, and <b>quiet hours</b>.</li>
+        <li><b>Updates:</b> versions, Check now, Install now, and getting releases first.</li>
+        <li><b>Home screen and Speed up:</b> which apps were switched off, and buttons that open the setup on the TV.</li>
+        <li><b>Paired phones</b>.</li>
+      </ul>
+      <figure style="max-width:280px"><div class="phone"><img src="img/phone-tv.jpg" alt="The TV tab: Wi-Fi and network, Keys and live data, Memory, Storage, Screen time, Kids timer, Quiet hours, Paired phones." loading="lazy"></div><figcaption>TV</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="part" aria-labelledby="helper">
+    <h2 id="helper">The den-tv helper</h2>
+    <p class="col">Back, Home, sleep, typing, opening apps, screen time and the kids timer need the helper, an accessibility service that only notes which app is in front. You turn it on during setup, or later on the TV: <span class="path"><span>Settings</span><span>Accessibility</span><span>den-tv helper</span><span>On</span></span>. Volume and play/pause work without it.</p>
+    <p class="col dim">What no app can do on Android TV: wake the TV from the phone, or press the arrow keys inside other apps. The Google TV app on your phone does both.</p>
+  </section>
+</div>
+<div class="wrap">
+  <footer>
+    <p>den-tv is free and open source, built on <a href="https://github.com/Gathin23/cleanyourtv">cleanyourtv</a> by Gathin (MIT). <a href="credits.html">Credits</a> · <a href="https://github.com/knightfox1510/den-tv">Code and releases on GitHub</a></p>
+    <p>Not made by or connected to Google, any TV maker, club, league, broadcaster or studio. Players' and characters' names label fan tributes drawn in code; den-tv ships no photos or official artwork.</p>
+  </footer>
+</div>
+</body>
+</html>

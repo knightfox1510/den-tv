@@ -1,0 +1,84 @@
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">Free keys</div>
+    <h1>Three free keys, each optional</h1>
+    <p class="lede">den-tv works without any key. A key is a password a service gives you so den-tv can ask it for more: Gemini designs looks, and the two score services send live scores during play. Each takes a few minutes and costs nothing.</p>
+  </header>
+
+  <section class="part" aria-labelledby="which">
+    <h2 id="which">What each one adds</h2>
+    <div class="tablewrap"><table class="t">
+      <thead><tr><th scope="col">Key</th><th scope="col">Adds</th><th scope="col">Free allowance</th></tr></thead>
+      <tbody>
+        <tr><td><a href="#gemini">Gemini</a><br><span class="dim small">Google AI Studio</span></td><td>Describe a look: Gemini designs a new look from your words and can paint its wallpaper.</td><td>Generous for a TV; Google sets the limits</td></tr>
+        <tr><td><a href="#football">football-data.org</a></td><td>Live football scores during play, GOAL! moments, league tables in the Fan Hub.</td><td>Top leagues and cups, 10 calls a minute</td></tr>
+        <tr><td><a href="#cricket">CricketData.org</a></td><td>Live cricket scores during play, fifty and hundred moments.</td><td>100 calls a day</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="part" aria-labelledby="safe">
+    <h2 id="safe">Keep keys private</h2>
+    <ul class="plain col">
+      <li>Paste a key only into den-tv's phone page. Never post it in a chat, an issue, a screenshot or a GitHub file.</li>
+      <li>Keys are stored on the TV only. The phone page shows just the last four characters, like <span class="keyfield">••••x9Q2</span>, so you can tell which key it is.</li>
+      <li>If a key leaks, delete it on the service's website and make a new one, then use <b>Replace</b> on the phone.</li>
+    </ul>
+  </section>
+
+  <section class="part" id="gemini" aria-labelledby="gem">
+    <h2 id="gem">Gemini</h2>
+    <div class="cols">
+      <div style="display:grid;gap:14px">
+        <ol class="do">
+          <li>On a phone or computer, open <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a> and sign in with a Google account.</li>
+          <li>Accept the terms if it asks.</li>
+          <li>Choose <b>Create API key</b>. If it asks for a project, let it create one.</li>
+          <li>Copy the key. It's a long line starting with <span class="keyfield">AIza</span>.</li>
+          <li>On den-tv's phone page: <b>TV tab › Keys and live data › Gemini</b>, paste it and choose <b>Add the key</b>. The TV tries it straight away and shows <span class="pill ok">Working</span>.</li>
+        </ol>
+        <p class="tip">Under the key there's a <b>Gemini model</b> choice. Flash (newest) is the default, Flash-Lite is the fastest, and Pro is the slowest and smartest. If your key can't use a model, den-tv falls back to one it can.</p>
+        <p class="note">Painting wallpapers uses Gemini's image model, which some free keys can't use. The Gemini row then says so, and den-tv draws a poster in the look's colours instead. What you type in Describe a look is sent to Google; on the free tier Google may use it to improve its products, so keep it to looks.</p>
+      </div>
+      <figure style="max-width:300px"><div class="phone"><img src="img/phone-keys.jpg" alt="The phone's Keys and live data card: Gemini working with its last four characters, football-data.org with a problem, CricketData.org not added." loading="lazy"></div><figcaption>Keys and live data, on the phone's TV tab.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="part" id="football" aria-labelledby="fb">
+    <h2 id="fb">football-data.org</h2>
+    <ol class="do col">
+      <li>Open <a href="https://www.football-data.org/client/register">football-data.org/client/register</a>.</li>
+      <li>Enter your name and email, accept the terms and register.</li>
+      <li>Open the email they send. Your key is in it, labelled as your API token: a line of 32 letters and digits.</li>
+      <li>On den-tv's phone page: <b>TV tab › Keys and live data › football-data.org</b>, paste it and choose <b>Add the key</b>.</li>
+    </ol>
+    <p class="dim small col">The free plan covers the top European leagues, the Champions League and the World Cup. Matches in other leagues still show, with their scores after the final whistle.</p>
+  </section>
+
+  <section class="part" id="cricket" aria-labelledby="ck">
+    <h2 id="ck">CricketData.org</h2>
+    <ol class="do col">
+      <li>Open <a href="https://cricketdata.org/">cricketdata.org</a> and choose <b>Sign up</b> (free).</li>
+      <li>Confirm your email and sign in.</li>
+      <li>Your <b>API key</b> is on your dashboard. Copy it.</li>
+      <li>On den-tv's phone page: <b>TV tab › Keys and live data › CricketData.org</b>, paste it and choose <b>Add the key</b>.</li>
+    </ol>
+    <p class="dim small col">100 calls a day is enough for a match day. The CricketData row shows how many are used today; when they run out, scores pick up again the next day.</p>
+  </section>
+
+  <section class="part" aria-labelledby="status">
+    <h2 id="status">Is my key working?</h2>
+    <p class="col">Each key has a row on the phone's <b>TV tab › Keys and live data</b>. The TV checks a key when you add it, every time it uses it, and once a day.</p>
+    <div class="tablewrap"><table class="t">
+      <thead><tr><th scope="col">Shows</th><th scope="col">Means</th><th scope="col">What to do</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill ok">Working</span></td><td>The service answered, with when it was last checked.</td><td>Nothing.</td></tr>
+        <tr><td><span class="pill warn">Problem</span></td><td>"Refused this key": wrong or deleted key.</td><td>Copy it again from the service, or make a new one, then <b>Replace</b>.</td></tr>
+        <tr><td><span class="pill warn">Problem</span></td><td>"Today's free calls are used up".</td><td>Nothing. It works again tomorrow.</td></tr>
+        <tr><td><span class="pill warn">Problem</span></td><td>"The TV couldn't reach…"</td><td>Check the TV's internet, then <b>Test</b>.</td></tr>
+        <tr><td><span class="pill" style="color:var(--dim)">Not added</span></td><td>No key yet.</td><td>Optional: follow the steps above.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="dim small col"><b>Test</b> checks a key now, <b>Replace</b> swaps it, and <b>Remove</b> deletes it from the TV.</p>
+  </section>
+</div>

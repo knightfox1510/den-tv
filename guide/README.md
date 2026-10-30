@@ -1,7 +1,11 @@
-# den-tv setup guide (web page)
+# den-tv website
 
-`index.html` is a step-by-step setup guide with the apps' real screens (`img/`). It's a plain static page: no build
-step, nothing to install.
+A plain static site: `index.html` (what den-tv is), `setup.html` (the step-by-step setup guide), `looks.html`,
+`fanhub.html`, `phone.html`, `keys.html` (getting the free keys), `help.html` and `credits.html`, with the apps' real
+screens in `img/`. Nothing to build on the server.
+
+To change a page, edit its body in `src/pages/`, then run `python3 guide/src/make.py`: it wraps each one in the
+shared head, navigation and footer. Styles are in `site.css`.
 
 ## Put it online with Vercel (free)
 
@@ -25,5 +29,7 @@ cd launcher
 ./gradlew :fanhub:testReleaseUnitTest -Pden.screens=1 --tests '*SetupScreensTest*'
 ```
 
-then copy the PNGs from `launcher/fanhub/build/setup-screens/` into `img/` as JPEGs (1280 wide). Your own photos of
+then copy the PNGs from `launcher/fanhub/build/setup-screens/` into `img/` as JPEGs (1280 wide). Home in each look
+comes from `./gradlew :app:testReleaseUnitTest -Pden.screens=1 --tests '*DenScreensTest.showcase'`
+(`launcher/app/build/den-screens/showcase-*.png`). Your own photos of
 your TV work just as well: save them in `img/` under the same names.

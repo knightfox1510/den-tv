@@ -1,0 +1,335 @@
+
+
+<div class="bar" role="region" aria-label="Your progress">
+  <div class="wrap">
+    <div class="count" style="color:var(--fg)">Your progress</div>
+    <div class="track" aria-hidden="true"><i id="trackFill"></i></div>
+    <div class="count" id="count">0 of 9 done</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="col" style="display:grid;gap:16px">
+      <div class="eyebrow">Setup guide</div>
+      <h1>Put den-tv on your TV</h1>
+      <p class="lede">A home screen for football, cricket and anime fans, with live scores and next episodes, looks you can design by describing them, and a phone remote. This guide does it with just the TV remote, in nine steps.</p>
+      <div class="facts">
+        <div><b>About 10 minutes</b></div>
+        <div><b>Free</b></div>
+        <div><b>Undo any time</b></div>
+        <div class="dim">Keep your phone next to you to follow along</div>
+      </div>
+    </div>
+    <figure>
+      <a class="tv" href="img/hub-next.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/hub-next.jpg" width="1280" height="720" alt="The Fan Hub on a TV: a countdown to India v Australia, later matches with the La Liga table, anime episodes this week, the weekend's hike weather and the code to pair a phone."></a>
+      <figcaption>The Fan Hub, one of the two apps you'll install. These pictures are the apps' real screens.</figcaption>
+    </figure>
+  </header>
+
+  <section class="block" aria-labelledby="fit">
+    <h2 id="fit">Will it work on my TV?</h2>
+    <div class="check">
+      <div class="yes">
+        <span class="tag">Works</span>
+        <p>Any <b>Android TV</b> or <b>Google TV</b>: Sony, TCL, Hisense, Xiaomi, Vu, OnePlus, Philips, Toshiba, Chromecast with Google TV, Nvidia Shield and most others.</p>
+        <p class="dim small">If the TV's Settings has a page called <b>About</b> with <b>Android TV OS</b> on it, you're good.</p>
+      </div>
+      <div class="no">
+        <span class="tag">Doesn't work</span>
+        <p><b>Samsung</b> (Tizen), <b>LG</b> (webOS), <b>Amazon Fire TV</b> and Apple TV run other systems.</p>
+        <p class="dim small">The TV needs Wi-Fi or a network cable, and about 150 MB free.</p>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <!-- 1 -->
+    <article class="step" id="s1" data-step>
+      <div class="step-head"><div class="num">1</div><div>
+        <h2>Turn on Developer options</h2>
+        <p class="dim">A hidden menu in Settings. It's needed so the Fan Hub can switch the home screen for you.</p>
+      </div></div>
+      <div class="cols">
+        <div style="display:grid;gap:14px">
+          <ol class="do">
+            <li>Press <kbd>⌂</kbd> Home, then open <b>Settings</b> (the gear, top right).</li>
+            <li>Go to <span class="path"><span>System</span><span>About</span></span>.<br><span class="dim small">Older TVs: <span class="path"><span>Device Preferences</span><span>About</span></span></span></li>
+            <li>Scroll down to <b>Android TV OS build</b> (or just <b>Build</b>) and press <kbd>OK</kbd> on it <b>7 times</b>.</li>
+            <li>The TV says <b>"You are now a developer!"</b> If it asks for your PIN, enter it.</li>
+          </ol>
+          <div class="taps" aria-label="Press OK seven times"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i></div>
+        </div>
+        <figure>
+          <div class="menu" aria-hidden="true"><div class="screen">
+            <div class="left"><small>System</small><b>About</b></div>
+            <ul><li>Device name <em>Living room TV</em></li><li>Model <em>4K TV</em></li><li>Android TV OS version <em>12</em></li><li class="on">Android TV OS build <em>press OK ×7</em></li><li>Legal information</li></ul>
+          </div></div>
+          <figcaption class="drawn">A drawing of what to look for. Menus look a little different on each brand.</figcaption>
+        </figure>
+      </div>
+      <label class="done-box"><input type="checkbox" id="done-s1"> Done</label>
+    </article>
+
+    <!-- 2 -->
+    <article class="step" id="s2" data-step>
+      <div class="step-head"><div class="num">2</div><div>
+        <h2>Turn on USB debugging</h2>
+        <p class="dim">The Fan Hub uses it for about a minute, then turns it off again by itself.</p>
+      </div></div>
+      <div class="cols">
+        <div style="display:grid;gap:14px">
+          <ol class="do">
+            <li>Press <kbd>Back</kbd> once to <b>System</b>. A new item is there: <b>Developer options</b>.<br><span class="dim small">Older TVs: <span class="path"><span>Device Preferences</span><span>Developer options</span></span></span></li>
+            <li>Open it and switch on <b>USB debugging</b>. Choose <b>OK</b> if it asks.</li>
+            <li>If you also see <b>Network debugging</b> or <b>ADB over network</b>, switch that on too.</li>
+          </ol>
+          <p class="note">USB debugging lets a trusted device control the TV. The Fan Hub switches it off when it's finished, and you'll see a tick for it.</p>
+        </div>
+        <figure>
+          <div class="menu" aria-hidden="true"><div class="screen">
+            <div class="left"><small>System</small><b>Developer options</b></div>
+            <ul><li>Stay awake</li><li>Bug report shortcut</li><li class="on">USB debugging <span class="switch"></span></li><li>Revoke USB debugging authorisations</li><li>Select debug app</li></ul>
+          </div></div>
+          <figcaption class="drawn">A drawing of what to look for.</figcaption>
+        </figure>
+      </div>
+      <label class="done-box"><input type="checkbox" id="done-s2"> Done</label>
+    </article>
+
+    <!-- 3 -->
+    <article class="step" id="s3" data-step>
+      <div class="step-head"><div class="num">3</div><div>
+        <h2>Install Downloader</h2>
+        <p class="dim">A free app for downloading files on a TV. You only need it today.</p>
+      </div></div>
+      <div class="col" style="display:grid;gap:14px">
+        <ol class="do">
+          <li>Press <kbd>⌂</kbd> Home and open the <b>Play Store</b> (Google TV: the <b>Apps</b> tab, then search).</li>
+          <li>Search for <b>Downloader</b>. Pick the one by <b>AFTVnews</b> (an orange icon with a down arrow).</li>
+          <li>Choose <b>Install</b>, then <b>Open</b>. Allow it to use storage if it asks.</li>
+        </ol>
+      </div>
+      <label class="done-box"><input type="checkbox" id="done-s3"> Done</label>
+    </article>
+
+    <!-- 4 -->
+    <article class="step" id="s4" data-step>
+      <div class="step-head"><div class="num">4</div><div>
+        <h2>Type the code 3476905</h2>
+        <p class="dim">It opens den-tv's download page on GitHub.</p>
+      </div></div>
+      <div class="cols">
+        <div style="display:grid;gap:14px">
+          <ol class="do">
+            <li>In Downloader, select the address box on the <b>Home</b> tab.</li>
+            <li>Type <b>3476905</b> with the number keys on screen and choose <b>Go</b>.</li>
+            <li>A page called <b>Releases</b> opens. The newest release is at the top.</li>
+          </ol>
+          <p class="tip">No luck with the code? Type <b>github.com/knightfox1510/den-tv/releases</b> instead.</p>
+        </div>
+        <div class="code-card">
+          <span class="eyebrow">Downloader code</span>
+          <div class="code" aria-label="3 4 7 6 9 0 5"><span>3</span><span>4</span><span>7</span><span>6</span><span>9</span><span>0</span><span>5</span></div>
+          <button class="copy" id="copyCode" type="button">Copy the code</button>
+          <p class="dim small">Same as aftv.news/3476905 in any browser.</p>
+        </div>
+      </div>
+      <label class="done-box"><input type="checkbox" id="done-s4"> Done</label>
+    </article>
+
+    <!-- 5 -->
+    <article class="step" id="s5" data-step>
+      <div class="step-head"><div class="num">5</div><div>
+        <h2>Install den-tv</h2>
+        <p class="dim">The home screen itself. Install it first, and don't open it yet.</p>
+      </div></div>
+      <div class="cols">
+        <div style="display:grid;gap:14px">
+          <ol class="do">
+            <li>On the Releases page, under the newest release, choose <b>den-tv-launcher.apk</b>. It downloads.</li>
+            <li>Choose <b>Install</b>.</li>
+            <li>The first time, the TV says it isn't allowed to install apps from Downloader. Choose <b>Settings</b>, switch <b>Downloader</b> on, press <kbd>Back</kbd>, and choose <b>Install</b> again.</li>
+            <li>When it says <b>App installed</b>, choose <b>Done</b>, not Open.</li>
+          </ol>
+          <p class="note">If Play Protect asks about an unknown app, choose <b>Install anyway</b>. den-tv isn't on the Play Store, so Google doesn't know it yet. Its code is public on GitHub.</p>
+        </div>
+        <figure>
+          <div class="menu" aria-hidden="true"><div class="screen" style="grid-template-columns:1fr">
+            <div class="left" style="padding:8% 9%;gap:10px"><small>Downloader</small><b>Do you want to install this app?</b><small>den-tv · It does not require any special access.</small>
+              <div style="display:flex;gap:8px;margin-top:6px"><span style="padding:.5em 1em;border-radius:8px;background:#2a3140;font-size:clamp(.62rem,1.6vw,.86rem)">Cancel</span><span style="padding:.5em 1em;border-radius:8px;background:#e7ebf2;color:#11151c;font-weight:700;font-size:clamp(.62rem,1.6vw,.86rem)">Install</span></div></div>
+          </div></div>
+          <figcaption class="drawn">A drawing of Android's install question.</figcaption>
+        </figure>
+      </div>
+      <label class="done-box"><input type="checkbox" id="done-s5"> Done</label>
+    </article>
+
+    <!-- 6 -->
+    <article class="step" id="s6" data-step>
+      <div class="step-head"><div class="num">6</div><div>
+        <h2>Install the Fan Hub, and open it</h2>
+        <p class="dim">Scores, episodes, widgets, updates and the phone app. It sets everything else up.</p>
+      </div></div>
+      <div class="col" style="display:grid;gap:14px">
+        <ol class="do">
+          <li>Press <kbd>Back</kbd> to the Releases page and choose <b>den-tv-fanhub.apk</b>.</li>
+          <li>Choose <b>Install</b>, and this time choose <b>Open</b>.</li>
+        </ol>
+      </div>
+      <label class="done-box"><input type="checkbox" id="done-s6"> Done</label>
+    </article>
+
+    <!-- 7 -->
+    <article class="step" id="s7" data-step>
+      <div class="step-head"><div class="num">7</div><div>
+        <h2>Make den-tv your home screen</h2>
+        <p class="dim">The Fan Hub asks a few questions, then does the rest by itself. Use <kbd>◀</kbd> <kbd>▶</kbd> and <kbd>OK</kbd>.</p>
+      </div></div>
+      <div class="strip">
+        <figure><a class="tv" href="img/setup-intro.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/setup-intro.jpg" width="1280" height="720" alt="Make den-tv your home screen, with Not now and Make it my home screen." loading="lazy"></a>
+          <figcaption><b>Make it my home screen.</b> Google's home screen is switched off, not removed.</figcaption></figure>
+        <figure><a class="tv" href="img/setup-helper.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/setup-helper.jpg" width="1280" height="720" alt="Turn on the den-tv helper? No, Yes." loading="lazy"></a>
+          <figcaption><b>The helper: Yes</b> if you want the phone remote to press Back and Home and type into search boxes.</figcaption></figure>
+        <figure><a class="tv" href="img/setup-screensaver.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/setup-screensaver.jpg" width="1280" height="720" alt="Use den-tv's screensaver? No, Yes." loading="lazy"></a>
+          <figcaption><b>The screensaver:</b> your look drifting behind a clock. Your choice.</figcaption></figure>
+        <figure><a class="tv" href="img/setup-speed.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/setup-speed.jpg" width="1280" height="720" alt="Speed this TV up? cleanyourtv has a list tested on this TV. No thanks, Choose, Yes switch them off." loading="lazy"></a>
+          <figcaption><b>Speed this TV up?</b> Only shown if your TV model has a tested list. See <a href="#speed">Speeding the TV up</a>.</figcaption></figure>
+        <figure><a class="tv" href="img/setup-debug.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/setup-debug.jpg" width="1280" height="720" alt="Turn on USB debugging, with the steps and an Open Settings button." loading="lazy"></a>
+          <figcaption><b>If USB debugging is still off</b>, it shows you how, with a button to Settings. Then <kbd>Back</kbd>.</figcaption></figure>
+        <figure><a class="tv" href="img/setup-allow.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/setup-allow.jpg" width="1280" height="720" alt="Choose Allow on the TV." loading="lazy"></a>
+          <figcaption><b>Allow USB debugging?</b> Tick <b>Always allow from this computer</b> and choose <b>Allow</b>. It's the Fan Hub asking.</figcaption></figure>
+        <figure><a class="tv" href="img/setup-working.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/setup-working.jpg" width="1280" height="720" alt="Setting up, with ticks appearing for each step." loading="lazy"></a>
+          <figcaption><b>Setting up.</b> A tick for each step. Takes under a minute.</figcaption></figure>
+        <figure><a class="tv" href="img/setup-done.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/setup-done.jpg" width="1280" height="720" alt="den-tv is your home screen, with ticks for each step, including USB debugging off, and a Go Home button." loading="lazy"></a>
+          <figcaption><b>Done.</b> Check the last line says <b>USB debugging off</b>, then choose <b>Go Home</b>.</figcaption></figure>
+      </div>
+      <p class="tip col">Press <kbd>⌂</kbd> Home on the remote: den-tv opens. If the TV asks which app to use for Home, choose <b>den-tv</b> and <b>Always</b>.</p>
+      <label class="done-box"><input type="checkbox" id="done-s7"> Done</label>
+    </article>
+
+    <!-- 8 -->
+    <article class="step" id="s8" data-step>
+      <div class="step-head"><div class="num">8</div><div>
+        <h2>Pair your phone</h2>
+        <p class="dim">The phone is where you pick looks, add your teams and widgets, and use it as a remote. Same Wi-Fi as the TV.</p>
+      </div></div>
+      <div class="cols">
+        <div style="display:grid;gap:14px">
+          <ol class="do">
+            <li>Open the <b>Fan Hub</b> from its tile on Home.</li>
+            <li>On your phone, scan the QR code on the TV with the camera, or type the address shown under it (like <b>192.168.1.23:8765</b>) into the browser.</li>
+            <li>Type the <b>code</b> from the TV. It changes now and then, so use the one on screen.</li>
+            <li>Add the page to your home screen: <b>Share › Add to Home Screen</b> on iPhone, or <b>⋮ › Add to Home screen</b> on Android.</li>
+          </ol>
+        </div>
+        <figure><a class="tv" href="img/hub-pair.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/hub-pair.jpg" width="1280" height="720" alt="The Fan Hub with the Pair your phone card: a QR code, the TV's address and a four-digit code." loading="lazy"></a>
+          <figcaption>Bottom right: the QR code, the address and the code.</figcaption></figure>
+      </div>
+      <label class="done-box"><input type="checkbox" id="done-s8"> Done</label>
+    </article>
+
+    <!-- 9 -->
+    <article class="step" id="s9" data-step>
+      <div class="step-head"><div class="num">9</div><div>
+        <h2>Make it yours</h2>
+        <p class="dim">All on the phone page. Everything changes on the TV within a minute. <a href="phone.html">Everything the phone page does</a>.</p>
+      </div></div>
+      <div class="col" style="display:grid;gap:12px">
+        <ul class="do" style="list-style:none;padding:0">
+          <li><b>Looks tab:</b> pick a look (a wallpaper, clock, watcher and moments), or <b>Describe a look</b> in your own words. With a free Gemini key it designs a new one, wallpaper included.</li>
+          <li><b>Fan Hub:</b> add your teams and shows. Scores, countdowns and big moments (GOAL!, SIX!) follow them.</li>
+          <li><b>Tweak › Your widgets:</b> markets, crypto, a team's fixtures, Formula 1, weather, air quality, holidays or your calendar, headlines, a countdown to a birthday.</li>
+          <li><b>TV tab › Keys and live data:</b> optional free keys for Gemini and live scores. Each shows whether it's working. <a href="keys.html">How to get them</a>.</li>
+        </ul>
+      </div>
+      <div class="walls" aria-label="Some of the looks">
+        <img src="img/wall-camp-nou.jpg" width="640" height="360" alt="Camp Nou Nights look" loading="lazy">
+        <img src="img/wall-wankhede.jpg" width="640" height="360" alt="Wankhede look" loading="lazy">
+        <img src="img/wall-straw-hat.jpg" width="640" height="360" alt="Straw Hat look" loading="lazy">
+        <img src="img/wall-hero-gojo.jpg" width="640" height="360" alt="Gojo hero look" loading="lazy">
+        <img src="img/wall-hero-yamal.jpg" width="640" height="360" alt="Yamal hero look" loading="lazy">
+        <img src="img/wall-diwali.jpg" width="640" height="360" alt="Diwali look" loading="lazy">
+        <img src="img/wall-trail-dawn.jpg" width="640" height="360" alt="Trail at dawn look" loading="lazy">
+        <img src="img/wall-neon.jpg" width="640" height="360" alt="Neon look" loading="lazy">
+      </div>
+      <div class="cols">
+        <figure><a class="tv" href="img/hub-live.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/hub-live.jpg" width="1280" height="720" alt="The Fan Hub during a match: Barça 2–1 Real Madrid at 67 minutes, with widgets for crypto, weather, clocks and headlines." loading="lazy"></a>
+          <figcaption>During a match: the live score, and your widgets bottom right.</figcaption></figure>
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <figure style="flex:1 1 200px"><div class="phone"><img src="img/phone-widgets.jpg" alt="The phone page adding a fixtures widget for Barcelona." loading="lazy"></div><figcaption>Adding a widget.</figcaption></figure>
+          <figure style="flex:1 1 200px"><div class="phone"><img src="img/phone-keys.jpg" alt="The phone page's keys list: Gemini working, football-data.org with a problem, CricketData.org not added." loading="lazy"></div><figcaption>Keys, and whether they work.</figcaption></figure>
+        </div>
+      </div>
+      <label class="done-box"><input type="checkbox" id="done-s9"> Done</label>
+    </article>
+  </main>
+
+  <section class="block" id="speed" aria-labelledby="speedh">
+    <h2 id="speedh">Speeding the TV up</h2>
+    <div class="cols">
+      <div style="display:grid;gap:12px">
+        <p>Switching Google's home screen off is already the biggest saving. On top of that, the Fan Hub can switch off apps that run in the background (ads, tracking, store demos, auto-installs), but only on TV models where the <a href="https://github.com/Gathin23/cleanyourtv">cleanyourtv</a> project has tested a list. The wrong app off can cost a TV its HDMI inputs, so it never guesses.</p>
+        <p>Apps are switched off, not removed. Apps with their own tile start unticked, and the phone's <b>TV tab › Speed up</b> shows each one with a button to switch it back on.</p>
+        <p class="dim small">Already ran cleanyourtv before? The Fan Hub says the TV is already sped up.</p>
+      </div>
+      <figure><a class="tv" href="img/setup-pick.jpg" target="_blank" rel="noopener" title="Open full size"><img src="img/setup-pick.jpg" width="1280" height="720" alt="Pick what to switch off: a list of apps with tick boxes." loading="lazy"></a>
+        <figcaption>Choose shows every app on the list, with what it does.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="block" style="padding-top:48px" aria-labelledby="after">
+    <h2 id="after">After setup</h2>
+    <div class="help">
+      <details><summary>Updates</summary><div>
+        <p>The Fan Hub checks for new versions of both apps and installs them when the TV is quiet, waiting three days after each release in case it has a problem. To get one sooner, open the phone page's <b>TV tab › Updates</b> and choose <b>Check now</b>.</p>
+      </div></details>
+      <details><summary>Undo: get the TV's own home screen back</summary><div>
+        <p>Open the Fan Hub, hold <kbd>OK</kbd> for a second, and choose <b>Give Home back to Google</b>. (Or on the phone: <b>TV tab › Home screen › Open it on the TV</b>.) It needs USB debugging on again for a minute, and switches it off after. Then, to remove the apps too: <span class="path"><span>Settings</span><span>Apps</span><span>den-tv</span><span>Uninstall</span></span>, and the same for the Fan Hub.</p>
+      </div></details>
+      <details><summary>What changes on the TV, and what doesn't</summary><div>
+        <p>Changes: den-tv becomes Home; Google's home screen is switched off; with your OK, the helper, the screensaver, and the tested speed-up apps. USB debugging is switched off at the end.</p>
+        <p>Doesn't change: your apps and logins, Live TV and HDMI inputs, Google Assistant, casting, and Settings. Nothing is uninstalled.</p>
+        <p>Privacy: your settings, keys and photos stay on the TV. The phone page only works on your home Wi-Fi, with the code from the TV.</p>
+      </div></details>
+    </div>
+  </section>
+
+  <section class="block" style="padding-top:48px" aria-labelledby="trouble">
+    <h2 id="trouble">If something goes wrong</h2>
+    <div class="help">
+      <details><summary>The Fan Hub says nothing answers on port 5555</summary><div>
+        <p>Your TV only listens for USB debugging over a cable. Use a computer or an Android phone instead (see <a href="#ways">Other ways</a>). Both take about the same time.</p>
+      </div></details>
+      <details><summary>"Allow USB debugging?" never appears</summary><div>
+        <p>Check USB debugging is still on (step 2), then choose <b>Try again</b>. On some TVs, switching USB debugging off and on again makes the question appear.</p>
+      </div></details>
+      <details><summary>It stopped because the setup wizard runs the Wi-Fi</summary><div>
+        <p>On a few TVs the first-time setup app also looks after Wi-Fi, so switching it off would cut the TV off. Connect with a network cable, or choose <b>Open Wi-Fi settings</b> and forget and rejoin your network, then try again.</p>
+      </div></details>
+      <details><summary>The Home button still opens the old home screen</summary><div>
+        <p>Run step 7 again: open the Fan Hub, hold <kbd>OK</kbd> for a second, and choose <b>Set it up again</b> (or <b>Make it my home screen</b>). If the TV asks which app to use for Home, choose den-tv and <b>Always</b>.</p>
+      </div></details>
+      <details><summary>den-tv keeps crashing, or Home is blank</summary><div>
+        <p>After two crashes in ten minutes, den-tv starts in safe mode: a plain home screen with your apps, and no looks or animations. Picking a look tries again, and an update with a fix ends it.</p>
+        <p>To get Google's home screen back without a computer, open Settings (the remote's gear button, or say "open settings" to the Assistant), then <span class="path"><span>Apps</span><span>See all apps</span><span>Show system apps</span><span>Google TV Home</span><span>Enable</span></span> (or <b>Android TV Home</b>), and press <kbd>⌂</kbd> Home.</p>
+      </div></details>
+      <details><summary>The phone page doesn't open</summary><div>
+        <p>The phone must be on the same Wi-Fi as the TV, not mobile data or a guest network. Open the Fan Hub to see the current address and code.</p>
+      </div></details>
+    </div>
+  </section>
+
+  <section class="block" id="ways" style="padding-top:48px" aria-labelledby="waysh">
+    <h2 id="waysh">Other ways to install</h2>
+    <p class="col dim">If the TV-only way doesn't work on your TV, or you'd rather use a computer. Each starts with steps 1 and 2 above, plus the TV's IP address (<span class="path"><span>Settings</span><span>Network &amp; Internet</span><span>your Wi-Fi</span></span>).</p>
+    <div class="ways">
+      <a href="https://github.com/knightfox1510/den-tv/blob/main/INSTALL.md#b-windows-pc-or-mac"><b>Windows PC or Mac</b><span class="dim small">Paste one line into PowerShell or Terminal. It downloads everything and asks before each choice.</span></a>
+      <a href="https://github.com/knightfox1510/den-tv/blob/main/INSTALL.md#c-android-phone"><b>Android phone</b><span class="dim small">The free Bugjaeger app and a few copy-pastes.</span></a>
+      <a href="https://github.com/knightfox1510/den-tv/blob/main/INSTALL.md#d-claude-code-desktop"><b>Claude Code</b><span class="dim small">Claude Code desktop on a computer does it for you and fixes problems as it goes.</span></a>
+    </div>
+    <pre aria-label="Mac or Linux installer">curl -fsSL https://raw.githubusercontent.com/knightfox1510/den-tv/main/install/install.sh | bash</pre>
+  </section>
+
+</div>
+

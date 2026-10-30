@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>den-tv Help</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Updates, undo, privacy and fixes for common problems.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="index.html">den<span>·</span>tv</a>
+  <nav aria-label="Pages"><ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="setup.html">Setup</a></li>
+    <li><a href="looks.html">Looks</a></li>
+    <li><a href="fanhub.html">Fan Hub</a></li>
+    <li><a href="phone.html">Phone app</a></li>
+    <li><a href="keys.html">Keys</a></li>
+    <li><a href="help.html" aria-current="page">Help</a></li>
+    <li><a href="credits.html">Credits</a></li>
+  </ul></nav>
+</div></header>
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">Help</div>
+    <h1>Updates, undo and fixes</h1>
+    <p class="lede">What happens after setup, how to go back to the TV's own home screen, and what to do when something isn't right.</p>
+  </header>
+
+  <section class="part" id="updates" aria-labelledby="up">
+    <h2 id="up">Updates</h2>
+    <ul class="plain col">
+      <li>Twice a day the Fan Hub looks for a newer release on GitHub. It downloads it, checks it's signed with den-tv's own key, and installs it while nobody is watching Home or the Fan Hub.</li>
+      <li>A release waits <b>3 days</b> before TVs install it, so a bad one can be pulled first. <b>Check now</b> on the phone (<b>TV tab › Updates</b>) gets it sooner; <b>Get releases first</b> makes a TV install each one straight away.</li>
+      <li>On Android 12 and later it's silent. The very first update may ask once: the Fan Hub's footer says <b>Update ready · OK installs it now</b>. On older TVs Android asks every time.</li>
+      <li>Your looks, settings and keys stay through every update.</li>
+    </ul>
+  </section>
+
+  <section class="part" id="safety" aria-labelledby="safeh">
+    <h2 id="safeh">Built to fail safely</h2>
+    <div class="grid3">
+      <div class="feat"><h3>Checks before it changes Home</h3><p>Setup starts den-tv first, and only switches Google's home screen off once den-tv is running. If Home doesn't stick, it puts Google's back.</p></div>
+      <div class="feat"><h3>Keeps your Wi-Fi</h3><p>On TVs where Google's setup app saved the Wi-Fi network, it stops rather than let Android forget the network.</p></div>
+      <div class="feat"><h3>Safe mode</h3><p>Two crashes within ten minutes and den-tv starts as a plain home screen, with your apps and no looks, until a fix arrives or you pick a look.</p></div>
+      <div class="feat"><h3>Nothing removed</h3><p>Google's home screen and any sped-up apps are switched off, not uninstalled, so each comes back with one switch.</p></div>
+      <div class="feat"><h3>Only tested speed-ups</h3><p>No list for your TV, nothing switched off. Core Android, the HDMI inputs' software, Settings and the keyboard are never touched.</p></div>
+      <div class="feat"><h3>USB debugging off</h3><p>Setup turns it off again at the end and throws away its key.</p></div>
+    </div>
+  </section>
+
+  <section class="part" id="undo" aria-labelledby="undoh">
+    <h2 id="undoh">Undo</h2>
+    <ol class="do col">
+      <li>Turn USB debugging on again (<a href="setup.html#s2">setup step 2</a>).</li>
+      <li>Open the Fan Hub and hold <kbd>OK</kbd> for a second. (Or on the phone: <b>TV tab › Home screen › Open it on the TV</b>.)</li>
+      <li>Choose <b>Give Home back to Google</b> and allow the prompt. It switches Google's home screen and any sped-up apps back on, then turns USB debugging off.</li>
+      <li>To remove the apps too: <span class="path"><span>Settings</span><span>Apps</span><span>den-tv</span><span>Uninstall</span></span>, and the same for the Fan Hub.</li>
+    </ol>
+    <p class="col dim small">From a computer, the installer undoes it too: see <a href="https://github.com/knightfox1510/den-tv/blob/main/INSTALL.md#undo">Undo in INSTALL.md</a>.</p>
+  </section>
+
+  <section class="part" id="rescue" aria-labelledby="resh">
+    <h2 id="resh">If Home stops working</h2>
+    <ol class="do col">
+      <li>Open Settings: the remote's gear button, the gear on den-tv's top bar, or say "open settings" to the Assistant.</li>
+      <li>Go to <span class="path"><span>Apps</span><span>See all apps</span><span>Show system apps</span></span>.</li>
+      <li>Open <b>Google TV Home</b> (or <b>Android TV Home</b>) and choose <b>Enable</b>. Press <kbd>⌂</kbd> Home.</li>
+    </ol>
+    <p class="col dim small">As a last resort, a factory reset (<span class="path"><span>Settings</span><span>System</span><span>Reset</span></span>) brings the TV back as it came.</p>
+  </section>
+
+  <section class="part" aria-labelledby="tr">
+    <h2 id="tr">Common problems</h2>
+    <div class="help">
+      <details><summary>The Fan Hub says nothing answers on port 5555</summary><div><p>This TV only listens for USB debugging over a cable. Install from a computer or an Android phone instead: <a href="https://github.com/knightfox1510/den-tv/blob/main/INSTALL.md#b-windows-pc-or-mac">ways B to D in INSTALL.md</a>.</p></div></details>
+      <details><summary>"Allow USB debugging?" never appears</summary><div><p>Check USB debugging is still on and choose <b>Try again</b>. Switching it off and on again, or restarting the TV, usually brings the question back.</p></div></details>
+      <details><summary>"The Wi-Fi network this TV is on was saved by Google's setup"</summary><div><p>Android would delete that network if Google's setup were switched off, so den-tv stopped before changing anything. In <span class="path"><span>Settings</span><span>Network &amp; Internet</span></span>, choose your network, <b>Forget</b> it, join it again with its password, and run the setup again. Or connect a network cable.</p></div></details>
+      <details><summary>The TV only has "Wireless debugging"</summary><div><p>Newer TVs pair with a code instead. Use a computer: <a href="https://github.com/knightfox1510/den-tv/blob/main/INSTALL.md#troubleshooting">the steps are in INSTALL.md</a>.</p></div></details>
+      <details><summary>Home goes back to Google's screen</summary><div><p>Run the setup again (hold <kbd>OK</kbd> on the Fan Hub, <b>Set it up again</b>). Some makers lock the home screen; setup then puts the TV's own home back, so nothing is broken. Please open an issue on GitHub with your TV model.</p></div></details>
+      <details><summary>"Signed with a different key"</summary><div><p>An older test build of den-tv is on the TV. Undo, uninstall it, then install again.</p></div></details>
+      <details><summary>The phone page doesn't open</summary><div><p>The phone must be on the same Wi-Fi as the TV, not mobile data or a guest network. Open the Fan Hub to see the current address and code.</p></div></details>
+      <details><summary>Back, Home or typing from the phone does nothing</summary><div><p>Those need the den-tv helper: on the TV, <span class="path"><span>Settings</span><span>Accessibility</span><span>den-tv helper</span><span>On</span></span>.</p></div></details>
+      <details><summary>Scores only appear after the match</summary><div><p>Live scores need the free <a href="keys.html">football-data.org and CricketData.org keys</a>. Check their rows on the phone show Working.</p></div></details>
+      <details><summary>The TV feels slow</summary><div><p>Try <b>Tweak › Home › Motion: Calm</b>, and <b>TV tab › Memory › Close background apps</b>. If your TV model has a tested list, hold <kbd>OK</kbd> on the Fan Hub and choose <b>Speed up this TV</b>.</p></div></details>
+    </div>
+  </section>
+
+  <section class="part" id="privacy" aria-labelledby="priv">
+    <h2 id="priv">Privacy</h2>
+    <ul class="plain col">
+      <li>Your settings, looks, photos, characters and keys stay on the TV. There's no account and no den-tv server.</li>
+      <li>The Fan Hub asks the public services on the <a href="credits.html#sources">credits page</a> for scores, episodes, weather, prices and headlines, and GitHub for updates. Gemini gets what you type in Describe a look, if you add a key.</li>
+      <li>The phone page only works on your home network, after pairing with the code on the TV.</li>
+      <li>The helper only notes which app is in front, for screen time and the kids timer. It reads nothing else on screen.</li>
+    </ul>
+  </section>
+
+  <section class="part" aria-labelledby="faq">
+    <h2 id="faq">Questions</h2>
+    <div class="help">
+      <details><summary>Does it work on Samsung, LG or Fire TV?</summary><div><p>No. It needs Android TV or Google TV: Sony, TCL, Hisense, Xiaomi, Vu, OnePlus, Philips, Chromecast with Google TV, Nvidia Shield and most others.</p></div></details>
+      <details><summary>Will I lose my apps or logins?</summary><div><p>No. Your apps, logins, Live TV, HDMI inputs, Google Assistant and casting stay as they were.</p></div></details>
+      <details><summary>Does it cost anything?</summary><div><p>No. den-tv is free and open source, and the optional keys are free too.</p></div></details>
+      <details><summary>Can I add my own player or character?</summary><div><p>Yes: describe a look with Gemini, save a photo as a look, or upload a character on the phone. They stay on your TV. The looks den-tv ships are drawn in code, with no photos or official artwork.</p></div></details>
+      <details><summary>How do I suggest a feature or report a bug?</summary><div><p>Open an issue on <a href="https://github.com/knightfox1510/den-tv/issues">GitHub</a> with your TV model and what happened.</p></div></details>
+    </div>
+  </section>
+</div>
+<div class="wrap">
+  <footer>
+    <p>den-tv is free and open source, built on <a href="https://github.com/Gathin23/cleanyourtv">cleanyourtv</a> by Gathin (MIT). <a href="credits.html">Credits</a> · <a href="https://github.com/knightfox1510/den-tv">Code and releases on GitHub</a></p>
+    <p>Not made by or connected to Google, any TV maker, club, league, broadcaster or studio. Players' and characters' names label fan tributes drawn in code; den-tv ships no photos or official artwork.</p>
+  </footer>
+</div>
+</body>
+</html>
