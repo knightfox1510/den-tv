@@ -62,6 +62,23 @@ public class SetupScreensTest {
             root.draw(new Canvas(b));
             try (FileOutputStream f = new FileOutputStream(new File(out, "home-" + step.toLowerCase() + ".png"))) { b.compress(Bitmap.CompressFormat.PNG, 100, f); }
         }
+        Speedup.TvList vu = new Speedup.TvList("vu-4k-lushan", "Vu 4K (HVCL, lushan, MediaTek), India", "Vu");
+        java.util.List<Speedup.Item> items = new java.util.ArrayList<>();
+        items.add(new Speedup.Item("com.vt.tv.evservice", "EvService", "", false, true));
+        items.add(new Speedup.Item("com.google.android.feedback", "Market Feedback Agent", "", false, true));
+        items.add(new Speedup.Item("android.autoinstalls.config.google.gtvpai", "Auto installs", "Play auto-install of partner apps", false, true));
+        items.add(new Speedup.Item("com.vt.storemode", "Store mode", "shop demo mode", false, true));
+        items.add(new Speedup.Item("com.mxtech.videoplayer.television", "MX Player", "MX Player", true, false));
+        items.add(new Speedup.Item("com.vt.alexa", "Alexa", "Alexa built-in (Google Assistant kept)", true, false));
+        for (String step : new String[]{"SPEED", "PICK", "NO_LIST", "CHOOSE_TV"}) {
+            a.showSpeedForTest(step, vu, items);
+            View root = a.getWindow().getDecorView();
+            root.measure(View.MeasureSpec.makeMeasureSpec(1920, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY));
+            root.layout(0, 0, 1920, 1080);
+            Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+            root.draw(new Canvas(b));
+            try (FileOutputStream f = new FileOutputStream(new File(out, "home-" + step.toLowerCase() + ".png"))) { b.compress(Bitmap.CompressFormat.PNG, 100, f); }
+        }
     }
 
     /** The Fan Hub dashboard with sample data, at Thursday 29 October 11:13 in Mumbai, over Camp Nou Nights. */

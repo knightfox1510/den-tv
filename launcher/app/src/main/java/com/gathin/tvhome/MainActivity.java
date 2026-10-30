@@ -424,10 +424,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     };
 
     private java.util.Map<Integer, String> homeAppKeys = java.util.Collections.emptyMap();
+    private static boolean safeSaid;   // den-tv: safe mode said once per start
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DenSafe.install(this);   // den-tv: two crashes in a row start Home in safe mode (DenSafe)
         setContentView(R.layout.activity_main);
         density = getResources().getDisplayMetrics().density;
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
@@ -447,7 +449,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         animations = cfg.animations;
         advancedEffects = cfg.animations && cfg.advancedEffects;
         reducedMotion = cfg.reducedMotion;
-        den = DenLayer.attach(this, cfg.animations && !cfg.reducedMotion);   // den-tv: the look's watcher and wake animation
+        // den-tv: the look's watcher and wake animation; none in safe mode
+        den = DenSafe.on(this) ? null : DenLayer.attach(this, cfg.animations && !cfg.reducedMotion);
+        if (den == null && !safeSaid) {
+            safeSaid = true;
+            android.widget.Toast.makeText(this, "den-tv started in safe mode after a problem. Pick a look to try its looks again.", android.widget.Toast.LENGTH_LONG).show();
+        }
         dockRow = cfg.dockRow;
         singleRow = cfg.singleRow;
         focusOvershoot = cfg.focusOvershoot;

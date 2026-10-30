@@ -30,6 +30,10 @@ final class PretendTv implements HomeSetup.Shell {
     final List<String> log = new ArrayList<>();
     String home = "com.google.android.apps.tv.launcherx";
     boolean startFails, homeLocked;
+    /** Google TV: the setup wizard answers Home. */
+    boolean wizardClaimsHome = true;
+    /** Who owns the saved Wi-Fi network, as dumpsys wifi names it; null for no saved network. */
+    String wifiOwner = "android.uid.system:1000";
 
     PretendTv() {
         packages.add("com.google.android.apps.tv.launcherx");
@@ -46,6 +50,13 @@ final class PretendTv implements HomeSetup.Shell {
             String h = on(home) ? home : on(HomeSetup.WIZARD) ? HomeSetup.WIZARD : "android";
             return "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\r\n" + h + "/.Home\r\n";
         }
+        if (c.equals(HomeSetup.CLAIMS_QUERY)) {
+            StringBuilder b = new StringBuilder();
+            for (String p : new String[]{home, HomeSetup.LAUNCHER, "com.google.android.apps.tv.launcherx"}) if (on(p)) b.append(p).append("/.Home\n");
+            if (wizardClaimsHome && on(HomeSetup.WIZARD)) b.append(HomeSetup.WIZARD).append("/.RecoveryActivity\n");
+            return b.toString();
+        }
+        if (c.equals("dumpsys wifi")) return wifiOwner == null ? "Wi-Fi is enabled\n" : "WifiConfigManager\n  ID: 0 SSID: \"Home\" cuid=10031 cname=" + wifiOwner + " allowAutojoin=true\n";
         if (c.startsWith("cmd package set-home-activity --user 0 $(")) {
             String pkg = c.substring(c.indexOf("HOME ") + 5, c.indexOf(" | tail"));
             home = pkg;

@@ -54,8 +54,9 @@ jobs:
           lcode=$(sed -n "s/^ *versionCode \([0-9]*\)$/\1/p" launcher/app/build.gradle)
           fcode=$(sed -n "s/^ *versionCode \([0-9]*\)$/\1/p" launcher/fanhub/build.gradle)
           # What the Fan Hub reads to see whether there's anything newer (Updater), without downloading the APKs.
-          printf '{"tag":"%s","launcher":{"code":%s,"name":"%s"},"fanhub":{"code":%s,"name":"%s"}}\n' \
-            "$TAG" "$lcode" "${launcher%% *}" "$fcode" "$fanhub" > out/version.json
+          # date: when it was published; TVs wait a few days before installing it by themselves (Updater.DELAY).
+          printf '{"tag":"%s","date":%s,"launcher":{"code":%s,"name":"%s"},"fanhub":{"code":%s,"name":"%s"}}\n' \
+            "$TAG" "$(date +%s)" "$lcode" "${launcher%% *}" "$fcode" "$fanhub" > out/version.json
           cat out/version.json
           cat > notes.md <<EOF
           Launcher $launcher and Fan Hub $fanhub.

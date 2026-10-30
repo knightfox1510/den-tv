@@ -200,6 +200,7 @@ final class DenLooks {
      * choice; a stored look whose wallpaper is no longer the choice counts as rotating too.
      */
     static Look current(Context ctx, List<Look> looks) {
+        if (DenSafe.on(ctx)) return null;   // safe mode: the plain launcher, wallpapers rotating
         String id = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_LOOK, ROTATE);
         String choice = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getString(Config.WALLPAPER_CHOICE_KEY, null);
         for (Look l : looks) {
@@ -266,6 +267,7 @@ final class DenLooks {
 
     /** Puts a look on Home (null: rotate every look). Home rebuilds on its next resume, as after Launcher settings. */
     static void apply(Context ctx, Look look) {
+        DenSafe.off(ctx);   // picking a look tries den-tv's looks again after safe mode
         SharedPreferences choices = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
         DenPhotos.clear(ctx);   // a look or the rotation replaces a photo on Home
         if (look != null && !look.photo.isEmpty()) {

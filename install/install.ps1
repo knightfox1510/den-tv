@@ -6,6 +6,7 @@
 #   powershell -ExecutionPolicy Bypass -File install.ps1 192.168.1.50    installs (or updates) on that TV
 #   ... install.ps1 192.168.1.50 -Undo        puts the TV's own home screen back and removes den-tv
 #   -NoHelper, -NoScreensaver, -KeepDebugging answer those questions up front
+#   -Ethernet   the TV is on a network cable: skips the check of who owns its saved Wi-Fi network
 #
 # The TV needs USB debugging on first (INSTALL.md, step 1). Google's launcher is switched off only once den-tv has
 # started, and put back if Home doesn't end up on den-tv, so the TV is never left without a home screen.
@@ -14,7 +15,8 @@ param(
     [switch]$Undo,
     [switch]$NoHelper,
     [switch]$NoScreensaver,
-    [switch]$KeepDebugging
+    [switch]$KeepDebugging,
+    [switch]$Ethernet
 )
 # Native tools write to stderr in normal use; with 'Stop' Windows PowerShell 5.1 would treat that as a failure.
 $ErrorActionPreference = 'Continue'
@@ -119,6 +121,23 @@ $sdk = 0
 [int]::TryParse((Sh 'getprop ro.build.version.sdk').Trim(), [ref]$sdk) | Out-Null
 if ($sdk -lt 26) { Stop-Install "this TV runs Android SDK $sdk; den-tv needs Android 8 (SDK 26) or newer." }
 
+# Google TV's setup wizard: where it answers Home it has to go with Google's home screen, or Home falls to its
+# RecoveryActivity (a black screen system_server can crash-loop on). But it owns the Wi-Fi network saved during the
+# TV's first setup, and Android deletes that network when the wizard is switched off; it can also hold the casting
+# credentials. So it goes only where it answers Home, and never while it owns the Wi-Fi. Checked before anything is
+# installed. (cleanyourtv's tools/disable.sh learned this on many TVs.)
+$wizardOff = $false
+if ((Enabled $Wizard) -and ((Sh 'cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME') -like "*$Wizard/*")) {
+    $owners = [regex]::Matches((Sh 'dumpsys wifi'), 'cname=[^ \n]*') | ForEach-Object { $_.Value }
+    if ($owners | Where-Object { $_ -like "cname=$Wizard*" }) {
+        Stop-Install "the Wi-Fi network this TV is on was saved by Google's setup, and switching that off (which den-tv needs on this TV) would delete it and take the TV off Wi-Fi. On the TV, in Settings > Network & Internet, choose your network, Forget it, join it again with its password, and run this again. Nothing was changed."
+    }
+    if (-not $owners -and -not $Ethernet) {
+        Stop-Install "the TV didn't say which app owns its saved Wi-Fi network, so it isn't safe to switch off Google's setup, which den-tv needs on this TV. Run this again in a minute; if the TV is on a network cable, add -Ethernet. Nothing was changed."
+    }
+    $wizardOff = $true
+}
+
 function Get-Apk($name) {
     $to = Join-Path $Work "$name.apk"
     if ($env:DEN_APKS) { Copy-Item (Join-Path $env:DEN_APKS "$name.apk") $to; return }
@@ -152,7 +171,8 @@ if ($out -notmatch 'Status: ok' -or $out -match '(?m)^Error') {
 }
 
 $disabled = @()
-foreach ($p in $Stock + $Wizard) {
+$candidates = if ($wizardOff) { $Stock + $Wizard } else { $Stock }
+foreach ($p in $candidates) {
     if (Enabled $p) { Sh "pm disable-user --user 0 $p" | Out-Null; $disabled += $p }
 }
 Sh "cmd package set-home-activity --user 0 $Component" | Out-Null
@@ -168,6 +188,9 @@ else {
 Sh "pm grant $Launcher android.permission.ACCESS_FINE_LOCATION" | Out-Null
 Sh "appops set $FanHub REQUEST_INSTALL_PACKAGES allow" | Out-Null
 Sh "pm grant $FanHub android.permission.WRITE_SECURE_SETTINGS" | Out-Null
+# TCL firmware won't bind the helper, or start the Fan Hub after a reboot, without its auto-start app-op; other TVs
+# don't know the op and ignore it.
+Sh "cmd appops set $FanHub AUTO_START allow; cmd appops set $FanHub APP_AUTO_START allow; appops write-settings" | Out-Null
 
 Write-Host ''
 Write-Host 'The den-tv helper lets the phone app press Back and Home, type, open apps and count screen time.'

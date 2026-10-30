@@ -7,6 +7,7 @@
 #   bash install.sh 192.168.1.50 --undo   puts the TV's own home screen back and removes den-tv
 #   --no-helper, --no-screensaver, --keep-debugging   answer those questions up front (otherwise it asks, or with no
 #   keyboard to ask on, turns the helper and screensaver on and USB debugging off)
+#   --ethernet   the TV is on a network cable: skips the check of who owns its saved Wi-Fi network
 #
 # The TV needs USB debugging on first (INSTALL.md, step 1). Google's launcher is switched off only once den-tv has
 # started, and put back if Home doesn't end up on den-tv, so the TV is never left without a home screen.
@@ -39,13 +40,14 @@ ask() {
   case "${a:-$2}" in [Yy]*) return 0 ;; *) return 1 ;; esac
 }
 
-IP=""; UNDO=0; HELPER_ON=""; DREAM_ON=""; ADB_OFF=""
+IP=""; UNDO=0; HELPER_ON=""; DREAM_ON=""; ADB_OFF=""; ETHERNET=0
 for arg in "$@"; do
   case "$arg" in
     --undo) UNDO=1 ;;
     --no-helper) HELPER_ON=n ;;
     --no-screensaver) DREAM_ON=n ;;
     --keep-debugging) ADB_OFF=n ;;
+    --ethernet) ETHERNET=1 ;;
     -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
     *) IP=$arg ;;
   esac
@@ -129,6 +131,28 @@ fi
 sdk=$(sh_ getprop ro.build.version.sdk)
 [ "${sdk:-0}" -ge 26 ] || die "this TV runs Android SDK ${sdk:-unknown}; den-tv needs Android 8 (SDK 26) or newer."
 
+# Google TV's setup wizard: where it answers Home it has to go with Google's home screen, or Home falls to its
+# RecoveryActivity (a black screen system_server can crash-loop on). But it owns the Wi-Fi network saved during the
+# TV's first setup, and Android deletes that network when the wizard is switched off; it can also hold the casting
+# credentials. So it goes only where it answers Home, and never while it owns the Wi-Fi. Checked before anything is
+# installed. (cleanyourtv's tools/disable.sh learned this on many TVs.)
+WIZARD_OFF=0
+if sh_ pm list packages -e $WIZARD | grep -qx "package:$WIZARD" \
+    && sh_ "cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME" | grep -qF "$WIZARD/"; then
+  owners=$(sh_ dumpsys wifi | grep -o 'cname=[^ ]*' || true)
+  if printf '%s\n' "$owners" | grep -q "cname=$WIZARD"; then
+    die "the Wi-Fi network this TV is on was saved by Google's setup, and switching that off (which den-tv needs
+on this TV) would delete it and take the TV off Wi-Fi. On the TV, in Settings > Network & Internet, choose your
+network, Forget it, join it again with its password, and run this again. Nothing was changed."
+  fi
+  if [ -z "$owners" ] && [ "$ETHERNET" != 1 ]; then
+    die "the TV didn't say which app owns its saved Wi-Fi network, so it isn't safe to switch off Google's setup,
+which den-tv needs on this TV. Run this again in a minute; if the TV is on a network cable, add --ethernet.
+Nothing was changed."
+  fi
+  WIZARD_OFF=1
+fi
+
 get_apk() {
   if [ -n "${DEN_APKS:-}" ]; then cp "$DEN_APKS/$1.apk" "$WORK/$1.apk"; return; fi
   curl -fL --progress-bar -o "$WORK/$1.apk" "https://github.com/$REPO/releases/latest/download/$1.apk" \
@@ -172,7 +196,9 @@ rollback() {
     *) sh_ "cmd package set-home-activity --user 0 \$($HOME_QUERY $HOME_PKG | tail -n 1)" > /dev/null || true ;;
   esac
 }
-for p in $STOCK $WIZARD; do
+CANDIDATES=$STOCK
+[ "$WIZARD_OFF" = 1 ] && CANDIDATES="$CANDIDATES $WIZARD"
+for p in $CANDIDATES; do
   # Only what is installed and still on (pm list -e lists enabled packages).
   if sh_ pm list packages -e "$p" | grep -qx "package:$p"; then
     sh_ pm disable-user --user 0 "$p" > /dev/null || true
@@ -193,6 +219,9 @@ esac
 sh_ pm grant $LAUNCHER android.permission.ACCESS_FINE_LOCATION > /dev/null || true
 sh_ appops set $FANHUB REQUEST_INSTALL_PACKAGES allow > /dev/null || true
 sh_ pm grant $FANHUB android.permission.WRITE_SECURE_SETTINGS > /dev/null || true
+# TCL firmware won't bind the helper, or start the Fan Hub after a reboot, without its auto-start app-op; other TVs
+# don't know the op and ignore it.
+sh_ "cmd appops set $FANHUB AUTO_START allow; cmd appops set $FANHUB APP_AUTO_START allow; appops write-settings" > /dev/null 2>&1 || true
 
 echo
 echo "The den-tv helper lets the phone app press Back and Home, type, open apps and count screen time."

@@ -34,11 +34,15 @@ import java.util.List;
  * TV) and installed while nobody is watching Home or the Fan Hub: the screen off, another app in front, or 3 to 5 in
  * the morning. On Android 12 and later the Fan Hub, as the apps' installer, updates them without asking; on older
  * TVs (or before it is their installer) Android asks once, so the Fan Hub screen offers "OK installs it".
+ * A release reaches TVs by itself only DELAY after it was published, so a bad one can be pulled (by deleting the
+ * release) before it reaches everyone; a TV marked early (the owner's, from the phone) gets it at once, and so does
+ * anyone who presses Check now.
  */
 final class Updater {
     static final String REPO = "knightfox1510/den-tv";
     private static final String PREFS = "updates";
     private static final long EVERY = 12 * 3_600_000L;
+    static final long DELAY = 3 * 24 * 3_600_000L;
 
     /** An app this keeps up to date: its package, its key in version.json, its release file and its name. */
     static final class App {
@@ -94,7 +98,7 @@ final class Updater {
         lastTick = now;
         claim(ctx);
         if (!auto(ctx)) return;
-        if (System.currentTimeMillis() - prefs(ctx).getLong("checked_at", 0) >= EVERY) check(ctx, false);
+        if (System.currentTimeMillis() - prefs(ctx).getLong("checked_at", 0) >= EVERY) check(ctx, false, false);
         else if (!prefs(ctx).getBoolean("needs_you", false) && quiet(ctx)) installNext(ctx, false);
     }
 
@@ -112,12 +116,13 @@ final class Updater {
      * Reads the newest release and downloads what's newer. now: someone asked (the phone, or OK on the Fan Hub), so
      * it installs straight away rather than waiting for a quiet moment.
      */
-    static synchronized JSONObject check(Context ctx, boolean now) {
+    static synchronized JSONObject check(Context ctx, boolean now, boolean force) {
         SharedPreferences p = prefs(ctx);
         try {
             JSONObject release = FanHub.get("https://github.com/" + REPO + "/releases/latest/download/version.json");
             p.edit().putLong("checked_at", System.currentTimeMillis()).putString("latest", release.toString()).remove("error").apply();
             String tag = release.optString("tag");
+            if (!force && !early(ctx) && !due(release, System.currentTimeMillis())) return status(ctx);
             for (App a : newer(release, installed(ctx, HomeSetup.LAUNCHER), installed(ctx, HomeSetup.FANHUB))) {
                 long code = release.getJSONObject(a.key).optLong("code");
                 File f = file(ctx, a);
@@ -135,6 +140,15 @@ final class Updater {
         }
         return status(ctx);
     }
+
+    /** Whether a release is old enough to install by itself (one with no date is). */
+    static boolean due(JSONObject release, long now) {
+        long date = release.optLong("date", 0) * 1000L;
+        return date == 0 || now - date >= DELAY;
+    }
+
+    /** This TV gets releases as soon as they're out (the owner's, to try them first). */
+    static boolean early(Context ctx) { return prefs(ctx).getBoolean("early", false); }
 
     static File file(Context ctx, App a) {
         File dir = new File(ctx.getFilesDir(), "updates");
@@ -287,21 +301,22 @@ final class Updater {
         try {
             s.put("auto", auto(ctx)).put("checkedAt", p.getLong("checked_at", 0)).put("state", p.getString("state", ""))
                     .put("error", p.getString("error", "")).put("needsYou", p.getBoolean("needs_you", false))
-                    .put("waiting", waiting(ctx)).put("silent", Build.VERSION.SDK_INT >= 31).put("repo", REPO);
+                    .put("waiting", waiting(ctx)).put("silent", Build.VERSION.SDK_INT >= 31).put("repo", REPO).put("early", early(ctx));
             for (App a : APPS) s.put(a.key, installedName(ctx, a.pkg));
             JSONObject latest = new JSONObject(p.getString("latest", "{}"));
-            s.put("latest", latest.optString("tag"));
+            s.put("latest", latest.optString("tag")).put("latestDate", latest.optLong("date", 0) * 1000L);
         } catch (JSONException ignored) { }
         return s;
     }
 
     static JSONObject set(Context ctx, JSONObject in) {
         if (in.has("auto")) prefs(ctx).edit().putBoolean("auto", in.optBoolean("auto")).apply();
+        if (in.has("early")) prefs(ctx).edit().putBoolean("early", in.optBoolean("early")).apply();
         if (in.optBoolean("install")) { installNow(ctx, false); return status(ctx); }
         if (in.optBoolean("check")) {
             // Downloads can take a minute: the phone gets the state now and asks again.
             prefs(ctx).edit().putString("state", "Checking for updates").apply();
-            Store.worker().post(() -> { check(ctx, false); prefs(ctx).edit().remove("state").apply(); });
+            Store.worker().post(() -> { check(ctx, false, true); prefs(ctx).edit().remove("state").apply(); });
         }
         return status(ctx);
     }

@@ -144,6 +144,17 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   Home or the Fan Hub. On Android 12+, with the Fan Hub as the apps' installer, it needs no OK; otherwise the Fan
   Hub's footer says "OK installs it now". The phone's TV tab → Updates shows versions and checks or installs now.
   After a Fan Hub update its helper is switched back on (WRITE_SECURE_SETTINGS, granted at setup).
+- **Safer handover.** Google TV's setup wizard is switched off only where it answers Home, and never while it owns
+  the saved Wi-Fi network (Android would delete it); TCL's auto-start app-op is granted for the helper. All three
+  setup paths (the TV, `install.sh`, `install.ps1`) do the same.
+- **Speed up this TV.** cleanyourtv's tested per-model debloat lists ship in the Fan Hub
+  (`assets/cleanyourtv.json`, from `tools/cleanyourtv/import.py`); `Speedup` matches the TV by brand and model or
+  device codename, and switches off what's ticked over the same Adb session, with cleanyourtv's guards (core
+  packages, TV-input software, Settings and input handlers, the keyboard, home screens). Undone from the same screen.
+- **Safe mode** (`DenSafe`). Two crashes within ten minutes start Home plain (no look, watcher or animations) until
+  an update or a look is picked.
+- **Updates wait 3 days** after a release (`version.json` carries its date), except on a TV set to get releases
+  first from the phone, or when someone presses Check now.
 - **Everything else from cleanyourtv:** dock and grid, D-pad navigation, Inputs and Wi-Fi pills, Launcher
   settings, the remote-button helpers and the safety checks in the install script.
 

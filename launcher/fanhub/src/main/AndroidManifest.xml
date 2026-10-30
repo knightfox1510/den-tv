@@ -22,6 +22,8 @@
     <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
     <!-- Only granted over USB debugging (HomeSetup, the installers): puts the helper back on after an update. -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
+    <!-- Speed up (Speedup): which of a tested list's apps are on this TV, and which drive its inputs, Settings or keyboard. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
 
     <queries>
         <provider android:authorities="tv.den.launcher.looks" />

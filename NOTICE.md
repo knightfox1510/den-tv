@@ -12,6 +12,11 @@ Script (Impallari Type) for the clock styles, from Google Fonts under the same l
 Fonts in the mockups load from Google Fonts: Outfit, Bebas Neue, VT323 and Kaushan Script, all under
 the SIL Open Font License.
 
+The Fan Hub's speed-up lists (`launcher/fanhub/src/main/assets/cleanyourtv.json`) are cleanyourtv's per-TV
+debloat lists from its `examples/` (commit 718f98c), turned into one file by `launcher/tools/cleanyourtv/import.py`.
+They are cleanyourtv's work and its contributors', MIT licensed, Copyright (c) 2026 Gathin, and so is the
+list of core packages and the setup-wizard, input and Settings checks den-tv's setup copies from its tools.
+
 All scenes, posters and watchers are drawn in code. Player and character names are used to label
 fan tributes; den-tv is not affiliated with any club, league, broadcaster, studio or publisher, and
 ships no photos or official artwork.

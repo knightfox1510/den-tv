@@ -14,8 +14,22 @@ final class HomeSetup {
     static final String DREAM = LAUNCHER + "/com.gathin.tvhome.DenDream";
     /** Home screens that come with the TV: Google TV, Android TV, older Android TV. */
     static final String[] STOCK = {"com.google.android.apps.tv.launcherx", "com.google.android.tvlauncher", "com.google.android.leanbacklauncher"};
-    /** Google TV's setup wizard also claims Home, and takes it back unless it is switched off too. */
+    /**
+     * Google TV's setup wizard. Where it answers Home it has to go with Google's home screen, or Home falls to its
+     * RecoveryActivity, a black screen system_server can crash-loop on. But it also owns the Wi-Fi network saved
+     * during the TV's first setup (Android deletes that network when it is switched off) and, on some Google TVs,
+     * the casting credentials; so it is switched off only where it answers Home, and never while it owns the Wi-Fi.
+     * (cleanyourtv's tools/disable.sh learned these on many TVs.)
+     */
     static final String WIZARD = "com.google.android.tungsten.setupwraith";
+    static final String CLAIMS_QUERY = "cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME";
+    /** makeHome's answer when the setup wizard owns the Wi-Fi: the screen offers Wi-Fi settings for it. */
+    static final String WIFI_OWNED = "The Wi-Fi network this TV is on was saved by Google's setup, and switching that off"
+            + " (which den-tv needs here) would delete it and take the TV off Wi-Fi. In Settings → Network & Internet, choose"
+            + " your network, Forget it, join it again with its password, and then try again.";
+    static final String WIFI_UNKNOWN = "The TV didn't say which app owns its saved Wi-Fi, so it isn't safe to switch off"
+            + " Google's setup, which den-tv needs here. Try again in a minute; if this TV uses a network cable, that's fine and"
+            + " the check is skipped.";
     static final String HOME_QUERY = "cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME";
     /** Brought back to the front after den-tv has been started, so the progress stays on screen. */
     static final String ACTIVITY = FANHUB + "/tv.den.fanhub.HomeSetupActivity";
@@ -42,8 +56,35 @@ final class HomeSetup {
         return false;
     }
 
+    /** Whether the setup wizard answers Home on this TV (it is listed among the HOME activities). */
+    static boolean wizardClaimsHome(Shell sh) throws IOException {
+        return sh.run(CLAIMS_QUERY).contains(WIZARD + "/");
+    }
+
+    /**
+     * Null when it is safe to switch the setup wizard off; otherwise why not. ethernet: the TV is on a cable, so a
+     * Wi-Fi network it might delete doesn't matter.
+     */
+    static String wizardWifiCheck(Shell sh, boolean ethernet) throws IOException {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("cname=([^ \n]*)").matcher(sh.run("dumpsys wifi"));
+        boolean any = false;
+        while (m.find()) {
+            any = true;
+            if (m.group(1).startsWith(WIZARD)) return WIFI_OWNED;
+        }
+        return any || ethernet ? null : WIFI_UNKNOWN;
+    }
+
     /** Null when den-tv is the home screen now; otherwise what went wrong (and the TV's own home screen is back). */
-    static String makeHome(Shell sh, Progress p) throws IOException {
+    static String makeHome(Shell sh, Progress p) throws IOException { return makeHome(sh, p, false); }
+
+    static String makeHome(Shell sh, Progress p, boolean ethernet) throws IOException {
+        // Decided before anything changes: if the wizard has to go and can't, nothing is touched.
+        boolean wizardOff = enabled(sh, WIZARD) && wizardClaimsHome(sh);
+        if (wizardOff) {
+            String why = wizardWifiCheck(sh, ethernet);
+            if (why != null) return why;
+        }
         String before = homeNow(sh);
         String beforePkg = before.contains("/") ? before.substring(0, before.indexOf('/')) : before;
         p.step("Starting den-tv");
@@ -55,7 +96,7 @@ final class HomeSetup {
         p.step("Switching off the TV's own home screen");
         java.util.List<String> off = new java.util.ArrayList<>();
         for (String pkg : STOCK) if (enabled(sh, pkg)) { sh.run("pm disable-user --user 0 " + pkg); off.add(pkg); }
-        if (enabled(sh, WIZARD)) { sh.run("pm disable-user --user 0 " + WIZARD); off.add(WIZARD); }
+        if (wizardOff) { sh.run("pm disable-user --user 0 " + WIZARD); off.add(WIZARD); }
         sh.run("cmd package set-home-activity --user 0 " + COMPONENT);
         String now = homeNow(sh);
         if (!now.startsWith(LAUNCHER + "/")) {
@@ -70,6 +111,9 @@ final class HomeSetup {
         sh.run("pm grant " + LAUNCHER + " android.permission.ACCESS_FINE_LOCATION");
         sh.run("appops set " + FANHUB + " REQUEST_INSTALL_PACKAGES allow");
         sh.run("pm grant " + FANHUB + " android.permission.WRITE_SECURE_SETTINGS");
+        // TCL firmware won't bind an app's accessibility service (the helper) or let it start after a reboot
+        // without its auto-start app-op; other TVs don't know the op and ignore it (cleanyourtv's install script).
+        sh.run("cmd appops set " + FANHUB + " AUTO_START allow; cmd appops set " + FANHUB + " APP_AUTO_START allow; appops write-settings");
         return null;
     }
 

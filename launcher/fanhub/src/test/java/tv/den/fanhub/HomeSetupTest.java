@@ -56,6 +56,32 @@ public class HomeSetupTest {
         assertEquals("com.google.android.apps.tv.launcherx", tv.home);
     }
 
+    @Test public void neverWhileTheWizardOwnsTheWifi() throws Exception {
+        PretendTv tv = new PretendTv();
+        tv.wifiOwner = HomeSetup.WIZARD + ":10031";
+        assertEquals(HomeSetup.WIFI_OWNED, HomeSetup.makeHome(tv, QUIET));
+        assertTrue("nothing changed", tv.disabled.isEmpty());
+        assertEquals(-1, indexOf(tv, "am start"));
+    }
+
+    @Test public void anUnreadableWifiOwnerStopsUnlessOnACable() throws Exception {
+        PretendTv tv = new PretendTv();
+        tv.wifiOwner = null;
+        assertEquals(HomeSetup.WIFI_UNKNOWN, HomeSetup.makeHome(tv, QUIET, false));
+        assertTrue(tv.disabled.isEmpty());
+        assertNull(HomeSetup.makeHome(tv, QUIET, true));
+        assertTrue(tv.disabled.contains(HomeSetup.WIZARD));
+    }
+
+    @Test public void aWizardThatDoesntAnswerHomeStaysOn() throws Exception {
+        PretendTv tv = new PretendTv();
+        tv.wizardClaimsHome = false;
+        tv.wifiOwner = HomeSetup.WIZARD + ":10031";   // and it owns the Wi-Fi: no matter, it isn't touched
+        assertNull(HomeSetup.makeHome(tv, QUIET));
+        assertEquals(HomeSetup.LAUNCHER, tv.home);
+        assertFalse(tv.disabled.contains(HomeSetup.WIZARD));
+    }
+
     @Test public void theHelperJoinsOtherServices() throws Exception {
         PretendTv tv = new PretendTv();
         tv.settings.put("secure enabled_accessibility_services", "com.other/.Svc");
@@ -156,6 +182,15 @@ public class HomeSetupTest {
         assertEquals(1, Updater.newer(release, 24, 13).size());
         assertEquals(0, Updater.newer(release, 25, 13).size());
         assertEquals("an app that isn't installed is left alone", 0, Updater.newer(release, -1, 13).size());
+    }
+
+    @Test public void releasesWaitThreeDays() throws Exception {
+        long published = 1_760_000_000L;
+        JSONObject release = new JSONObject().put("tag", "v1.2.0").put("date", published);
+        assertFalse(Updater.due(release, published * 1000L + 3_600_000L));
+        assertFalse(Updater.due(release, published * 1000L + Updater.DELAY - 1));
+        assertTrue(Updater.due(release, published * 1000L + Updater.DELAY));
+        assertTrue("a release with no date (older ones) is due", Updater.due(new JSONObject().put("tag", "v1.1.0"), 0));
     }
 
     private static int indexOf(PretendTv tv, String prefix) {

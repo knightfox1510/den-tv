@@ -77,6 +77,7 @@ final class DenLaunch {
      * played. False when there is none (motion off, or chosen off): the caller starts the app as before.
      */
     static boolean open(Activity a, View tile, Consumer<Bundle> start) {
+        if (DenSafe.on(a)) return false;   // safe mode: apps open plainly
         if (!motionOn(a) || tile == null || tile.getWidth() == 0) return false;
         DenLooks.Look look = DenLooks.tweaked(a, DenLooks.current(a, DenLooks.load(a)));
         String style = DenSettings.calm(a) ? "zoom" : choice(a, OPEN_KEY, OPEN, lookOpen(look));
