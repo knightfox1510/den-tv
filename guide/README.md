@@ -14,8 +14,7 @@ step, nothing to install.
 
 Every push to `main` that changes `guide/` updates the page by itself.
 
-(GitHub Pages works too: **Settings → Pages**, deploy from the `main` branch, folder `/guide` isn't offered there,
-so Vercel is the simpler of the two.)
+GitHub Pages only publishes a repository's root or its `docs` folder, so Vercel is the simpler of the two here.
 
 ## Updating the pictures
 
