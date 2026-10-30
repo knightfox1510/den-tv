@@ -70,7 +70,7 @@ public class SetupScreensTest {
         items.add(new Speedup.Item("com.vt.storemode", "Store mode", "shop demo mode", false, true));
         items.add(new Speedup.Item("com.mxtech.videoplayer.television", "MX Player", "MX Player", true, false));
         items.add(new Speedup.Item("com.vt.alexa", "Alexa", "Alexa built-in (Google Assistant kept)", true, false));
-        for (String step : new String[]{"SPEED", "PICK", "NO_LIST", "CHOOSE_TV"}) {
+        for (String step : new String[]{"SPEED", "PICK", "NO_LIST", "ALL_OFF", "CHOOSE_TV"}) {
             a.showSpeedForTest(step, vu, items);
             View root = a.getWindow().getDecorView();
             root.measure(View.MeasureSpec.makeMeasureSpec(1920, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY));

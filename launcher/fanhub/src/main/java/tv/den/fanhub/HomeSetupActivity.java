@@ -38,7 +38,7 @@ public final class HomeSetupActivity extends Activity {
     /** Opened from the phone's "Speed up on the TV": straight to this TV's list. */
     static final String EXTRA_SPEED = "speed";
     private static final String PREFS = "home_setup", SKIP = "skip";
-    private enum Step { NO_LAUNCHER, IS_HOME, INTRO, ASK_HELPER, ASK_DREAM, CHOOSE_TV, SPEED, PICK, NO_LIST, DEBUG, CONNECTING, ALLOW, WORKING, DONE, FAILED }
+    private enum Step { NO_LAUNCHER, IS_HOME, INTRO, ASK_HELPER, ASK_DREAM, CHOOSE_TV, SPEED, PICK, NO_LIST, ALL_OFF, DEBUG, CONNECTING, ALLOW, WORKING, DONE, FAILED }
     /** What the connection is for: making den-tv Home, giving Home back, only speeding up, or undoing the speed-up. */
     private enum Mode { MAKE, GIVE_BACK, SPEED, RESTORE }
 
@@ -288,6 +288,16 @@ public final class HomeSetupActivity extends Activity {
                         + " already the biggest saving. (Tested TVs are added at github.com/Gathin23/cleanyourtv.)"));
                 buttons.addView(button(mode == Mode.SPEED ? "Close" : "Carry on", () -> { items.clear(); if (mode == Mode.SPEED) finish(); else go(Step.DEBUG); }));
                 break;
+            case ALL_OFF: {
+                int off = Speedup.alreadyOff(this, tvList);
+                col.addView(text("This TV is already sped up", 44, Color.WHITE, true));
+                col.addView(body("cleanyourtv has a list tested on this TV: " + tvList.tv + ". "
+                        + (off > 0 ? off + (off == 1 ? " app" : " apps") + " on it" : "The apps on it") + " are already switched off on this TV"
+                        + " (by an earlier speed-up, or cleanyourtv's own setup), and the rest aren't installed or are kept for safety."
+                        + " Nothing more to do. The phone's TV tab, under Speed up, lists each one."));
+                buttons.addView(button(mode == Mode.SPEED ? "Close" : "Carry on", () -> { items.clear(); if (mode == Mode.SPEED) finish(); else go(Step.DEBUG); }));
+                break;
+            }
             case DEBUG:
                 if (debuggingOn(this)) {
                     col.addView(text("USB debugging is on", 44, Color.WHITE, true));
@@ -363,7 +373,8 @@ public final class HomeSetupActivity extends Activity {
         tvList = l;
         Speedup.rememberTv(this, l);
         items = Speedup.plan(this, l);
-        if (items.isEmpty()) noList();
+        // A tested list with nothing left to offer: its apps are already off (cleanyourtv's own setup, or an earlier run).
+        if (items.isEmpty()) { if (mode == Mode.SPEED || mode == Mode.MAKE) go(Step.ALL_OFF); else afterSpeedup(); }
         else go(Step.SPEED);
     }
 

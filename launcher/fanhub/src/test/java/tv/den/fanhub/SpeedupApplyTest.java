@@ -83,6 +83,17 @@ public class SpeedupApplyTest {
         assertEquals(null, find(plan, "com.not.installed"));
     }
 
+    /** A TV sped up before (by cleanyourtv's own setup): nothing to offer, and it counts what is already off. */
+    @Test public void aTvAlreadySpedUpHasNothingLeft() {
+        install("com.vt.storemode");
+        install("com.vt.tv.evservice");
+        app.getPackageManager().setApplicationEnabledSetting("com.vt.storemode", android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER, 0);
+        app.getPackageManager().setApplicationEnabledSetting("com.vt.tv.evservice", android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER, 0);
+        Speedup.TvList l = list("com.vt.storemode", "", "com.vt.tv.evservice", "", "com.not.installed", "");
+        assertTrue(Speedup.plan(app, l).isEmpty());
+        assertEquals(2, Speedup.alreadyOff(app, l));
+    }
+
     @Test public void offAndBackOn() throws Exception {
         PretendTv tv = new PretendTv();
         assertEquals(null, HomeSetup.makeHome(tv, line -> { }));

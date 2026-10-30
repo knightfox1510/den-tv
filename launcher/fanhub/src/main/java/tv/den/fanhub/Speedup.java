@@ -162,6 +162,23 @@ final class Speedup {
         return out;
     }
 
+    /** How many of the list's apps are on this TV and switched off already. */
+    static int alreadyOff(Context ctx, TvList list) {
+        PackageManager pm = ctx.getPackageManager();
+        Set<String> seen = new HashSet<>();
+        int n = 0;
+        for (String[] e : list.entries) {
+            if (!seen.add(e[0])) continue;
+            try {
+                int state = pm.getApplicationEnabledSetting(e[0]);
+                if (state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED) n++;
+            } catch (IllegalArgumentException ex) {
+                // not on this TV
+            }
+        }
+        return n;
+    }
+
     /** Never switched off: home screens and the setup wizard (HomeSetup's), den-tv, the inputs, Settings, the keyboard. */
     private static Set<String> keepers(Context ctx) {
         PackageManager pm = ctx.getPackageManager();
