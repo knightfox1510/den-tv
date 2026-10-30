@@ -189,8 +189,10 @@ case "$now" in
 may lock its home screen; see Troubleshooting in INSTALL.md." ;;
 esac
 
-# Lets Home show the Wi-Fi name.
+# Lets Home show the Wi-Fi name; lets the Fan Hub install den-tv's updates, and switch its helper back on after one.
 sh_ pm grant $LAUNCHER android.permission.ACCESS_FINE_LOCATION > /dev/null || true
+sh_ appops set $FANHUB REQUEST_INSTALL_PACKAGES allow > /dev/null || true
+sh_ pm grant $FANHUB android.permission.WRITE_SECURE_SETTINGS > /dev/null || true
 
 echo
 echo "The den-tv helper lets the phone app press Back and Home, type, open apps and count screen time."

@@ -42,6 +42,8 @@ final class HubView extends View {
 
     static final class Data {
         String lookName = "", place = "", errors = "", address, code = "";
+        /** A line for the footer in place of the key hints, such as an update that is waiting. */
+        String notice = "";
         int accent = 0xffff4d6d, paired;
         boolean h24 = true, running = true;
         Bitmap wallpaper, qr;
@@ -447,7 +449,8 @@ final class HubView extends View {
     private void footer(Canvas c, long now) {
         String upd = data.fetched == 0 ? "Not fetched yet" : "Updated " + Instant.ofEpochMilli(data.fetched).atZone(zone)
                 .format(DateTimeFormatter.ofPattern(data.h24 ? "HH:mm" : "h:mm a", Locale.ENGLISH));
-        text(c, upd + "  ·  OK fetches again  ·  Menu forgets paired phones", 92, 1012, 20, light, 0xff8e8aa0);
+        if (!data.notice.isEmpty()) text(c, upd + "  ·  " + data.notice, 92, 1012, 20, regular, 0xffffd98a);
+        else text(c, upd + "  ·  OK fetches again  ·  Hold OK: home screen  ·  Menu forgets paired phones", 92, 1012, 20, light, 0xff8e8aa0);
         if (!data.errors.isEmpty()) text(c, fit("Couldn't reach: " + data.errors.replace('\n', ';'), 900, 18, light), 92, 1042, 18, light, 0xffffc46b);
         t.setTextAlign(Paint.Align.RIGHT);
         if (!data.running) text(c, "Phone settings couldn't start: port " + PhoneServer.PORT + " is in use.", 1830, 1012, 20, regular, 0xffffc46b);

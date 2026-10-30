@@ -24,6 +24,7 @@ public final class PhoneService extends Service {
             Store.worker().post(() -> {
                 Timers.tick(PhoneService.this);
                 Rules.tick(PhoneService.this);
+                Updater.tick(PhoneService.this);
             });
             main.postDelayed(this, TICK_MS);
         }

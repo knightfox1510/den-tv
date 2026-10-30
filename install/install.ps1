@@ -164,8 +164,10 @@ else {
     Stop-Install "Home went to '$now' instead of den-tv, so the TV's own home screen was put back. This TV's maker may lock its home screen; see Troubleshooting in INSTALL.md."
 }
 
-# Lets Home show the Wi-Fi name.
+# Lets Home show the Wi-Fi name; lets the Fan Hub install den-tv's updates, and switch its helper back on after one.
 Sh "pm grant $Launcher android.permission.ACCESS_FINE_LOCATION" | Out-Null
+Sh "appops set $FanHub REQUEST_INSTALL_PACKAGES allow" | Out-Null
+Sh "pm grant $FanHub android.permission.WRITE_SECURE_SETTINGS" | Out-Null
 
 Write-Host ''
 Write-Host 'The den-tv helper lets the phone app press Back and Home, type, open apps and count screen time.'

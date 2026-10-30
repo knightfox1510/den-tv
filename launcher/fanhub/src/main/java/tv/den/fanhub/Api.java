@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -94,6 +94,8 @@ final class Api {
             case "/api/fav": return fav(in.optString("id"), in.optBoolean("on"));
             case "/api/surprise": return surprise();
             case "/api/keep": return keep(in);
+            case "/api/update": return in.length() == 0 ? Updater.status(ctx) : Updater.set(ctx, in);
+            case "/api/homesetup": return Timers.open(ctx, new Intent(ctx, HomeSetupActivity.class)) ? ok(true) : fail(helperNeeded());
             default: return new JSONObject().put("error", "not found");
         }
     }

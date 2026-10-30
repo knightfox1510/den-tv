@@ -4,7 +4,7 @@ About 10 minutes. You need:
 
 - An **Android TV or Google TV** (Sony, TCL, Hisense, Xiaomi, Vu, OnePlus, Philips, Chromecast with Google TV,
   Nvidia Shield and most others). Samsung, LG and Fire TV don't run it.
-- **One of these** on the same Wi-Fi as the TV: an Android phone, or a Windows PC or Mac.
+- Nothing else: the TV can do it all by itself. (A computer or an Android phone on the same Wi-Fi works too.)
 
 You get two apps: **den-tv** (the home screen) and **Fan Hub** (scores, episodes and the phone app). You can take it
 all off again at any time ([Undo](#undo)).
@@ -17,21 +17,43 @@ all off again at any time ([Undo](#undo)).
 2. **Turn on USB debugging.** Go back to **Settings → System → Developer options** (older TVs: **Device
    Preferences → Developer options**) and turn on **USB debugging**. If you also see **Network debugging** or
    **ADB over network**, turn that on too.
-3. **Write down the TV's IP address.** It is under **Settings → Network & Internet →** your Wi-Fi network (or
+3. **Only for ways B to D: write down the TV's IP address.** It is under **Settings → Network & Internet →** your Wi-Fi network (or
    **Settings → System → About → Status**). It looks like `192.168.1.50`.
 
-Keep the TV on and on this screen's Wi-Fi. The first time you connect, the TV asks **"Allow USB debugging?"**: tick
-**Always allow from this computer** and choose **Allow**.
+The first time something connects, the TV asks **"Allow USB debugging?"**: tick **Always allow from this computer**
+and choose **Allow**. USB debugging goes off again at the end.
 
 ## Step 2: install. Pick one way
 
 | | What you need | How hard |
 |---|---|---|
-| [A. Windows PC or Mac](#a-windows-pc-or-mac) | A computer | Easiest: paste one line |
-| [B. Android phone](#b-android-phone-no-computer) | An Android phone | Easy: a free app and a few taps |
-| [C. Claude Code](#c-claude-code-desktop) | Claude Code desktop on a computer | Easiest if you have it: it does it for you and fixes problems |
+| [A. Just the TV](#a-just-the-tv) | The remote | Easiest: two downloads on the TV, then press OK a few times |
+| [B. Windows PC or Mac](#b-windows-pc-or-mac) | A computer | Easy: paste one line |
+| [C. Android phone](#c-android-phone) | An Android phone | A free app and a few copy-pastes |
+| [D. Claude Code](#d-claude-code-desktop) | Claude Code desktop on a computer | Easiest if you have it: it does it for you and fixes problems |
 
-### A. Windows PC or Mac
+### A. Just the TV
+
+1. On the TV, open the **Play Store**, search for **Downloader** (the orange app by AFTVnews) and install it.
+2. Open Downloader and allow it to use storage if it asks. In its address box type
+   `github.com/knightfox1510/den-tv/releases` and press Go. (If the person who shared den-tv gave you a short
+   Downloader code, type that instead.)
+3. Under the newest release, choose **den-tv-launcher.apk**. When it has downloaded, choose **Install**. The first
+   time, Android says the TV isn't allowed to install apps from Downloader: choose **Settings**, switch Downloader
+   on, press Back, and choose **Install** again. Then choose **Done** (not Open).
+4. Back on the releases page, do the same for **den-tv-fanhub.apk**, and this time choose **Open**. (den-tv must be
+   installed first.)
+5. The Fan Hub offers to **Make den-tv your home screen**. Press OK, answer the two questions (the helper and the
+   screensaver), and if USB debugging isn't on yet it shows you how (step 1 above).
+6. The TV asks **"Allow USB debugging?"**: tick **Always allow from this computer** and choose **Allow**. It's the
+   Fan Hub asking, on the TV itself. It switches Google's home screen off, makes den-tv Home, turns USB debugging
+   off again and shows a tick for each step.
+7. Choose **Go Home**. In Downloader you can delete the two downloads to save space.
+
+This works on TVs where USB debugging listens on the network (most, including Vu, Sony, TCL, Hisense and Xiaomi). If
+the Fan Hub says nothing answers on port 5555, use way B or C instead.
+
+### B. Windows PC or Mac
 
 The installer downloads Android's own `adb` tool from Google and the newest den-tv from this repo's
 [Releases](https://github.com/knightfox1510/den-tv/releases), installs both apps, makes den-tv the home screen and
@@ -54,7 +76,7 @@ questions. If Windows asks whether to allow `adb` through the firewall, choose A
 
 Running it again later updates den-tv to the newest release; your looks and settings stay.
 
-### B. Android phone (no computer)
+### C. Android phone
 
 1. On the phone, open this repo's [Releases](https://github.com/knightfox1510/den-tv/releases) page and download
    **den-tv-launcher.apk** and **den-tv-fanhub.apk**. Don't tap them to open: they are for the TV, not the phone.
@@ -72,8 +94,10 @@ Running it again later updates den-tv to the newest release; your looks and sett
 6. Only if den-tv showed up, run this line. It turns off Google's home screen so the Home button opens den-tv:
 
    ```bash
-   pm disable-user --user 0 com.google.android.apps.tv.launcherx; pm disable-user --user 0 com.google.android.tungsten.setupwraith; cmd package set-home-activity --user 0 tv.den.launcher/com.gathin.tvhome.MainActivity; pm grant tv.den.launcher android.permission.ACCESS_FINE_LOCATION
+   pm disable-user --user 0 com.google.android.apps.tv.launcherx; pm disable-user --user 0 com.google.android.tungsten.setupwraith; cmd package set-home-activity --user 0 tv.den.launcher/com.gathin.tvhome.MainActivity; pm grant tv.den.launcher android.permission.ACCESS_FINE_LOCATION; appops set tv.den.fanhub REQUEST_INSTALL_PACKAGES allow; pm grant tv.den.fanhub android.permission.WRITE_SECURE_SETTINGS
    ```
+
+   The last two parts let the Fan Hub keep den-tv up to date by itself.
 
    On an older Android TV (not Google TV) the first package is `com.google.android.tvlauncher` instead.
 7. Optional: den-tv's screensaver (the look with a clock and what's next) instead of the TV's own:
@@ -86,7 +110,7 @@ Running it again later updates den-tv to the newest release; your looks and sett
 
 Turn on the den-tv helper from the TV itself afterwards ([After installing](#after-installing)).
 
-### C. Claude Code desktop
+### D. Claude Code desktop
 
 If you have [Claude Code](https://claude.com/claude-code) on a Windows PC or Mac (a paid Claude plan), it can run
 the installer for you and deal with anything unusual about your TV.
@@ -110,13 +134,26 @@ the installer for you and deal with anything unusual about your TV.
 
 ## Updating
 
-Run the same installer again (way A or C), or install both new APKs from Releases with Bugjaeger (way B; no need
-to repeat steps 5 to 7). Each time, turn USB debugging on first and off after.
+**It's automatic.** Twice a day the Fan Hub looks for a newer release here. When there is one it downloads it,
+checks it's signed with den-tv's own key, and installs it while nobody is watching Home or the Fan Hub (the TV off,
+another app on screen, or 3 to 5 in the morning). No USB debugging is needed.
+
+- On **Android 12 and later** it just happens. The very first update may ask once: the Fan Hub's footer says
+  **Update ready · OK installs it now**; press OK, allow it if Android asks, and after that it's silent.
+- On **older TVs** Android asks every time: the Fan Hub's footer says when one is ready, and OK installs it.
+- On the phone, **TV tab → Updates** shows the versions, checks now, installs now, or turns automatic updates off.
+
+You can still update by hand: download the newer APKs in Downloader (way A, steps 2 to 4), run the installer again
+(way B or D), or install them with Bugjaeger (way C, steps 1 to 4).
 
 ## Undo
 
-Turn USB debugging on, then run the installer with undo, using your TV's IP address. It puts the TV's own home
-screen back and removes both apps.
+**From the TV:** open the Fan Hub and hold OK (or, on the phone, **TV tab → Home screen → Open it on the TV**), then
+choose **Give Home back to Google**. It needs USB debugging on for a minute, and turns it off again. To remove the
+apps too: **Settings → Apps →** den-tv and Fan Hub → Uninstall.
+
+**From a computer:** turn USB debugging on, then run the installer with undo, using your TV's IP address. It puts the
+TV's own home screen back and removes both apps.
 
 Windows (PowerShell):
 
@@ -147,11 +184,13 @@ pm enable com.google.android.apps.tv.launcherx; pm enable com.google.android.tun
   `& $env:USERPROFILE\.den-tv\platform-tools\adb.exe pair 192.168.1.50:PAIRPORT`) with the pairing port and code the
   TV shows. Then run the installer and give it the address with its port, `192.168.1.50:41234`. (The installer
   downloads adb the first time it runs, so run it once first if that folder isn't there.)
+- **"Nothing answers on port 5555"** (way A). This TV's USB debugging doesn't take connections from apps on the TV
+  itself. Use way B, C or D.
 - **"Signed with a different key".** An older test build of den-tv is on the TV. Run the [Undo](#undo), then
   install again.
 - **Home goes back to Google's screen,** or the installer says Home went elsewhere. Some makers lock the home screen.
   The installer puts the TV's own home screen back in that case, so nothing is broken. Open an issue with your TV
-  model, or try way C, which can look into it.
+  model, or try way D, which can look into it.
 - **Don't switch off other system apps** to make room or speed things up unless you know they are safe for your TV:
   on some Vu, TCL and Xiaomi sets that can send the TV into recovery. [cleanyourtv](https://github.com/Gathin23/cleanyourtv)
   does that part safely, with tested lists per TV.
@@ -160,5 +199,7 @@ pm enable com.google.android.apps.tv.launcherx; pm enable com.google.android.tun
 
 Two apps are installed (`tv.den.launcher`, `tv.den.fanhub`). Google's home screen app and Google TV's setup wizard
 are switched off (not removed; Undo switches them back on). Optionally the den-tv helper (an accessibility service)
-and the screensaver are switched on. Nothing else is touched, and nothing is sent anywhere except the score,
-episode and weather lookups the Fan Hub makes, and Gemini if you add a key.
+and the screensaver are switched on. The Fan Hub is allowed to install den-tv's updates, and to switch its own
+helper back on after an update (Android switches it off when an app is replaced). Nothing else is touched, and
+nothing is sent anywhere except the score, episode and weather lookups the Fan Hub makes, the update checks on
+GitHub, and Gemini if you add a key.

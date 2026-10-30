@@ -1,6 +1,7 @@
 package tv.den.fanhub;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -20,14 +21,17 @@ import java.util.Map;
 
 /**
  * The Fan Hub's own screen: a dashboard (HubView) of the next match, the matches after it, the anime week, the
- * weekend's trail weather and the next 72 hours, in the colours of the look on Home. OK fetches again now; Menu
- * forgets paired phones. Home shows the same games and episodes in the panel under the clock.
+ * weekend's trail weather and the next 72 hours, in the colours of the look on Home. OK fetches again now (or
+ * installs an update that is waiting); holding OK opens the home screen setup; Menu forgets paired phones. Home
+ * shows the same games and episodes in the panel under the clock. While den-tv isn't the home screen, opening the
+ * Fan Hub offers to make it so (HomeSetupActivity).
  */
 public final class FanHubActivity extends Activity {
     private static final Uri CURRENT = Uri.parse("content://tv.den.launcher.looks/current");
     private static final Uri WALLPAPER = Uri.parse("content://tv.den.launcher.looks/wallpaper");
 
     private HubView hub;
+    private boolean offered;
     private PhoneServer server;
     private String qrFor;
     private Bitmap qr;
@@ -51,6 +55,8 @@ public final class FanHubActivity extends Activity {
         PhoneService.start(this);
         server.start();
         server.openPairing(() -> main.post(this::show));
+        // Once per visit: Cancel on the setup comes back here, and mustn't open it again.
+        if (!offered && HomeSetupActivity.wanted(this)) { offered = true; startActivity(new Intent(this, HomeSetupActivity.class)); }
     }
 
     @Override protected void onPause() {
@@ -59,9 +65,25 @@ public final class FanHubActivity extends Activity {
         super.onPause();
     }
 
+    private static boolean ok(int code) {
+        return code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_NUMPAD_ENTER;
+    }
+
+    @Override public boolean onKeyDown(int code, KeyEvent e) {
+        if (ok(code)) { e.startTracking(); return true; }   // so holding OK is told apart from a press
+        return super.onKeyDown(code, e);
+    }
+
+    @Override public boolean onKeyLongPress(int code, KeyEvent e) {
+        if (ok(code)) { startActivity(new Intent(this, HomeSetupActivity.class)); return true; }
+        return super.onKeyLongPress(code, e);
+    }
+
     @Override public boolean onKeyUp(int code, KeyEvent e) {
-        if (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_NUMPAD_ENTER) {
-            Store.refresh(this, true);
+        if (ok(code)) {
+            if (e.isCanceled() || (e.getFlags() & KeyEvent.FLAG_CANCELED_LONG_PRESS) != 0) return true;   // the end of a long press
+            if (!Updater.waiting(this).isEmpty()) Updater.installNow(this, true);
+            else Store.refresh(this, true);
             return true;
         }
         if (code == KeyEvent.KEYCODE_MENU) {
@@ -98,6 +120,8 @@ public final class FanHubActivity extends Activity {
         d.code = server.code();
         d.paired = server.pairedPhones();
         d.qr = qr(d.address);
+        String waiting = Updater.waiting(this);
+        d.notice = waiting.isEmpty() ? "" : "Update ready: " + waiting + "  ·  OK installs it now";
         look(d);
         hub.show(d);
     }

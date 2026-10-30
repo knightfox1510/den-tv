@@ -364,6 +364,16 @@
       <div id="phones"></div>
       <p style="margin-top:8px">To pair another phone, open the Fan Hub on the TV and scan its code.</p>
     </div></details>
+    <details class="card"><summary><span><b>Updates</b><small id="upSum"></small></span></summary><div class="in">
+      <p id="upText"></p>
+      <label class="toggle"><span>Update automatically<small>Checks twice a day; installs while nobody's watching Home</small></span><input type="checkbox" id="upAuto"></label>
+      <div class="row" style="margin-top:10px"><button id="upCheck" class="ghost">Check now</button><button id="upInstall">Install now</button></div>
+      <div id="upMsg" class="msg" role="status"></div>
+    </div></details>
+    <details class="card"><summary><span><b>Home screen</b><small>den-tv or the TV's own</small></span></summary><div class="in">
+      <p>Opens the home screen setup on the TV, where you can make den-tv the home screen again or give Home back to the TV's own. It needs USB debugging on for a minute, and someone at the TV to choose Allow.</p>
+      <button id="homeSetup" class="ghost">Open it on the TV</button><div id="homeMsg" class="msg" role="status"></div>
+    </div></details>
     <p id="ver" style="font-size:13px"></p>
   </section>
 </main>
@@ -953,12 +963,31 @@
       box.appendChild(b);
     });
   }
+  function showUpdates(u) {
+    $('upAuto').checked = !!u.auto;
+    $('upSum').textContent = u.waiting ? 'Ready: ' + u.waiting : u.needsYou ? 'Waiting for OK on the TV' : 'den-tv ' + (u.launcher || '?') + ' · Fan Hub ' + (u.fanhub || '?');
+    let t = 'On the TV: den-tv ' + (u.launcher || 'not installed') + ', Fan Hub ' + (u.fanhub || '') + '. ';
+    t += u.latest ? 'Newest release: ' + u.latest + '. ' : '';
+    t += u.checkedAt ? 'Checked ' + new Date(u.checkedAt).toLocaleString() + '.' : 'Not checked yet.';
+    if (u.state) t += ' ' + u.state + '.';
+    if (u.needsYou) t += ' Android wants a yes for this one: open the Fan Hub on the TV and press OK.';
+    else if (!u.silent) t += ' This TV asks before each update: press OK on the Fan Hub when it says one is ready.';
+    $('upText').textContent = t;
+    $('upInstall').hidden = !u.waiting;
+    say($('upMsg'), u.error || '', !!u.error);
+  }
+  async function loadUpdates() { showUpdates((await api('/api/update')).json); }
+  $('upAuto').addEventListener('change', async () => showUpdates((await api('/api/update', { auto: $('upAuto').checked })).json));
+  $('upCheck').addEventListener('click', async () => { showUpdates((await api('/api/update', { check: true })).json); setTimeout(loadUpdates, 6000); setTimeout(loadUpdates, 30000); });
+  $('upInstall').addEventListener('click', async () => { showUpdates((await api('/api/update', { install: true })).json); say($('upMsg'), 'Installing on the TV. den-tv restarts by itself.'); });
+  $('homeSetup').addEventListener('click', async () => { const r = (await api('/api/homesetup', {})).json; say($('homeMsg'), r.ok ? 'It is open on the TV.' : (r.error || 'Couldn\'t open it.'), !r.ok); });
   async function loadTv() {
     const t = (await api('/api/tv')).json, n = t.network || {};
     $('netSum').textContent = n.type === 'Wi-Fi' ? 'Wi-Fi · ' + n.ghz + ' · ' + ['very weak', 'weak', 'fair', 'good', 'strong'][Math.max(0, Math.min(4, n.bars || 0))] + ' (' + n.rssi + ' dBm)' : (n.type || '');
     if (t.memory) { const used = t.memory.total - t.memory.free; $('memSum').textContent = mb(used) + ' used of ' + mb(t.memory.total); $('memBar').style.width = Math.round(used / t.memory.total * 100) + '%'; }
     if (t.storage) { const used = t.storage.total - t.storage.free; $('stoSum').textContent = mb(used) + ' used of ' + mb(t.storage.total); $('stoBar').style.width = Math.round(used / t.storage.total * 100) + '%'; }
     loadKeep();
+    loadUpdates();
     $('ver').textContent = 'Fan Hub ' + (t.version || '') + ' · den-tv helper ' + (t.helper ? 'on' : 'off');
     const st = (await api('/api/screentime')).json;
     $('stSum').textContent = st.helper ? 'Today ' + mins(st.minutes || 0) : 'Needs the den-tv helper';

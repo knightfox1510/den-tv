@@ -133,6 +133,17 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   burn in (TV → Screen care).
 - **Gemini model.** TV → Live data chooses the Gemini model; the key is checked when saved, and a model your key
   can't use falls back to one it can.
+- **Set up from the TV alone.** Opening the Fan Hub while den-tv isn't Home offers to make it so: with USB
+  debugging on, the Fan Hub connects to the TV's own debugging port (`Adb.java`, ADB's protocol with its own RSA key),
+  the TV asks "Allow USB debugging?" once, and `HomeSetup` starts den-tv, switches Google's home screen off, checks
+  Home and puts Google's back if it didn't stick, then turns USB debugging off and throws the key away. Holding OK
+  on the Fan Hub opens it again, with **Give Home back to Google**. Needs a TV whose USB debugging listens on port
+  5555 (most do); see INSTALL.md, way A.
+- **Automatic updates.** Twice a day the Fan Hub reads `version.json` from the repo's newest release; a newer den-tv
+  or Fan Hub is downloaded, checked (right package, newer, same signing key) and installed while nobody is watching
+  Home or the Fan Hub. On Android 12+, with the Fan Hub as the apps' installer, it needs no OK; otherwise the Fan
+  Hub's footer says "OK installs it now". The phone's TV tab → Updates shows versions and checks or installs now.
+  After a Fan Hub update its helper is switched back on (WRITE_SECURE_SETTINGS, granted at setup).
 - **Everything else from cleanyourtv:** dock and grid, D-pad navigation, Inputs and Wi-Fi pills, Launcher
   settings, the remote-button helpers and the safety checks in the install script.
 

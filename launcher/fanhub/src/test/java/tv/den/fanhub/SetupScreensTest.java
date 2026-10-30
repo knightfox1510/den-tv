@@ -45,6 +45,25 @@ public class SetupScreensTest {
         }
     }
 
+    /** The home screen setup (HomeSetupActivity), each step; -Pden.screens=1 --tests '*SetupScreensTest.homeSetup'. */
+    @Test public void homeSetup() throws Exception {
+        assumeFalse(System.getProperty("den.screens", "").isEmpty());
+        File out = new File("build/setup-screens");
+        out.mkdirs();
+        HomeSetupActivity a = Robolectric.buildActivity(HomeSetupActivity.class).setup().get();
+        java.util.List<String> lines = java.util.Arrays.asList("Starting den-tv", "Switching off the TV's own home screen",
+                "den-tv is the home screen", "den-tv helper on", "den-tv screensaver on", "USB debugging off");
+        for (String step : new String[]{"INTRO", "ASK_HELPER", "DEBUG", "ALLOW", "WORKING", "DONE", "IS_HOME", "NO_LAUNCHER"}) {
+            a.showForTest(step, step.equals("WORKING") ? lines.subList(0, 3) : lines);
+            View root = a.getWindow().getDecorView();
+            root.measure(View.MeasureSpec.makeMeasureSpec(1920, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY));
+            root.layout(0, 0, 1920, 1080);
+            Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+            root.draw(new Canvas(b));
+            try (FileOutputStream f = new FileOutputStream(new File(out, "home-" + step.toLowerCase() + ".png"))) { b.compress(Bitmap.CompressFormat.PNG, 100, f); }
+        }
+    }
+
     /** The Fan Hub dashboard with sample data, at Thursday 29 October 11:13 in Mumbai, over Camp Nou Nights. */
     @Test public void hub() throws Exception {
         assumeFalse(System.getProperty("den.screens", "").isEmpty());

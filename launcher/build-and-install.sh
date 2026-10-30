@@ -132,7 +132,9 @@ if [ -f "$FANHUB_APK" ]; then
   "$PY" -I "$TOOLS/b64push.py" "$FANHUB_APK" /data/local/tmp/denfan.apk
   FOUT=$("$PY" -I "$TOOLS/tv.py" 'pm install -r /data/local/tmp/denfan.apk; rm -f /data/local/tmp/denfan.apk')
   case "$FOUT" in
-    *Success*) echo "Fan Hub installed." ;;
+    *Success*) echo "Fan Hub installed."
+      # Lets it install den-tv's updates, and switch its helper back on after one.
+      "$PY" -I "$TOOLS/tv.py" 'appops set tv.den.fanhub REQUEST_INSTALL_PACKAGES allow; pm grant tv.den.fanhub android.permission.WRITE_SECURE_SETTINGS' > /dev/null || true ;;
     *) echo "WARNING: the Fan Hub didn't install: $FOUT" >&2 ;;
   esac
 fi

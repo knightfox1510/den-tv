@@ -1,7 +1,8 @@
 name: den-tv release
 
 # Publishes both APKs as a GitHub release, so anyone can download them without a GitHub account and the installer
-# (install/) always finds the newest at releases/latest/download/<name>.apk. Runs when a tag like v1.0.1 is pushed,
+# (install/) always finds the newest at releases/latest/download/<name>.apk. version.json beside them is what the
+# Fan Hub on each TV checks to update itself and den-tv. Runs when a tag like v1.0.1 is pushed,
 # or by hand from the Actions tab with the tag to create.
 on:
   push:
@@ -50,11 +51,17 @@ jobs:
           cp launcher/fanhub/build/outputs/apk/release/fanhub-release.apk out/den-tv-fanhub.apk
           launcher=$(sed -n "s/^ *versionName '\(.*\)'$/\1/p" launcher/app/build.gradle)
           fanhub=$(sed -n "s/^ *versionName '\(.*\)'$/\1/p" launcher/fanhub/build.gradle)
+          lcode=$(sed -n "s/^ *versionCode \([0-9]*\)$/\1/p" launcher/app/build.gradle)
+          fcode=$(sed -n "s/^ *versionCode \([0-9]*\)$/\1/p" launcher/fanhub/build.gradle)
+          # What the Fan Hub reads to see whether there's anything newer (Updater), without downloading the APKs.
+          printf '{"tag":"%s","launcher":{"code":%s,"name":"%s"},"fanhub":{"code":%s,"name":"%s"}}\n' \
+            "$TAG" "$lcode" "${launcher%% *}" "$fcode" "$fanhub" > out/version.json
+          cat out/version.json
           cat > notes.md <<EOF
           Launcher $launcher and Fan Hub $fanhub.
 
           New here? Follow [INSTALL.md](https://github.com/${{ github.repository }}/blob/main/INSTALL.md).
           Already have den-tv? Install both APKs over the old ones, or run the installer again.
           EOF
-          gh release create "$TAG" out/den-tv-launcher.apk out/den-tv-fanhub.apk \
+          gh release create "$TAG" out/den-tv-launcher.apk out/den-tv-fanhub.apk out/version.json \
             --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "den-tv $TAG" --notes-file notes.md
