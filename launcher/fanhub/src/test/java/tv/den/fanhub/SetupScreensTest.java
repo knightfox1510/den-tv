@@ -81,6 +81,19 @@ public class SetupScreensTest {
         }
     }
 
+    /** A described look's wallpaper drawn without Gemini's picture: Raphinha in Barça's colours. */
+    @Test public void lookArt() throws Exception {
+        assumeFalse(System.getProperty("den.screens", "").isEmpty());
+        File out = new File("build/setup-screens");
+        out.mkdirs();
+        Bitmap b = LookArt.make(org.robolectric.RuntimeEnvironment.getApplication(), null, new org.json.JSONArray("[\"#a50044\",\"#004d98\",\"#edbb00\"]"),
+                "11", "RAPHINHA", "BARÇA · BRAZIL · NO. 11", 7);
+        try (FileOutputStream f = new FileOutputStream(new File(out, "lookart-raphinha.png"))) { b.compress(Bitmap.CompressFormat.PNG, 100, f); }
+        Bitmap s = LookArt.make(org.robolectric.RuntimeEnvironment.getApplication(), null, new org.json.JSONArray("[\"#1f5fd1\",\"#ff9933\"]"),
+                "", "INDIA", "MEN IN BLUE · WORLD CHAMPIONS", 3);
+        try (FileOutputStream f = new FileOutputStream(new File(out, "lookart-india.png"))) { s.compress(Bitmap.CompressFormat.PNG, 100, f); }
+    }
+
     /** The Fan Hub dashboard with sample data, at Thursday 29 October 11:13 in Mumbai, over Camp Nou Nights. */
     @Test public void hub() throws Exception {
         assumeFalse(System.getProperty("den.screens", "").isEmpty());

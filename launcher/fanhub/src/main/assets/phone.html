@@ -181,11 +181,11 @@
     <label class="ghost" style="margin-top:10px"><input type="file" id="photoFile" accept="image/jpeg,image/png" hidden>
       <span style="display:block;text-align:center;padding:13px;border:1px dashed var(--line);border-radius:10px;cursor:pointer">Add a photo</span></label>
     <div id="photoMsg" class="msg" role="status"></div>
-    <details class="card" id="describeCard"><summary><span><b>Describe a look</b><small>Say what you want; den-tv picks the wallpaper and parts</small></span></summary><div class="in">
+    <details class="card" id="describeCard"><summary><span><b>Describe a look</b><small>Say what you want; with a Gemini key, den-tv designs it and paints its wallpaper</small></span></summary><div class="in">
       <label for="dText">Your look</label><textarea id="dText" rows="2" maxlength="300" placeholder="Rainy Tokyo night with Itachi's crows and a neon clock"></textarea>
       <button id="dGo">Make it</button>
-      <div id="dOut" hidden><div class="card" style="margin:10px 0 0"><b id="dName"></b><p id="dWhy" style="margin:4px 0 0"></p><small id="dParts" class="hint"></small></div>
-        <div class="row"><button id="dSave">Save and put it on</button><button id="dAgain" class="ghost">Try another</button></div></div>
+      <div id="dOut" hidden><div class="card" style="margin:10px 0 0"><img id="dImg" alt="The look's wallpaper" hidden style="width:100%;border-radius:10px;margin-bottom:8px"><b id="dName"></b><p id="dWhy" style="margin:4px 0 0"></p><small id="dParts" class="hint"></small><small id="dFacts" class="hint" style="display:block;margin-top:6px"></small></div>
+        <div class="row"><button id="dSave">Save and put it on</button><button id="dPaint" class="ghost" hidden>New picture</button><button id="dAgain" class="ghost">Try another</button></div></div>
       <div id="dMsg" class="msg" role="status"></div>
     </div></details>
     <details class="card" id="photoLookCard"><summary><span><b>Save a photo as a look</b><small>Your photo as the wallpaper, with any look's watcher, clock and icons</small></span></summary><div class="in">
@@ -758,18 +758,39 @@
     say($('dMsg'), 'Thinking…'); $('dGo').disabled = true;
     const r = await api('/api/describe', { text }); $('dGo').disabled = false;
     if (!r.json.ok) { $('dOut').hidden = true; say($('dMsg'), r.json.error || 'Couldn\'t make one.', true); return; }
+    await dropPainted();
     described = r.json.look; const base = (S.looks || []).find((l) => l.id === described.base);
     $('dName').textContent = described.name; $('dWhy').textContent = described.why || '';
-    $('dParts').textContent = 'Wallpaper from ' + (base ? base.name : described.base) + ['watcher', 'clock', 'icons', 'icon_layout', 'wake', 'extras'].filter((k) => described[k]).map((k) => ' · ' + (MPART[k] || k).toLowerCase() + ' ' + nice(described[k])).join('');
-    $('dOut').hidden = false; say($('dMsg'), (r.json.note || '') + (r.json.by === 'gemini' ? 'Picked by Gemini.' : 'Matched by words (add a Gemini key on TV → Live data for more).'));
+    $('dFacts').textContent = (described.facts || []).length ? 'Did you know: ' + described.facts.join(' · ') : '';
+    $('dImg').hidden = true; $('dPaint').hidden = !described.title;
+    $('dParts').textContent = (described.title ? 'Its own wallpaper' : 'Wallpaper from ' + (base ? base.name : described.base)) + ['watcher', 'clock', 'icons', 'icon_layout', 'wake', 'extras'].filter((k) => described[k]).map((k) => ' · ' + (MPART[k] || k).toLowerCase() + ' ' + nice(described[k])).join('');
+    $('dOut').hidden = false; say($('dMsg'), (r.json.note || '') + (r.json.by === 'gemini' ? 'Designed by Gemini.' : 'Matched by words (add a Gemini key on TV → Live data for more).'));
+    if (described.title) await paintLook();
   }
+  // A described look's own wallpaper: Gemini paints the scene where the key allows it, otherwise the TV draws a poster
+  // in the look's colours; either way with its title and number. Saved on the TV as a photo; dropped if not kept.
+  async function paintLook() {
+    if (!described) return; await dropPainted();
+    say($('dMsg'), 'Painting the wallpaper… (up to a minute)'); $('dSave').disabled = true; $('dPaint').disabled = true;
+    const r = await api('/api/lookart', { title: described.title, subtitle: described.subtitle || '', number: described.number || '', colours: described.colours || [], scene: described.scene || '' });
+    $('dSave').disabled = false; $('dPaint').disabled = false;
+    if (!r.json.ok) { say($('dMsg'), (r.json.error || 'Couldn\'t make the wallpaper') + '. Save keeps the wallpaper from ' + described.base + '.', true); return; }
+    described.photo = r.json.photo; $('dImg').src = '/api/photo?name=' + encodeURIComponent(r.json.photo) + '&t=' + Date.now(); $('dImg').hidden = false;
+    say($('dMsg'), r.json.by === 'gemini' ? 'Painted by Gemini.' : (r.json.note || 'Drawn by den-tv in the look\'s colours (your Gemini key can\'t paint pictures).'));
+  }
+  async function dropPainted() {
+    if (described && described.photo && !described.saved) await api('/api/photos', { delete: described.photo });
+    if (described) delete described.photo;
+  }
+  $('dPaint').addEventListener('click', paintLook);
   $('dGo').addEventListener('click', describeLook);
   $('dAgain').addEventListener('click', describeLook);
   $('dSave').addEventListener('click', async () => {
-    if (!described) return; const body = Object.assign({}, described); delete body.why;
+    if (!described) return; const body = Object.assign({}, described);
+    ['why', 'scene', 'colours', 'title', 'subtitle', 'number', 'saved'].forEach((k) => delete body[k]); if (described.photo) body.made = true;
     const r = await api('/api/mine', body);
     say($('dMsg'), r.json.ok ? described.name + ' is saved in My looks, and on Home now.' : (r.json.error || 'Couldn\'t save it (20 looks at most).'), !r.json.ok);
-    if (r.json.ok) { $('dOut').hidden = true; $('dText').value = ''; refreshLooks(); }
+    if (r.json.ok) { described.saved = true; $('dOut').hidden = true; $('dText').value = ''; refreshLooks(); }
   });
   $('plSave').addEventListener('click', async () => {
     const name = $('plName').value.trim() || 'My photo';

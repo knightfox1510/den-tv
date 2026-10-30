@@ -44,6 +44,14 @@ final class DenFactsView extends View {
 
     /** The facts for this look; null when it has none (a look without a hero, team or show). */
     static DenFactsView make(Context ctx, DenLooks.Look look, boolean motion) {
+        if (!look.facts.isEmpty()) {
+            // A described look's own facts.
+            List<String> own = new ArrayList<>(look.facts);
+            Collections.shuffle(own);
+            int accent;
+            try { accent = android.graphics.Color.parseColor(look.accent); } catch (RuntimeException e) { accent = 0xffff4d6d; }
+            return new DenFactsView(ctx, own, accent, motion);
+        }
         try (InputStream in = ctx.getAssets().open("den/facts.json"); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             byte[] b = new byte[8192];
             int n;

@@ -46,9 +46,16 @@ final class Gemini {
             JSONArray a = parts.optJSONArray(p);
             if (a != null) b.append("- ").append(p).append(": ").append(join(a)).append('\n');
         }
-        b.append("\nAnswer with JSON only: {\"name\": a short name for the look (2-4 words), \"base\": a base look id, ")
-                .append("one value for each part from its list, \"accent\": \"#RRGGBB\", \"why\": one short sentence}. ")
-                .append("Use only ids and values from the lists above.");
+        b.append("\nAnswer with JSON only: {\"name\": a short name for the look (2-4 words), \"base\": the closest base look id, ")
+                .append("one value for each part from its list, \"accent\": \"#RRGGBB\", \"why\": one short sentence, ")
+                .append("\"title\": the big word on the wallpaper (a name or one word, at most 14 letters, e.g. RAPHINHA), ")
+                .append("\"subtitle\": a short line under it (at most 40 characters, e.g. BARÇA · BRAZIL · NO. 11), ")
+                .append("\"number\": a shirt number if there is one (digits only) or \"\", ")
+                .append("\"colours\": two or three #RRGGBB colours that belong to the subject (club or team colours, a show's palette), ")
+                .append("\"scene\": one or two sentences describing a wallpaper picture for it (a place, a moment, symbols, the colours), ")
+                .append("\"facts\": three to five short, true, family-friendly facts about the subject (each under 120 characters)}. ")
+                .append("Use only ids and values from the lists above. The scene must not show anyone's face up close or any ")
+                .append("text, letters or logos: people only as distant figures or silhouettes. Keep everything family-friendly.");
         return b.toString();
     }
 
@@ -76,7 +83,75 @@ final class Gemini {
         if (accent.matches("#[0-9a-fA-F]{6}")) out.put("accent", accent.toLowerCase(Locale.ROOT));
         String why = answer.optString("why", "").replaceAll("[\\p{Cntrl}]", "").trim();
         if (!why.isEmpty()) out.put("why", why.length() > 160 ? why.substring(0, 160) : why);
+        // The new look's own wallpaper: its words, number and colours, and the picture to paint (LookArt).
+        String title = clean(answer.optString("title"), 14).toUpperCase(Locale.ROOT);
+        if (!title.isEmpty()) out.put("title", title);
+        String sub = clean(answer.optString("subtitle"), 40).toUpperCase(Locale.ROOT);
+        if (!sub.isEmpty()) out.put("subtitle", sub);
+        String number = answer.optString("number", "").replaceAll("\\D", "");
+        if (!number.isEmpty() && number.length() <= 3) out.put("number", number);
+        JSONArray colours = new JSONArray();
+        JSONArray cs = answer.optJSONArray("colours");
+        for (int i = 0; cs != null && i < cs.length() && colours.length() < 3; i++) {
+            if (cs.optString(i).matches("#[0-9a-fA-F]{6}")) colours.put(cs.optString(i).toLowerCase(Locale.ROOT));
+        }
+        if (colours.length() > 0) out.put("colours", colours);
+        String scene = clean(answer.optString("scene"), 400);
+        if (!scene.isEmpty()) out.put("scene", scene);
+        JSONArray facts = new JSONArray();
+        JSONArray fs = answer.optJSONArray("facts");
+        for (int i = 0; fs != null && i < fs.length() && facts.length() < 6; i++) {
+            String f = clean(fs.optString(i), 160);
+            if (!f.isEmpty()) facts.put(f);
+        }
+        if (facts.length() > 0) out.put("facts", facts);
         return out;
+    }
+
+    /** Plain text: no control characters, trimmed, at most max characters. */
+    static String clean(String s, int max) {
+        String t = s == null ? "" : s.replaceAll("[\\p{Cntrl}]", " ").replaceAll("\\s+", " ").trim();
+        return t.length() > max ? t.substring(0, max).trim() : t;
+    }
+
+    // ---- painting a wallpaper (with a key that allows Gemini's image model) -----------------------------------------
+
+    /** Image models to try, newest first; a key may only be allowed one of them (or none: Google can charge for it). */
+    static final String[] IMAGE_MODELS = {"gemini-2.5-flash-image", "gemini-2.0-flash-preview-image-generation"};
+
+    /**
+     * A wallpaper picture for a look (PNG or JPEG bytes), from a scene described in words. The picture leaves room for
+     * den-tv's clock (left) and title (bottom right) and has no text, no close-up faces, nothing unsuitable.
+     */
+    static byte[] picture(String key, String scene, JSONArray colours) throws IOException, JSONException {
+        String prompt = "A wallpaper for a TV home screen, wide 16:9 landscape: " + clean(scene, 400)
+                + (colours != null && colours.length() > 0 ? " Main colours: " + join(colours) + "." : "")
+                + " Bold, cinematic digital illustration with depth and soft light. Keep the left third and the bottom fifth calm and"
+                + " fairly dark (a clock and app tiles go there), with the subject toward the right. No text, letters, numbers,"
+                + " logos or watermarks. No close-up or realistic faces of real people: people only as distant figures or"
+                + " silhouettes. Family friendly.";
+        IOException last = null;
+        for (String model : IMAGE_MODELS) {
+            JSONObject config = new JSONObject().put("responseModalities", new JSONArray().put("TEXT").put("IMAGE"));
+            if (model.startsWith("gemini-2.5")) config.put("imageConfig", new JSONObject().put("aspectRatio", "16:9"));
+            JSONObject body = new JSONObject()
+                    .put("contents", new JSONArray().put(new JSONObject().put("parts", new JSONArray().put(new JSONObject().put("text", prompt)))))
+                    .put("generationConfig", config);
+            try {
+                JSONObject r = post("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", body.toString(), key, ASK_TIMEOUT_MS);
+                JSONArray cands = r.optJSONArray("candidates");
+                JSONObject content = cands == null || cands.length() == 0 ? null : cands.getJSONObject(0).optJSONObject("content");
+                JSONArray ps = content == null ? null : content.optJSONArray("parts");
+                for (int i = 0; ps != null && i < ps.length(); i++) {
+                    JSONObject data = ps.getJSONObject(i).optJSONObject("inlineData");
+                    if (data != null && data.optString("mimeType").startsWith("image/")) return java.util.Base64.getDecoder().decode(data.getString("data"));
+                }
+                last = new IOException("Gemini didn't paint a picture for that (it may have declined the subject)");
+            } catch (IOException e) {
+                last = e;
+            }
+        }
+        throw last;
     }
 
     /** Words that say nothing about which look ("I want a theme for ..."). */

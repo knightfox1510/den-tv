@@ -244,6 +244,22 @@ public class FanHubTest {
         assertTrue(Gemini.prompt("rainy night", looks, parts).contains("crimson-moon: Crimson Moon"));
     }
 
+    @Test public void aDesignedLookKeepsItsWordsCleaned() throws Exception {
+        org.json.JSONArray looks = new org.json.JSONArray("[{\"id\":\"barca-wings\",\"name\":\"Barça Wings\",\"category\":\"Football\"}]");
+        JSONObject parts = new JSONObject("{\"watcher\":[\"onetwo\"]}");
+        JSONObject l = Gemini.check(new JSONObject("{\"name\":\"Raphinha Wings\",\"base\":\"barca-wings\",\"watcher\":\"onetwo\","
+                + "\"title\":\"Raphinha the brilliant winger\",\"subtitle\":\"Barça · Brazil · No. 11\",\"number\":\"No. 11\","
+                + "\"colours\":[\"#A50044\",\"blue\",\"#004d98\"],\"scene\":\"Camp Nou at night\\n in blaugrana\","
+                + "\"facts\":[\"He joined Barça in 2022.\",\"\"]}"), looks, parts);
+        assertEquals("RAPHINHA THE B", l.getString("title"));
+        assertTrue(l.getString("title").length() <= 14);
+        assertEquals("BARÇA · BRAZIL · NO. 11", l.getString("subtitle"));
+        assertEquals("11", l.getString("number"));
+        assertEquals(2, l.getJSONArray("colours").length());   // "blue" isn't a colour den-tv takes
+        assertEquals("Camp Nou at night in blaugrana", l.getString("scene"));
+        assertEquals(1, l.getJSONArray("facts").length());
+    }
+
     /** The description that matched "Wanted" (on "want") and missed Barça Wings (Raphinha spelt Raphina). */
     @Test public void wordsFindTheRightLook() throws Exception {
         org.json.JSONArray looks = new org.json.JSONArray("["

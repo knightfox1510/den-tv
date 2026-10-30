@@ -48,6 +48,8 @@ final class DenLooks {
         String photo = "";
         /** Words about the look beyond its name (hero, scene, its texts, tags), for describing a look in words. */
         String words = "";
+        /** A described look's own "Did you know?" facts (Gemini's); empty: the facts of its hero or scene. */
+        List<String> facts = new ArrayList<>();
 
         boolean hasEyes() { return EYES.contains(watcher); }
     }
@@ -103,8 +105,12 @@ final class DenLooks {
                 String photo = j.optString("photo", "");
                 File photos = DenPhotos.dir(ctx);
                 if (!photo.isEmpty() && (!photo.matches(DenPhotos.NAME) || photo.endsWith("-p.jpg") || photos == null || !new File(photos, photo).isFile())) continue;
-                JSONObject recipe = new JSONObject().put("id", j.optString("id")).put("name", j.optString("name", "My look")).put("category", photo.isEmpty() ? "My looks" : "My photos")
+                // A described look (made) has its own painted wallpaper, kept as a photo, but it's a look, not a photo.
+                boolean made = j.optBoolean("made");
+                JSONObject recipe = new JSONObject().put("id", j.optString("id")).put("name", j.optString("name", "My look"))
+                        .put("category", photo.isEmpty() || made ? "My looks" : "My photos")
                         .put("for", "owner").put("scene", base.scene).put("hero", base.hero);
+                if (j.has("facts")) recipe.put("facts", j.optJSONArray("facts"));
                 for (String k : new String[]{"watcher", "clock", "icons", "icon_layout", "focus", "wake", "extras", "accent", "moment"}) {
                     if (j.has(k)) recipe.put(k, j.optString(k));
                 }
@@ -147,6 +153,14 @@ final class DenLooks {
                 String v = in.optString(k, "").trim();
                 if (!v.isEmpty() && (k.equals("accent") ? v.matches("#[0-9a-fA-F]{6}") : v.matches("[a-z0-9]{1,20}"))) j.put(k, v);
             }
+            if (in.optBoolean("made") && j.has("photo")) j.put("made", true);
+            // Its own facts (a described look's): a few short lines of plain text.
+            JSONArray fs = in.optJSONArray("facts"), facts = new JSONArray();
+            for (int i = 0; fs != null && i < fs.length() && facts.length() < 6; i++) {
+                String f = fs.optString(i, "").replaceAll("\\p{Cntrl}", " ").trim();
+                if (!f.isEmpty()) facts.put(f.length() > 160 ? f.substring(0, 160) : f);
+            }
+            if (facts.length() > 0) j.put("facts", facts);
             out.put(j);
             p.edit().putString(MINE, out.toString()).apply();
             return id;
@@ -187,6 +201,8 @@ final class DenLooks {
         StringBuilder w = new StringBuilder();
         for (String k : new String[]{"hero", "scene", "watcher", "goal_text", "scoreboard_text", "tags"}) w.append(j.optString(k, "")).append(' ');
         l.words = w.toString().trim();
+        JSONArray fs = j.optJSONArray("facts");
+        for (int i = 0; fs != null && i < fs.length(); i++) if (!fs.optString(i).isEmpty()) l.facts.add(fs.optString(i));
         return l;
     }
 
@@ -248,6 +264,8 @@ final class DenLooks {
             t.focus = o.optString("focus", look.focus);
             t.order = look.order;
             t.photo = look.photo;
+            t.words = look.words;
+            t.facts = look.facts;
             return t;
         } catch (JSONException e) {
             return look;

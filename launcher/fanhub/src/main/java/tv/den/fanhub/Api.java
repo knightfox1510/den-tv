@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -98,6 +98,7 @@ final class Api {
             case "/api/homesetup": return Timers.open(ctx, new Intent(ctx, HomeSetupActivity.class).putExtra(HomeSetupActivity.EXTRA_SPEED, in.optBoolean("speed")))
                     ? ok(true) : fail(helperNeeded());
             case "/api/speedup": return Speedup.status(ctx);
+            case "/api/lookart": return lookArt(in);
             default: return new JSONObject().put("error", "not found");
         }
     }
@@ -775,6 +776,36 @@ final class Api {
         JSONObject w = Gemini.words(text, looks);
         if (w == null) return fail(note + (key.isEmpty() ? "No look matched those words. Add a Gemini key (TV → Live data) to describe looks freely." : "No look matched those words."));
         return ok(true).put("look", w).put("by", "words").put("note", note);
+    }
+
+    /**
+     * A described look's wallpaper (LookArt): painted by Gemini from its scene when the key allows it, or drawn here
+     * in its colours; with its title, subtitle and number. Saved as one of the TV's photos (not put on Home) for the
+     * look to use; the phone deletes it again if the look isn't kept.
+     */
+    private JSONObject lookArt(JSONObject in) throws JSONException {
+        String key = Store.geminiKey(ctx), scene = in.optString("scene", ""), note = "";
+        byte[] picture = null;
+        if (!key.isEmpty() && !scene.isEmpty()) {
+            try { picture = Gemini.picture(key, scene, in.optJSONArray("colours")); }
+            catch (IOException e) { note = "Gemini couldn't paint it (" + e.getMessage() + "), so den-tv drew a poster in its colours."; }
+        }
+        Bitmap art;
+        try {
+            art = LookArt.make(ctx, picture, in.optJSONArray("colours"), in.optString("number", "").replaceAll("\\D", ""),
+                    Gemini.clean(in.optString("title"), 14).toUpperCase(Locale.ROOT), Gemini.clean(in.optString("subtitle"), 40).toUpperCase(Locale.ROOT), System.nanoTime());
+        } catch (OutOfMemoryError e) {
+            return fail("The TV ran out of memory making the wallpaper");
+        }
+        try (OutputStream os = ctx.getContentResolver().openOutputStream(NEW_PHOTO, "w")) {
+            if (os == null) return fail("The launcher didn't accept it");
+            art.compress(Bitmap.CompressFormat.JPEG, 90, os);
+        } catch (IOException | RuntimeException e) {
+            return fail("Update the den-tv launcher to save wallpapers");
+        }
+        JSONArray list = photos().optJSONArray("photos");
+        if (list == null || list.length() == 0) return fail("The wallpaper wasn't saved");
+        return ok(true).put("photo", list.getJSONObject(0).optString("name")).put("by", picture == null ? "drawn" : "gemini").put("note", note);
     }
 
     private JSONObject mineAction(JSONObject in) throws JSONException {
