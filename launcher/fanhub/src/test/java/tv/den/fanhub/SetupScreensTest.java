@@ -53,7 +53,7 @@ public class SetupScreensTest {
         HomeSetupActivity a = Robolectric.buildActivity(HomeSetupActivity.class).setup().get();
         java.util.List<String> lines = java.util.Arrays.asList("Starting den-tv", "Switching off the TV's own home screen",
                 "den-tv is the home screen", "den-tv helper on", "den-tv screensaver on", "USB debugging off");
-        for (String step : new String[]{"INTRO", "ASK_HELPER", "DEBUG", "ALLOW", "WORKING", "DONE", "IS_HOME", "NO_LAUNCHER"}) {
+        for (String step : new String[]{"INTRO", "ASK_HELPER", "ASK_DREAM", "DEBUG", "ALLOW", "WORKING", "DONE", "IS_HOME", "NO_LAUNCHER"}) {
             a.showForTest(step, step.equals("WORKING") ? lines.subList(0, 3) : lines);
             View root = a.getWindow().getDecorView();
             root.measure(View.MeasureSpec.makeMeasureSpec(1920, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY));
