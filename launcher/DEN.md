@@ -31,7 +31,7 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   the picked app and blinks. Hero Wall moves to the next hero at most every 5 minutes. The Geek look adds
   SYSTEM, NETWORK and FEED panels on the right.
 - **Big moments.** With live scores on (football-data.org and CricketData.org keys, entered from the phone's
-  TV tab → Live data; they stay on the TV), a goal, or every fifty runs, plays the look's celebration: GOAL! with
+  TV tab → Keys and live data; they stay on the TV), a goal, or every fifty runs, plays the look's celebration: GOAL! with
   confetti, a six sailing out of the ground, a Kamehameha beam, shadow soldiers rising, a punch or Gear 5. A new
   episode slides its card in. Matches update every 2 minutes while live.
 - **Badges, smart order and the Shows folder.** Tiles show a red LIVE pill (with the score) on FanCode, Hotstar or
@@ -89,7 +89,7 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
 - **Photo looks.** Looks → Save a photo as a look: one of your photos as the wallpaper with any look's parts, in My
   photos. It stays on the TV, never joins the rotation, isn't shown to a guest, and private photos can't be used.
 - **Describe a look.** Looks → Describe a look: a sentence becomes a look of your own. With a Gemini API key
-  (TV → Live data; it stays on the TV and the phone can't read it back) Gemini picks the wallpaper and parts from
+  (TV → Keys and live data; it stays on the TV and the phone can't read it back) Gemini picks the wallpaper and parts from
   den-tv's own; without one, the words are matched to the looks' names. The description is sent to Google.
 - **Now playing.** The Remote tab shows the app on the TV, for how long, who's watching and the volume, with Mute.
 - **Form and standings.** The Fan Hub shows your team's last five results under the next match (TheSportsDB), and,
@@ -131,7 +131,7 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
 - **Keep running.** TV → Memory: apps ticked here are never closed by "Close background apps".
 - **Screen care.** Home's contents shift by a few pixels every 3 minutes so nothing stays still long enough to
   burn in (TV → Screen care).
-- **Gemini model.** TV → Live data chooses the Gemini model; the key is checked when saved, and a model your key
+- **Gemini model.** TV → Keys and live data chooses the Gemini model; the key is checked when saved, and a model your key
   can't use falls back to one it can.
 - **Set up from the TV alone.** Opening the Fan Hub while den-tv isn't Home offers to make it so: with USB
   debugging on, the Fan Hub connects to the TV's own debugging port (`Adb.java`, ADB's protocol with its own RSA key),

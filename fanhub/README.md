@@ -45,7 +45,7 @@ location or add keys:
 cp fanhub/config.example.json fanhub/config.json
 ```
 
-On the TV the same settings live in the phone page (Customise → Live data) and are stored on the TV
+On the TV the same settings live in the phone page (TV tab → Keys and live data, which also shows whether each key works) and are stored on the TV
 only. Keys never go into the repo.
 
 ## What the feed drives

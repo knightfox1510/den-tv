@@ -139,7 +139,7 @@ the installer for you and deal with anything unusual about your TV.
    helper → On**. It lets the phone press Back and Home, type, open apps and count screen time. Volume and
    play/pause work without it.
 3. **Optional: live scores and AI.** Free keys from football-data.org, CricketData.org and Google AI Studio (Gemini)
-   go in on the phone, **TV tab → Live data**. They stay on the TV; never post them anywhere.
+   go in on the phone, **TV tab → Keys and live data**. They stay on the TV; never post them anywhere.
 4. Make sure **USB debugging is off** (Settings → System → Developer options).
 
 ## Speeding the TV up
