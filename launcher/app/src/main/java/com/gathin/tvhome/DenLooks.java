@@ -46,6 +46,8 @@ final class DenLooks {
         int order = 9000;
         /** A photo look's photo (photos/photo-….jpg); "" for every other look. Its wallpaper is then PHOTO_FILE. */
         String photo = "";
+        /** Words about the look beyond its name (hero, scene, its texts, tags), for describing a look in words. */
+        String words = "";
 
         boolean hasEyes() { return EYES.contains(watcher); }
     }
@@ -182,6 +184,9 @@ final class DenLooks {
         l.hud = j.optBoolean("hud", false);
         l.focus = j.optString("focus", "");
         l.order = j.optInt("order", 9000);
+        StringBuilder w = new StringBuilder();
+        for (String k : new String[]{"hero", "scene", "watcher", "goal_text", "scoreboard_text", "tags"}) w.append(j.optString(k, "")).append(' ');
+        l.words = w.toString().trim();
         return l;
     }
 

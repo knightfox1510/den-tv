@@ -244,6 +244,20 @@ public class FanHubTest {
         assertTrue(Gemini.prompt("rainy night", looks, parts).contains("crimson-moon: Crimson Moon"));
     }
 
+    /** The description that matched "Wanted" (on "want") and missed Barça Wings (Raphinha spelt Raphina). */
+    @Test public void wordsFindTheRightLook() throws Exception {
+        org.json.JSONArray looks = new org.json.JSONArray("["
+                + "{\"id\":\"wanted\",\"name\":\"Wanted\",\"category\":\"One Piece\",\"words\":\"luffy grandline straw\"},"
+                + "{\"id\":\"camp-nou\",\"name\":\"Camp Nou Nights\",\"category\":\"Football\",\"words\":\"campnou messi ball\"},"
+                + "{\"id\":\"barca-wings\",\"name\":\"Barça Wings\",\"category\":\"Football\",\"words\":\"wings wings onetwo Raphinha to Yamal · goal\"},"
+                + "{\"id\":\"master-blaster\",\"name\":\"Master Blaster\",\"category\":\"Cricket\",\"words\":\"sachin sharjah drive SACHIN 143 (131) · SHARJAH\"}]");
+        assertEquals("barca-wings", Gemini.words("I want a theme for FC Barcelona player, Raphina", looks).getString("base"));
+        assertEquals("master-blaster", Gemini.words("something for Tendulkar fans", looks).getString("base"));
+        assertNull("filler words alone match nothing", Gemini.words("I want a cool theme please", looks));
+        assertTrue(Gemini.near("raphina", "raphinha"));
+        assertFalse(Gemini.near("wants", "wanted"));
+    }
+
     @Test public void pastedKeysAreCleanedNotJudged() {
         String k = "AIzaSyD-abcdefghijklmnopqrstuvwxyz_0123";
         assertEquals(k, FanHub.cleanKey("  " + k + "\n"));

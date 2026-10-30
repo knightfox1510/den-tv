@@ -14,7 +14,7 @@ import java.util.List;
  * the one on Home marked; update current with look = an id or "rotate": puts it on, as the Looks screen does.
  */
 public final class DenLooksProvider extends ContentProvider {
-    static final String[] COLUMNS = {"id", "name", "category", "on", "changed", "fav"};
+    static final String[] COLUMNS = {"id", "name", "category", "on", "changed", "fav", "words"};
 
     @Override public boolean onCreate() { return true; }
 
@@ -34,8 +34,8 @@ public final class DenLooksProvider extends ContentProvider {
         DenLooks.Look on = DenLooks.current(getContext(), looks);
         MatrixCursor c = new MatrixCursor(COLUMNS);
         java.util.Set<String> favs = DenApps.favourites(getContext());
-        c.addRow(new Object[]{DenLooks.ROTATE, "Rotate every look", "", on == null ? 1 : 0, 0, 0});
-        for (DenLooks.Look l : looks) c.addRow(new Object[]{l.id, l.name, l.category, l == on ? 1 : 0, DenLooks.changed(getContext(), l.id) ? 1 : 0, favs.contains(l.id) ? 1 : 0});
+        c.addRow(new Object[]{DenLooks.ROTATE, "Rotate every look", "", on == null ? 1 : 0, 0, 0, ""});
+        for (DenLooks.Look l : looks) c.addRow(new Object[]{l.id, l.name, l.category, l == on ? 1 : 0, DenLooks.changed(getContext(), l.id) ? 1 : 0, favs.contains(l.id) ? 1 : 0, l.words});
         return c;
     }
 

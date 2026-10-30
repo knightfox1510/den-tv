@@ -101,6 +101,20 @@ public class SpeedupApplyTest {
         assertTrue(Speedup.switchedOff(app).isEmpty());
     }
 
+    @Test public void thePhoneSeesWhatIsOff() throws Exception {
+        install("com.vendor.ads");
+        PretendTv tv = new PretendTv();
+        assertEquals(null, HomeSetup.makeHome(tv, line -> { }));
+        tv.packages.add("com.vendor.ads");
+        List<Speedup.Item> items = new ArrayList<>();
+        items.add(new Speedup.Item("com.vendor.ads", "Ads", "", false, true));
+        Speedup.apply(app, tv, items, line -> { });
+        org.json.JSONObject s = Speedup.status(app);
+        assertEquals(1, s.getInt("byDen"));
+        assertEquals("com.vendor.ads", s.getJSONArray("apps").getJSONObject(0).getString("pkg"));
+        assertTrue(s.getJSONArray("apps").getJSONObject(0).getBoolean("byDen"));
+    }
+
     @Test public void ifHomeBreaksEverythingComesBack() throws Exception {
         PretendTv tv = new PretendTv();   // Home is still Google's: the check after switching off fails
         tv.packages.add("com.vendor.ads");

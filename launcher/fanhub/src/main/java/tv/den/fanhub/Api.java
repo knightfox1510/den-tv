@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -95,7 +95,9 @@ final class Api {
             case "/api/surprise": return surprise();
             case "/api/keep": return keep(in);
             case "/api/update": return in.length() == 0 ? Updater.status(ctx) : Updater.set(ctx, in);
-            case "/api/homesetup": return Timers.open(ctx, new Intent(ctx, HomeSetupActivity.class)) ? ok(true) : fail(helperNeeded());
+            case "/api/homesetup": return Timers.open(ctx, new Intent(ctx, HomeSetupActivity.class).putExtra(HomeSetupActivity.EXTRA_SPEED, in.optBoolean("speed")))
+                    ? ok(true) : fail(helperNeeded());
+            case "/api/speedup": return Speedup.status(ctx);
             default: return new JSONObject().put("error", "not found");
         }
     }
@@ -757,7 +759,8 @@ final class Api {
             while (c != null && c.moveToNext()) {
                 String id = c.getString(0);
                 if (id.equals("rotate") || id.startsWith("mine-")) continue;
-                looks.put(new JSONObject().put("id", id).put("name", c.getString(1)).put("category", c.getString(2)));
+                looks.put(new JSONObject().put("id", id).put("name", c.getString(1)).put("category", c.getString(2))
+                        .put("words", c.getColumnCount() > 6 ? c.getString(6) : ""));
             }
         } catch (RuntimeException e) {
             return fail("Update the den-tv launcher to make looks.");

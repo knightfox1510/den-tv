@@ -35,6 +35,8 @@ import java.util.List;
  */
 public final class HomeSetupActivity extends Activity {
     static final String EXTRA_GIVE_BACK = "give_back";
+    /** Opened from the phone's "Speed up on the TV": straight to this TV's list. */
+    static final String EXTRA_SPEED = "speed";
     private static final String PREFS = "home_setup", SKIP = "skip";
     private enum Step { NO_LAUNCHER, IS_HOME, INTRO, ASK_HELPER, ASK_DREAM, CHOOSE_TV, SPEED, PICK, NO_LIST, DEBUG, CONNECTING, ALLOW, WORKING, DONE, FAILED }
     /** What the connection is for: making den-tv Home, giving Home back, only speeding up, or undoing the speed-up. */
@@ -87,6 +89,7 @@ public final class HomeSetupActivity extends Activity {
         else if (giveBack) step = Step.DEBUG;
         else step = isHome(this) ? Step.IS_HOME : Step.INTRO;
         show();
+        if (!running && step == Step.IS_HOME && getIntent().getBooleanExtra(EXTRA_SPEED, false)) { mode = Mode.SPEED; offerSpeedup(); }
     }
 
     @Override protected void onResume() {
@@ -358,6 +361,7 @@ public final class HomeSetupActivity extends Activity {
 
     private void pickList(Speedup.TvList l) {
         tvList = l;
+        Speedup.rememberTv(this, l);
         items = Speedup.plan(this, l);
         if (items.isEmpty()) noList();
         else go(Step.SPEED);

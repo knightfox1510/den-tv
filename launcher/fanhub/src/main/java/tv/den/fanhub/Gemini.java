@@ -23,6 +23,8 @@ import java.util.Locale;
 final class Gemini {
     static final String DEFAULT_MODEL = "gemini-flash-latest";
     private static final int TIMEOUT_MS = 25_000;
+    /** Describing a look: the model reads the whole library and may think first, which takes longer than a key check. */
+    private static final int ASK_TIMEOUT_MS = 75_000;
     static final String[] PARTS = {"watcher", "clock", "icons", "icon_layout", "focus", "wake", "extras"};
 
     private Gemini() {}
@@ -36,7 +38,8 @@ final class Gemini {
                 .append("and accent (a #RRGGBB highlight colour).\n\nThe person wants: \"").append(text.replace('"', '\'')).append("\"\n\nBase looks (id: name, category):\n");
         for (int i = 0; i < looks.length(); i++) {
             JSONObject l = looks.getJSONObject(i);
-            b.append("- ").append(l.optString("id")).append(": ").append(l.optString("name")).append(", ").append(l.optString("category")).append('\n');
+            b.append("- ").append(l.optString("id")).append(": ").append(l.optString("name")).append(", ").append(l.optString("category"))
+                    .append(l.optString("words").isEmpty() ? "" : " (" + l.optString("words") + ")").append('\n');
         }
         b.append("\nAllowed values for each part:\n");
         for (String p : PARTS) {
@@ -76,16 +79,41 @@ final class Gemini {
         return out;
     }
 
-    /** The look whose name, category or id shares the most words with the description; parts left as the look's own. */
+    /** Words that say nothing about which look ("I want a theme for ..."). */
+    private static final java.util.Set<String> FILLER = new java.util.HashSet<>(java.util.Arrays.asList(("a an and any are as at be "
+            + "but by can cool do for from get give have i in into is it its like look looks make me mine my new nice of on "
+            + "one or please player players show some something style team that the theme themed this to tv want wants "
+            + "with would you your").split(" ")));
+    /** What people call things, to the words the looks use. */
+    private static final String[][] ALSO = {{"barcelona", "barca"}, {"fcb", "barca"}, {"blaugrana", "barca"}, {"tendulkar", "sachin"},
+            {"virat", "kohli"}, {"rohit", "hitman"}, {"messi", "goat"}, {"argentina", "albiceleste"}, {"madrid", "clasico"},
+            {"ipl", "wankhede"}, {"mumbai", "wankhede"}, {"cricket", "cricket"}, {"anime", "anime"}, {"dbz", "saiyan"},
+            {"goku", "saiyan"}, {"naruto", "naruto"}, {"luffy", "straw"}, {"onepiece", "piece"}, {"hiking", "trail"},
+            {"diwali", "diwali"}, {"coding", "coder"}, {"programming", "coder"}, {"rain", "monsoon"}};
+
+    /**
+     * Without Gemini: the look whose name, category, hero, scene and texts share the most words with the description,
+     * ignoring filler words, forgiving a letter or two in longer words (Raphina, Raphinha), and knowing a few
+     * nicknames (Barcelona, Barça). Parts are left as the look's own.
+     */
     static JSONObject words(String text, JSONArray looks) throws JSONException {
-        String[] ws = text.toLowerCase(Locale.ROOT).split("[^\\p{L}\\p{N}]+");
+        java.util.List<String> ws = new java.util.ArrayList<>();
+        for (String w : tokens(text)) {
+            if (w.length() < 3 || FILLER.contains(w)) continue;
+            ws.add(w);
+            for (String[] a : ALSO) if (a[0].equals(w)) ws.add(a[1]);
+        }
         JSONObject best = null;
         int score = 0;
         for (int i = 0; i < looks.length(); i++) {
             JSONObject l = looks.getJSONObject(i);
-            String hay = (l.optString("id") + " " + l.optString("name") + " " + l.optString("category")).toLowerCase(Locale.ROOT).replace('-', ' ');
+            java.util.Set<String> hay = new java.util.HashSet<>(tokens(l.optString("id") + " " + l.optString("name") + " "
+                    + l.optString("category") + " " + l.optString("words")));
             int s = 0;
-            for (String w : ws) if (w.length() > 2 && hay.contains(w)) s += w.length();
+            for (String w : ws) {
+                if (hay.contains(w)) { s += 2 * w.length(); continue; }
+                for (String h : hay) if (w.length() >= 5 && h.length() >= 5 && near(w, h)) { s += w.length(); break; }
+            }
             if (s > score) { score = s; best = l; }
         }
         if (best == null) return null;
@@ -93,12 +121,33 @@ final class Gemini {
                 .put("why", "Matched your words to " + best.optString("name") + ".");
     }
 
-    /** Asks Gemini; the checked look, or IOException with a reason a person can act on. */
+    /** Lower-case words, accents dropped (Barça: barca). */
+    static java.util.List<String> tokens(String text) {
+        String plain = java.text.Normalizer.normalize(text, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "").toLowerCase(Locale.ROOT);
+        java.util.List<String> out = new java.util.ArrayList<>();
+        for (String w : plain.split("[^\\p{L}\\p{N}]+")) if (!w.isEmpty()) out.add(w);
+        return out;
+    }
+
+    /** At most one letter added, dropped or changed (two for words of eight letters or more). */
+    static boolean near(String a, String b) {
+        int max = Math.max(a.length(), b.length()) >= 8 ? 2 : 1;
+        if (Math.abs(a.length() - b.length()) > max) return false;
+        int[] prev = new int[b.length() + 1], cur = new int[b.length() + 1];
+        for (int j = 0; j <= b.length(); j++) prev[j] = j;
+        for (int i = 1; i <= a.length(); i++) {
+            cur[0] = i;
+            for (int j = 1; j <= b.length(); j++) cur[j] = Math.min(Math.min(cur[j - 1] + 1, prev[j] + 1), prev[j - 1] + (a.charAt(i - 1) == b.charAt(j - 1) ? 0 : 1));
+            int[] t = prev; prev = cur; cur = t;
+        }
+        return prev[b.length()] <= max;
+    }
+
     static JSONObject ask(String key, String model, String text, JSONArray looks, JSONObject parts) throws IOException, JSONException {
         JSONObject body = new JSONObject()
                 .put("contents", new JSONArray().put(new JSONObject().put("parts", new JSONArray().put(new JSONObject().put("text", prompt(text, looks, parts))))))
                 .put("generationConfig", new JSONObject().put("responseMimeType", "application/json").put("temperature", 0.8));
-        JSONObject r = post("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", body.toString(), key);
+        JSONObject r = post("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", body.toString(), key, ASK_TIMEOUT_MS);
         JSONArray cands = r.optJSONArray("candidates");
         JSONObject content = cands == null || cands.length() == 0 ? null : cands.getJSONObject(0).optJSONObject("content");
         JSONArray ps = content == null ? null : content.optJSONArray("parts");
@@ -148,9 +197,13 @@ final class Gemini {
     }
 
     private static JSONObject post(String url, String body, String key) throws IOException, JSONException {
+        return post(url, body, key, TIMEOUT_MS);
+    }
+
+    static JSONObject post(String url, String body, String key, int timeoutMs) throws IOException, JSONException {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(TIMEOUT_MS);
-        c.setReadTimeout(TIMEOUT_MS);
+        c.setReadTimeout(timeoutMs);
         c.setRequestMethod("POST");
         c.setDoOutput(true);
         c.setRequestProperty("Content-Type", "application/json");

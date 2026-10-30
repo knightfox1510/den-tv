@@ -217,6 +217,49 @@ final class Speedup {
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().remove("off").apply();
     }
 
+    /** Which tested list this TV's owner confirmed (its TV name), for the phone; "" before one was. */
+    static void rememberTv(Context ctx, TvList l) {
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("tv", l.folder).apply();
+    }
+
+    /**
+     * For the phone's TV tab: the confirmed list (or the best match), each of its apps on this TV with whether it is
+     * switched off now and whether den-tv did it; and anything den-tv switched off that isn't on the list.
+     */
+    static JSONObject status(Context ctx) throws JSONException {
+        PackageManager pm = ctx.getPackageManager();
+        Set<String> ours = switchedOff(ctx);
+        String chosen = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tv", "");
+        List<TvList> all = load(ctx);
+        TvList list = null;
+        for (TvList l : all) if (l.folder.equals(chosen)) list = l;
+        if (list == null) {
+            List<TvList> m = match(all, Build.BRAND, Build.MANUFACTURER, Build.MODEL, Build.DEVICE, Build.PRODUCT, Build.BOARD, Build.HARDWARE);
+            if (m.size() == 1) list = m.get(0);
+        }
+        JSONArray apps = new JSONArray();
+        Set<String> listed = new HashSet<>();
+        int off = 0;
+        if (list != null) for (String[] e : list.entries) {
+            if (!listed.add(e[0])) continue;
+            JSONObject a = app(pm, e[0], e[1], ours);
+            if (a != null) { apps.put(a); if (a.getBoolean("off")) off++; }
+        }
+        for (String pkg : ours) if (!listed.contains(pkg)) { JSONObject a = app(pm, pkg, "", ours); if (a != null) apps.put(a); }
+        return new JSONObject().put("tv", list == null ? "" : list.tv).put("confirmed", list != null && list.folder.equals(chosen))
+                .put("apps", apps).put("off", off).put("byDen", ours.size())
+                .put("model", Build.MANUFACTURER + " " + Build.MODEL + " (" + Build.DEVICE + ")");
+    }
+
+    private static JSONObject app(PackageManager pm, String pkg, String note, Set<String> ours) throws JSONException {
+        String label;
+        try { label = String.valueOf(pm.getApplicationInfo(pkg, PackageManager.MATCH_DISABLED_COMPONENTS).loadLabel(pm)); }
+        catch (PackageManager.NameNotFoundException e) { return null; }   // not on this TV
+        int state = pm.getApplicationEnabledSetting(pkg);
+        boolean off = state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+        return new JSONObject().put("pkg", pkg).put("label", label).put("note", note).put("off", off).put("byDen", ours.contains(pkg));
+    }
+
     static Set<String> switchedOff(Context ctx) {
         Set<String> out = new HashSet<>();
         try {

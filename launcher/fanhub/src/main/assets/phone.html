@@ -371,6 +371,11 @@
       <div class="row" style="margin-top:10px"><button id="upCheck" class="ghost">Check now</button><button id="upInstall">Install now</button></div>
       <div id="upMsg" class="msg" role="status"></div>
     </div></details>
+    <details class="card" id="spCard"><summary><span><b>Speed up</b><small id="spSum"></small></span></summary><div class="in">
+      <p id="spText"></p>
+      <div id="spList" class="stbars"></div>
+      <button id="spOpen" class="ghost">Speed up on the TV</button><div id="spMsg" class="msg" role="status"></div>
+    </div></details>
     <details class="card"><summary><span><b>Home screen</b><small>den-tv or the TV's own</small></span></summary><div class="in">
       <p>Opens the home screen setup on the TV, where you can make den-tv the home screen again or give Home back to the TV's own. It needs USB debugging on for a minute, and someone at the TV to choose Allow.</p>
       <button id="homeSetup" class="ghost">Open it on the TV</button><div id="homeMsg" class="msg" role="status"></div>
@@ -980,6 +985,16 @@
     $('upInstall').hidden = !u.waiting;
     say($('upMsg'), u.error || '', !!u.error);
   }
+  async function loadSpeedup() {
+    const r = (await api('/api/speedup')).json; if (!r || !r.apps) return;
+    $('spSum').textContent = r.tv ? r.off + ' of ' + r.apps.length + ' switched off' : 'No tested list for this TV';
+    $('spText').textContent = r.tv
+      ? 'cleanyourtv\'s list for ' + r.tv + (r.confirmed ? '' : ' (not confirmed on the TV yet)') + '. ' + (r.byDen ? r.byDen + ' switched off by den-tv. ' : 'den-tv hasn\'t switched any off. ') + 'Off means it no longer runs; it comes back with Settings → Apps or from the TV.'
+      : 'This TV (' + r.model + ') has no list tested on it yet, so nothing has been switched off. Google\'s home screen being off is already the biggest saving.';
+    const box = $('spList'); box.innerHTML = '';
+    r.apps.forEach((a) => { const d = el('div', 'approw'); d.appendChild(el('span', null, a.label)); d.appendChild(el('small', null, (a.off ? 'Off' : 'On') + (a.byDen ? ' · by den-tv' : '') + (a.note ? ' · ' + a.note : ''))); box.appendChild(d); });
+  }
+  $('spOpen').addEventListener('click', async () => { const r = (await api('/api/homesetup', { speed: true })).json; say($('spMsg'), r.ok ? 'It is open on the TV.' : (r.error || 'Couldn\'t open it.'), !r.ok); });
   async function loadUpdates() { showUpdates((await api('/api/update')).json); }
   $('upAuto').addEventListener('change', async () => showUpdates((await api('/api/update', { auto: $('upAuto').checked })).json));
   $('upEarly').addEventListener('change', async () => showUpdates((await api('/api/update', { early: $('upEarly').checked })).json));
@@ -993,6 +1008,7 @@
     if (t.storage) { const used = t.storage.total - t.storage.free; $('stoSum').textContent = mb(used) + ' used of ' + mb(t.storage.total); $('stoBar').style.width = Math.round(used / t.storage.total * 100) + '%'; }
     loadKeep();
     loadUpdates();
+    loadSpeedup();
     $('ver').textContent = 'Fan Hub ' + (t.version || '') + ' · den-tv helper ' + (t.helper ? 'on' : 'off');
     const st = (await api('/api/screentime')).json;
     $('stSum').textContent = st.helper ? 'Today ' + mins(st.minutes || 0) : 'Needs the den-tv helper';
