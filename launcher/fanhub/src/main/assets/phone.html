@@ -28,7 +28,7 @@
   .np button[aria-pressed="true"] { background: var(--accent, #ff4d6d); color: #111; }
   .vol { height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); margin-top: 12px; overflow: hidden; }
   .vol i { display: block; height: 100%; background: var(--accent, #ff4d6d); width: 0; transition: width .3s; }
-  input[type=text], input[type=search], input[type=time], input[type=number], input:not([type]), textarea, select {
+  input[type=text], input[type=password], input[type=search], input[type=time], input[type=number], input:not([type]), textarea, select {
     width: 100%; background: var(--card2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: inherit; }
   input.code { font-size: 32px; letter-spacing: .4em; text-align: center; }
   button { appearance: none; border: 0; border-radius: 10px; background: var(--acc); color: #fff; font: 600 16px/1 inherit; padding: 13px 16px; margin-top: 10px; width: 100%; cursor: pointer; }
@@ -331,15 +331,13 @@
       <button id="speedGo">Run a speed test</button>
       <div id="netMsg" class="msg" role="status"></div>
     </div></details>
-    <details class="card" id="liveCard"><summary><span><b>Live data</b><small id="liveSum">Scores, episodes, moments</small></span></summary><div class="in">
-      <p>Without keys, scores arrive when a match ends. Free keys bring live scores during play, and the goal, six and new-episode moments on Home. Keys stay on the TV.</p>
-      <label for="kFootball">football-data.org key <small id="kfSet"></small></label><input id="kFootball" type="password" autocomplete="off" placeholder="Paste a key">
-      <label for="kCricket">CricketData.org key <small id="kcSet"></small></label><input id="kCricket" type="password" autocomplete="off" placeholder="Paste a key">
-      <label for="kGemini">Gemini API key <small id="kgSet"></small></label><input id="kGemini" type="password" autocomplete="off" placeholder="Paste a key from aistudio.google.com">
-      <label for="kgModel">Gemini model</label>
+    <details class="card" id="liveCard"><summary><span><b>Keys and live data</b><small id="liveSum">Gemini, live scores</small></span></summary><div class="in">
+      <p>Free keys add more: Gemini designs looks, and the score keys bring scores during play and the goal and six moments. Keys stay on the TV; this page only ever sees their last four characters.</p>
+      <div id="keyList"></div>
+      <div id="kgModelBox" hidden><label for="kgModel">Gemini model</label>
       <select id="kgModel"><option value="gemini-flash-latest">Flash, newest (default)</option><option value="gemini-2.5-flash">Gemini 2.5 Flash</option><option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite (fastest)</option><option value="gemini-2.5-pro">Gemini 2.5 Pro (slower, smartest)</option></select>
-      <div class="hint">Gemini turns a sentence into a look (Looks → Describe a look). The key stays on the TV; this page can't read it back. Your description goes to Google to answer it. <a href="#" id="kgForget">Remove the Gemini key</a></div>
-      <div class="row"><button id="saveKeys">Save keys</button><button id="liveRefresh" class="ghost">Fetch now</button></div>
+      <div class="hint">Describing a look sends your words to Google to answer them.</div></div>
+      <div class="row"><button id="liveRefresh" class="ghost">Fetch scores now</button></div>
       <div id="liveMsg" class="msg" role="status"></div>
       <label>Try a moment on Home</label>
       <div class="chips" id="momentChips"></div>
@@ -1138,13 +1136,55 @@
       row.appendChild(span); row.appendChild(b); pb.appendChild(row); });
   }
   $('liveCard').addEventListener('toggle', async () => { if ($('liveCard').open) loadLive(); });
+  // Keys: one row each, with what it unlocks, its state (working, a problem and why, not added), its last four
+  // characters, and Test / Replace / Remove. The TV checks them when saved, when used, and once a day.
+  const KSTATE = { ok: ['Working', 'var(--ok)'], problem: ['Problem', '#ff6b6b'], none: ['Not added', 'var(--dim)'], checking: ['Checking…', 'var(--dim)'] };
+  function ago(t) { if (!t) return ''; const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' days ago'; }
+  function showKeys(k) {
+    const box = $('keyList'); const mb = $('kgModelBox'); mb.hidden = true; $('liveCard').querySelector('.in').insertBefore(mb, box.nextSibling);
+    box.innerHTML = ''; let checking = false;
+    (k.keys || []).forEach((x) => {
+      const card = el('div', 'card'); card.style.margin = '10px 0 0';
+      const top = el('div', 'row'); top.style.cssText = 'align-items:center;justify-content:space-between;margin:0';
+      top.appendChild(el('b', null, x.name + (x.tail ? '  ' + x.tail : '')));
+      const st = KSTATE[x.state] || KSTATE.none; const pill = el('span', null, st[0]);
+      pill.style.cssText = 'flex:none;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid ' + st[1] + ';color:' + st[1];
+      top.appendChild(pill); card.appendChild(top);
+      card.appendChild(el('p', 'hint', x.unlocks)); if (x.state === 'checking') checking = true;
+      if (x.message) { const m = el('p', null, x.message + (x.at ? ' (' + ago(x.at) + ')' : '')); m.style.cssText = 'margin:6px 0 0;color:' + (x.state === 'problem' ? '#ff9b9b' : 'var(--text)'); card.appendChild(m); }
+      if (x.id === 'gemini' && x.set && x.picturesNote) card.appendChild(el('p', 'hint', 'Wallpapers: ' + x.picturesNote));
+      const form = el('div'); form.hidden = x.set;
+      const input = el('input'); input.type = 'password'; input.autocomplete = 'off'; input.placeholder = 'Paste the ' + x.name + ' key'; input.style.marginTop = '8px'; form.appendChild(input);
+      const getIt = el('a', 'hint', 'Get a free key'); getIt.href = x.get; getIt.target = '_blank'; getIt.rel = 'noopener'; getIt.style.cssText = 'display:inline-block;margin-top:6px;color:var(--acc)';
+      form.appendChild(getIt);
+      const save = el('button', null, x.set ? 'Save the new key' : 'Add the key');
+      save.onclick = async () => {
+        if (!input.value.trim()) { say($('liveMsg'), 'Paste the key first.', true); return; }
+        say($('liveMsg'), 'Trying the key…'); save.disabled = true;
+        const r = (await api('/api/keys', { set: x.id, key: input.value.trim() })).json; save.disabled = false; input.value = '';
+        if (r.ok === false) { say($('liveMsg'), r.error || 'Couldn\'t save it.', true); return; }
+        say($('liveMsg'), ''); showKeys(r);
+      };
+      form.appendChild(save); card.appendChild(form);
+      if (x.set) {
+        const acts = el('div', 'row');
+        const test = el('button', 'ghost', 'Test'); test.onclick = async () => { test.disabled = true; test.textContent = 'Testing…'; showKeys((await api('/api/keys', { test: x.id })).json); };
+        const repl = el('button', 'ghost', 'Replace'); repl.onclick = () => { form.hidden = !form.hidden; };
+        const rm = el('button', 'ghost', 'Remove'); rm.onclick = async () => { if (confirm('Remove the ' + x.name + ' key from the TV?')) showKeys((await api('/api/keys', { remove: x.id })).json); };
+        [test, repl, rm].forEach((b) => { b.style.margin = '8px 0 0'; acts.appendChild(b); }); card.appendChild(acts);
+      }
+      if (x.id === 'gemini' && x.set) { mb.hidden = false; card.appendChild(mb); }
+      box.appendChild(card);
+    });
+    const on = (k.keys || []).filter((x) => x.set);
+    $('liveSum').textContent = on.length ? on.map((x) => x.name + (x.state === 'ok' ? ' ✓' : x.state === 'problem' ? ' ⚠' : '')).join(' · ') : 'No keys yet';
+    if (checking) setTimeout(async () => showKeys((await api('/api/keys')).json), 5000);
+  }
   async function loadLive() {
     const l = (await api('/api/live')).json;
-    $('kfSet').textContent = l.football ? '· set' : ''; $('kcSet').textContent = l.cricket ? '· set' : ''; $('kgSet').textContent = l.gemini ? '· set' : '';
-    $('kgForget').hidden = !l.gemini;
+    showKeys((await api('/api/keys')).json);
     const ms = $('kgModel'); if (l.geminiModel && ![...ms.options].some((o) => o.value === l.geminiModel)) { const o = el('option', null, l.geminiModel); o.value = l.geminiModel; ms.appendChild(o); }
     ms.value = l.geminiModel || 'gemini-flash-latest';
-    $('liveSum').textContent = (l.football || l.cricket ? 'Live scores on' : 'No keys yet') + (l.fetched ? ' · updated ' + new Date(l.fetched).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '');
     say($('liveMsg'), l.errors ? 'Last fetch: ' + l.errors.replace(/\n/g, '; ') : '', !!l.errors);
     const mc = $('momentChips'); mc.innerHTML = '';
     [['goal', 'Goal'], ['six', 'Six'], ['drop', 'New episode'], ['beam', 'Kamehameha'], ['arise', 'Arise'], ['punch', 'One punch'], ['gear5', 'Gear 5']].forEach(([k, n]) => {
@@ -1153,18 +1193,8 @@
       mc.appendChild(b);
     });
   }
-  $('saveKeys').addEventListener('click', async () => {
-    const body = {}; if ($('kFootball').value.trim()) body.football = $('kFootball').value.trim(); if ($('kCricket').value.trim()) body.cricket = $('kCricket').value.trim();
-    if ($('kGemini').value.trim()) body.gemini = $('kGemini').value.trim();
-    if (!Object.keys(body).length) { say($('liveMsg'), 'Paste a key first.', true); return; }
-    if (body.gemini) say($('liveMsg'), 'Trying the key on Gemini…');
-    const r = await api('/api/live', body); $('kFootball').value = ''; $('kCricket').value = ''; $('kGemini').value = '';
-    if (r.json.ok === false) { say($('liveMsg'), r.json.error || 'Couldn\'t save.', true); return; }
-    say($('liveMsg'), (r.json.geminiCheck ? r.json.geminiCheck + ' ' : '') + 'Saved. Fetching…'); setTimeout(loadLive, 6000);
-  });
   // A new model is tried with the saved key at once (a key pasted with it is tried with that model).
-  $('kgModel').addEventListener('change', async () => { const r = await api('/api/live', { geminiModel: $('kgModel').value }); say($('liveMsg'), r.json.ok === false ? (r.json.error || 'Couldn\'t.') : 'Gemini model set.', r.json.ok === false); });
-  $('kgForget').addEventListener('click', async (ev) => { ev.preventDefault(); await api('/api/live', { gemini: '' }); say($('liveMsg'), 'Gemini key removed from the TV.'); loadLive(); });
+  $('kgModel').addEventListener('change', async () => { const r = await api('/api/live', { geminiModel: $('kgModel').value }); say($('liveMsg'), r.json.ok === false ? (r.json.error || 'Couldn\'t.') : 'Gemini model set.', r.json.ok === false); showKeys((await api('/api/keys')).json); });
   $('liveRefresh').addEventListener('click', async () => { await api('/api/live', { refresh: true }); say($('liveMsg'), 'Fetching…'); setTimeout(loadLive, 4000); });
   $('qCap').addEventListener('input', () => { $('qCapV').textContent = $('qCap').value; });
   $('saveQuiet').addEventListener('click', async () => { const r = await api('/api/timers', { quiet: { on: $('quietOn').checked, from: $('qFrom').value, to: $('qTo').value, cap: +$('qCap').value } }); say($('quietMsg'), r.json.ok ? 'Saved.' : 'Couldn\'t save.', !r.json.ok); loadTv(); });

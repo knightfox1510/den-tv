@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart", "/api/widgets", "/api/symbols", "/api/places"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart", "/api/widgets", "/api/symbols", "/api/places", "/api/keys"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -100,6 +100,7 @@ final class Api {
             case "/api/speedup": return Speedup.status(ctx);
             case "/api/lookart": return lookArt(in);
             case "/api/widgets": return widgets(in);
+            case "/api/keys": return keys(in);
             case "/api/symbols":
                 try { return ok(true).put("results", Widgets.symbols(in.optString("q"))); }
                 catch (IOException e) { return fail("Couldn't search the markets: " + e.getMessage()); }
@@ -794,8 +795,11 @@ final class Api {
         String key = Store.geminiKey(ctx), scene = in.optString("scene", ""), note = "";
         byte[] picture = null;
         if (!key.isEmpty() && !scene.isEmpty()) {
-            try { picture = Gemini.picture(key, scene, in.optJSONArray("colours")); }
-            catch (IOException e) { note = "Gemini couldn't paint it (" + e.getMessage() + "), so den-tv drew a poster in its colours."; }
+            try { picture = Gemini.picture(key, scene, in.optJSONArray("colours")); Keys.pictures(ctx, true, "Gemini painted the last one."); }
+            catch (IOException e) {
+                note = "Gemini couldn't paint it (" + e.getMessage() + "), so den-tv drew a poster in its colours.";
+                Keys.pictures(ctx, false, "Gemini didn't paint the last one (" + e.getMessage() + "): images may need billing on your Google account, so den-tv drew a poster.");
+            }
         }
         Bitmap art;
         try {
@@ -813,6 +817,25 @@ final class Api {
         JSONArray list = photos().optJSONArray("photos");
         if (list == null || list.length() == 0) return fail("The wallpaper wasn't saved");
         return ok(true).put("photo", list.getJSONObject(0).optString("name")).put("by", picture == null ? "drawn" : "gemini").put("note", note);
+    }
+
+    /**
+     * The Keys list: GET says each key's state; {test: id} tries it now; {remove: id} removes it; {set: id, key}
+     * saves one (and tries it). Keys are never sent back, only their last four characters.
+     */
+    private JSONObject keys(JSONObject in) throws JSONException {
+        String id = in.optString("test", in.optString("remove", in.optString("set", "")));
+        boolean known = false;
+        for (String[] s : Keys.SERVICES) if (s[0].equals(id)) known = true;
+        if (!id.isEmpty() && !known) return fail("Which key?");
+        if (in.has("test")) Keys.test(ctx, id);
+        if (in.has("remove")) Keys.remove(ctx, id);
+        if (in.has("set")) {
+            JSONObject r = Store.setLive(ctx, new JSONObject().put(id, in.optString("key")));
+            if (!r.optBoolean("ok", true) && !r.optString("error").startsWith("Saved")) return fail(r.optString("error"));
+            if (!id.equals("gemini")) Keys.test(ctx, id);
+        }
+        return Keys.status(ctx).put("ok", true);
     }
 
     /** GET lists the widgets with what each shows; {add: {...}} adds one; {remove: id} removes one. */

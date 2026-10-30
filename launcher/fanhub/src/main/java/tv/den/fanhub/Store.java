@@ -150,6 +150,7 @@ final class Store {
                 Map<String, List<FanHub.Turn>> before = bySource(app);
                 List<FanHub.Turn> all = FanHub.fetch(config(app), now, before, by, errors);
                 Moments.compare(app, before, by, now);
+                Keys.afterFetch(app, errors);   // what the score keys did, for the phone's Keys list
                 JSONObject j = new JSONObject();
                 for (Map.Entry<String, List<FanHub.Turn>> e : by.entrySet()) {
                     JSONArray a = new JSONArray();
@@ -218,11 +219,14 @@ final class Store {
                 Gemini.Check c = Gemini.test(v, model);
                 if (c.model != null && !c.model.equals(model)) e.putString("gemini_model", c.model);
                 check = c.message;
+                e.apply();
+                Keys.record(ctx, "gemini", c.ok, c.ok ? "Working: " + c.message.replaceFirst("^Gemini answered: the key works", "Gemini answered").trim() : c.message);
                 if (!c.ok) { e.apply(); return live(ctx).put("ok", false).put("error", "Saved, but " + c.message); }
             }
         }
         e.remove("extras_at");   // a new key: fetch the tables now, not in 6 hours
         e.apply();
+        for (String k : new String[]{"football", "cricket"}) if (in.has(k) && !in.optString(k).trim().isEmpty()) worker().post(() -> Keys.test(ctx, k));
         refresh(ctx, true);
         org.json.JSONObject out = live(ctx).put("ok", true);
         if (check != null) out.put("geminiCheck", check);
