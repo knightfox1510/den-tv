@@ -103,9 +103,11 @@ final class GameDay {
             io.execute(() -> {
                 List<Object[]> rows = new ArrayList<>();
                 try (Cursor c = ctx.getContentResolver().query(uri, COLUMNS, null, null, null)) {
+                    // den-tv's Fan Hub adds "live" after the contract's columns; other add-ons don't have it.
+                    int live = c == null ? -1 : c.getColumnIndex("live");
                     while (c != null && c.moveToNext()) {
                         rows.add(new Object[] {c.getString(0), c.getString(1), c.getLong(2), c.getLong(3), c.getInt(4),
-                                c.getString(5), c.getInt(6)});
+                                c.getString(5), c.getInt(6), live < 0 ? null : c.getInt(live)});
                     }
                 } catch (RuntimeException gone) {
                     // Uninstalled or crashed mid-query: keep what is on screen.
@@ -142,7 +144,9 @@ final class GameDay {
             if (start < 0 || end <= start) continue;
             String word = r[1] instanceof String ? (String) r[1] : "";
             int colour = r[4] instanceof Number ? ((Number) r[4]).intValue() : 0xFFFFFFFF;
-            out.add(new Turn((String) r[0], word, start, end, colour));
+            Turn t = new Turn((String) r[0], word, start, end, colour);
+            t.liveFlag = r.length > 7 && r[7] instanceof Number ? ((Number) r[7]).intValue() : -1;
+            out.add(t);
         }
         return out;
     }
@@ -165,6 +169,8 @@ final class GameDay {
         /** ARGB, for the short bar. */
         final int colour;
         final boolean f1;
+        /** The add-on's own word on whether it's live: 1 or 0 from den-tv's Fan Hub, -1 when it doesn't say. */
+        int liveFlag = -1;
 
         Turn(String topLine, String word, long startMs, long endMs, int colour) {
             this(topLine, word, startMs, endMs, colour, false);
@@ -210,7 +216,44 @@ final class GameDay {
     }
 
     static boolean live(Turn t, long nowMs) {
-        return nowMs >= t.startMs && nowMs < t.endMs;
+        return live(t.word, t.startMs, t.endMs, t.liveFlag, nowMs);
+    }
+
+    /**
+     * LIVE, in the panel and the screensaver: under way and, where the add-on says, with a score. A match the Fan Hub
+     * has no score for yet isn't called live, and neither are a new episode or the weekend trail (their own words
+     * say what they are). An add-on that doesn't say keeps the contract's meaning: started and not ended.
+     */
+    static boolean live(String word, long startMs, long endMs, int liveFlag, long nowMs) {
+        if (nowMs < startMs || nowMs >= endMs) return false;
+        if (liveFlag >= 0) return liveFlag == 1 && !"New episode".equals(word);
+        return !"New episode".equals(word) && !"Set off".equals(word);
+    }
+
+    /**
+     * The saver's line for one of the Fan Hub's turns, or null once it's over. LIVE as Home's panel has it
+     * (GameDay.live); a match past kick-off without a score says when it started, a new episode is NEW, and the
+     * weekend trail is just its line.
+     */
+    static String saverLine(String top, String word, long start, long end, int live, long now, java.text.DateFormat clock) {
+        if (top == null || top.isEmpty() || end <= now) return null;
+        if (now < start) return top + "  ·  " + in(start - now);
+        if (GameDay.live(word, start, end, live, now)) return "● LIVE  " + top;
+        if (GameDay.match(word)) return top + "  ·  started " + clock.format(new java.util.Date(start));
+        if ("New episode".equals(word)) return "NEW  " + top;
+        return top;
+    }
+
+    static String in(long ms) {
+        long m = Math.max(1, ms / 60_000), h = m / 60, d = h / 24;
+        if (d >= 2) return "in " + d + " days";
+        if (h >= 1) return "in " + h + " h " + (m % 60) + " min";
+        return "in " + m + " min";
+    }
+
+    /** A match past kick-off, with or without a score: "Kick-off" and "First ball" are den-tv's match words. */
+    static boolean match(String word) {
+        return "Kick-off".equals(word) || "First ball".equals(word);
     }
 
     static Duration until(Turn t, long nowMs) {

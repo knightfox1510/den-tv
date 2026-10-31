@@ -92,9 +92,14 @@ final class DenSaverView extends FrameLayout {
         date.setLetterSpacing(0.18f);
         next = text(ctx, outfit, 22, accent);
         next.setLetterSpacing(0.08f);
+        // A long match line (a cricket score with overs) wraps once, then ends in "…", never off the screen.
+        next.setMaxLines(2);
+        next.setEllipsize(android.text.TextUtils.TruncateAt.END);
         date.setText(DateFormat.format("EEEE d MMMM", new Date()));
-        block.addView(date);
-        block.addView(next);
+        // Their own width, not the clock's (a vertical LinearLayout's default): a long date or match line under a
+        // narrow clock was cut at the clock's edges.
+        block.addView(date, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        block.addView(next, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER);
         addView(block, lp);
         DenFactsView facts = DenFactsView.make(ctx, look, motion);
@@ -116,10 +121,18 @@ final class DenSaverView extends FrameLayout {
 
     @Override protected void onDetachedFromWindow() { removeCallbacks(tick); io.shutdownNow(); super.onDetachedFromWindow(); }
 
-    /** A new spot for the clock block, inside the middle of the screen. */
+    @Override protected void onSizeChanged(int w, int h, int ow, int oh) {
+        super.onSizeChanged(w, h, ow, oh);
+        date.setMaxWidth(Math.round(w * 0.7f));
+        next.setMaxWidth(Math.round(w * 0.7f));
+    }
+
+    /** A new spot for the clock block, never past the screen's edges or onto the facts line at the bottom. */
     private void move() {
         if (getWidth() == 0) return;
-        float dx = getWidth() * 0.16f, dy = getHeight() * 0.14f;
+        float margin = getWidth() * 0.04f;
+        float dx = Math.max(0, Math.min(getWidth() * 0.16f, (getWidth() - block.getWidth()) / 2f - margin));
+        float dy = Math.max(0, Math.min(getHeight() * 0.14f, (getHeight() * 0.86f - block.getHeight()) / 2f - margin));
         float tx = (random.nextFloat() * 2 - 1) * dx, ty = (random.nextFloat() * 2 - 1) * dy;
         block.animate().alpha(0f).setDuration(600).withEndAction(() -> {
             block.setTranslationX(tx);
@@ -131,15 +144,20 @@ final class DenSaverView extends FrameLayout {
     /** What's next from the Fan Hub, read off the main thread: "INDIA V AUSTRALIA · T20I · in 2 h 18 min" or LIVE. */
     private void readNext() {
         Context ctx = getContext();
+        java.text.DateFormat clock = DateFormat.getTimeFormat(ctx);
         try {
             io.execute(() -> {
                 String line = "";
-                try (Cursor c = ctx.getContentResolver().query(TURNS, new String[]{"top_line", "start_ms", "end_ms"}, null, null, null)) {
+                try (Cursor c = ctx.getContentResolver().query(TURNS, null, null, null, null)) {
                     long now = System.currentTimeMillis();
+                    int top = c == null ? -1 : c.getColumnIndex("top_line"), word = c == null ? -1 : c.getColumnIndex("word"),
+                            start = c == null ? -1 : c.getColumnIndex("start_ms"), end = c == null ? -1 : c.getColumnIndex("end_ms"),
+                            live = c == null ? -1 : c.getColumnIndex("live");
                     while (c != null && c.moveToNext()) {
-                        long start = c.getLong(1), end = c.getLong(2);
-                        if (end <= now) continue;
-                        line = now >= start ? "● LIVE  " + c.getString(0) : c.getString(0) + "  ·  " + in(start - now);
+                        String l = GameDay.saverLine(c.getString(top), word < 0 ? "" : c.getString(word), c.getLong(start), c.getLong(end),
+                                live < 0 ? -1 : c.getInt(live), now, clock);
+                        if (l == null) continue;
+                        line = l;
                         break;
                     }
                 } catch (RuntimeException ignored) { }
@@ -149,12 +167,6 @@ final class DenSaverView extends FrameLayout {
         } catch (RuntimeException ignored) { }
     }
 
-    static String in(long ms) {
-        long m = Math.max(1, ms / 60_000), h = m / 60, d = h / 24;
-        if (d >= 2) return "in " + d + " days";
-        if (h >= 1) return "in " + h + " h " + (m % 60) + " min";
-        return "in " + m + " min";
-    }
 
     /** The wallpaper, darkened, drifting and zooming very slowly (also keeps it from burning in). */
     private static final class Backdrop extends View {

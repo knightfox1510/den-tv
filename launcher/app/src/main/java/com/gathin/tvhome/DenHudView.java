@@ -88,13 +88,15 @@ final class DenHudView extends View {
         out.add(new String[]{"NETWORK", "IP   " + ip, "LINK " + wifi});
         List<String> feed = new ArrayList<>();
         feed.add("FEED");
-        try (Cursor c = ctx.getContentResolver().query(TURNS, new String[]{"top_line", "word", "start_ms", "end_ms"}, null, null, null)) {
+        try (Cursor c = ctx.getContentResolver().query(TURNS, null, null, null, null)) {
             long now = System.currentTimeMillis();
+            int liveCol = c == null ? -1 : c.getColumnIndex("live");
             while (c != null && c.moveToNext() && feed.size() < 4) {
                 String top = c.getString(0);
                 long start = c.getLong(2), end = c.getLong(3);
                 if (end <= now) continue;
-                String when = now >= start ? "LIVE" : "T-" + DateUtils.formatElapsedTime((start - now) / 1000).replaceAll(":\\d\\d$", "");
+                String when = now < start ? "T-" + DateUtils.formatElapsedTime((start - now) / 1000).replaceAll(":\\d\\d$", "")
+                        : GameDay.live(c.getString(1), start, end, liveCol < 0 ? -1 : c.getInt(liveCol), now) ? "LIVE" : "NOW";
                 feed.add((top.length() > 26 ? top.substring(0, 26) : top) + " " + when);
             }
         } catch (RuntimeException ignored) { }

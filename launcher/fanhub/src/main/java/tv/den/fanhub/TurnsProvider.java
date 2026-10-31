@@ -11,7 +11,8 @@ import android.net.Uri;
  * per match or episode. Read-only; a query also starts a refresh when the data is due one.
  */
 public final class TurnsProvider extends ContentProvider {
-    static final String[] COLUMNS = {"top_line", "word", "start_ms", "end_ms", "colour", "calendar", "turn_seconds"};
+    // "live" (1 or 0) came last, so readers by position still work: a match the Fan Hub has a score for, not just one past kick-off.
+    static final String[] COLUMNS = {"top_line", "word", "start_ms", "end_ms", "colour", "calendar", "turn_seconds", "live"};
     static final int TURN_SECONDS = 15;
 
     @Override public boolean onCreate() { return true; }
@@ -20,7 +21,7 @@ public final class TurnsProvider extends ContentProvider {
         if (!"turns".equals(uri.getLastPathSegment())) return null;
         MatrixCursor c = new MatrixCursor(COLUMNS);
         for (FanHub.Turn t : Store.turns(getContext())) {
-            c.addRow(new Object[]{t.topLine, t.word, t.start, t.end, t.colour, null, TURN_SECONDS});
+            c.addRow(new Object[]{t.topLine, t.word, t.start, t.end, t.colour, null, TURN_SECONDS, t.live ? 1 : 0});
         }
         c.setNotificationUri(getContext().getContentResolver(), uri);
         Store.refresh(getContext(), false);

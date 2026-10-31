@@ -119,4 +119,41 @@ public class GameDayTest {
     @Test public void durationHelperMatchesTheCountdown() {
         assertEquals(Duration.ofMinutes(125), GameDay.until(game("Game", 125 * 60_000L, HOUR), NOW.toEpochMilli()));
     }
+
+    /** LIVE only for a match under way that the Fan Hub has a score for; never for an episode or the weekend trail. */
+    @Test public void liveMeansAMatchWithAScore() {
+        long now = NOW.toEpochMilli(), start = now - HOUR, end = now + HOUR;
+        assertTrue(GameDay.live("Kick-off", start, end, 1, now));
+        assertFalse(GameDay.live("Kick-off", start, end, 0, now));    // past kick-off, no score yet
+        assertFalse(GameDay.live("Kick-off", now + HOUR, now + 3 * HOUR, 1, now));   // not started
+        assertFalse(GameDay.live("Kick-off", start - 3 * HOUR, start, 1, now));      // over
+        assertFalse(GameDay.live("Set off", start, end, 0, now));     // the weekend trail, all morning
+        assertFalse(GameDay.live("New episode", start, end, 1, now));
+        // An add-on that doesn't say keeps the old meaning, except for den-tv's own episode and trail words.
+        assertTrue(GameDay.live("Puck drop", start, end, -1, now));
+        assertFalse(GameDay.live("Set off", start, end, -1, now));
+    }
+
+    @Test public void theLiveColumnIsReadWhenThere() {
+        long now = NOW.toEpochMilli();
+        List<GameDay.Turn> t = GameDay.fromRows(Arrays.asList(
+                new Object[]{"BAR 1-0 RMA", "Kick-off", now - HOUR, now + HOUR, 0, null, 15, 1},
+                new Object[]{"HIKE · RAJMACHI", "Set off", now - HOUR, now + HOUR, 0, null, 15, 0},
+                new Object[]{"Old add-on", "Puck drop", now - HOUR, now + HOUR, 0, null, 15}));
+        assertTrue(GameDay.live(t.get(0), now));
+        assertFalse(GameDay.live(t.get(1), now));
+        assertTrue(GameDay.live(t.get(2), now));
+    }
+
+    @Test public void theScreensaverSaysWhatItIs() {
+        long now = NOW.toEpochMilli();
+        java.text.DateFormat clock = new java.text.SimpleDateFormat("h:mm a", java.util.Locale.ENGLISH);
+        clock.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        assertEquals("● LIVE  BAR 1–0 RMA", GameDay.saverLine("BAR 1–0 RMA", "Kick-off", now - HOUR, now + HOUR, 1, now, clock));
+        assertEquals("BARÇA V SEVILLA  ·  started 5:55 PM", GameDay.saverLine("BARÇA V SEVILLA", "Kick-off", now - HOUR, now + HOUR, 0, now, clock));
+        assertEquals("HIKE · RAJMACHI", GameDay.saverLine("HIKE · RAJMACHI", "Set off", now - HOUR, now + HOUR, 0, now, clock));
+        assertEquals("NEW  ONE PIECE · EPISODE 1149", GameDay.saverLine("ONE PIECE · EPISODE 1149", "New episode", now - 60_000, now + HOUR, 1, now, clock));
+        assertEquals("INDIA V AUSTRALIA  ·  in 2 h 5 min", GameDay.saverLine("INDIA V AUSTRALIA", "First ball", now + 125 * 60_000L, now + 6 * HOUR, 0, now, clock));
+        assertEquals(null, GameDay.saverLine("OVER", "Kick-off", now - 3 * HOUR, now - HOUR, 1, now, clock));
+    }
 }

@@ -316,7 +316,7 @@ public class DenScreensTest {
     }
 
     /** The screensaver over the look on Home (Master Blaster). */
-    @Test public void saver() throws IOException {
+    @Test public void saver() throws Exception {
         Context ctx = RuntimeEnvironment.getApplication();
         DenTheme.ensure(ctx);
         DenLooks.apply(ctx, DenLooks.byId(DenLooks.load(ctx), "master-blaster"));
@@ -326,6 +326,20 @@ public class DenScreensTest {
         Bitmap b = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
         v.draw(new Canvas(b));
         save(b, "saver");
+        // A long live cricket line, with the clock moved as far right and down as it goes: nothing may leave the screen.
+        java.lang.reflect.Field next = DenSaverView.class.getDeclaredField("next");
+        next.setAccessible(true);
+        android.widget.TextView line = (android.widget.TextView) next.get(v);
+        line.setText("● LIVE  NEW ZEALAND 187/6 (20 OV)  ·  INDIA 145/3 (16.2/20 OV, TARGET 188)  ·  4TH T20I, AUCKLAND");
+        line.setVisibility(View.VISIBLE);
+        layout(v, 1920, 1080);
+        View block = (View) line.getParent();
+        block.setTranslationX(Math.max(0, Math.min(1920 * 0.16f, (1920 - block.getWidth()) / 2f - 1920 * 0.04f)));
+        block.setTranslationY(Math.max(0, Math.min(1080 * 0.14f, (1080 * 0.86f - block.getHeight()) / 2f - 1920 * 0.04f)));
+        Bitmap l = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888);
+        v.draw(new Canvas(l));
+        save(l, "saver-long");
+        org.junit.Assert.assertTrue(block.getLeft() + block.getTranslationX() >= 0 && block.getRight() + block.getTranslationX() <= 1920);
     }
 
     /**

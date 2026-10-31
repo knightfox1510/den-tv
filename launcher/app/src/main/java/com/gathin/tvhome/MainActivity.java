@@ -2713,6 +2713,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 SpannableString live = new SpannableString("\u25CF  " + getString(R.string.game_live));
                 live.setSpan(new ForegroundColorSpan(RACE_RED), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 raceHeadline.setText(live);
+            } else if (now >= t.startMs) {
+                // Started but not live: a match with no score yet says when it began; an episode or the trail its word.
+                raceHeadline.setText(GameDay.match(t.word) ? t.word + " " + android.text.format.DateFormat.getTimeFormat(this).format(new java.util.Date(t.startMs))
+                        : t.word.isEmpty() ? getString(R.string.game_live) : t.word);
             } else {
                 String in = RaceWeekend.countdown(getResources(), GameDay.until(t, now));
                 raceHeadline.setText(t.word.isEmpty() ? in : getString(R.string.race_next, t.word, in));
