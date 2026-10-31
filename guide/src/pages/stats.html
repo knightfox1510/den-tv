@@ -1,0 +1,167 @@
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">Stats</div>
+    <h1>Who's using den-tv</h1>
+    <p class="lede">Counts from GitHub, where every TV downloads den-tv and checks for updates. Nobody is identified: these are download counts, nothing more.</p>
+  </header>
+
+  <section class="part" aria-labelledby="now">
+    <h2 id="now" class="sr">Headline numbers</h2>
+    <div class="tiles">
+      <div class="tile"><span class="tile-label">TVs active, last full day</span><span class="tile-num" id="tActive">–</span><span class="tile-note" id="tActiveNote">Needs two daily snapshots</span></div>
+      <div class="tile"><span class="tile-label">Home screen downloads, all releases</span><span class="tile-num" id="tLauncher">–</span><span class="tile-note">New installs and updates</span></div>
+      <div class="tile"><span class="tile-label">Latest release</span><span class="tile-num" id="tLatest">–</span><span class="tile-note" id="tLatestNote"></span></div>
+      <a class="tile" href="https://vercel.com/dashboard" target="_blank" rel="noopener"><span class="tile-label">Website visitors</span><span class="tile-num" style="font-size:1.4rem">Vercel Analytics ›</span><span class="tile-note">Your project's Analytics tab</span></a>
+    </div>
+    <p class="msg-line" id="liveMsg" role="status"></p>
+  </section>
+
+  <section class="part" aria-labelledby="dailyh">
+    <h2 id="dailyh">TVs active each day</h2>
+    <p class="col dim small">Each TV's Fan Hub checks for updates about twice a day while the TV is on, so a day's checks divided by two is roughly how many TVs ran den-tv that day. The last 30 days.</p>
+    <div class="chart" id="chart"><p class="dim" id="chartEmpty">Loading…</p></div>
+    <details id="dailyTableBox" hidden><summary>Show as a table</summary><div class="tablewrap">
+      <table class="t figures"><thead><tr><th scope="col">Day</th><th scope="col">Update checks</th><th scope="col">TVs active ≈</th><th scope="col">Home screen downloads</th><th scope="col">Fan Hub downloads</th></tr></thead><tbody id="dailyRows"></tbody></table>
+    </div></details>
+  </section>
+
+  <section class="part" aria-labelledby="relh">
+    <h2 id="relh">Each release</h2>
+    <p class="col dim small">Live from GitHub. A release's downloads are new installs plus the TVs that updated to it; its update checks count every time a TV looked for updates while it was the newest.</p>
+    <div class="tablewrap">
+      <table class="t figures"><thead><tr><th scope="col">Release</th><th scope="col">Published</th><th scope="col">Home screen</th><th scope="col">Fan Hub</th><th scope="col">Update checks</th></tr></thead><tbody id="relRows"><tr><td colspan="5" class="dim">Loading…</td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section class="part" aria-labelledby="howh">
+    <h2 id="howh">How these are counted</h2>
+    <ul class="plain col">
+      <li><b>Daily numbers</b> come from a snapshot the <b>den-tv stats</b> workflow saves on the repo's <code>stats</code> branch every night (02:23 UTC); GitHub itself only keeps running totals. To save one now: GitHub › Actions › den-tv stats › Run workflow.</li>
+      <li><b>TVs active</b> is an estimate: a TV that was off all day isn't counted, and one left on for days checks more often between restarts.</li>
+      <li><b>Downloads</b> include anyone who downloads a file without installing it, and GitHub updates its counts with a delay of up to a few hours.</li>
+      <li><b>Website visitors</b> are in Vercel Analytics: no cookies, and no personal data is kept.</li>
+    </ul>
+  </section>
+</div>
+<div class="tip-box" id="tip" role="tooltip" hidden></div>
+<script>
+(function () {
+  var REPO = 'knightfox1510/den-tv';
+  var HISTORY = 'https://raw.githubusercontent.com/' + REPO + '/stats/history.json';
+  var fmt = function (n) { return n == null ? '–' : Number(n).toLocaleString('en-IN'); };
+  var day = function (iso) { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); };
+  var $ = function (id) { return document.getElementById(id); };
+  var sum = function (rels, key) { var s = 0; Object.keys(rels || {}).forEach(function (t) { s += rels[t][key] || 0; }); return s; };
+
+  // Live totals per release.
+  fetch('https://api.github.com/repos/' + REPO + '/releases?per_page=100').then(function (r) {
+    if (!r.ok) throw new Error(r.status === 403 ? 'GitHub allows 60 requests an hour from one network; try again later.' : 'GitHub answered ' + r.status + '.');
+    return r.json();
+  }).then(function (releases) {
+    var rows = $('relRows'); rows.innerHTML = '';
+    var launcher = 0;
+    releases.filter(function (r) { return !r.draft; }).forEach(function (r, i) {
+      var c = {};
+      (r.assets || []).forEach(function (a) { c[a.name] = a.download_count; });
+      launcher += c['den-tv-launcher.apk'] || 0;
+      var tr = document.createElement('tr');
+      [r.tag_name, day(r.published_at), fmt(c['den-tv-launcher.apk']), fmt(c['den-tv-fanhub.apk']), fmt(c['version.json'])].forEach(function (v, k) {
+        var td = document.createElement(k === 0 ? 'th' : 'td'); if (k === 0) td.scope = 'row'; td.textContent = v; tr.appendChild(td);
+      });
+      rows.appendChild(tr);
+      if (i === 0) { $('tLatest').textContent = r.tag_name; $('tLatestNote').textContent = 'Published ' + day(r.published_at) + ' · ' + fmt(c['den-tv-fanhub.apk']) + ' Fan Hub downloads'; }
+    });
+    $('tLauncher').textContent = fmt(launcher);
+  }).catch(function (e) {
+    $('relRows').innerHTML = '<tr><td colspan="5" class="dim">Couldn\'t reach GitHub. ' + e.message + '</td></tr>';
+  });
+
+  // Daily history from the stats branch.
+  fetch(HISTORY, { cache: 'no-store' }).then(function (r) {
+    if (!r.ok) throw new Error('none');
+    return r.json();
+  }).then(function (h) {
+    var days = (h.days || []).slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    var out = [];
+    for (var i = 1; i < days.length; i++) {
+      var a = days[i - 1], b = days[i];
+      var gap = Math.max(1, Math.round((new Date(b.date) - new Date(a.date)) / 864e5));
+      var checks = sum(b.releases, 'version') - sum(a.releases, 'version');
+      out.push({ date: b.date, gap: gap, checks: Math.max(0, checks),
+        active: Math.max(0, Math.round(checks / gap / 2)),
+        launcher: Math.max(0, sum(b.releases, 'launcher') - sum(a.releases, 'launcher')),
+        fanhub: Math.max(0, sum(b.releases, 'fanhub') - sum(a.releases, 'fanhub')) });
+    }
+    if (!out.length) throw new Error(days.length === 1 ? 'one' : 'none');
+    var last = out[out.length - 1];
+    $('tActive').textContent = fmt(last.active);
+    $('tActiveNote').textContent = 'Up to ' + day(last.date) + (last.gap > 1 ? ', a ' + last.gap + '-day average' : '');
+    var rows = $('dailyRows');
+    out.slice().reverse().forEach(function (d) {
+      var tr = document.createElement('tr');
+      [day(d.date), fmt(d.checks), fmt(d.active), fmt(d.launcher), fmt(d.fanhub)].forEach(function (v, k) {
+        var td = document.createElement(k === 0 ? 'th' : 'td'); if (k === 0) td.scope = 'row'; td.textContent = v; tr.appendChild(td);
+      });
+      rows.appendChild(tr);
+    });
+    $('dailyTableBox').hidden = false;
+    var shown = out.slice(-30);
+    draw(shown);
+    var lastW = $('chart').clientWidth;
+    window.addEventListener('resize', function () { if (Math.abs($('chart').clientWidth - lastW) > 20) { lastW = $('chart').clientWidth; draw(shown); } });
+  }).catch(function (e) {
+    $('chartEmpty').textContent = e.message === 'one'
+      ? 'One snapshot saved so far. The first daily numbers appear after tomorrow\'s.'
+      : 'No snapshots yet. The den-tv stats workflow saves the first one overnight, or run it now from GitHub › Actions.';
+  });
+
+  function draw(data) {
+    var box = $('chart'); box.innerHTML = '';
+    // Drawn at the box's own width, so labels stay 12px on a phone instead of shrinking with the picture.
+    var W = Math.max(280, Math.round(box.clientWidth - 28)), H = W < 500 ? 220 : 260, L = 40, R = 10, T = 14, B = 34;
+    var max = Math.max(4, Math.max.apply(null, data.map(function (d) { return d.active; })));
+    var step = Math.pow(10, Math.floor(Math.log10(max)));
+    var top = Math.ceil(max / step) * step; if (top / step < 4 && step >= 10) { step /= 2; top = Math.ceil(max / step) * step; }
+    if (step < 1) step = 1;
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'TVs active each day, last ' + data.length + ' days; latest ' + data[data.length - 1].active);
+    var el = function (name, attrs, text) { var e = document.createElementNS(ns, name); for (var k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; svg.appendChild(e); return e; };
+    var y = function (v) { return T + (H - T - B) * (1 - v / top); };
+    for (var g = 0; g <= top; g += step) {
+      el('line', { x1: L, x2: W - R, y1: y(g), y2: y(g), 'class': g === 0 ? 'axis' : 'grid' });
+      el('text', { x: L - 8, y: y(g) + 4, 'text-anchor': 'end', 'class': 'tick' }, fmt(g));
+    }
+    var slot = (W - L - R) / Math.max(data.length, 7), bw = Math.max(4, slot - 2);
+    var labelEvery = Math.ceil(data.length / Math.max(2, Math.floor(W / 90)));
+    var tip = $('tip');
+    data.forEach(function (d, i) {
+      var x = L + i * slot + (slot - bw) / 2, h = Math.max(0, y(0) - y(d.active));
+      var r = Math.min(4, bw / 2, h);
+      // A bar rounded at its top end only, anchored to the baseline.
+      var path = 'M' + x + ',' + y(0) + 'V' + (y(0) - h + r) + 'Q' + x + ',' + (y(0) - h) + ' ' + (x + r) + ',' + (y(0) - h)
+        + 'H' + (x + bw - r) + 'Q' + (x + bw) + ',' + (y(0) - h) + ' ' + (x + bw) + ',' + (y(0) - h + r) + 'V' + y(0) + 'Z';
+      el('path', { d: path, 'class': 'bar' });
+      if ((i % labelEvery === 0 && data.length - 1 - i >= Math.ceil(labelEvery / 2)) || i === data.length - 1) {
+        // The first and last labels line up with their bar's outer edge, so neither runs off the chart.
+        var edge = i === 0 ? ['start', x] : i === data.length - 1 ? ['end', x + bw] : ['middle', x + bw / 2];
+        el('text', { x: edge[1], y: H - 12, 'text-anchor': edge[0], 'class': 'tick' }, new Date(d.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+      }
+      // The hit area is the whole column, wider and taller than the bar.
+      var hit = el('rect', { x: L + i * slot, y: T, width: slot, height: H - T - B, 'class': 'hit', tabindex: 0 });
+      var show = function () {
+        var b = box.getBoundingClientRect(), s = b.width / W;
+        tip.innerHTML = '<b>' + day(d.date) + '</b><br>About ' + fmt(d.active) + ' TVs · ' + fmt(d.checks) + ' update checks<br>' + fmt(d.launcher) + ' home screen downloads';
+        tip.hidden = false;
+        var left = b.left + window.scrollX + (L + i * slot + slot / 2) * s, topPx = b.top + window.scrollY + y(d.active) * s - 12;
+        tip.style.left = Math.min(Math.max(left, window.scrollX + 110), window.scrollX + document.documentElement.clientWidth - 110) + 'px';
+        tip.style.top = topPx + 'px';
+      };
+      hit.addEventListener('mouseenter', show); hit.addEventListener('focus', show);
+      hit.addEventListener('mouseleave', function () { tip.hidden = true; }); hit.addEventListener('blur', function () { tip.hidden = true; });
+    });
+    box.appendChild(svg);
+  }
+})();
+</script>

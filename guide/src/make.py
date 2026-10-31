@@ -8,7 +8,10 @@ PAGES = [('index', 'Home', 'den-tv', 'A home screen for Android TV and Google TV
          ('phone', 'Phone app', 'den-tv Phone App', 'Everything the den-tv phone page does: looks, tweaks, widgets, people, the remote and the TV\'s health.'),
          ('keys', 'Keys', 'den-tv Free Keys', 'How to get the free Gemini, football-data.org and CricketData.org keys, and what each one adds.'),
          ('help', 'Help', 'den-tv Help', 'Updates, undo, privacy and fixes for common problems.'),
-         ('credits', 'Credits', 'den-tv Credits', 'den-tv is built on cleanyourtv. The projects, data sources and fonts it uses.')]
+         ('credits', 'Credits', 'den-tv Credits', 'den-tv is built on cleanyourtv. The projects, data sources and fonts it uses.'),
+         ('stats', 'Stats', 'den-tv Stats', 'How many TVs run den-tv, from GitHub download counts.')]
+# Pages that exist but aren't in the navigation.
+UNLISTED = {'stats'}
 HEAD = '''<!doctype html>
 <html lang="en">
 <head>
@@ -21,6 +24,9 @@ HEAD = '''<!doctype html>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
 <link rel="stylesheet" href="site.css">
+{robots}<!-- Vercel Web Analytics: page views and visitors, no cookies (the project's Analytics tab). -->
+<script>window.va = window.va || function () {{ (window.vaq = window.vaq || []).push(arguments); }};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <header class="site"><div class="wrap">
@@ -41,7 +47,7 @@ FOOT = '''<div class="wrap">
 '''
 for name, label, title, desc in PAGES:
     body = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pages', name) + '.html').read()
-    nav = '\n'.join('    <li><a href="{0}.html"{1}>{2}</a></li>'.format(n, ' aria-current="page"' if n == name else '', l) for n, l, _, _ in PAGES)
+    nav = '\n'.join('    <li><a href="{0}.html"{1}>{2}</a></li>'.format(n, ' aria-current="page"' if n == name else '', l) for n, l, _, _ in PAGES if n not in UNLISTED)
     scripts = '<script src="setup.js"></script>\n' if name == 'setup' else ''
-    open(OUT + name + '.html', 'w').write(HEAD.format(title=title, desc=desc.replace('"', '&quot;'), nav=nav) + body + FOOT.format(scripts=scripts))
+    open(OUT + name + '.html', 'w').write(HEAD.format(title=title, desc=desc.replace('"', '&quot;'), nav=nav, robots='<meta name="robots" content="noindex">\n' if name in UNLISTED else '') + body + FOOT.format(scripts=scripts))
 print('ok')

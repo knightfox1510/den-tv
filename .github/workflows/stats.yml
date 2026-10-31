@@ -1,0 +1,68 @@
+# Once a day, the download counts of every release, appended to history.json on the "stats" branch (its own branch,
+# so the daily snapshot never redeploys the website). The site's stats page reads it: GitHub only keeps totals, so
+# daily installs and active TVs come from the difference between two days.
+name: den-tv stats
+
+on:
+  schedule:
+    - cron: "23 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stats
+  cancel-in-progress: false
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Check out the stats branch
+        run: |
+          if git fetch --depth 1 origin stats:stats 2>/dev/null; then
+            git worktree add /tmp/stats stats
+          else
+            git worktree add --detach /tmp/stats
+            cd /tmp/stats && git checkout --orphan stats && git rm -rfq . && echo '{"days":[]}' > history.json
+          fi
+
+      - name: Record today's counts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'EOF'
+          import datetime, json, os, urllib.request
+          req = urllib.request.Request("https://api.github.com/repos/%s/releases?per_page=100" % os.environ["REPO"],
+                                       headers={"Authorization": "Bearer " + os.environ["GH_TOKEN"], "Accept": "application/vnd.github+json"})
+          releases = json.load(urllib.request.urlopen(req))
+          names = {"den-tv-launcher.apk": "launcher", "den-tv-fanhub.apk": "fanhub", "version.json": "version"}
+          now = datetime.datetime.now(datetime.timezone.utc)
+          today = {"date": now.strftime("%Y-%m-%d"), "at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "releases": {}}
+          for r in releases:
+              if r.get("draft"):
+                  continue
+              counts = {names[a["name"]]: a["download_count"] for a in r.get("assets", []) if a["name"] in names}
+              today["releases"][r["tag_name"]] = dict(counts, published=r.get("published_at"))
+          path = "/tmp/stats/history.json"
+          history = json.load(open(path)) if os.path.exists(path) else {"days": []}
+          # One snapshot a day: running it again the same day replaces that day's.
+          history["days"] = [d for d in history["days"] if d["date"] != today["date"]] + [today]
+          json.dump(history, open(path, "w"), indent=1)
+          print(today)
+          EOF
+
+      - name: Save it
+        run: |
+          cd /tmp/stats
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add history.json
+          git commit -qm "Stats for $(date -u +%F)" || exit 0
+          git push -q origin stats

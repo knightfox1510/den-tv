@@ -213,3 +213,25 @@ table.t th { font: 600 0.8rem/1.2 var(--display); letter-spacing: 0.08em; text-t
 .pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); }
 .keyfield { font-family: var(--mono); background: var(--bg); border: 1px dashed var(--line); border-radius: 8px; padding: 8px 12px; overflow-wrap: anywhere; }
 .copy[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
+
+/* Stats page */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 14px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; color: var(--fg); text-decoration: none; min-width: 0; }
+a.tile:hover { border-color: var(--accent); }
+.tile-label { font: 600 0.78rem/1.3 var(--display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+.tile-num { font: 800 2.2rem/1.1 var(--display); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tile-note { font-size: 0.85rem; color: var(--dim); }
+.msg-line { font-size: 0.9rem; color: var(--dim); }
+.chart { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-height: 120px; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .axis { stroke: var(--dim); stroke-width: 1; }
+.chart .tick { fill: var(--dim); font: 500 12px var(--body); font-variant-numeric: tabular-nums; }
+.chart .bar { fill: var(--accent); }
+.chart .hit { fill: transparent; cursor: default; outline: none; }
+.chart .hit:hover, .chart .hit:focus { fill: color-mix(in srgb, var(--fg) 6%, transparent); }
+.tip-box { position: absolute; transform: translate(-50%, -100%); background: var(--fg); color: var(--bg); font-size: 0.85rem; line-height: 1.45; padding: 8px 12px; border-radius: 8px; pointer-events: none; white-space: nowrap; z-index: 20; }
+table.figures td { font-variant-numeric: tabular-nums; }
+table.t tbody th { font: 600 0.95rem/1.4 var(--display); letter-spacing: 0; text-transform: none; color: var(--fg); }
+code { font-family: var(--mono); font-size: 0.88em; }

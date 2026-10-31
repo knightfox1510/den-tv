@@ -33,3 +33,12 @@ then copy the PNGs from `launcher/fanhub/build/setup-screens/` into `img/` as JP
 comes from `./gradlew :app:testReleaseUnitTest -Pden.screens=1 --tests '*DenScreensTest.showcase'`
 (`launcher/app/build/den-screens/showcase-*.png`). Your own photos of
 your TV work just as well: save them in `img/` under the same names.
+
+## Visitors and stats
+
+- **Visitors:** every page loads Vercel Web Analytics (`/_vercel/insights/script.js`, added by `make.py`). The numbers
+  are in the Vercel project's **Analytics** tab. It uses no cookies.
+- **TVs and installs:** `stats.html` (not in the navigation; open it at `/stats.html`). It shows live download counts
+  for each release from GitHub, and TVs active each day from the snapshots that the **den-tv stats** workflow
+  (`.github/workflows/stats.yml`) saves every night to `history.json` on the `stats` branch. To save one now:
+  **Actions → den-tv stats → Run workflow**.
