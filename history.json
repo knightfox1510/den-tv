@@ -122,6 +122,47 @@
      "published": "2026-10-29T17:55:25Z"
     }
    }
+  },
+  {
+   "date": "2026-11-03",
+   "at": "2026-11-03T09:44:36Z",
+   "releases": {
+    "v1.4.1": {
+     "fanhub": 2,
+     "launcher": 2,
+     "version": 8,
+     "published": "2026-10-31T18:10:20Z"
+    },
+    "v1.4.0": {
+     "fanhub": 2,
+     "launcher": 1,
+     "version": 4,
+     "published": "2026-10-30T06:21:03Z"
+    },
+    "v1.3.2": {
+     "fanhub": 2,
+     "launcher": 1,
+     "version": 3,
+     "published": "2026-10-30T05:26:35Z"
+    },
+    "v1.3.1": {
+     "fanhub": 2,
+     "launcher": 2,
+     "version": 4,
+     "published": "2026-10-30T05:00:28Z"
+    },
+    "v1.2.0": {
+     "fanhub": 2,
+     "launcher": 2,
+     "version": 2,
+     "published": "2026-10-30T02:29:48Z"
+    },
+    "v1.0.1": {
+     "fanhub": 1,
+     "launcher": 2,
+     "published": "2026-10-29T17:55:25Z"
+    }
+   }
   }
  ]
 }
