@@ -465,7 +465,8 @@ public class DenScreensTest {
         DenTheme.ensure(ctx);
         DenSettings.prefs(ctx).edit().putBoolean(DenSettings.WAKE, false).putString(DenSettings.NAME, "Riya").apply();
         ctx.getSharedPreferences(com.gathin.tvhome.Config.SETTINGS_NAME, Context.MODE_PRIVATE).edit().putBoolean("animations", false).apply();
-        for (String[] run : new String[][]{{"crow-genjutsu", "3"}, {"crimson-moon", "4"}, {"master-blaster", "4"}, {"camp-nou", "2"}, {"super-saiyan", "5"}, {"straw-hat", "3"}}) {
+        for (String[] run : new String[][]{{"crow-genjutsu", "3"}, {"crimson-moon", "4"}, {"master-blaster", "4"}, {"camp-nou", "2"}, {"super-saiyan", "5"}, {"straw-hat", "3"},
+                {"owl-post", "4"}, {"phoenix-song", "3"}, {"chamber", "4"}, {"great-hall", "3"}, {"quidditch", "4"}}) {
             DenLooks.apply(ctx, DenLooks.byId(DenLooks.load(ctx), run[0]));
             // Itachi's crimson moon with the Sharingan following the picked app: a watcher change any phone can make.
             if (run[0].equals("crow-genjutsu")) DenSettings.prefs(ctx).edit().putString(DenLooks.OVERRIDE + run[0], new org.json.JSONObject().put("watcher", "sharingan").toString()).apply();

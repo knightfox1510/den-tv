@@ -1,0 +1,20 @@
+{
+  "id": "quidditch",
+  "name": "Quidditch Final",
+  "category": "Wizarding World",
+  "order": 868,
+  "for": "owner",
+  "scene": "pitch",
+  "hero": "none",
+  "watcher": "snitch",
+  "focus": "arc",
+  "wake": "tunnel",
+  "clock": "board",
+  "icons": "patch",
+  "icon_layout": "row",
+  "extras": "flags",
+  "moment": "goal",
+  "accent": "#f2c94e",
+  "scoreboard_text": "QUIDDITCH FINAL · 150 POINTS",
+  "goal_text": "SNITCH CAUGHT! +150"
+}

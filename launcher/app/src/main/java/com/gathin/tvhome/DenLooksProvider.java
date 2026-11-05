@@ -243,6 +243,7 @@ public final class DenLooksProvider extends ContentProvider {
         java.util.List<String> watchers = new java.util.ArrayList<>(DenLooks.EYES);
         watchers.addAll(DenWatcherView.KINDS);
             watchers.addAll(DenBallWatcher.KINDS);
+            watchers.addAll(DenWizardWatcher.KINDS);
         watchers.add(0, "none");
         c.addRow(new Object[]{"watcher", look.watcher, o.optString("watcher"), String.join(",", watchers), look.id, look.name});
         c.addRow(new Object[]{"clock", look.clock, o.optString("clock"), String.join(",", DenClockView.STYLES), look.id, look.name});
@@ -376,6 +377,7 @@ public final class DenLooksProvider extends ContentProvider {
             java.util.List<String> watchers = new java.util.ArrayList<>(DenLooks.EYES);
             watchers.addAll(DenWatcherView.KINDS);
             watchers.addAll(DenBallWatcher.KINDS);
+            watchers.addAll(DenWizardWatcher.KINDS);
             watchers.add(0, "none");
             java.util.List<String> icons = new java.util.ArrayList<>(DenIcons.STYLES);
             icons.add(0, "tiles");

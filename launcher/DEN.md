@@ -176,6 +176,12 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   `tv.den.fanhub.widgets`. Sources: Yahoo Finance's public data (can be a little late), ESPN's public scoreboards,
   Jolpica (Formula 1), Open-Meteo, Google Calendar's holiday calendars, Google News and Wikipedia. The Yahoo and
   ESPN ones aren't official APIs and may change.
+- **Wizarding World looks.** Owl Post (a castle on the lake; a snowy owl flies to the picked app and hovers,
+  flapping), Phoenix Song (a phoenix glides there trailing embers), Chamber of Secrets (a snake slithers along the
+  top of the row and rears at the app, flicking its tongue), The Great Hall (floating candles; the owl again) and
+  Quidditch Final (the Golden Snitch darts round the app), with Hero Wall posters for Harry, Hermione and
+  Dumbledore. `DenWizardWatcher` draws the watchers; the owl, phoenix and Snitch are pictures from the mockup
+  (`tools/watchers/sprites.js`), the snake is drawn in code. All of it is code-drawn fan art.
 - **Readable text.** A soft shade behind Home's clock and panel, shadows under its text, and hero titles in the
   wallpapers with a dark glow and outline. Tweak → Text contrast: Normal, Strong or Off.
 - **Speed-up status** (phone: TV → Speed up): this TV's tested list with each app On or Off, and a button that

@@ -79,3 +79,11 @@
 78-hero-rengoku.jpg	Hero Wall · Rengoku
 79-hero-sukuna.jpg	Hero Wall · Sukuna
 80-hero-tanjiro.jpg	Hero Wall · Tanjiro
+87-owl-post.jpg	Owl Post
+88-phoenix-song.jpg	Phoenix Song
+89-chamber.jpg	Chamber of Secrets
+90-great-hall.jpg	The Great Hall
+91-quidditch.jpg	Quidditch Final
+92-hero-harry.jpg	Hero Wall · Harry
+93-hero-hermione.jpg	Hero Wall · Hermione
+94-hero-dumbledore.jpg	Hero Wall · Dumbledore

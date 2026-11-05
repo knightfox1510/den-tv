@@ -1,0 +1,18 @@
+{
+  "id": "great-hall",
+  "name": "The Great Hall",
+  "category": "Wizarding World",
+  "order": 866,
+  "for": "owner",
+  "scene": "greathall",
+  "hero": "hermione",
+  "watcher": "owl",
+  "focus": "spot",
+  "wake": "bloom",
+  "clock": "words",
+  "icons": "wanted",
+  "icon_layout": "shelf",
+  "extras": "gold",
+  "moment": "drop",
+  "accent": "#e8c46a"
+}

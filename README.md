@@ -40,6 +40,7 @@ use an Android phone, or let Claude Code do it ([PROMPT.md](PROMPT.md)). It work
 | Heroes | Hero Wall, Super Saiyan, Ultra Instinct, Prince of Saiyans, Nine-Tails, Sage Mode, Copy Ninja, Crow Genjutsu, Avenger, Humanity's Strongest, Bankai, Arise, One Punch, Set Your Heart Ablaze, King of Curses, Straw Hat, Three-Sword Style, Navigator, Butterfly Mansion |
 | One Piece | Gear 5, Wanted, King of Hell, Lost Again, Fire Fist, ROOM, Black Leg, Hana Hana, Drum Island |
 | Anime | Crimson Moon, Domain Expansion, Grand Line, Water Breathing, Manga Panel, Anime Dusk |
+| Wizarding World | Owl Post (an owl flies to your app), Phoenix Song, Chamber of Secrets (a snake slithers to it), The Great Hall, Quidditch Final (the Golden Snitch) |
 | Outdoors | Trail Dawn, Sahyadri Monsoon |
 | Night & neon | Neon Tokyo |
 | Seasonal | Diwali Night |

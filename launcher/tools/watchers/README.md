@@ -8,6 +8,9 @@ and Playwright with Chromium):
 cd launcher/tools/watchers && node dump.js && node render.js
 ```
 
+The Wizarding World owl, phoenix and Golden Snitch are drawn on canvases in the mockup (`window.denSprite`);
+`node sprites.js` adds them to `out/`, with their anchors in `out/sprites.json`.
+
 Then convert `out/*.png` to WebP in `app/src/main/assets/den/watchers/` and copy the anchors from
 `out/sprites.json` (each entry becomes `"name": [ax, ay]`).
 

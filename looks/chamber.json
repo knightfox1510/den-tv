@@ -1,0 +1,18 @@
+{
+  "id": "chamber",
+  "name": "Chamber of Secrets",
+  "category": "Wizarding World",
+  "order": 864,
+  "for": "owner",
+  "scene": "chamber",
+  "hero": "none",
+  "watcher": "snake",
+  "focus": "ripple",
+  "wake": "ink",
+  "clock": "brush",
+  "icons": "glass",
+  "icon_layout": "row",
+  "extras": "silver",
+  "moment": "drop",
+  "accent": "#3ddc84"
+}

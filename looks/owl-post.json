@@ -1,0 +1,18 @@
+{
+  "id": "owl-post",
+  "name": "Owl Post",
+  "category": "Wizarding World",
+  "order": 860,
+  "for": "owner",
+  "scene": "castle",
+  "hero": "harry",
+  "watcher": "owl",
+  "focus": "aura",
+  "wake": "bloom",
+  "clock": "brush",
+  "icons": "wanted",
+  "icon_layout": "arc",
+  "extras": "snow",
+  "moment": "drop",
+  "accent": "#f2c14e"
+}

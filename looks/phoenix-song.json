@@ -1,0 +1,18 @@
+{
+  "id": "phoenix-song",
+  "name": "Phoenix Song",
+  "category": "Wizarding World",
+  "order": 862,
+  "for": "owner",
+  "scene": "phoenix",
+  "hero": "dumbledore",
+  "watcher": "phoenix",
+  "focus": "aura",
+  "wake": "fire",
+  "clock": "thin",
+  "icons": "glass",
+  "icon_layout": "carousel",
+  "extras": "embers",
+  "moment": "drop",
+  "accent": "#ff9a3c"
+}

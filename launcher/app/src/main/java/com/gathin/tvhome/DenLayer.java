@@ -108,7 +108,8 @@ final class DenLayer {
         View watcher = look == null || !DenSettings.watcher(activity) ? null
                 : look.hasEyes() ? new DenEyesView(activity, look.watcher, motion)
                 : DenWatcherView.draws(look.watcher) ? new DenWatcherView(activity, look.watcher, look.accent, motion).number(DenWatcherView.numberFor(look.hero))
-                : DenBallWatcher.KINDS.contains(look.watcher) ? new DenBallWatcher(activity, look.watcher, look.accent, motion) : null;
+                : DenBallWatcher.KINDS.contains(look.watcher) ? new DenBallWatcher(activity, look.watcher, look.accent, motion)
+                : DenWizardWatcher.KINDS.contains(look.watcher) ? new DenWizardWatcher(activity, look.watcher, motion) : null;
         // Your character: a walker takes the watcher's place; a figure stands beside it.
         String charId = DenCharacters.inUse(activity);
         boolean walker = "walker".equals(DenCharacters.mode(activity));
