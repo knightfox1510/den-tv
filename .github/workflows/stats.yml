@@ -1,6 +1,7 @@
-# Once a day, the download counts of every release, appended to history.json on the "stats" branch (its own branch,
-# so the daily snapshot never redeploys the website). The site's stats page reads it: GitHub only keeps totals, so
-# daily installs and active TVs come from the difference between two days.
+# Once a day, the download counts of every release, appended to history.json on the "stats" branch: its own
+# branch, so the daily snapshot never redeploys the website (guide/vercel.json there stops Vercel deploying it).
+# The site's stats page reads it: GitHub only keeps totals, so daily installs and active TVs come from the
+# difference between two days.
 name: den-tv stats
 
 on:
@@ -61,8 +62,12 @@ jobs:
       - name: Save it
         run: |
           cd /tmp/stats
+          # Vercel deploys every branch from the website's folder (guide/); this branch has no website, so it
+          # carries a guide/vercel.json that tells Vercel not to deploy it.
+          mkdir -p guide
+          printf '{\n  "git": { "deploymentEnabled": false }\n}\n' > guide/vercel.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add history.json
+          git add history.json guide/vercel.json
           git commit -qm "Stats for $(date -u +%F)" || exit 0
           git push -q origin stats
