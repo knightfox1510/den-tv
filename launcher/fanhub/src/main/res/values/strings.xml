@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="helper_description">Lets your paired phone use Back, Home, sleep, typing and opening apps on this TV, and counts screen time and the kids timer from which app is in front. It reads nothing else on screen and sends nothing anywhere.</string>
+    <string name="helper_description">Lets your paired phone use the arrows, OK, Back, Home, sleep, typing and opening apps on this TV, makes the remote buttons you set up on the phone open the apps you chose, and counts screen time and the kids timer from which app is in front. It finds only the selected item on screen, reads nothing else and sends nothing anywhere.</string>
 </resources>

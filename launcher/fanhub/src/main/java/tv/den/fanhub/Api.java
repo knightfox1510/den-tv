@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart", "/api/widgets", "/api/symbols", "/api/places", "/api/teams", "/api/keys"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart", "/api/widgets", "/api/symbols", "/api/places", "/api/teams", "/api/keys", "/api/buttons"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -101,6 +101,7 @@ final class Api {
             case "/api/lookart": return lookArt(in);
             case "/api/widgets": return widgets(in);
             case "/api/keys": return keys(in);
+            case "/api/buttons": return buttons(in);
             case "/api/symbols":
                 try { return ok(true).put("results", Widgets.symbols(in.optString("q"))); }
                 catch (IOException e) { return fail("Couldn't search the markets: " + e.getMessage()); }
@@ -155,11 +156,30 @@ final class Api {
                 return ok(Timers.open(ctx, new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)));
             case "back": return Helper.back() ? ok(true) : fail(helperNeeded());
             case "sleep": return Helper.sleep() ? ok(true) : fail(helperNeeded());
+            case "up": case "down": case "left": case "right": case "ok":
+                if (!Helper.on()) return fail(helperNeeded());
+                return Helper.dpad(action) ? ok(true) : fail(action.equals("ok") ? "Nothing on the TV to press there." : "Can't move that way in this app.");
             case "type":
                 if (!Helper.on()) return fail(helperNeeded());
                 return Helper.type(text.length() > 200 ? text.substring(0, 200) : text) ? ok(true) : fail("Select a search box on the TV first, then send.");
             default: return fail("Unknown button");
         }
+    }
+
+    /**
+     * Your remote's buttons: GET lists them; {learn: true} listens for the next button pressed on the TV remote;
+     * {save: {code, scan, label, target}} sets what one does (an app's package or an action); {remove: id}.
+     */
+    private JSONObject buttons(JSONObject in) throws JSONException {
+        if (in.optBoolean("learn")) {
+            if (!Helper.on()) return fail(helperNeeded());
+            RemoteKeys.learn();
+        }
+        JSONObject save = in.optJSONObject("save");
+        if (save != null && !RemoteKeys.save(ctx, save.optInt("code", -1), save.optInt("scan"), save.optString("label"), save.optString("target")))
+            return fail("That button or app can't be used.");
+        if (in.has("remove")) RemoteKeys.remove(ctx, in.optString("remove"));
+        return RemoteKeys.status(ctx).put("ok", true);
     }
 
     static String helperNeeded() {

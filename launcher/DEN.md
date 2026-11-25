@@ -55,7 +55,7 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
     animations, the wake animation, reduced motion and the idle clock; hide, show and rename apps; teams and shows.
   - **Auto:** looks that change by themselves for match day, India and IPL, a new episode or late night, and
     come back to yours after.
-  - **Remote:** volume, mute, play/pause, Back, Home, sleep, a sleep timer, typing into a search box, HDMI inputs,
+  - **Remote:** arrows and OK (hold an arrow to keep moving), volume, mute, play/pause, Back, Home, sleep, a sleep timer, typing into a search box, HDMI inputs,
     watch now for a live match or new episode, and every app.
   - **TV:** Wi-Fi strength and a speed test, memory and closing background apps, storage, screen time, the kids
     timer, quiet hours and paired phones.
@@ -81,7 +81,16 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   screen time and the kids timer need the **den-tv helper**: on the TV, Settings → Accessibility → den-tv helper →
   On (or from Bugjaeger: `settings put secure enabled_accessibility_services tv.den.fanhub/tv.den.fanhub.Helper`
   then `settings put secure accessibility_enabled 1`; that replaces any other accessibility service that is on).
-  The arrow keys inside other apps and waking the TV aren't possible for an app; the Google TV app does those.
+  The arrows: on Android 13 and later the helper presses the keys; on 12 and earlier it moves the selection to the
+  next item itself (scrolling a list at its edge) and clicks it for OK, which works in apps built from Android's own
+  views and not in ones that draw their own screens (some players and games). Waking the TV isn't possible for an
+  app; the Google TV app does that.
+- **Your remote's buttons** (Remote tab → Your remote's buttons). On Google TV the stock home screen answered the
+  remote's app buttons, so with it switched off they go dead. The phone teaches the helper a button (`RemoteKeys`:
+  it listens for the next one pressed) and picks what it opens: any app, or Home, Back, Sleep, Settings, Mute or
+  Play/pause. Arrows, OK, Back, Home, volume and power are never taken. The helper filters keys only while a button
+  is set up or being learned, since a key-filtering service can cost some TVs their key repeat. Firmware that sends
+  a button only to its own home screen can't be remapped; learning then hears nothing.
 - **Your changes to a look, kept or undone.** Changes made in Tweak → This look are saved with that look; it shows
   "Changed" on the phone and on the TV's Looks screen, and **Restore to default look** (in Tweak, or Restore default
   on the look in the list) puts its own parts back. **Save as my own look** keeps the changed version in My looks
@@ -193,8 +202,8 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
 
 - **The rail layout** (a second row of tiles): Home's apps are one sideways row, and a second row would need the
   launcher's grid and D-pad handling rewritten. Looks with `rail` use the plain row.
-- **Waking the TV from the phone**, the **arrow keys inside other apps** and **clearing other apps' caches**:
-  Android doesn't let an app do these. The Google TV app on your phone does the first two.
+- **Waking the TV from the phone** and **clearing other apps' caches**: Android doesn't let an app do these. The
+  Google TV app on your phone does the first.
 - While looks rotate, no watcher shows, because each wallpaper would want a different one.
 
 ## Build

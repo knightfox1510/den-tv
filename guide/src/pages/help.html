@@ -58,7 +58,8 @@
       <details><summary>Home goes back to Google's screen</summary><div><p>Run the setup again (hold <kbd>OK</kbd> on the Fan Hub, <b>Set it up again</b>). Some makers lock the home screen; setup then puts the TV's own home back, so nothing is broken. Please open an issue on GitHub with your TV model.</p></div></details>
       <details><summary>"Signed with a different key"</summary><div><p>An older test build of den-tv is on the TV. Undo, uninstall it, then install again.</p></div></details>
       <details><summary>The phone page doesn't open</summary><div><p>The phone must be on the same Wi-Fi as the TV, not mobile data or a guest network. Open the Fan Hub to see the current address and code.</p></div></details>
-      <details><summary>Back, Home or typing from the phone does nothing</summary><div><p>Those need the den-tv helper: on the TV, <span class="path"><span>Settings</span><span>Accessibility</span><span>den-tv helper</span><span>On</span></span>.</p></div></details>
+      <details><summary>The Netflix, YouTube or other buttons on my remote stopped working</summary><div><p>On Google TV, the home screen den-tv replaced was what answered them. On the phone, open <b>Remote › Your remote's buttons › Set up a button</b>, press the button on the TV remote, and pick the app it should open. A few TVs send these buttons only to their own home screen; then den-tv doesn't hear them and they can't be changed.</p></div></details>
+      <details><summary>The arrows, Back, Home or typing from the phone do nothing</summary><div><p>Those need the den-tv helper: on the TV, <span class="path"><span>Settings</span><span>Accessibility</span><span>den-tv helper</span><span>On</span></span>.</p></div></details>
       <details><summary>Scores only appear after the match</summary><div><p>Live scores need the free <a href="keys.html">football-data.org and CricketData.org keys</a>. Check their rows on the phone show Working.</p></div></details>
       <details><summary>The TV feels slow</summary><div><p>Try <b>Tweak › Home › Motion: Calm</b>, and <b>TV tab › Memory › Close background apps</b>. If your TV model has a tested list, hold <kbd>OK</kbd> on the Fan Hub and choose <b>Speed up this TV</b>.</p></div></details>
     </div>
@@ -71,7 +72,7 @@
       <li>The Fan Hub asks the public services on the <a href="credits.html#sources">credits page</a> for scores, episodes, weather, prices and headlines, and GitHub for updates. Gemini gets what you type in Describe a look, if you add a key.</li>
       <li>The phone page only works on your home network, after pairing with the code on the TV.</li>
       <li>This website counts visits with Vercel Web Analytics: no cookies, and nothing that identifies you. How many TVs use den-tv comes from GitHub's download counts, not from the TV.</li>
-      <li>The helper only notes which app is in front, for screen time and the kids timer. It reads nothing else on screen.</li>
+      <li>The helper notes which app is in front, for screen time and the kids timer; finds the selected item, for the phone's arrows and typing; and, once you set up remote buttons, listens for those. It reads nothing else on screen.</li>
     </ul>
   </section>
 

@@ -74,6 +74,16 @@
   .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .pad button { margin: 0; background: var(--card); border: 1px solid var(--line); color: var(--text); padding: 16px 8px; font-size: 15px; }
   .pad button.big { font-size: 22px; }
+  /* The arrows and OK, as on the TV's remote. */
+  .dpad { position: relative; width: min(270px, 74vw); aspect-ratio: 1; margin: 4px auto 14px; border-radius: 50%; background: var(--card); border: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr 1.15fr 1fr; grid-template-rows: 1fr 1.15fr 1fr; }
+  .dpad button { margin: 0; padding: 0; background: none; border: 0; color: var(--text); font-size: 22px; border-radius: 50%; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+  .dpad button:active { background: rgba(255,255,255,.08); }
+  .dpad .u { grid-area: 1 / 2; } .dpad .l { grid-area: 2 / 1; } .dpad .r { grid-area: 2 / 3; } .dpad .d { grid-area: 3 / 2; }
+  .dpad .c { grid-area: 2 / 2; margin: 6px; background: var(--acc); color: #111; font-weight: 700; font-size: 17px; box-shadow: 0 0 0 6px rgba(0,0,0,.25); }
+  .dpad .c:active { filter: brightness(1.15); }
+  .rk { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .rk div { flex: 1; min-width: 0; } .rk b { display: block; } .rk small { color: var(--dim); }
   .apps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .app { margin: 0; padding: 0; background: var(--card2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; color: var(--text); font: 500 12px/1.2 inherit; }
   .app img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #1c1c22; }
@@ -304,11 +314,16 @@
 
   <!-- ===== Remote ===== -->
   <section id="t-remote" data-tab hidden>
-    <div class="banner" id="helperNote" hidden>Back, Home, sleep, typing and opening apps need the den-tv helper. On the TV: Settings → Accessibility → den-tv helper → On. Volume and play/pause work without it.</div>
+    <div class="banner" id="helperNote" hidden>The arrows, OK, Back, Home, sleep, typing and opening apps need the den-tv helper. On the TV: Settings → Accessibility → den-tv helper → On. Volume and play/pause work without it.</div>
     <div class="card" id="npCard">
       <div class="np"><img id="npIcon" alt=""><div class="what"><small id="npWho">Now on the TV</small><b id="npApp">…</b><small id="npFor"></small></div>
         <button type="button" id="npMute" aria-pressed="false">Mute</button></div>
       <div class="vol" aria-hidden="true"><i id="npVol"></i></div>
+    </div>
+    <div class="dpad" role="group" aria-label="Arrows and OK">
+      <button data-rc="up" class="u" aria-label="Up">▲</button><button data-rc="left" class="l" aria-label="Left">◀</button>
+      <button data-rc="ok" class="c">OK</button>
+      <button data-rc="right" class="r" aria-label="Right">▶</button><button data-rc="down" class="d" aria-label="Down">▼</button>
     </div>
     <div class="pad">
       <button data-rc="back">Back</button><button data-rc="home">Home</button><button data-rc="sleep">Sleep</button>
@@ -327,6 +342,19 @@
     <div id="inputs" class="chips"></div>
     <h2>Apps</h2>
     <div id="apps" class="apps"></div>
+    <details class="card" id="rkCard" style="margin-top:16px"><summary><span><b>Your remote's buttons</b><small>Make the Netflix, YouTube and other buttons open what you choose</small></span></summary><div class="in">
+      <p>On Google TV, the home screen den-tv replaced was what answered your remote's app buttons, so some stop working. Teach den-tv a button, then pick what it opens: any app, or Home, Back, Sleep, Settings, Mute or Play / pause.</p>
+      <div id="rkList"></div>
+      <button id="rkLearn">Set up a button</button>
+      <div id="rkHeard" hidden>
+        <p id="rkHeardName"></p>
+        <label for="rkLabel">Name</label><input id="rkLabel" maxlength="30" placeholder="e.g. Netflix button">
+        <label for="rkTarget">Opens</label><select id="rkTarget"></select>
+        <div class="row"><button id="rkSave">Save the button</button><button id="rkCancel" class="ghost">Cancel</button></div>
+      </div>
+      <div id="rkMsg" class="msg" role="status"></div>
+      <p class="hint" style="margin-top:10px">The arrows, OK, Back, Home and volume always keep their own jobs. Needs the den-tv helper. If holding volume stops repeating once a button is set up, remove your buttons: that TV doesn't like an app listening to its remote.</p>
+    </div></details>
   </section>
 
   <!-- ===== TV ===== -->
@@ -1050,11 +1078,69 @@
   $('autoOn').addEventListener('change', async () => { const r = await api('/api/rules', { auto: $('autoOn').checked }); say($('autoMsg'), $('autoOn').checked ? 'Auto is on.' : 'Auto is off. Your own look is back.'); loadAuto(r.json); });
 
   // ---- Remote ----
-  document.querySelectorAll('[data-rc]').forEach((b) => b.addEventListener('click', async () => {
+  async function press(action) {
     if (navigator.vibrate) navigator.vibrate(10);
-    const r = await api('/api/remote', { action: b.dataset.rc });
+    const r = await api('/api/remote', { action });
     say($('rcMsg'), r.json.ok ? '' : (r.json.error || 'The TV didn\'t respond.'), !r.json.ok);
-  }));
+    return r.json.ok;
+  }
+  const ARROWS = ['up', 'down', 'left', 'right'];
+  document.querySelectorAll('[data-rc]').forEach((b) => {
+    if (!ARROWS.includes(b.dataset.rc)) { b.addEventListener('click', () => press(b.dataset.rc)); return; }
+    // An arrow moves once per tap, and keeps moving while it's held, like the remote's.
+    let hold = null, busy = false;
+    const step = async () => { if (busy) return; busy = true; const ok = await press(b.dataset.rc); busy = false; if (!ok) stop(); };
+    const stop = () => { clearTimeout(hold); clearInterval(hold); hold = null; };
+    b.addEventListener('pointerdown', (ev) => { ev.preventDefault(); step(); hold = setTimeout(() => { hold = setInterval(step, 160); }, 450); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach((t) => b.addEventListener(t, stop));
+    b.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); step(); } });
+  });
+  // Your remote's buttons: learn one on the TV, pick what it opens.
+  let rkHeard = null, rkPoll = null, rkActions = [];
+  function showButtons(r) {
+    const box = $('rkList'); box.innerHTML = '';
+    (r.buttons || []).forEach((b) => {
+      const row = el('div', 'rk'); const t = el('div'); t.appendChild(el('b', null, b.label)); t.appendChild(el('small', null, 'Opens ' + b.what));
+      const del = el('button', 'ghost', 'Remove'); del.style.cssText = 'flex:none;width:auto;margin:0';
+      del.onclick = async () => showButtons((await api('/api/buttons', { remove: b.id })).json);
+      row.appendChild(t); row.appendChild(del); box.appendChild(row);
+    });
+    if (!(r.buttons || []).length) box.appendChild(el('p', 'hint', 'No buttons set up yet.'));
+    rkActions = r.actions || [];
+  }
+  async function loadButtons() { const r = (await api('/api/buttons')).json; if (r.buttons) showButtons(r); }
+  $('rkCard').addEventListener('toggle', () => { if ($('rkCard').open) loadButtons(); });
+  $('rkLearn').addEventListener('click', async () => {
+    const r = (await api('/api/buttons', { learn: true })).json;
+    if (r.ok === false) { say($('rkMsg'), r.error, true); return; }
+    $('rkHeard').hidden = true; $('rkLearn').disabled = true;
+    say($('rkMsg'), 'Press the button on your TV remote now…');
+    clearInterval(rkPoll);
+    rkPoll = setInterval(async () => {
+      const s = (await api('/api/buttons')).json, l = s.learning || {};
+      if (l.state === 'listening') return;
+      clearInterval(rkPoll); $('rkLearn').disabled = false;
+      if (l.state !== 'heard') { say($('rkMsg'), 'Didn\'t hear a button. Try again; some TVs send their app buttons only to their own home screen, and those can\'t be changed.', true); return; }
+      rkHeard = l; say($('rkMsg'), '');
+      $('rkHeardName').textContent = 'Heard: ' + l.name + '. Now pick what it opens.';
+      $('rkLabel').value = '';
+      const sel = $('rkTarget'); sel.innerHTML = '';
+      const apps = (await api('/api/apps')).json.apps || [];
+      const ga = document.createElement('optgroup'); ga.label = 'Apps';
+      apps.slice().sort((a, b) => String(a.renamed || a.label).localeCompare(String(b.renamed || b.label))).forEach((a) => { const o = el('option', null, a.renamed || a.label); o.value = a.pkg; ga.appendChild(o); });
+      const gx = document.createElement('optgroup'); gx.label = 'Actions';
+      (s.actions || rkActions).forEach((a) => { const o = el('option', null, a.name); o.value = a.id; gx.appendChild(o); });
+      sel.appendChild(ga); sel.appendChild(gx);
+      $('rkHeard').hidden = false;
+    }, 800);
+  });
+  $('rkSave').addEventListener('click', async () => {
+    if (!rkHeard) return;
+    const r = (await api('/api/buttons', { save: { code: rkHeard.code, scan: rkHeard.scan, label: $('rkLabel').value.trim(), target: $('rkTarget').value } })).json;
+    if (r.ok === false) { say($('rkMsg'), r.error || 'Couldn\'t save it.', true); return; }
+    rkHeard = null; $('rkHeard').hidden = true; say($('rkMsg'), 'Saved. Press the button on the remote to try it.'); showButtons(r);
+  });
+  $('rkCancel').addEventListener('click', () => { rkHeard = null; $('rkHeard').hidden = true; say($('rkMsg'), ''); });
   $('sendType').addEventListener('click', async () => {
     const r = await api('/api/remote', { action: 'type', text: $('typeBox').value });
     say($('rcMsg'), r.json.ok ? 'Sent.' : (r.json.error || 'Couldn\'t type.'), !r.json.ok);
