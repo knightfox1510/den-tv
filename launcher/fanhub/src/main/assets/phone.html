@@ -331,6 +331,11 @@
       <button data-rc="previous" aria-label="Previous">⏮</button><button data-rc="play_pause" class="big" aria-label="Play or pause">⏯</button><button data-rc="next" aria-label="Next">⏭</button>
     </div>
     <div id="rcMsg" class="msg" role="status"></div>
+    <h2>Search by voice</h2>
+    <p id="vsHint">Tap the box, then the mic on your phone's keyboard, and say what you want to watch.</p>
+    <div class="row"><input id="vsBox" type="search" enterkeyhint="search" placeholder="Say or type what to find" style="flex:3"><button id="vsMic" class="ghost" style="margin:0;flex:none;width:auto" hidden aria-label="Speak">🎤</button></div>
+    <div class="row"><button id="vsTv">Search on the TV</button><button id="vsYt" class="ghost">Search YouTube</button></div>
+    <div id="vsMsg" class="msg" role="status"></div>
     <h2>Sleep timer</h2>
     <div class="chips" id="sleepChips"></div>
     <h2>Type on the TV</h2>
@@ -354,6 +359,10 @@
       </div>
       <div id="rkMsg" class="msg" role="status"></div>
       <p class="hint" style="margin-top:10px">The arrows, OK, Back, Home and volume always keep their own jobs. Needs the den-tv helper. If holding volume stops repeating once a button is set up, remove your buttons: that TV doesn't like an app listening to its remote.</p>
+    </div></details>
+    <details class="card" id="vcCard"><summary><span><b>Voice check</b><small>Why the remote's voice button might not listen</small></span></summary><div class="in">
+      <div id="vcList"><p class="hint">Checking…</p></div>
+      <button id="vcAgain" class="ghost">Check again</button>
     </div></details>
   </section>
 
@@ -1095,6 +1104,51 @@
     ['pointerup', 'pointerleave', 'pointercancel'].forEach((t) => b.addEventListener(t, stop));
     b.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); step(); } });
   });
+  // Search by voice: the phone keyboard's mic does the listening (a page on the home network can't use the phone's
+  // microphone itself, except where the browser allows it; then the mic button listens).
+  async function search(where) {
+    const q = $('vsBox').value.trim();
+    if (!q) { say($('vsMsg'), 'Say or type what to find first.', true); $('vsBox').focus(); return; }
+    const r = (await api('/api/search', { q, where })).json;
+    say($('vsMsg'), r.ok ? 'Opened ' + r.opened + ' on the TV.' : (r.error || 'Couldn\'t search.'), !r.ok);
+    if (r.ok) $('vsBox').value = '';
+  }
+  $('vsTv').addEventListener('click', () => search('tv'));
+  $('vsYt').addEventListener('click', () => search('youtube'));
+  $('vsBox').addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); search('tv'); } });
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR && window.isSecureContext) {
+    $('vsMic').hidden = false; $('vsHint').textContent = 'Tap the mic and say what you want to watch, or type it.';
+    $('vsMic').addEventListener('click', () => {
+      const rec = new SR(); rec.lang = navigator.language || 'en-IN'; rec.interimResults = false;
+      say($('vsMsg'), 'Listening…');
+      rec.onresult = (ev) => { $('vsBox').value = ev.results[0][0].transcript; say($('vsMsg'), ''); search('tv'); };
+      rec.onerror = () => say($('vsMsg'), 'Didn\'t catch that. Try the mic on your keyboard.', true);
+      rec.start();
+    });
+  }
+  // Voice check: what the remote's own voice button needs, as the TV reports it, with how to fix each problem.
+  const APPS_PATH = 'Settings → Apps → See all apps → Show system apps → ';
+  async function voiceCheck() {
+    const v = (await api('/api/voice')).json, box = $('vcList'); box.innerHTML = '';
+    if (v.ok === false) { box.appendChild(el('p', 'msg bad', v.error || 'Couldn\'t check.')); return; }
+    const row = (state, title, text) => { const r = el('div', 'rk'); const t = el('div'); t.appendChild(el('b', null, (state === 'ok' ? '✓ ' : state === 'bad' ? '⚠ ' : '• ') + title)); if (text) t.appendChild(el('small', null, text)); r.appendChild(t); box.appendChild(r); return state === 'bad' ? 1 : 0; };
+    let problems = 0;
+    const g = v.google || {};
+    if (!g.installed) row('info', 'No Google app on this TV', 'The voice button belongs to the TV maker\'s own assistant.');
+    else if (!g.on) problems += row('bad', g.label + ' is switched off', 'It runs voice search and the Assistant. Turn it on: ' + APPS_PATH + g.label + ' → Enable.');
+    else if (!g.mic) problems += row('bad', g.label + ' can\'t use the microphone', 'Allow it: ' + APPS_PATH + g.label + ' → Permissions → Microphone → Allow.');
+    else row('ok', g.label + ' is on and may use the microphone');
+    const a = v.assistant || {};
+    if (a.pkg && a.pkg !== g.pkg) { if (a.on === false) problems += row('bad', a.label + ' answers the voice button but is switched off', 'Turn it on: ' + APPS_PATH + a.label + ' → Enable.'); else row('info', 'The voice button opens ' + (a.label || a.pkg)); }
+    if (!a.pkg && !(v.recognizer || {}).pkg) problems += row('bad', 'Nothing on the TV answers the voice button', 'Turn the Google app (or your TV maker\'s assistant) back on in ' + APPS_PATH.replace(/ → $/, '') + '.');
+    (v.micAppsOff || []).forEach((m) => { problems += row('bad', m.label + ' is switched off', 'It uses the microphone. If it\'s your TV maker\'s voice or remote service, turn it back on: ' + APPS_PATH + m.label + ' → Enable.'); });
+    const h = v.googleTvHome || {};
+    if (h.installed && !h.on) row('info', 'Google TV Home is off (den-tv replaced it)', 'On some Google TVs it shows voice search results. If the Assistant hears you but shows nothing, use Search by voice above.');
+    if (!problems) row('ok', 'Nothing switched off that voice needs', 'If the button still doesn\'t listen, hold it while you speak, and check the remote is paired: Settings → Remotes & Accessories.');
+  }
+  $('vcCard').addEventListener('toggle', () => { if ($('vcCard').open) voiceCheck(); });
+  $('vcAgain').addEventListener('click', voiceCheck);
   // Your remote's buttons: learn one on the TV, pick what it opens.
   let rkHeard = null, rkPoll = null, rkActions = [];
   function showButtons(r) {

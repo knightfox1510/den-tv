@@ -55,7 +55,7 @@ final class Api {
             NEW_PHOTO = Uri.parse(L + "photos/new");
     private static final Set<String> PATHS = new HashSet<>(Arrays.asList("/api/remote", "/api/apps", "/api/app", "/api/launch",
             "/api/inputs", "/api/input", "/api/watchnow", "/api/override", "/api/photos", "/api/tv", "/api/speedtest", "/api/clean",
-            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart", "/api/widgets", "/api/symbols", "/api/places", "/api/teams", "/api/keys", "/api/buttons"));
+            "/api/timers", "/api/screentime", "/api/rules", "/api/phones", "/api/people", "/api/characters", "/api/hike", "/api/live", "/api/moment", "/api/mine", "/api/order", "/api/nowplaying", "/api/describe", "/api/fav", "/api/surprise", "/api/keep", "/api/update", "/api/homesetup", "/api/speedup", "/api/lookart", "/api/widgets", "/api/symbols", "/api/places", "/api/teams", "/api/keys", "/api/buttons", "/api/search", "/api/voice"));
 
     private final Context ctx;
     private final PhoneServer server;
@@ -102,6 +102,14 @@ final class Api {
             case "/api/widgets": return widgets(in);
             case "/api/keys": return keys(in);
             case "/api/buttons": return buttons(in);
+            case "/api/voice": return Voice.check(ctx).put("ok", true);
+            case "/api/search": {
+                String q = in.optString("q").trim();
+                if (q.isEmpty()) return fail("Say or type what to find first.");
+                String opened = Voice.search(ctx, q.length() > 200 ? q.substring(0, 200) : q, in.optString("where"));
+                return opened != null ? ok(true).put("opened", opened)
+                        : fail(in.optString("where").equals("youtube") ? "YouTube isn't on the TV." : "Nothing on the TV takes a search. Is the Google app switched off?");
+            }
             case "/api/symbols":
                 try { return ok(true).put("results", Widgets.symbols(in.optString("q"))); }
                 catch (IOException e) { return fail("Couldn't search the markets: " + e.getMessage()); }

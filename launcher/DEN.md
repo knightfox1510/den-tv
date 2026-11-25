@@ -85,6 +85,12 @@ launcher (forked unchanged in the first commit, MIT) with den-tv's looks on top.
   next item itself (scrolling a list at its edge) and clicks it for OK, which works in apps built from Android's own
   views and not in ones that draw their own screens (some players and games). Waking the TV isn't possible for an
   app; the Google TV app does that.
+- **Search by voice** (Remote tab): say it into the phone keyboard's mic (a page served over plain http on the
+  home network can't use the phone's microphone itself) and the TV opens a search for it across the TV (the global
+  search, as the voice button would) or in YouTube (`Voice.search`). **Voice check** reads why the remote's own
+  voice button might not listen: whether the Google app is on and may use the microphone, what answers the button,
+  and which apps that use the microphone are switched off (a maker's voice or remote-audio service in a debloat
+  list), each with the Settings path that turns it back on. It changes nothing itself.
 - **Your remote's buttons** (Remote tab → Your remote's buttons). On Google TV the stock home screen answered the
   remote's app buttons, so with it switched off they go dead. The phone teaches the helper a button (`RemoteKeys`:
   it listens for the next one pressed) and picks what it opens: any app, or Home, Back, Sleep, Settings, Mute or
